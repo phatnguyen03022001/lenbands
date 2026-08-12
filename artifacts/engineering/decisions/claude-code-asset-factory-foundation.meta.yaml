@@ -1,6 +1,6 @@
 type: privileged-review-proposal
 status: draft
-version: 0.1.4
+version: 0.1.5
 owner: founder + engineering
 representation: markdown
 derived_from: [OPS.ModelRouting, OPS.CostBudget, OPS.Observability]
@@ -11,6 +11,11 @@ updated_at: 2026-08-12
 review_required: true
 review_type: founder_and_external_codeowners
 change_log:
+  - version: 0.1.5
+    date: 2026-08-12
+    changes:
+      - Corrected stale CC-7 boundary wording so the packet distinguishes the authorized local Git baseline from unverified canonical remote, provenance, and workflow predicates.
+      - Replaced the conflicting no-initialization nonclaim with the applicable no-clone, no-remote-binding, and no-provenance-inference boundaries.
   - version: 0.1.0
     date: 2026-08-12
     changes:
