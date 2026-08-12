@@ -1,6 +1,6 @@
 type: privileged-review-proposal
 status: draft
-version: 0.1.3
+version: 0.1.4
 owner: founder + engineering
 representation: markdown
 derived_from: [OPS.ModelRouting, OPS.CostBudget, OPS.Observability]
@@ -28,3 +28,8 @@ change_log:
     date: 2026-08-12
     changes:
       - Added official Anthropic and DeepSeek documentation references used for the platform-behavior boundary audit.
+  - version: 0.1.4
+    date: 2026-08-12
+    changes:
+      - Reconciled the observed CC-1 local Git baseline: branch, commit, file count, clean state, ignore behavior, and remaining external Git/GitHub predicates.
+      - No remote, GitHub setting, provenance claim, workflow/worktree/team enablement, or non-packet project content was changed.

@@ -7,8 +7,9 @@
 This bounded packet records current facts, revalidated findings, target design, future
 unlock predicates, and protected-change packets. It does not supersede the Founder Review
 Packet Index, Blueprint/framework, lifecycle authorities, freeze gate, or trust policy.
-No protected file, source file, evidence file, Knowledge Asset, Git metadata, workflow, or
-runtime contract was changed.
+No protected file, source file, evidence file, Knowledge Asset, workflow, or runtime
+contract was changed. A local Git repository baseline was created separately under the
+founder-authorized CC-1 setup; no remote was created or changed.
 
 Canonical owners consulted: `AGENTS.md`, `CLAUDE.md`, `artifacts/CONVENTION.md`,
 `artifacts/operations/architecture-frozen.md`, `artifacts/operations/agent-trust-policy.yaml`,
@@ -24,8 +25,8 @@ Canonical owners consulted: `AGENTS.md`, `CLAUDE.md`, `artifacts/CONVENTION.md`,
 | Protected paths | `observed_current_state` | Trust policy protects `.claude/**`, Blueprint/framework-adjacent authorities, tools, `.github/**`, and append-only evidence. | This packet cannot apply protected diffs. |
 | Claude settings | `observed_current_state` | Settings disable workflows/connectors/skill shell execution and bypass/auto modes; runtime agents and implementation skill are denied. | Permission declarations do not prove account quota or external enforcement. |
 | Local routing | `observed_current_state` | Local settings configure DeepSeek V4 Flash at high effort, explicit V4 Pro escalation, and Flash subagents. | Actual provider availability, quota, latency, model version, and account enforcement are `external_unverified`. |
-| Workflows/worktrees/teams | `observed_current_state` | Workflows are disabled; policy requires Git/worktree proof before teams; no enablement occurred. | Platform state is not independently proven. |
-| Git | `observed_current_state` | Git commands report no repository; no verified canonical remote exists. | No history/provenance or GitHub protection is inferred. |
+| Workflows/worktrees/teams | `observed_current_state` | Workflows remain disabled; local Git now exists, but CC-7 worktree/team predicates are not proven and no enablement occurred. | Platform state, isolation, and parallel-writer proof remain unverified. |
+| Git | `observed_current_state` | Local repository exists at the LenBands root on branch `main`; baseline commit `25496375043518c92e8cfdcef2842cdb49eacf6c` contains 610 files and the post-commit worktree is clean; no remote is configured. | No canonical remote, history/provenance beyond this local snapshot, GitHub protection, or repository-owner proof is inferred. |
 | CODEOWNERS | `observed_current_state` | `.github/CODEOWNERS` exists and names `@tienphat` for protected paths. | Effective GitHub branch protection and account ownership are `external_unverified`. |
 | Asset freeze | `observed_current_state` | Freeze policy is `review`; review does not unlock mass spawn. | No founder approval, rights clearance, publication, calibration, or mass-spawn authority. |
 | Validation exception | `observed_current_state` | Policy permits one future run of at most seven draft assets only if a workflow/run record exists. | No validation run was executed or recorded. |
@@ -196,7 +197,7 @@ remain packet-only protected proposals.
 
 | Stage | Design/package | Execution/adoption | Owner dimension | Required proof | Blocks | Does not block |
 |---|---|---|---|---|---|---|
-| CC-1 Git recovery | proposal_only checklist | external_repository_owner_required | external repository owner | canonical remote/history/provenance/ownership | CC-7 | design/read-only audits |
+| CC-1 Git recovery | proposal_only checklist; local baseline applied | local baseline complete; external repository owner still required for canonical proof | founder + external repository owner | local root/identity/commit verified; remote/history/provenance/ownership still require external proof | CC-7 | design/read-only audits |
 | CC-2 `.claude` remediation | proposal_only F packets | protected_application_required | founder + CODEOWNERS | selected remediation, attestation, effective review | governed workflow adoption | target design |
 | CC-3 routing/cost | proposal_only | blocked for claims | engineering/operations/provider | scoped benchmark, privacy, reliability, cost | pilot routing | read-only design |
 | CC-4 queue/schema | proposal_only | blocked for execution | engineering/operations/founder | approved queue/source/policy contracts | CC-5, CC-6, CC-8 | schema proposal |
@@ -207,8 +208,17 @@ remain packet-only protected proposals.
 | CC-9 QA/rights promotion | proposal_only | blocked | independent QA + founder/legal | scoped quality and rights evidence | publication/promotion | draft queue design |
 | CC-10 calibration intake | proposal_only | blocked | assessment/ops/provider/legal | scoped dataset, thresholds, sample/review evidence | learning claims | queue coverage only |
 
-CC-1 may prepare a proof checklist only; it must not run `git init`, `git clone`,
-`git remote add`, bind a remote, infer history/provenance, or infer GitHub protection.
+CC-1 local baseline is applied under founder authorization: `git init -b main`, local
+identity copied from existing read-only Git config, one baseline commit, and no remote
+operation. It must not run `git clone`, `git remote add`, bind a remote, infer history/
+provenance, or infer GitHub protection. The initial commit staged 610 existing workspace
+files; `.cache/`, `.pnpm-store/`, local Claude settings, and scratch payloads were ignored.
+The staged review found no private-key or credential pattern. Existing trailing-whitespace
+warnings were preserved and not rewritten.
+
+CC-1 does not satisfy CC-7. Canonical remote, external branch protection, effective
+CODEOWNERS, required checks, worktree isolation, and parallel-writer conflict proof remain
+external or future predicates.
 CC-7 requires canonical remote/history/provenance, external branch protection, effective
 CODEOWNERS and checks, tested worktree isolation, a passed parallel-writer conflict test,
 and explicit protected-policy permission. CC-8 additionally requires approved freeze,
@@ -297,9 +307,10 @@ validity period, review date, and claim scope.
 
 Founder: freeze approval, queue/source/generation policy, pilot cost ceiling, and unresolved
 D/PD decisions. Protected/CODEOWNERS: F-001/F-002/F-003 selection/application, trust-policy/
-config changes, and validator/gate changes. External repository owner: canonical Git proof,
-effective GitHub protection, CODEOWNERS and required checks. Legal/provider: rights, processing/
-residency, quota/hard enforcement, and usage reconciliation. Future runtime/calibration:
+config changes, and validator/gate changes. External repository owner: canonical remote,
+history/provenance beyond the local snapshot, effective GitHub protection, CODEOWNERS and
+required checks. Legal/provider: rights, processing/residency, quota/hard enforcement, and
+usage reconciliation. Future runtime/calibration:
 benchmarks, quality floors, independent QA, runtime gateway separation, and pilot evidence.
 
 Literal handoff commands:
