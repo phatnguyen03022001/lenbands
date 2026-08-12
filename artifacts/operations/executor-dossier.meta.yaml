@@ -1,0 +1,26 @@
+type: convergence-projection
+status: deprecated
+version: 0.1.1
+owner: document-convergence-orchestrator
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability, OPS.Quota]
+source_files: [artifacts/operations/global-certification-ledger.md, artifacts/operations/build-readiness-matrix.md, artifacts/operations/capability-lifecycle-registry.yaml]
+purpose: deprecated-historical-convergence-snapshot-preserved-for-traceability
+consumed_by: [founder, engineering, operations]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: projection
+change_log:
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Initial convergence master document.
+      - Tracked Batch 0 completion (6 items), global certification ledger, executor dossier creation, and Batch A cross-family audit.
+      - Batch progress: Batch 0 ✅, Batch A in progress.
+      - Verified invariants: 180/180 traceability, all ACTIVE owner_specs, no dangling refs.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Deprecated this historical 2026-08-10 snapshot after its current-state claims became stale.
+      - Redirected current family coverage to catalogs/executor-dossier.md and current protected decisions to founder-review-packet-index.md.
+      - Preserved historical content without treating it as current authority.

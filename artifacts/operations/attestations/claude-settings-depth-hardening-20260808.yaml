@@ -1,0 +1,38 @@
+schema_version: 1.0.0
+change_id: claude-settings-depth-hardening-20260808
+change_scope: align-claude-code-settings-with-official-schema-deepseek-semantics-and-credential-isolation
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby-json-and-yaml-syntax-validation
+  - official-schemastore-jsonschema-validation
+  - claude --version
+  - claude doctor
+  - claude-print-routing-smoke-attempt
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands validate trust-boundary
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-claude-code-settings-god-level-audit-20260808
+notes:
+  - The official SchemaStore Claude Code settings schema was inspected at https://json.schemastore.org/claude-code-settings.json with audit SHA-256 6d4a6e3c7adedffce8079ccaef0a4bab5f5718b054421b4475c788a0ae4bedfe.
+  - Official Claude Code settings, permissions, sandboxing, model configuration and hooks documentation were used as the behavioral authority.
+  - Official DeepSeek documentation states that only high and max effort are provider-native; medium maps to high. The local profile therefore uses the truthful high label without changing the Flash cost boundary.
+  - DeepSeek model capabilities are declared explicitly and do not claim unsupported adaptive thinking, citations, prompt-cache control, images or MCP semantics.
+  - CLAUDE_CODE_SUBAGENT_MODEL pins all delegated agents to Flash at Claude Code's highest model-resolution priority, including during an explicit Pro main-session escalation.
+  - The Opus escalation route uses deepseek-v4-pro[1m] so Claude Code receives the provider-documented one-million-token context annotation; Flash subagents retain the provider-documented plain model ID.
+  - The local profile pre-approves only exact static read-only context, validation, projection-check and handoff Bash commands so solo-founder verification agents work before workspace trust; wildcard Bash remains invalid.
+  - Founder-local acceptEdits removes repetitive prompts for ordinary editable documents while shared denies, sandbox boundaries and PreToolUse protected-path guards continue to take precedence.
+  - Stable Claude Code updates reduce regression exposure for the third-party Anthropic-compatible endpoint without disabling security updates.
+  - Built-in Read rules and sandbox denyRead/credentials controls protect environment files, cloud and SSH stores, and common secret variables from agent tools and subprocesses.
+  - Artifact, Workflow, EnterWorktree, MCP, arbitrary Bash, bypass, auto-mode and unsandboxed escapes remain denied; read-only agents and document skills remain available.
+  - Claude Code 2.1.224 parsed the effective settings and reported the stable update channel. Its last updater attempt failed externally and the macOS login keychain was not writable in this shell.
+  - The zero-cost routing smoke reached no model because this shell is not logged in and has no DeepSeek credential; no credential was copied into the repository and modelUsage remained empty.
+  - Workspace trust remains a user-owned one-time interactive decision. Exact local handoff permissions do not require project allow-rule trust, but the repository does not forge hasTrustDialogAccepted in the user profile.
+  - No credential, learner content, runtime evidence, approval, corpus, threshold or readiness claim was created.

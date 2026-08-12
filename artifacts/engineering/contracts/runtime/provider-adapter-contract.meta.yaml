@@ -1,0 +1,15 @@
+type: provider-adapter-contract
+status: review
+version: 0.1.3
+owner: engineering
+representation: markdown
+derived_from: [EVAL.Writing, GOVERNANCE.ConfidenceScore, OPS.ModelRouting, OPS.CostBudget]
+purpose: p0-provider-neutral-evaluation-routing-and-fallback
+created_at: 2026-08-06
+updated_at: 2026-08-10
+change_log:
+  - version: 0.1.3
+    date: 2026-08-10
+    changes:
+      - Added threat-model section for provider boundary (prompt template integrity, response tampering, credentials, data exfiltration, adapter isolation); marked as threat-model prose, not security validation
+      - Convergence audit M12 resolution

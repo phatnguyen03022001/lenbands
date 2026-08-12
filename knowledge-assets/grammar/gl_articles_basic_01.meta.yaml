@@ -1,0 +1,17 @@
+type: knowledge-asset
+asset_kind: grammar_lesson
+asset_id: KA-000013
+status: draft
+version: 0.1.1
+owner: colab
+derived_from: [KA.Grammar]
+framework_refs:
+  - file: grammar-band-framework
+    version: 1.0.6
+    nodes: [g_articles_basic]
+origin: {source: generated, license: unknown}
+integrity: {checksum: "sha256:051331bb841e2f17c5e7199403399057f1044c9a15965a18eb8a9e9cf8ec9852", payload_file: gl_articles_basic_01.md}
+governance: {rights_status: pending_review, review_status: draft}
+spawn_lineage: {workflow_run_id: spawn-validation-run-001, prompt_template_id: spawn-grammar-lesson, prompt_hash: "sha256:fd8ab5a9dcdd6d1139c466b7a4304b15c7c273f46fb74663453628a0285cc501", model: codex, parameters: {grammar_id: g_articles_basic, band_master: 6.0}}
+created_at: "2026-08-07T05:54:58Z"
+updated_at: "2026-08-07T05:54:58Z"

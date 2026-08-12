@@ -1,0 +1,19 @@
+type: owner-runtime-spec
+status: review
+version: 0.1.1
+owner: product + engineering
+representation: markdown
+derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
+purpose: implementation-definition-for-identity-core-family
+consumed_by: [engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+family_id: IDENTITY.Core
+family_version: 1.0.0
+build_status: candidate
+change_log:
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Aligned persisted identity state to auth-identity-contract canonical (guest→authenticated→consent_pending→active); authenticating/auth_failed marked UX-only
+      - Convergence audit H1-family resolution

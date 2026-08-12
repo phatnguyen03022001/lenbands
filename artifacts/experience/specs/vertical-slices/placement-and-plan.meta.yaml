@@ -1,0 +1,16 @@
+type: vertical-slice-spec
+status: draft
+version: 0.2.4
+owner: product
+representation: markdown
+derived_from: [GOAL.Target, PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current]
+purpose: p0-placement-goal-diagnosis-and-initial-plan-behavior
+consumed_by: [P0 Experience Contract, engineering, operations, source-code]
+created_at: 2026-08-06
+updated_at: 2026-08-10
+change_log:
+  - version: 0.2.4
+    date: 2026-08-10
+    changes:
+      - Fixed PlacementResult privacy class: invalid compound learning/assessment → canonical single member learning (matches capability-manifest P0-02)
+      - Convergence audit M4 resolution

@@ -1,0 +1,22 @@
+schema_version: 1.0.0
+dataset_id: writing-task2-gold-pilot-v1
+status: missing
+authority: founder_curated_authorized_corpus
+source_of_truth: true
+dataset_version: 0.0.0
+case_count: 0
+gold_case_count: 0
+rights_status: missing
+label_status: missing
+minimum_gold_cases_policy: 30
+minimum_gold_cases_policy_state: candidate_not_statistical_proof
+required_criterion_labels: [task_response, coherence_cohesion, lexical_resource, grammar]
+required_task_types: [W_task2_opinion, W_task2_discussion, W_task2_advantages_disadvantages, W_task2_problem_solution, W_task2_two_part]
+required_case_fields: [case_id, task_type, task_version, essay_ref, reference, rights_evidence_ref]
+reference_label_requirements:
+  label_method: qualified_examiner_or_authorized_reference
+  rubric_version: 1.0.5
+  overall_band_step: 0.5
+  criterion_band_step: 0.5
+  evidence_refs_required: true
+cases: []

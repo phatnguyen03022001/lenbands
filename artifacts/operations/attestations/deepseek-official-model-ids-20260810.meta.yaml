@@ -1,0 +1,10 @@
+type: agent-change-attestation
+status: review
+version: 0.1.0
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
+purpose: disclose-official-deepseek-v4-model-identifier-correction-in-protected-claude-routing
+consumed_by: [founder, codeowners, ci]
+created_at: 2026-08-10
+updated_at: 2026-08-10

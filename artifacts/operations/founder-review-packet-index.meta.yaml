@@ -1,0 +1,53 @@
+type: review-packet-index
+status: review
+version: 0.2.5
+owner: founder
+representation: markdown
+derived_from: [OPS.ReleaseGate, IDENTITY.Auth, EVAL.Writing]
+source_files: [artifacts/operations/catalogs/executor-dossier.md, artifacts/business/decisions/founder-decision-packet-identity-and-residency.md, artifacts/business/decisions/managed-platform-baseline-decision.md, artifacts/business/decisions/build-buy-register.md]
+purpose: index-of-pending-founder-decisions-and-protected-diffs-with-options-and-blocker-status
+consumed_by: [founder, operations, engineering]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: projection
+change_log:
+  - version: 0.2.5
+    date: 2026-08-11
+    changes:
+      - "Re-verified the founder-index aggregate ledger and D-06 validator classification. Current claims remain 21 historical B-IDs, 16 separately tracked historical B-IDs, 7 current PD records, and 6 current D records, with no summed total across overlapping categories. No decision option, endpoint, schema, lifecycle, protected classification, readiness, or evidence state changed."
+  - version: 0.2.4
+    date: 2026-08-11
+    changes:
+      - "Residual truth correction. Verified Track A table contains exactly A01..A16, each once; no duplicate A12/B3-1 row exists in the current file, so no row was removed (removing A12 would create a false gap). Replaced the unconditional Option B claim that removing CheckIn preserves the learner outcome by the fold with conditional wording. The founder must decide whether to preserve, redesign, or retire the time/energy learner outcome, and the implementing contract must define and validate it later. Re-scanned all four track tables (A01-A16, B01-B08, C01-C02, D01-D03); no duplicate rows and no remaining unconditional post-decision claims. No decisions, counts, protected classification, lifecycle, endpoint, schema, readiness, or evidence state changed."
+  - version: 0.2.3
+    date: 2026-08-11
+    changes:
+      - Founder-index aggregate consistency correction: reconciled every count claim in the body with the D-06 non-overlapping ledger. Fixed Phase 2 Execution Plan intro (7 PD-IDs + 6 D-IDs + 16 separately-tracked historical B-IDs; B4-1..B4-4 represented by PD-01..PD-04; B3-3 routed under PD-05; no summed total). Fixed Track B count from 7 to 8 (B01..B08). Fixed pre-code checklist from "17 historical B-IDs" to "16 separately-tracked historical B-IDs". Reclassified D-06 validator statements (transport-classification ACTIVE→operationId mapping; implementation-catalog ACTIVE-count consistency; transport-classification deprecated-not-mapped-to-live) as proposed regression/invariants for the future implementing diff, not asserted current validator capabilities.
+  - version: 0.2.2
+    date: 2026-08-11
+    changes:
+      - D-06 truth correction: removed all invented Option-A implementation details (CheckInRequest, CheckInReceipt, checkIn operationId, HTTP status, x-owner-pack, exact request/response schema, idempotency behavior, no-plan/plan-stale response, event binding, metric, acceptance behavior). Retained only file-proven CheckIn fields/UX facts as cited evidence. Removed invented StartSessionRequest field claims from Option B; replaced with "post-decision contract-design question." Reclassified all file targets exactly against agent-trust-policy.yaml protected_paths with distinct CODEOWNERS vs owner-review boundaries. Replaced false "Total current items = 26" with non-overlapping count ledger. Impact comparison table stripped of invented schema detail.
+  - version: 0.2.1
+    date: 2026-08-11
+    changes:
+      - Phase 2.2 STUDY.CheckIn decision packet. Added D-06 with two equal options and exhaustive impact assessment. Added D-06 to founder decisions table, B-track, count arithmetic, and pre-code checklist.
+      - Reordered changelog entries to newest-first descending.
+  - version: 0.2.0
+    date: 2026-08-11
+    changes:
+      - Phase 2 consolidated remediation release. Expanded PD-05 to canonically include B3-3 (anti_gaming_flagged P0-vs-P1 scope decision). Added Phase 2 Execution Plan with five-track ordering (A–E), 16-item technical A-track diff inventory with exact target files, semantic changes, migration impact, regression checks, and attestation fields. Added founder decision map (B-track, 7 items), external-source blockers (C-track, 2 items), external evidence/procurement (D-track, 3 items), and post-code evidence list (E-track).
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Added unresolved protected proposal PD-06 for event authority completeness; no event owner, schema, privacy class, producer, or event rename was invented.
+      - Added unresolved protected proposal PD-07 with an exact fail-closed P0 row-comparison implementation and regression-test proposal; tools and tests were not changed.
+      - Recorded required attestation fields, external CODEOWNERS review, founder/engineering decision boundaries, and explicit non-readiness for both proposals.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Replaced the deprecated historical executor dossier with the current validated catalog index as a source reference.
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Created index cataloguing 5 pending founder decisions (D-01..D-05) and 4 protected diffs (PD-01..PD-04).
+      - Acknowledged the user-referenced count of 21 protected diffs is not yet verified; full audit pending.

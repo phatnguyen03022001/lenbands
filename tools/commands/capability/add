@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# DX helper: add a new capability to capability-family-map.yaml.
+# Dry-run by default (prints diff). Use --apply to write.
+# Only modifies ONE canonical registry: capability-family-map.yaml.
+# Does NOT touch lifecycle registry or family registry.
+
+usage() {
+  echo "usage: $0 --id CAPABILITY_ID --family FAMILY_ID [--delta DELTA_ID] [--apply]" >&2
+  exit 2
+}
+
+apply=false
+id=""
+family=""
+delta="null"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --id) [[ $# -ge 2 ]] || usage; id="$2"; shift 2 ;;
+    --family) [[ $# -ge 2 ]] || usage; family="$2"; shift 2 ;;
+    --delta) [[ $# -ge 2 ]] || usage; delta="$2"; shift 2 ;;
+    --apply) apply=true; shift ;;
+    *) usage ;;
+  esac
+done
+
+[[ -z "$id" || -z "$family" ]] && usage
+[[ "$id" =~ ^[A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*$ ]] || { echo "ERROR: invalid capability ID: $id" >&2; exit 64; }
+[[ "$family" =~ ^[A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*$ ]] || { echo "ERROR: invalid family ID: $family" >&2; exit 64; }
+[[ "$delta" == "null" || "$delta" =~ ^[A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*$ ]] || { echo "ERROR: invalid delta ID: $delta" >&2; exit 64; }
+
+repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
+map_file="$repo_root/artifacts/operations/capability-family-map.yaml"
+
+# Validate: capability must exist in the generated Blueprint projection. This is a
+# fail-closed controlled-vocabulary gate, not a warning.
+catalog="$repo_root/artifacts/operations/catalogs/capability-index.md"
+if ! grep -qF "\`$id\`" "$catalog" 2>/dev/null; then
+  echo "ERROR: capability $id is not defined in capability-index.md" >&2
+  echo "Define it in blueprint/03-features.md and run tools/generate-capability-index.sh first." >&2
+  exit 1
+fi
+
+# Validate: family must exist in family registry
+family_registry="$repo_root/artifacts/operations/capability-family-registry.yaml"
+if ! grep -qF "family_id: $family" "$family_registry" 2>/dev/null; then
+  echo "ERROR: family $family not found in capability-family-registry.yaml" >&2
+  exit 1
+fi
+
+# Check if capability already exists in map
+if grep -qF "capability_id: $id" "$map_file"; then
+  echo "ERROR: capability $id already exists in capability-family-map.yaml" >&2
+  exit 1
+fi
+
+# A delta can vary only the family-approved surface; it cannot invent a new
+# family behavior. `null` remains valid for no variation.
+if [[ "$delta" != "null" ]]; then
+  ruby -I"$repo_root/tools/lib" -rlenbands -rlenbands/yaml_loader - "$family_registry" "$family" "$delta" <<'RUBY'
+registry_path, family_id, delta_id = ARGV
+family = Array(Lenbands::YamlLoader.load_file(registry_path, mapping: true)["families"]).find { |entry| entry["family_id"] == family_id }
+abort("ERROR: family #{family_id} not found") unless family
+abort("ERROR: delta #{delta_id} is not allowed by family #{family_id}") unless Array(family["allowed_deltas"]).include?(delta_id)
+RUBY
+fi
+
+# Generate the new entry
+new_entry=$(cat <<ENTRY
+  - capability_id: $id
+    family_id: $family
+    delta_id: $delta
+ENTRY
+)
+
+# Find insertion point (before the last entry or at end of capability_map)
+insert_after=$(grep -n "^  - capability_id:" "$map_file" | tail -1 | cut -d: -f1)
+
+if $apply; then
+  # Write: insert after last capability entry
+  capability_tmp=$(mktemp)
+  trap 'rm -f "$capability_tmp"' EXIT HUP INT TERM
+  head -n "$insert_after" "$map_file" > "$capability_tmp"
+  echo "$new_entry" >> "$capability_tmp"
+  tail -n +$((insert_after + 1)) "$map_file" >> "$capability_tmp"
+  mv "$capability_tmp" "$map_file"
+  trap - EXIT HUP INT TERM
+  echo "Added $id -> $family to capability-family-map.yaml"
+  echo "Run 'bash tools/generate-lifecycle-registry.sh' to update lifecycle registry."
+else
+  # Dry-run: show diff
+  echo "--- a/artifacts/operations/capability-family-map.yaml"
+  echo "+++ b/artifacts/operations/capability-family-map.yaml"
+  echo "@@ -$insert_after,0 +$((insert_after + 1)),$(( $(echo "$new_entry" | wc -l) )) @@"
+  echo "$new_entry"
+  echo
+  echo "Dry-run. Use --apply to write."
+fi

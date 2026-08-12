@@ -1,0 +1,20 @@
+type: owner-runtime-spec
+status: review
+version: 0.1.2
+owner: product + engineering
+representation: markdown
+derived_from: [LEARN.Writing, EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback, PKM.Drafts]
+purpose: implementation-definition-for-writing-evaluation-family
+consumed_by: [engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+family_id: WRITING.Evaluation
+family_version: 1.0.0
+build_status: candidate
+change_log:
+  - version: 0.1.2
+    date: 2026-08-10
+    changes:
+      - Separated submission status (submitted/processing/scored/low_confidence/delayed/unavailable + not_created) from evaluation state (submitted/processing/scored/low_confidence/invalid/anti_gaming_review/failed) per runtime-spec §5.2/§5.3
+      - Marked drafting as pre-submission draft state, not submission status
+      - Convergence audit H3 resolution

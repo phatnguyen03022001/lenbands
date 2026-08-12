@@ -1,0 +1,13 @@
+type: interaction-contract
+status: deprecated
+version: 0.1.1
+owner: product + engineering
+representation: markdown
+derived_from: [LEARN.Writing, EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback, PKM.Drafts]
+purpose: UI-to-runtime-behavior-contract-for-writing-evaluation
+consumed_by: [experience, engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+family_id: WRITING.Evaluation
+superseded_by: artifacts/experience/specs/interaction/writing-task-2.md
+deprecation_reason: Duplicate P0-04 interaction coverage. Canonical spec is writing-task-2.md (10-step WR-I01..I10 with per-step traceability). See convergence audit H7.

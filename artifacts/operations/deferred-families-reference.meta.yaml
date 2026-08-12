@@ -1,0 +1,25 @@
+type: deferred-families-reference
+status: review
+version: 0.1.2
+owner: product + engineering
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing, IDENTITY.Auth]
+source_files: [artifacts/operations/capability-family-registry.yaml, artifacts/operations/capability-lifecycle-registry.yaml, blueprint/03-features.md, blueprint/08-roadmap.md]
+purpose: executor-grade-deferred-contract-reference-for-all-20-planned-implementation-families
+consumed_by: [engineering, operations, founder]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: deferred-contract-reference
+change_log:
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Linked the P1 Speaking and Pronunciation deferred families to the provider-neutral speech-processing decision and learner interaction specification.
+      - Preserved PLANNED lifecycle, unassigned SPEAKING.Practice note, and all provider/benchmark/promotion gates.
+      - Corrected planned-family coverage from 19 to 20 to match the canonical family registry and the 20 family sections in this reference.
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Initial deferred reference covering all 20 PLANNED families with promotion gates, dependencies, entities, and non-goals.
+      - Each family has executor-grade traceability ready for phase promotion.
+      - Covers: READING.Practice, LISTENING.Practice, PRACTICE.Drill, SPEAKING.Practice, SPEAKING.Evaluation, PRONUNCIATION.Practice, MOCK.ExamSimulation, CONTENT.Management, CONTENT.Knowledge, SEARCH.Knowledge, PKM.Content, LOCALIZATION.Preference, HISTORY.Assessment, PROGRESS.Learning, PERSONAL.Recommendation, NOTIFICATION.Delivery, SUBSCRIPTION.Usage, ADMIN.Governance, GOVERNANCE.Quality, COACH.Feedback.

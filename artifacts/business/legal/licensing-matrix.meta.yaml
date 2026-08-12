@@ -1,0 +1,9 @@
+type: legal-policy
+status: draft
+version: 0.1.0
+owner: founder
+representation: markdown
+derived_from: [CONTENT.Publish]
+purpose: baseline-resource-licensing-policy
+created_at: 2026-08-06
+updated_at: 2026-08-06

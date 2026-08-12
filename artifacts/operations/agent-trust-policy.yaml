@@ -1,0 +1,279 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+authority_scope: agent_change_and_anti_bypass_policy
+principles:
+  - agents_may_change_implementation_but_not_silently_weaken_authority
+  - validators_gates_and_evidence_require_independent_review
+  - immutable_evidence_may_be_added_but_not_modified_or_deleted
+  - repository_checks_do_not_replace_external_branch_protection
+
+founder_local_profile:
+  path: .claude/settings.local.json
+  template_path: .claude/settings.local.example.json
+  authority_scope: personal_execution_preferences_only
+  required_root_keys: [$schema, autoUpdatesChannel, model, effortLevel, env, permissions]
+  auto_updates_channel: stable
+  default_model: deepseek-v4-flash
+  default_effort: high
+  default_permission_mode: acceptEdits
+  required_env:
+    ANTHROPIC_BASE_URL: https://api.deepseek.com/anthropic
+    ANTHROPIC_MODEL: deepseek-v4-flash
+    ANTHROPIC_DEFAULT_OPUS_MODEL: deepseek-v4-pro
+    ANTHROPIC_DEFAULT_SONNET_MODEL: deepseek-v4-flash
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: deepseek-v4-flash
+    CLAUDE_CODE_SUBAGENT_MODEL: deepseek-v4-flash
+    ANTHROPIC_DEFAULT_OPUS_MODEL_NAME: DeepSeek V4 Pro
+    ANTHROPIC_DEFAULT_OPUS_MODEL_DESCRIPTION: Deep reasoning and final integration through the DeepSeek Anthropic API
+    ANTHROPIC_DEFAULT_OPUS_MODEL_SUPPORTED_CAPABILITIES: effort,max_effort,thinking,interleaved_thinking
+    ANTHROPIC_DEFAULT_SONNET_MODEL_NAME: DeepSeek V4 Flash
+    ANTHROPIC_DEFAULT_SONNET_MODEL_DESCRIPTION: Cost-bounded document and repository work through the DeepSeek Anthropic API
+    ANTHROPIC_DEFAULT_SONNET_MODEL_SUPPORTED_CAPABILITIES: effort,max_effort,thinking,interleaved_thinking
+    ANTHROPIC_DEFAULT_HAIKU_MODEL_NAME: DeepSeek V4 Flash
+    ANTHROPIC_DEFAULT_HAIKU_MODEL_DESCRIPTION: Fast read-only exploration through the DeepSeek Anthropic API
+    ANTHROPIC_DEFAULT_HAIKU_MODEL_SUPPORTED_CAPABILITIES: effort,max_effort,thinking,interleaved_thinking
+  allowed_permissions:
+    - WebSearch
+    - "WebFetch(domain:ielts.org)"
+    - "WebFetch(domain:britishcouncil.org)"
+    - "WebFetch(domain:idp.com)"
+    - "WebFetch(domain:cambridgeenglish.org)"
+    - "WebFetch(domain:api-docs.deepseek.com)"
+    - "WebFetch(domain:code.claude.com)"
+    - "WebFetch(domain:docs.anthropic.com)"
+    - "WebFetch(domain:www.ielts.org)"
+    - "WebFetch(domain:takeielts.britishcouncil.org)"
+    - "WebFetch(domain:ielts.idp.com)"
+    - "WebFetch(domain:www.cambridgeenglish.org)"
+    - "WebFetch(domain:docs.python.org)"
+    - "WebFetch(domain:go.dev)"
+    - "WebFetch(domain:pkg.go.dev)"
+    - "WebFetch(domain:nextjs.org)"
+    - "WebFetch(domain:react.dev)"
+    - "WebFetch(domain:fastapi.tiangolo.com)"
+    - "WebFetch(domain:docs.pydantic.dev)"
+    - "WebFetch(domain:docs.sqlalchemy.org)"
+    - "WebFetch(domain:docs.djangoproject.com)"
+    - "WebFetch(domain:gin-gonic.com)"
+    - "WebFetch(domain:gofiber.io)"
+    - "WebFetch(domain:opentelemetry.io)"
+    - "WebFetch(domain:www.postgresql.org)"
+    - "WebFetch(domain:redis.io)"
+    - "WebFetch(domain:valkey.io)"
+    - "WebFetch(domain:spec.openapis.org)"
+    - "WebFetch(domain:json-schema.org)"
+    - "WebFetch(domain:www.schemastore.org)"
+    - "WebFetch(domain:docs.github.com)"
+    - "WebFetch(domain:github.com)"
+    - "WebFetch(domain:developers.cloudflare.com)"
+    - "WebFetch(domain:neon.com)"
+    - "WebFetch(domain:supabase.com)"
+    - "WebFetch(domain:vercel.com)"
+    - "Agent(repo-cartographer)"
+    - "Agent(ielts-semantics-auditor)"
+    - "Agent(contract-deepener)"
+    - "Agent(red-team-reviewer)"
+    - "Agent(verification-auditor)"
+    - "Skill(close-domain-gap)"
+    - "Skill(converge-documents)"
+    - "Skill(deepen-contract)"
+    - "Skill(red-team-contract)"
+    - "Skill(handoff)"
+    - "Bash(tools/bin/lenbands doctor)"
+    - "Bash(tools/bin/lenbands verify)"
+    - "Bash(tools/bin/lenbands gate toolchain)"
+    - "Bash(tools/bin/lenbands gate p0)"
+    - "Bash(tools/bin/lenbands gate repository)"
+    - "Bash(tools/bin/lenbands context)"
+    - "Bash(tools/bin/lenbands context --yaml)"
+    - "Bash(tools/bin/lenbands validate all)"
+    - "Bash(tools/bin/lenbands validate tooling)"
+    - "Bash(tools/bin/lenbands validate trust-boundary)"
+    - "Bash(tools/bin/lenbands validate phase-index)"
+    - "Bash(tools/bin/lenbands validate documents)"
+    - "Bash(tools/bin/lenbands validate framework)"
+    - "Bash(tools/bin/lenbands validate knowledge-assets)"
+    - "Bash(tools/bin/lenbands validate openapi)"
+    - "Bash(tools/bin/lenbands validate semantic-contracts)"
+    - "Bash(tools/bin/lenbands validate contract-ownership)"
+    - "Bash(tools/bin/lenbands validate domain-automation)"
+    - "Bash(tools/bin/lenbands validate evidence-lineage)"
+    - "Bash(tools/bin/lenbands validate platform-boundary)"
+    - "Bash(tools/bin/lenbands validate spawn-prompts)"
+    - "Bash(tools/bin/lenbands validate benchmark-contracts)"
+    - "Bash(tools/bin/lenbands validate implementation-catalog)"
+    - "Bash(tools/bin/lenbands validate claude-code)"
+    - "Bash(tools/bin/lenbands generate all --check)"
+  invariants:
+    - shared_project_settings_remain_the_security_policy_authority
+    - local_profile_cannot_override_sandbox_hooks_denies_or_protected_paths
+    - local_profile_contains_no_credentials_or_authentication_secrets
+    - flash_is_the_cost_bounded_default_and_pro_is_an_explicit_session_escalation
+    - subagent_model_resolution_is_pinned_to_flash_above_invocation_and_frontmatter
+    - pro_escalation_declares_the_one_million_token_context_annotation
+    - deepseek_effort_uses_only_provider_supported_high_or_max_semantics
+    - model_capabilities_are_declared_explicitly_and_do_not_claim_adaptive_thinking
+    - stable_updates_reduce_third_party_endpoint_regression_risk
+    - bounded_agents_cannot_mutate_the_local_profile
+    - shared_bash_permission_is_fail_closed_by_the_reviewed_pretooluse_command_policy
+    - runtime_build_commands_are_workspace_scoped_and_forbid_shell_chaining_or_arbitrary_interpreters
+    - document_convergence_is_global_and_has_no_per_pack_implementation_unlock
+    - implementation_workers_and_commands_remain_dormant_until_the_global_gate_is_attested
+    - shared_permissions_deny_runtime_agents_and_the_implementation_skill_while_locked
+    - agent_teams_remain_disabled_until_git_worktree_isolation_exists
+    - accept_edits_applies_only_below_shared_denies_sandbox_and_pretooluse_guards
+
+application_builder:
+  phase_gate:
+    state: document_convergence
+    source_mutation: locked
+    scope: entire_ielts_application
+    locked_source_roots: [apps, services, engines]
+    partial_pack_unlock_allowed: false
+    founder_authorization_ref: null
+    completion_attestation_ref: null
+    unresolved_gap_budget: 0
+    unlock_requires:
+      - all_180_capabilities_semantically_complete_and_traceable
+      - all_roles_permissions_and_user_journeys_complete
+      - all_ielts_controlled_vocabularies_mapped_without_unknown_placeholders
+      - all_product_ux_state_and_accessibility_decisions_approved
+      - all_data_api_event_failure_privacy_and_security_contracts_approved
+      - all_learning_assessment_ai_governance_and_provider_boundaries_approved
+      - all_nfr_observability_operations_recovery_and_release_contracts_approved
+      - no_duplicate_or_ambiguous_canonical_owner
+      - no_draft_or_review_authority_required_by_the_application
+      - external_claims_have_citations_and_rights_or_provenance_state
+      - independent_semantic_and_red_team_audits_have_no_open_critical_or_high_findings
+      - explicit_global_founder_authorization
+    non_unlocking_signals:
+      - source_directories_exist
+      - implementation_agents_exist
+      - implementation_skill_exists
+      - verify_passes
+      - toolchain_gate_passes
+      - p0_contracts_exist
+      - prose_claims_document_completeness
+  source_workspaces:
+    nextjs: apps/web
+    go: services/api
+    python: engines/evaluation
+  orchestrator:
+    route: explicit_cli_pro_escalation
+    model: deepseek-v4-pro
+  workers:
+    model_alias: haiku
+    resolved_model: deepseek-v4-flash
+    agents: [nextjs-implementer, go-backend-implementer, python-evaluation-implementer, runtime-integration-verifier]
+  execution_boundary:
+    - native_package_install_and_lock
+    - native_build_lint_typecheck_test
+    - contract_codegen
+    - registered_lenbands_validation
+  forbidden_execution:
+    - shell_chaining
+    - arbitrary_interpreter_execution
+    - protected_path_mutation
+    - evidence_fabrication
+    - unsandboxed_escape
+
+required_public_commands:
+  - doctor
+  - context
+  - validate claude-code
+  - validate trust-boundary
+  - verify
+  - gate toolchain
+  - gate p0
+  - gate repository
+
+required_verify_targets:
+  - tools/commands/doctor.rb
+  - tools/commands/validate/claude-code.rb
+  - tools/commands/validate/toolchain.rb
+  - tools/commands/validate/trust-boundary.rb
+  - tools/commands/validate/domain-automation.rb
+  - tools/commands/validate/evidence-lineage.rb
+  - tools/commands/validate/contract-ownership.rb
+
+required_freeze_targets:
+  - tools/commands/doctor.rb
+  - tools/commands/validate/claude-code.rb
+  - tools/commands/validate/toolchain.rb
+  - tools/commands/validate/trust-boundary.rb
+  - tools/commands/validate/platform-boundary.rb
+  - tools/commands/validate/domain-automation.rb
+
+protected_paths:
+  - "**/AGENTS.md"
+  - "**/CLAUDE.md"
+  - "**/CLAUDE.local.md"
+  - "**/.mcp.json"
+  - .git/**
+  - .claude/**
+  - .claude-plugin/**
+  - blueprint/**
+  - artifacts/operations/architecture-frozen.md
+  - artifacts/operations/architecture-frozen.meta.yaml
+  - artifacts/operations/build-readiness-matrix.md
+  - artifacts/operations/build-readiness-matrix.meta.yaml
+  - artifacts/operations/PENDING-EVIDENCE.md
+  - artifacts/operations/PENDING-EVIDENCE.meta.yaml
+  - artifacts/operations/ssot-registry.md
+  - artifacts/operations/ssot-registry.meta.yaml
+  - artifacts/operations/capability-manifest.yaml
+  - artifacts/operations/capability-manifest.meta.yaml
+  - artifacts/operations/capability-family-map.yaml
+  - artifacts/operations/capability-family-map.meta.yaml
+  - artifacts/operations/capability-family-registry.yaml
+  - artifacts/operations/capability-family-registry.meta.yaml
+  - artifacts/operations/capability-lifecycle-registry.yaml
+  - artifacts/operations/capability-lifecycle-registry.meta.yaml
+  - artifacts/operations/promotion-*.yaml
+  - artifacts/operations/promotion-*.meta.yaml
+  - artifacts/operations/acceptance/**
+  - artifacts/operations/benchmark/**
+  - artifacts/operations/attestations/**
+  - artifacts/operations/spawn-prompts/**
+  - artifacts/operations/domain-automation-contract.yaml
+  - artifacts/operations/domain-automation-contract.meta.yaml
+  - artifacts/operations/agent-trust-policy.yaml
+  - artifacts/operations/agent-trust-policy.meta.yaml
+  - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md
+  - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.meta.yaml
+  - artifacts/engineering/contracts/events/event-ownership-registry.yaml
+  - artifacts/engineering/contracts/events/event-ownership-registry.meta.yaml
+  - tools/**
+  - .github/**
+
+immutable_append_only_paths:
+  - artifacts/operations/evidence/**
+
+attestation:
+  path_pattern: artifacts/operations/attestations/*.yaml
+  required_for_protected_change: true
+  required_fields:
+    - change_id
+    - change_scope
+    - protected_changes_reviewed
+    - authority_boundaries_changed
+    - validators_weakened
+    - evidence_modified
+    - readiness_claimed
+    - commands_run
+    - external_review_required
+  invariants:
+    protected_changes_reviewed: true
+    validators_weakened: false
+    evidence_modified: false
+
+external_enforcement:
+  hosting: github
+  required_status_check: LenBands Toolchain Trust / verify-trust-boundary
+  require_code_owner_review: true
+  require_pull_request: true
+  block_force_push: true
+  block_branch_deletion: true
+  dismiss_stale_approvals: true
+  require_conversation_resolution: true

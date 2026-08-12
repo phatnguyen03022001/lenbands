@@ -1,0 +1,10 @@
+type: agent-change-attestation
+status: review
+version: 0.1.0
+owner: engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
+purpose: disclose-fail-closed-toolchain-correctness-hardening-for-independent-review
+consumed_by: [founder, codeowners, ci]
+created_at: 2026-08-07
+updated_at: 2026-08-07

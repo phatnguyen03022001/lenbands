@@ -1,0 +1,1271 @@
+---
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+description: Canonical lifecycle registry derived from capability-family-map.yaml
+  (hand-maintained) and capability-phase-index.md.
+states:
+- ACTIVE
+- PLANNED
+- DEPRECATED
+capabilities:
+- capability_id: ADMIN.AccountStatus
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.AuditLog
+  lifecycle: PLANNED
+  phase: P2
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Billing
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Dashboard
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.GovernanceDashboard
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.ModerationLog
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Permission
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Premium
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Revenue
+  lifecycle: PLANNED
+  phase: P2
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.Role
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.SystemSetting
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: ADMIN.User
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: ADMIN.Governance
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Checklist
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Completion
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Current
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: BAND.Descriptor
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.ExamReadiness
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Map
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.ProgressionWarning
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Readiness
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.RecommendedNext
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Requirement
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: BAND.Target
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.AnswerExplanation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.DistractorExplanation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.ErrorAnalysis
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: WRITING.Evaluation
+  delta_id: WRITING.Task2
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: candidate
+- capability_id: COACH.Feedback
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: WRITING.Evaluation
+  delta_id: WRITING.Task2
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: candidate
+- capability_id: COACH.ListeningCoach
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.ReadingCoach
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.Recommendation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.Tutor
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: COACH.VocabularyExplanation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: COACH.Feedback
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.AutoTag
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.BlueprintUpdate
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Feedback
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Knowledge
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Lesson
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.MockTest
+  lifecycle: PLANNED
+  phase: P1
+  family_id: MOCK.ExamSimulation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Moderation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Publish
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.QuestionBank
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Quiz
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.Tag
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: CONTENT.TagReview
+  lifecycle: PLANNED
+  phase: P1
+  family_id: CONTENT.Management
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: EVAL.AntiGaming
+  lifecycle: DEPRECATED
+  phase: deferred
+  family_id: GOVERNANCE.Quality
+  delta_id: 
+  owner_spec: 
+  status: deprecated
+- capability_id: EVAL.BandPrediction
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: EVAL.Examiner
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SPEAKING.Evaluation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: EVAL.Pronunciation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PRONUNCIATION.Practice
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: EVAL.RewriteSuggestion
+  lifecycle: PLANNED
+  phase: P1
+  family_id: WRITING.Evaluation
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: planned
+- capability_id: EVAL.Speaking
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SPEAKING.Evaluation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: EVAL.Writing
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: WRITING.Evaluation
+  delta_id: WRITING.Task2
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: candidate
+- capability_id: GOAL.Daily
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: GOAL.ExamPlan
+  lifecycle: PLANNED
+  phase: P2
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: GOAL.StudyPlan
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: GOAL.Target
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: GOAL.Weekly
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: GOVERNANCE.AntiGaming
+  lifecycle: PLANNED
+  phase: P1
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: planned
+- capability_id: GOVERNANCE.AuditTrail
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: GOVERNANCE.BiasMonitoring
+  lifecycle: PLANNED
+  phase: P1
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: planned
+- capability_id: GOVERNANCE.ConfidenceScore
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: GOVERNANCE.Dashboard
+  lifecycle: PLANNED
+  phase: P1
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: planned
+- capability_id: GOVERNANCE.DriftDetection
+  lifecycle: PLANNED
+  phase: P1
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: planned
+- capability_id: GOVERNANCE.GoldStandardBenchmark
+  lifecycle: PLANNED
+  phase: P1
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: planned
+- capability_id: HISTORY.Attempts
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.BandTimeline
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.Compare
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.LearningTimeline
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.ScoreTimeline
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.SkillTimeline
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.SpeakingPortfolio
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: HISTORY.WritingPortfolio
+  lifecycle: PLANNED
+  phase: P1
+  family_id: HISTORY.Assessment
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: IDENTITY.Auth
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: IDENTITY.Core
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+  status: candidate
+- capability_id: IDENTITY.DeleteAccount
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: IDENTITY.Core
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+  status: planned
+- capability_id: IDENTITY.Privacy
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: IDENTITY.Core
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+  status: candidate
+- capability_id: IDENTITY.Profile
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: IDENTITY.Core
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+  status: candidate
+- capability_id: IDENTITY.Recovery
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: IDENTITY.Core
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+  status: planned
+- capability_id: KA.Collocation
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Example
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Exercise
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Grammar
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Lesson
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Strategy
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Template
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: KA.Vocabulary
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: CONTENT.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LEARN.Listening
+  lifecycle: PLANNED
+  phase: P1
+  family_id: LISTENING.Practice
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LEARN.Path
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: LEARN.Pronunciation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PRONUNCIATION.Practice
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LEARN.QuestionTypes
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: LEARN.Reading
+  lifecycle: PLANNED
+  phase: P1
+  family_id: READING.Practice
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LEARN.Speaking
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SPEAKING.Evaluation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LEARN.Writing
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: WRITING.Evaluation
+  delta_id: WRITING.Task2
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: candidate
+- capability_id: LOC.AIResponseLanguage
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: LOCALIZATION.Preference
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LOC.InterfaceLanguage
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: LOCALIZATION.Preference
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LOC.LocaleFormat
+  lifecycle: PLANNED
+  phase: P2
+  family_id: LOCALIZATION.Preference
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LOC.PreferenceSync
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: LOCALIZATION.Preference
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: LOC.Switcher
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: LOCALIZATION.Preference
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Goal
+  lifecycle: PLANNED
+  phase: P2
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Preference
+  lifecycle: PLANNED
+  phase: P1
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.QuietHours
+  lifecycle: PLANNED
+  phase: P1
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Reengagement
+  lifecycle: PLANNED
+  phase: P1
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Result
+  lifecycle: PLANNED
+  phase: P2
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Review
+  lifecycle: PLANNED
+  phase: P2
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.SRS
+  lifecycle: PLANNED
+  phase: P2
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.SmartDelivery
+  lifecycle: PLANNED
+  phase: P1
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: NOTIF.Study
+  lifecycle: PLANNED
+  phase: P2
+  family_id: NOTIFICATION.Delivery
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: OPS.ContentQuality
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.CostBudget
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.EvaluationQuality
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.ModelRouting
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.Observability
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.OutcomeMeasurement
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.Quota
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: OPS.ReleaseGate
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: OPS.QualityEconomics
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+  status: candidate
+- capability_id: PERSONAL.AdaptivePlan
+  lifecycle: PLANNED
+  phase: P2
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PERSONAL.GapAnalysis
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PERSONAL.GoalRecommendation
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PERSONAL.Insights
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PERSONAL.NextBestAction
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: candidate
+- capability_id: PERSONAL.Recommendation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PERSONAL.WeaknessPractice
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PERSONAL.Recommendation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Collections
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Drafts
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: WRITING.Evaluation
+  delta_id: WRITING.Task2
+  owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+  status: candidate
+- capability_id: PKM.Export
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Import
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Notes
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Offline
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Recordings
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.SavedItems
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.Sync
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PKM.WordBank
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PKM.Content
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PLACE.BandEstimation
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: PLACE.GapDetection
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: PLACE.InitialPath
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: PLACE.SkillDiagnosis
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: PLACE.Test
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: PLACEMENT.Diagnosis
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+  status: candidate
+- capability_id: PRACTICE.Adaptive
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PRACTICE.Drill
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PRACTICE.Drill
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: candidate
+- capability_id: PRACTICE.ExamSimulation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: MOCK.ExamSimulation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PRACTICE.MockTest
+  lifecycle: PLANNED
+  phase: P1
+  family_id: MOCK.ExamSimulation
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PRACTICE.Set
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PRACTICE.Drill
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PRACTICE.Timed
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PRACTICE.Drill
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.Achievement
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.BandProgress
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.Dashboard
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.GoalTracking
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.LearningAnalytics
+  lifecycle: PLANNED
+  phase: P2
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.Motivation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.Reactivation
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.SkillAnalytics
+  lifecycle: PLANNED
+  phase: P2
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.WeeklyRecap
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: PROGRESS.Wellbeing
+  lifecycle: PLANNED
+  phase: P1
+  family_id: PROGRESS.Learning
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: REVIEW.Bookmark
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: REVIEW.FSRS
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: candidate
+- capability_id: REVIEW.History
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: REVIEW.MistakeNotebook
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: candidate
+- capability_id: REVIEW.QuestionReview
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: REVIEW.Queue
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: REVIEW.SmartQueue
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: candidate
+- capability_id: REVIEW.WrongAnswer
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: REVIEW.WrongQuestion
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: REVIEW.ErrorToReview
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+  status: planned
+- capability_id: SEARCH.BandDescriptor
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.Cheatsheet
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.Formula
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.Global
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.Knowledge
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.Question
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.SpeakingSample
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SEARCH.WritingSample
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SEARCH.Knowledge
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: STUDY.CheckIn
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: candidate
+- capability_id: STUDY.Continue
+  lifecycle: PLANNED
+  phase: P1
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: STUDY.DailyPlan
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: candidate
+- capability_id: STUDY.MicroSession
+  lifecycle: ACTIVE
+  phase: P0
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: candidate
+- capability_id: STUDY.Resume
+  lifecycle: PLANNED
+  phase: P1
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: STUDY.Session
+  lifecycle: PLANNED
+  phase: P1
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: STUDY.SessionSummary
+  lifecycle: PLANNED
+  phase: P1
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: STUDY.TodayQueue
+  lifecycle: PLANNED
+  phase: deferred
+  family_id: STUDY.DailyAction
+  delta_id: 
+  owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+  status: planned
+- capability_id: SUB.Payment
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SUBSCRIPTION.Usage
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SUB.Plan
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SUBSCRIPTION.Usage
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SUB.Premium
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SUBSCRIPTION.Usage
+  delta_id: 
+  owner_spec: 
+  status: planned
+- capability_id: SUB.UsageLimit
+  lifecycle: PLANNED
+  phase: P1
+  family_id: SUBSCRIPTION.Usage
+  delta_id: 
+  owner_spec: 
+  status: planned

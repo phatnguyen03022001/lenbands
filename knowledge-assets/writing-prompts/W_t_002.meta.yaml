@@ -1,0 +1,20 @@
+type: knowledge-asset
+asset_kind: writing_prompt
+asset_id: KA-000016
+status: draft
+version: 0.1.1
+owner: colab
+derived_from: [KA.Exercise]
+framework_refs:
+  - file: writing-task-framework
+    version: 1.0.6
+    nodes: [W_task2_discussion]
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [t_technology, t_work_business]
+origin: {source: generated, license: unknown}
+integrity: {checksum: "sha256:7d639c21596f0c0d04970e7a5181b7e34bec88ce35b3d9698c451286c24b25b3", payload_file: W_t_002.md}
+governance: {rights_status: pending_review, review_status: draft}
+spawn_lineage: {workflow_run_id: spawn-validation-run-001, prompt_template_id: spawn-writing-prompt, prompt_hash: "sha256:013eb5ad8aafb167edcb0006100b27972e1ea204b51c3db0708d9ba57dccd6a3", model: codex, parameters: {task_type: W_task2_discussion, exam_module: academic, band_range: 5.0-9.0}}
+created_at: "2026-08-07T05:54:58Z"
+updated_at: "2026-08-07T05:54:58Z"

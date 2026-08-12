@@ -1,0 +1,41 @@
+schema_version: 1.0.0
+status: not_run
+source_of_truth: true
+run_policy: runtime_only
+evidence_root: artifacts/operations/evidence
+evidence_ref_schema:
+  required_fields: [path, checksum]
+  checksum_format: sha256
+  path_policy: immutable_file_under_evidence_root
+  rule: a_pack_cannot_be_passed_until_every_required_evidence_id_has_a_verified_reference
+packs:
+  - pack_id: P0-01
+    capability_ids: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
+    acceptance_tests: [ID-01-consent-before-processing, ID-02-export-ownership, ID-03-delete-recovery, ID-04-cross-user-denial, ID-05-duplicate-request-idempotency]
+    required_evidence: [privacy_acceptance_run, authorization_matrix, export_delete_run]
+    status: not_run
+  - pack_id: P0-02
+    capability_ids: [GOAL.Target, PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current]
+    acceptance_tests: [PL-01-placement-completes, PL-02-insufficient-evidence-safe-state, PL-03-module-routing, PL-04-retry-idempotency, PL-05-calibration-record]
+    required_evidence: [placement_acceptance_run, placement_calibration_run]
+    status: not_run
+  - pack_id: P0-03
+    capability_ids: [STUDY.DailyPlan, STUDY.CheckIn, STUDY.MicroSession, PERSONAL.NextBestAction]
+    acceptance_tests: [DA-01-one-reasoned-action, DA-02-session-resume, DA-03-no-eligible-fallback, DA-04-completion-event, DA-05-duplicate-session-idempotency]
+    required_evidence: [daily_action_acceptance_run]
+    status: not_run
+  - pack_id: P0-04
+    capability_ids: [LEARN.Writing, EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback, PKM.Drafts]
+    acceptance_tests: [WR-01-published-task-only, WR-02-draft-preserved, WR-03-duplicate-submit-idempotency, WR-04-evaluation-state-recovery, WR-05-evidence-linked-feedback, WR-06-redaction, WR-07-low-confidence-withheld]
+    required_evidence: [writing_acceptance_run, redaction_acceptance_run, idempotency_acceptance_run, benchmark_run]
+    status: not_run
+  - pack_id: P0-05
+    capability_ids: [REVIEW.MistakeNotebook, REVIEW.FSRS, REVIEW.SmartQueue, PRACTICE.Drill]
+    acceptance_tests: [ER-01-no-evidence-no-card, ER-02-fix-drill-state, ER-03-review-idempotency, ER-04-retest-outcome, ER-05-privacy-safe-events]
+    required_evidence: [error_review_acceptance_run, retest_outcome_acceptance_run]
+    status: not_run
+  - pack_id: P0-06
+    capability_ids: [OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, OPS.EvaluationQuality, OPS.ContentQuality, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
+    acceptance_tests: [GO-01-benchmark-gate-blocks, GO-02-cost-ceiling-blocks, GO-03-no-raw-content-telemetry, GO-04-route-rollback, GO-05-immutable-audit]
+    required_evidence: [governance_acceptance_run, benchmark_run, cost_threshold_approval, rollout_rollback_record]
+    status: not_run

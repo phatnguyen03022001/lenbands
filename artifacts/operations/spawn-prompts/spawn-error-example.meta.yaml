@@ -1,0 +1,25 @@
+type: prompt-template
+prompt_template_id: spawn-error-example
+status: review
+version: 0.2.0
+owner: colab
+representation: markdown
+derived_from: [COACH.ErrorAnalysis, REVIEW.MistakeNotebook]
+purpose: workflow-for-draft-error-example-knowledge-assets
+consumed_by: [operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+framework_refs:
+  - file: error-taxonomy
+    version: 1.0.6
+    nodes: [W_lr_wrong_collocation]
+  - file: review-mapping
+    version: 1.0.6
+    nodes: [W_lr_wrong_collocation]
+  - file: microskill-enum
+    version: 1.0.6
+    nodes: [W_collocation_awareness]
+output_contract: {asset_kind: error_example, output_root: knowledge-assets/error-examples, status: draft}
+hash_scope: full_file_bytes
+source_sha256: sha256:f76805910b9c01f90b9fab9792c733183638364b61375d2aa0b47641bd7c5c3f
+validation_command: ./tools/validate-spawn-prompts.sh

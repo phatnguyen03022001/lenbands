@@ -1,0 +1,863 @@
+openapi: "3.0.3"
+info:
+  title: LenBands P0 API
+  description: |
+    Closed-pilot API for LenBands P0 capabilities.
+
+    CANONICAL OWNERSHIP (per runtime/api-ownership-bff-contract.md):
+    - This file is the canonical IDENTITY surface: /v1/auth/session, /v1/me,
+      /v1/me/consents, /v1/me/export, /v1/me/deletion.
+    - The canonical P0 RUNTIME loop surface is
+      artifacts/engineering/contracts/writing-task-2/openapi.yaml (OpenAPI 3.1.0,
+      info.version 0.5.0). The /v1/writing/*, /v1/me/quota and /v1/review/cards
+      paths in THIS file are deprecated placeholders retained for traceability.
+      NOTE: not every placeholder has an exact canonical counterpart — e.g.
+      GET /v1/writing/submissions/{submissionId}/feedback is orphaned (canonical
+      exposes only POST .../feedback). Read each operation's `deprecated: true`,
+      `x-canonical-owner` and description for the correct successor. Do not build
+      against any deprecated path or its placeholder schemas.
+  version: "0.2.0"
+  contact:
+    name: LenBands Engineering
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+    description: IDENTITY.Auth — session management
+  - name: Profile
+    description: IDENTITY.Profile — learner profile
+  - name: Privacy
+    description: IDENTITY.Privacy — consent, export, deletion
+  - name: Writing
+    description: Writing Task 2 submission, evaluation, feedback
+  - name: Review
+    description: Spaced repetition review cards
+  - name: Quota
+    description: Learner quota and usage
+
+paths:
+  # ── P0-01: IDENTITY.Auth ──
+  /v1/auth/session:
+    post:
+      tags: [Auth]
+      summary: Create authenticated session
+      description: |
+        Guest endpoint. Validates provider token and returns an opaque session.
+        Provider subject is mapped one-way to opaque server-side subject_id.
+      operationId: createSession
+      security: []
+      x-idempotency-exempt: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+
+  # ── P0-01: IDENTITY.Profile ──
+  /v1/me:
+    get:
+      tags: [Profile]
+      summary: Get own learner profile
+      description: |
+        Returns the profile of the authenticated learner.
+        Ownership is enforced server-side via opaque subject_id.
+      operationId: getProfile
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Learner profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountProfile"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── P0-01: IDENTITY.Privacy (consent) ──
+  /v1/me/consents:
+    post:
+      tags: [Privacy]
+      summary: Record versioned consent
+      description: |
+        Learner records a consent decision. Required consent must be recorded
+        before first Writing submission. Duplicate idempotency key returns
+        the existing consent record.
+      operationId: recordConsent
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordConsentRequest"
+      responses:
+        "201":
+          description: Consent recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentRecord"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  # ── P0-01: IDENTITY.Privacy (export) ──
+  /v1/me/export:
+    post:
+      tags: [Privacy]
+      summary: Request privacy data export
+      description: |
+        Creates an export job reference. Export delivery is async;
+        this endpoint returns the job status and reference.
+      operationId: requestExport
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          description: Export job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyRequest"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  # ── P0-01: IDENTITY.Privacy (deletion) ──
+  /v1/me/deletion:
+    post:
+      tags: [Privacy]
+      summary: Request account deletion
+      description: |
+        Creates a deletion job reference. Requires re-authentication
+        or fresh-auth signal within the policy window. Has a recovery
+        window before hard deletion.
+      operationId: requestDeletion
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestDeletionRequest"
+      responses:
+        "201":
+          description: Deletion job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyRequest"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  # ── P0: Writing Task 2 — Submission (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/writing/submissions:
+    post:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: Create writing submission (deprecated; use canonical loop surface)
+      description: |
+        Placeholder duplicate of the canonical createWritingSubmission in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: createSubmission
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionRequest"
+      responses:
+        "201":
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingSubmission"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  # ── P0: Writing Task 2 — Evaluation (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/writing/submissions/{submissionId}/evaluation:
+    get:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: Get writing evaluation (deprecated; use canonical loop surface)
+      description: |
+        Placeholder duplicate of the canonical getWritingEvaluation in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: getEvaluation
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/SubmissionId"
+      responses:
+        "200":
+          description: Evaluation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingEvaluation"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── P0: Writing Task 2 — Feedback (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/writing/submissions/{submissionId}/feedback:
+    get:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: Get writing feedback (deprecated placeholder; no canonical GET counterpart)
+      description: |
+        THIS PATH HAS NO CANONICAL GET COUNTERPART. The canonical surface defines
+        POST /v1/writing/submissions/{submissionId}/feedback → submitWritingFeedback
+        (record learner feedback, not read it). This GET placeholder is retained for
+        traceability only; it is not a canonical endpoint (method mismatch) and must
+        not be built against. Canonical owner: writing-task-2/openapi.yaml.
+      operationId: getFeedback
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/SubmissionId"
+      responses:
+        "200":
+          description: Writing feedback
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WritingFeedback"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ── P0: Quota (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/me/quota:
+    get:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Quota]
+      summary: Get learner quota (deprecated; use canonical loop surface)
+      description: |
+        Placeholder duplicate of the canonical getMyQuota in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: getQuota
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Quota status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuotaStatus"
+        "401":
+          $ref: "#/components/responses/AuthError"
+
+  # ── P0: Writing Errors (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/writing/errors:
+    get:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: List writing errors (deprecated; use canonical listWritingErrors)
+      description: |
+        Placeholder duplicate of the canonical listWritingErrors in
+        writing-task-2/openapi.yaml. operationId renamed to avoid cross-file
+        collision with the canonical op; retained for traceability only.
+      operationId: listWritingErrorsDeprecated
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - name: submissionId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Writing errors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WritingError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+
+  /v1/writing/errors/{errorId}/fixes:
+    post:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: Submit error fix (deprecated; use canonical completeWritingErrorFix)
+      description: |
+        Placeholder duplicate of the canonical completeWritingErrorFix in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: submitErrorFix
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ErrorId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorFixRequest"
+      responses:
+        "201":
+          description: Fix submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorFixResult"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /v1/writing/errors/{errorId}/retest:
+    post:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Writing]
+      summary: Retest an error (deprecated; use canonical startWritingErrorRetest)
+      description: |
+        Placeholder duplicate of the canonical startWritingErrorRetest in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: retestError
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+        - $ref: "#/components/parameters/ErrorId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          description: Retest requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorFixResult"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  # ── P0: Review Cards (DEPRECATED placeholder — canonical in writing-task-2/openapi.yaml) ──
+  /v1/review/cards:
+    get:
+      deprecated: true
+      x-canonical-owner: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      tags: [Review]
+      summary: Get review cards (deprecated; use canonical loop surface)
+      description: |
+        Placeholder duplicate of the canonical listReviewCards in
+        writing-task-2/openapi.yaml. Retained for traceability; not a build input.
+      operationId: getReviewCards
+      parameters:
+        - $ref: "#/components/parameters/RequestId"
+      responses:
+        "200":
+          description: Review cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewCard"
+        "401":
+          $ref: "#/components/responses/AuthError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Provider-issued access token. Server validates issuer, audience,
+        expiry and maps provider subject to opaque server-side subject_id.
+
+  parameters:
+    RequestId:
+      name: X-Request-Id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Correlation ID; server generates one if not provided
+
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+      description: Client-generated idempotency key for safe retry
+
+    SubmissionId:
+      name: submissionId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Opaque submission identifier
+
+    ErrorId:
+      name: errorId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Opaque error identifier
+
+  schemas:
+    # ── P0-01: Identity schemas ──
+    CreateSessionRequest:
+      type: object
+      required: [provider_token]
+      properties:
+        provider_token:
+          type: string
+          description: Provider-issued token (opaque to client)
+        provider:
+          type: string
+          description: Provider hint for multi-provider environments
+          nullable: true
+
+    SessionResponse:
+      type: object
+      required: [session_id, subject_id, expires_at]
+      properties:
+        session_id:
+          type: string
+        subject_id:
+          type: string
+          description: Opaque server-side subject identifier
+        expires_at:
+          type: string
+          format: date-time
+        state:
+          type: string
+          enum: [active, consent_pending, deletion_requested]
+
+    AccountProfile:
+      type: object
+      required: [subject_id, state, created_at]
+      properties:
+        subject_id:
+          type: string
+        display_name:
+          type: string
+          nullable: true
+        state:
+          type: string
+          enum: [active, consent_pending, deletion_requested, deleted]
+        created_at:
+          type: string
+          format: date-time
+
+    RecordConsentRequest:
+      type: object
+      required: [consent_version, scopes]
+      properties:
+        consent_version:
+          type: string
+          description: Version identifier of the consent document
+        scopes:
+          type: array
+          items:
+            type: object
+            required: [scope, granted]
+            properties:
+              scope:
+                type: string
+                enum: ["learner:read", "learner:write", "privacy:export", "privacy:delete"]
+              granted:
+                type: boolean
+        retention_reference:
+          type: string
+          nullable: true
+
+    ConsentRecord:
+      type: object
+      required: [consent_id, subject_id, consent_version, scopes, recorded_at]
+      properties:
+        consent_id:
+          type: string
+        subject_id:
+          type: string
+        consent_version:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: object
+            required: [scope, granted]
+            properties:
+              scope:
+                type: string
+              granted:
+                type: boolean
+        recorded_at:
+          type: string
+          format: date-time
+
+    RequestDeletionRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [no_longer_needed, privacy_concern, switching_provider, other]
+          description: Learner-selected reason; not used for guilt or retention
+
+    PrivacyRequest:
+      type: object
+      required: [request_id, subject_id, type, state, created_at]
+      properties:
+        request_id:
+          type: string
+        subject_id:
+          type: string
+        type:
+          type: string
+          enum: [export, deletion]
+        state:
+          type: string
+          enum: [requested, processing, ready, failed, cancelled, completed]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        recovery_window_seconds:
+          type: integer
+          description: Deletion recovery window; null for exports
+          nullable: true
+
+    # ── P0: Writing schemas (DEPRECATED placeholder — canonical schemas in writing-task-2/openapi.yaml) ──
+    # These schemas are referenced only by the deprecated placeholder loop paths above.
+    # They are retained for traceability and are NOT build inputs. Canonical schemas
+    # with the same names (WritingSubmission, WritingEvaluation, ReviewCard, etc.)
+    # live in artifacts/engineering/contracts/writing-task-2/openapi.yaml and may differ
+    # in shape (e.g. status/SubmissionStatus vs state, references vs raw text).
+    # Do not build against these; see runtime/api-ownership-bff-contract.md.
+    WritingTask:
+      type: object
+      required: [task_type, prompt]
+      properties:
+        task_type:
+          type: string
+          enum: [W_task2_opinion, W_task2_discussion, W_task2_advantages_disadvantages, W_task2_problem_solution, W_task2_two_part]
+        prompt:
+          type: string
+        word_limit_min:
+          type: integer
+        word_limit_max:
+          type: integer
+
+    CreateSubmissionRequest:
+      type: object
+      required: [task_type, essay_text]
+      properties:
+        task_type:
+          type: string
+          enum: [W_task2_opinion, W_task2_discussion, W_task2_advantages_disadvantages, W_task2_problem_solution, W_task2_two_part]
+        essay_text:
+          type: string
+        prompt:
+          type: string
+          nullable: true
+
+    WritingSubmission:
+      type: object
+      required: [submission_id, subject_id, state, created_at]
+      properties:
+        submission_id:
+          type: string
+        subject_id:
+          type: string
+        task_type:
+          type: string
+        state:
+          type: string
+          enum: [submitted, processing, scored, failed]
+        created_at:
+          type: string
+          format: date-time
+
+    WritingEvaluation:
+      type: object
+      required: [evaluation_id, submission_id, evaluation_state, quality_status, created_at]
+      properties:
+        evaluation_id:
+          type: string
+        submission_id:
+          type: string
+        evaluation_state:
+          type: string
+          enum: [submitted, processing, scored, low_confidence, invalid, anti_gaming_review, failed]
+        quality_status:
+          type: string
+          enum: [accepted, low_confidence, insufficient_evidence, invalid]
+        band_score:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 9
+        criteria_scores:
+          type: object
+          nullable: true
+          properties:
+            task_response:
+              type: number
+            coherence_cohesion:
+              type: number
+            lexical_resource:
+              type: number
+            grammatical_range_accuracy:
+              type: number
+        created_at:
+          type: string
+          format: date-time
+
+    WritingFeedback:
+      type: object
+      required: [feedback_id, submission_id, evaluation_id]
+      properties:
+        feedback_id:
+          type: string
+        submission_id:
+          type: string
+        evaluation_id:
+          type: string
+        strengths:
+          type: array
+          items:
+            type: string
+        improvements:
+          type: array
+          items:
+            type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/WritingError"
+        rewritten_excerpts:
+          type: array
+          items:
+            type: object
+            properties:
+              original:
+                type: string
+              rewrite:
+                type: string
+              explanation:
+                type: string
+
+    WritingError:
+      type: object
+      required: [error_id, error_type, excerpt, message]
+      properties:
+        error_id:
+          type: string
+        error_type:
+          type: string
+          enum: [grammar, vocabulary, cohesion, task_response, spelling, punctuation]
+        excerpt:
+          type: string
+        message:
+          type: string
+        suggestion:
+          type: string
+          nullable: true
+        position_start:
+          type: integer
+        position_end:
+          type: integer
+
+    ErrorFixRequest:
+      type: object
+      required: [fixed_excerpt]
+      properties:
+        fixed_excerpt:
+          type: string
+
+    ErrorFixResult:
+      type: object
+      required: [error_id, accepted]
+      properties:
+        error_id:
+          type: string
+        accepted:
+          type: boolean
+        feedback:
+          type: string
+          nullable: true
+
+    ReviewCard:
+      type: object
+      required: [card_id, error_id, front, back, due_at]
+      properties:
+        card_id:
+          type: string
+        error_id:
+          type: string
+        front:
+          type: string
+        back:
+          type: string
+        due_at:
+          type: string
+          format: date-time
+        stability:
+          type: number
+          nullable: true
+
+    QuotaStatus:
+      type: object
+      required: [evaluations_used, evaluations_limit, resets_at]
+      properties:
+        evaluations_used:
+          type: integer
+        evaluations_limit:
+          type: integer
+        resets_at:
+          type: string
+          format: date-time
+
+    # ── Error envelope ──
+    ErrorEnvelope:
+      type: object
+      required: [error, request_id]
+      properties:
+        error:
+          type: object
+          required: [code, message, state, recoverable]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            state:
+              type: string
+              enum: [delayed, unavailable, action_required, processing]
+            recoverable:
+              type: boolean
+            retry_after_seconds:
+              type: integer
+              nullable: true
+        request_id:
+          type: string
+
+  responses:
+    ValidationError:
+      description: Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    AuthError:
+      description: Authentication required or failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: Resource not found or not owned by subject
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    Conflict:
+      description: Idempotency or version conflict
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    ServiceUnavailable:
+      description: Service temporarily unavailable
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"

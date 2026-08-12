@@ -1,0 +1,28 @@
+type: vertical-slice-spec
+status: draft
+version: 0.1.12
+owner: product
+representation: markdown
+derived_from:
+  - EVAL.Writing
+  - LEARN.Writing
+  - REVIEW.MistakeNotebook
+  - REVIEW.FSRS
+  - GOVERNANCE.ConfidenceScore
+  - PKM.Drafts
+purpose: p0-writing-task-2-loop-specification-not-yet-build-ready
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.12
+    date: 2026-08-11
+    changes:
+      - Reconciled learner-facing feedback language with the learning measurement gate: no band claim before the named slice passes measurement admission; no runtime or readiness state changed.
+  - version: 0.1.11
+    date: 2026-08-10
+    changes:
+      - Aligned state machine with runtime-spec canonical states (removed submitting/quota_exceeded/pending_sync/scored_unsaved_review/fix_selected/fix_in_progress/fix_completed/needs_review; mapped to runtime-spec equivalents)
+      - Fixed auto-create ReviewCard trigger (cards only created after learner confirmation per runtime-spec §D.7/§F.3)
+      - Scope-annotated non-P0 capabilities in traceability table (EVAL.RewriteSuggestion, PERSONAL.Insights, STUDY.Resume, PKM.Offline, GOVERNANCE.AntiGaming marked out-of-scope P1)
+      - Removed duplicate text field from WritingSubmission (canonical shape in data-contract.md; raw text only in draft service)
+      - Convergence audit H2/M9/L4 resolution

@@ -1,0 +1,23 @@
+schema_version: 1.0.0
+change_id: claude-application-builder-profile-20260808
+change_scope: enable-bounded-nextjs-go-python-implementation-with-pro-orchestrator-and-flash-workers
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby -Itools/lib tools/test/test_claude_runtime_commands.rb
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands validate trust-boundary
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-2026-08-08-configure-claude-code-for-ielts-web-build
+notes:
+  - Shared Bash permission is constrained by a fail-closed reviewed command policy and sandbox boundaries.
+  - Runtime commands are scoped to apps/web, services/api and engines/evaluation and reject shell chaining or arbitrary interpreters.
+  - Four haiku-routed workers resolve through the configured DeepSeek Flash alias while the main session may be explicitly escalated to Pro 1M.
+  - Agent Teams and workflows remain disabled until Git/worktree isolation exists.
+  - No application readiness, acceptance, benchmark, rights or calibration evidence is claimed.

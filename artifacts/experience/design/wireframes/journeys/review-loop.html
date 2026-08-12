@@ -1,0 +1,103 @@
+<style>
+  #journey-review-loop {
+    --bg: light-dark(#f4efe6, #0e1117);
+    --surface: light-dark(#fffaf1, #141a23);
+    --surface-2: light-dark(#f7f0e6, #171e29);
+    --ink: light-dark(#1d2430, #eef2fb);
+    --muted: light-dark(#637084, #9aa6bc);
+    --line: light-dark(rgba(26, 34, 48, 0.12), rgba(255, 255, 255, 0.10));
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  }
+  #journey-review-loop * { box-sizing: border-box; }
+  #journey-review-loop h1, #journey-review-loop h2, #journey-review-loop h3, #journey-review-loop p { margin: 0; }
+  #journey-review-loop .stack { display: grid; gap: 16px; }
+  #journey-review-loop .hero, #journey-review-loop .panel {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--surface) 90%, white 10%);
+  }
+  #journey-review-loop .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  #journey-review-loop h1 { margin-top: 6px; font-family: "Fraunces", Georgia, serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; font-weight: 500; }
+  #journey-review-loop .lede { margin-top: 10px; color: var(--muted); max-width: 78ch; font-size: 14px; }
+  #journey-review-loop .flow { display: grid; gap: 8px; margin-top: 12px; }
+  #journey-review-loop .step {
+    min-height: 52px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 84%, white 16%);
+  }
+  #journey-review-loop .step strong { display: block; font-size: 13px; font-weight: 500; }
+  #journey-review-loop .step span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+  #journey-review-loop .screens { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
+  #journey-review-loop .screen { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: color-mix(in oklab, var(--surface) 84%, white 16%); }
+  #journey-review-loop .cap { display: inline-block; font-size: 10px; font-family: ui-monospace, monospace; color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); padding: 2px 6px; border-radius: 6px; margin-bottom: 6px; }
+  #journey-review-loop .screen h3 { font-size: 13px; font-weight: 600; }
+  #journey-review-loop .anno { display: grid; grid-template-columns: 60px 1fr; gap: 4px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 10px; }
+  #journey-review-loop .anno .lbl { font-size: 9px; text-transform: uppercase; color: var(--muted); }
+  #journey-review-loop .anno .txt { font-weight: 500; }
+  #journey-review-loop .cta-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  #journey-review-loop .cta-row .cta { padding: 6px 4px; border-radius: 8px; font-size: 10px; text-align: center; border: 1px solid var(--line); }
+  #journey-review-loop .cta-row .cta.good { color: #13795b; border-color: #13795b; }
+  #journey-review-loop .cta-row .cta.warn { color: #9b6700; border-color: #9b6700; }
+  #journey-review-loop .cta-row .cta.rating-again { color: var(--ink); border-color: var(--line); }
+  #journey-review-loop .state { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 6px; }
+</style>
+
+<div id="journey-review-loop">
+  <div class="stack">
+    <section class="hero">
+      <div class="eyebrow">Journey • Review Loop</div>
+      <h1>Review should feel light, fast, and immediately show clear progress.</h1>
+      <p class="lede">
+        This journey locks the review queue, FSRS, mistake notebook, and return schedule.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Main flow</h2>
+      <div class="flow">
+        <div class="step"><strong>1. Open today's queue</strong><span>Show only items due for review today.</span></div>
+        <div class="step"><strong>2. Review one card</strong><span>Short, focused, without cognitive overload.</span></div>
+        <div class="step"><strong>3. Rate Again / Hard / Good / Easy</strong><span>FSRS immediately updates memory strength and the next due date.</span></div>
+        <div class="step"><strong>4. View the forecast</strong><span>See whether next week will be light or heavy so you can adjust.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Screens in the journey</h2>
+      <div class="screens">
+        <article class="screen">
+          <span class="cap">[REVIEW.SmartQueue]</span>
+          <h3>1. Today's queue</h3>
+          <div class="anno"><span class="lbl">Due</span><span class="txt">12 thẻ (8 từ · 3 ngữ pháp · 1 đáp án sai)</span></div>
+          <div class="anno"><span class="lbl">View</span><span class="txt">Hôm nay · Ưu tiên · Điểm yếu · Thi</span></div>
+          <p class="state">State: empty("no cards") / due / cleared.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[REVIEW.FSRS]</span>
+          <h3>2. Card review</h3>
+          <div class="anno"><span class="lbl">Front</span><span class="txt">"ephemeral" — nhớ nghĩa không?</span></div>
+          <div class="anno"><span class="lbl">Back</span><span class="txt">ngắn hạn (tính từ) · ví dụ + âm thanh</span></div>
+          <div class="cta-row">
+            <div class="cta rating-again">Lại</div>
+            <div class="cta warn">Khó</div>
+            <div class="cta">Tốt</div>
+            <div class="cta good">Dễ</div>
+          </div>
+          <p class="state">State: flip / rating / next due computed.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[REVIEW.FSRS]</span>
+          <h3>3. 7-day forecast</h3>
+          <div class="anno"><span class="lbl">Next week</span><span class="txt">8 → 12 → 9 → 7 cards/day</span></div>
+          <div class="anno"><span class="lbl">Retention</span><span class="txt">90% (target) · actual 87%</span></div>
+          <p class="state">State: overload alert if the forecast is too high.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+schema_version: 1.0.0
+change_id: g-15-16-ssot-authority-rows-20260808
+change_scope: document-existing-family-registry-and-family-map-authority-scopes-in-the-ssot-registry
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands validate documents
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - The new rows document source_of_truth flags and authority scopes that already existed.
+  - No global reverse-row invariant was added because the registry is an authority-scope catalog, not an exhaustive one-row-per-file inventory.
+  - No runtime evidence, approval, benchmark result, or readiness state was changed.

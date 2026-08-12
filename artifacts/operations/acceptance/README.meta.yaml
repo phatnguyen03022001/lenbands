@@ -1,0 +1,10 @@
+type: acceptance-runbook
+status: review
+version: 0.1.0
+owner: operations + engineering
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability, IDENTITY.Privacy, EVAL.Writing, REVIEW.FSRS]
+purpose: immutable-runtime-acceptance-boundary-for-p0-packs
+consumed_by: [engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

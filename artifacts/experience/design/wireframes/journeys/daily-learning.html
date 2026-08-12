@@ -1,0 +1,119 @@
+<style>
+  #journey-daily-learning {
+    --bg: light-dark(#f4efe6, #0e1117);
+    --surface: light-dark(#fffaf1, #141a23);
+    --surface-2: light-dark(#f7f0e6, #171e29);
+    --ink: light-dark(#1d2430, #eef2fb);
+    --muted: light-dark(#637084, #9aa6bc);
+    --line: light-dark(rgba(26, 34, 48, 0.12), rgba(255, 255, 255, 0.10));
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  }
+  #journey-daily-learning * { box-sizing: border-box; }
+  #journey-daily-learning h1, #journey-daily-learning h2, #journey-daily-learning h3, #journey-daily-learning p { margin: 0; }
+  #journey-daily-learning .stack { display: grid; gap: 16px; }
+  #journey-daily-learning .hero, #journey-daily-learning .panel {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--surface) 90%, white 10%);
+  }
+  #journey-daily-learning .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  #journey-daily-learning h1 { margin-top: 6px; font-family: "Fraunces", Georgia, serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; font-weight: 500; }
+  #journey-daily-learning .lede { margin-top: 10px; color: var(--muted); max-width: 78ch; font-size: 14px; }
+  #journey-daily-learning .split { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  #journey-daily-learning .box {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-2) 90%, transparent), var(--surface));
+  }
+  #journey-daily-learning .box h3 { font-size: 14px; font-weight: 500; }
+  #journey-daily-learning .box p { margin-top: 6px; color: var(--muted); font-size: 12px; }
+  #journey-daily-learning .flow { display: grid; gap: 8px; margin-top: 12px; }
+  #journey-daily-learning .step {
+    min-height: 52px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 84%, white 16%);
+  }
+  #journey-daily-learning .step strong { display: block; font-size: 13px; font-weight: 500; }
+  #journey-daily-learning .step span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+  #journey-daily-learning .screens { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
+  #journey-daily-learning .screen { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: color-mix(in oklab, var(--surface) 84%, white 16%); }
+  #journey-daily-learning .cap { display: inline-block; font-size: 10px; font-family: ui-monospace, monospace; color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); padding: 2px 6px; border-radius: 6px; margin-bottom: 6px; }
+  #journey-daily-learning .screen h3 { font-size: 13px; font-weight: 600; }
+  #journey-daily-learning .anno { display: grid; grid-template-columns: 60px 1fr; gap: 4px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 10px; }
+  #journey-daily-learning .anno .lbl { font-size: 9px; text-transform: uppercase; color: var(--muted); }
+  #journey-daily-learning .anno .txt { font-weight: 500; }
+  #journey-daily-learning .anno .inp { grid-column: 2; color: var(--muted); font-style: italic; }
+  #journey-daily-learning .cta { margin-top: 8px; padding: 7px 10px; border-radius: 8px; font-size: 11px; font-weight: 500; background: var(--accent); color: white; text-align: center; }
+  #journey-daily-learning .state { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 6px; }
+</style>
+
+<div id="journey-daily-learning">
+  <div class="stack">
+    <section class="hero">
+      <div class="eyebrow">Journey • Daily Learning · Horizon reference</div>
+      <h1>The daily learning loop should answer quickly: where do I start today?</h1>
+      <p class="lede">
+        This journey connects Home → Study Session → Session Summary → Next Best Action. The goal is a
+        steady, manageable learning rhythm that always shows progress. This is a horizon reference; P0
+        build input uses `STUDY.DailyPlan` + `STUDY.MicroSession` in the Daily Action slice and does not
+        use a P1 screen as a build-ready contract.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Main flow</h2>
+      <div class="flow">
+        <div class="step"><strong>1. Open Home</strong><span>See Today's Plan and one clear continue button.</span></div>
+        <div class="step"><strong>2. Enter a study session</strong><span>The timer, goal, and current task must always be clear.</span></div>
+        <div class="step"><strong>3. Practice / learn</strong><span>Learn, practice, and review according to the personalized plan.</span></div>
+        <div class="step"><strong>4. End the session</strong><span>A short summary: what you did, what improved, and what comes next.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Screens in the journey</h2>
+      <div class="screens">
+        <article class="screen">
+          <span class="cap">[STUDY.DailyPlan]</span>
+          <h3>1. Home — what to do today</h3>
+          <div class="anno"><span class="lbl">Goal</span><span class="txt">18/30 phút hôm nay</span></div>
+          <div class="anno"><span class="lbl">Plan</span><span class="txt">Ôn 12 từ · 1 Reading · 1 Writing</span></div>
+          <div class="cta">▶ Tiếp tục phiên học →</div>
+          <p class="state">State: an unfinished session moves the Resume button to the top.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[STUDY.Session]</span>
+          <h3>2. Study session</h3>
+          <div class="anno"><span class="lbl">Timer</span><span class="txt">14:22 / 30:00</span></div>
+          <div class="anno"><span class="lbl">Task</span><span class="txt">Reading Q3/5</span></div>
+          <div class="anno"><span class="lbl">Pause</span><span class="txt">gián đoạn → khôi phục bộ đếm giờ</span></div>
+          <div class="cta">Kiểm tra →</div>
+          <p class="state">State: running / paused / interrupted(recover) / done.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[STUDY.SessionSummary]</span>
+          <h3>3. Session summary</h3>
+          <div class="anno"><span class="lbl">Time</span><span class="txt">28 phút</span></div>
+          <div class="anno"><span class="lbl">Completed</span><span class="txt">5 Reading · đã ôn 12 từ</span></div>
+          <div class="anno"><span class="lbl">Errors</span><span class="txt" style="color:#9b6700">3 lỗi ngữ pháp → +sổ lỗi</span></div>
+          <div class="cta">Xong — xem bước tiếp theo →</div>
+          <p class="state">State: done → pushed to history + streak.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[PERSONAL.NextBestAction]</span>
+          <h3>4. Next Best Action</h3>
+          <div class="anno"><span class="lbl">Tomorrow</span><span class="txt">Ôn 3 lỗi ngữ pháp + 1 Writing</span></div>
+          <div class="anno"><span class="lbl">Streak</span><span class="txt">🔥 12 ngày</span></div>
+          <div class="cta">Đặt lời nhắc cho ngày mai →</div>
+          <p class="state">State: no_data → suggest placement; show a comeback nudge after an absence.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

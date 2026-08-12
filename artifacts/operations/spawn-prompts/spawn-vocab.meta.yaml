@@ -1,0 +1,25 @@
+type: prompt-template
+prompt_template_id: spawn-vocab
+status: review
+version: 0.2.0
+owner: colab
+representation: markdown
+derived_from: [CONTENT.Publish, OPS.ContentQuality]
+purpose: workflow-for-draft-vocabulary-knowledge-assets
+consumed_by: [operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+framework_refs:
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [t_environment, t_technology, t_education, t_health, t_work_business, t_society_culture, t_media_news, t_transport_travel, t_crime_law, t_science_arts]
+  - file: microskill-enum
+    version: 1.0.6
+    nodes: [W_lexical_precision]
+  - file: band-descriptor-map
+    version: 1.0.6
+    sections: ["Writing — Lexical Resource (LR)"]
+output_contract: {asset_kind: vocabulary, output_root: knowledge-assets/vocabulary, status: draft}
+hash_scope: full_file_bytes
+source_sha256: sha256:239616de11d3567057ee2aa776a9dbf9f4e6b73242fd12ab8e6bb1fb8cf1fa25
+validation_command: ./tools/validate-spawn-prompts.sh

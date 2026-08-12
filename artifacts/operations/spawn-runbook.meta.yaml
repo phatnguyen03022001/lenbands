@@ -1,0 +1,9 @@
+type: operational-runbook
+status: review
+version: 0.1.3
+owner: founder
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.CostBudget, KA.Lesson]
+purpose: one-asset-spawn-validation-procedure
+created_at: 2026-08-07
+updated_at: 2026-08-07

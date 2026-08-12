@@ -1,0 +1,10 @@
+type: domain-automation-measurement-contract
+status: review
+version: 0.1.0
+owner: product + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, EVAL.Writing, REVIEW.FSRS]
+purpose: measure-business-domain-automation-without-building-commodity-infrastructure
+consumed_by: [engineering, operations, validators, ai-agents]
+created_at: 2026-08-07
+updated_at: 2026-08-07

@@ -1,0 +1,20 @@
+type: owner-runtime-spec
+status: review
+version: 0.1.1
+owner: operations
+representation: markdown
+derived_from: [OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, OPS.EvaluationQuality, OPS.ContentQuality, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
+purpose: implementation-definition-for-quality-economics-family
+consumed_by: [engineering, operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+family_id: OPS.QualityEconomics
+family_version: 1.0.0
+build_status: candidate
+change_log:
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Added Executor Dossier dimensions (permission, data read/write, API, events, UI states, observability, rollback, adapter boundary, non-goals, deferred)
+      - Annotated drift/anti-gaming as P1 unresolved_gap; anti_gaming_flagged removed from P0 published scope
+      - Convergence audit M10/M11 + Executor Dossier campaign resolution

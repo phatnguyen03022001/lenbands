@@ -1,0 +1,20 @@
+schema_version: 1.0.0
+change_id: g-12-event-privacy-validator-20260808
+change_scope: add-mutation-tested-raw-learner-content-event-payload-validation
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby -Itools/lib tools/test/test_event_schema_privacy_contract.rb
+  - tools/bin/lenbands validate semantic-contracts
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - Event payload declarations now reject essay_text, audio_data, raw_answer, error_text, and learner_content.
+  - The learner-facing no-AI-label scan remains deferred until copy fields have a machine-readable scope; scanning technical experience documents would create false positives.
+  - No runtime evidence, approval, benchmark result, or readiness state was changed.

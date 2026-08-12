@@ -1,0 +1,11 @@
+type: interaction-contract
+status: review
+version: 0.1.0
+owner: operations + engineering
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.EvaluationQuality, OPS.CostBudget, GOVERNANCE.AuditTrail]
+purpose: UI-to-runtime-behavior-contract-for-quality-economics
+consumed_by: [experience, engineering, operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+family_id: OPS.QualityEconomics

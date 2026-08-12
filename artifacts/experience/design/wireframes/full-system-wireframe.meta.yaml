@@ -1,0 +1,18 @@
+type: wireframe
+status: draft
+version: 0.1.5
+owner: product
+representation: html
+derived_from:
+  - STUDY.DailyPlan
+  - PLACE.Test
+  - STUDY.Session
+  - PRACTICE.MockTest
+  - REVIEW.SmartQueue
+  - BAND.ExamReadiness
+purpose: full-system-preview
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.5
+    changes: "Restored Vietnamese learner-facing example copy and actions; design annotations and machine tokens remain unchanged."

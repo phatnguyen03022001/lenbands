@@ -1,0 +1,10 @@
+type: external-enforcement-runbook
+status: review
+version: 0.1.0
+owner: founder + operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
+purpose: activate-independent-hosting-controls-that-agents-cannot-self-bypass
+consumed_by: [founder, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

@@ -1,0 +1,23 @@
+schema_version: 1.0.0
+change_id: claude-exact-handoff-permissions-20260808
+change_scope: preapprove-exact-stable-cli-handoff-and-context-commands-without-wildcard-expansion
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-exact-lenbands-bash-permissions-20260808
+notes:
+  - The user requested project permission rules so direct LenBands doctor, verify, gate and context commands can run in bounded Claude sessions.
+  - Exact command rules replace the proposed trailing-wildcard forms to prevent argument expansion and compound command preapproval.
+  - PreToolUse continues to validate each Bash command against the registered read-only command grammar.
+  - Permission deny rules are unchanged and continue to take precedence over allows.
+  - Toolchain advances from 1.6.2 to 1.6.3 without changing public commands or arguments.
+  - P0 readiness remains blocked and no runtime, evidence, rights, calibration or approval claim was created.

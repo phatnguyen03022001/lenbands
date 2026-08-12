@@ -1,0 +1,131 @@
+schema_version: 1
+toolchain_version: 1.10.3
+status: active
+stable_entrypoint: tools/bin/lenbands
+purpose: stable-human-and-automation-command-surface-for-repository-tooling
+
+runtime_requirements:
+  - {command: bash, minimum_version: 3.2.0, version_args: [--version], purpose: compatibility-shims-and-projection-generators}
+  - {command: ruby, minimum_version: 2.6.0, version_args: [--version], purpose: structured-validators-and-tool-tests}
+  - {command: rg, minimum_version: 13.0.0, version_args: [--version], purpose: deterministic-repository-search}
+  - {command: shasum, version_args: [], purpose: checksum-inspection-and-compatibility}
+  - {command: cmp, version_args: [], purpose: byte-stable-projection-drift-check}
+  - {command: mktemp, version_args: [], purpose: atomic-temporary-rendering}
+  - {command: awk, version_args: [], purpose: compatibility-generator-text-processing}
+  - {command: sed, version_args: [], purpose: compatibility-generator-text-processing}
+  - {command: sort, version_args: [], purpose: deterministic-ordering}
+
+# Public commands are a compatibility contract. Root scripts remain supported
+# compatibility entry points; new automation should call stable_entrypoint.
+public_commands:
+  - command: doctor
+    target: tools/commands/doctor.rb
+    stability: stable
+  - command: context
+    target: tools/commands/context.rb
+    stability: stable
+  - command: validate claude-code
+    target: tools/commands/validate/claude-code.rb
+    stability: stable
+  - command: generate all
+    target: tools/commands/generate/all.sh
+    stability: stable
+  - command: generate catalog
+    target: tools/commands/generate/capability-index.sh
+    stability: stable
+  - command: generate lifecycle
+    target: tools/commands/generate/lifecycle-registry.sh
+    stability: stable
+  - command: generate coverage
+    target: tools/commands/generate/operational-coverage.sh
+    stability: stable
+  - command: generate baseline
+    target: tools/commands/generate/repository-baseline.sh
+    stability: stable
+  - command: validate all
+    target: tools/commands/verify.sh
+    stability: stable
+  - command: validate tooling
+    target: tools/commands/validate/toolchain.rb
+    stability: stable
+  - command: validate trust-boundary
+    target: tools/commands/validate/trust-boundary.rb
+    stability: stable
+  - command: validate phase-index
+    target: tools/commands/validate/capability-phase-index.rb
+    stability: stable
+  - command: validate documents
+    target: tools/commands/validate/documents.rb
+    stability: stable
+  - command: validate framework
+    target: tools/commands/validate/framework.sh
+    stability: stable
+  - command: validate knowledge-assets
+    target: tools/commands/validate/knowledge-assets.sh
+    stability: stable
+  - command: validate openapi
+    target: tools/commands/validate/openapi.sh
+    stability: stable
+  - command: validate semantic-contracts
+    target: tools/commands/validate/semantic-contracts.sh
+    stability: stable
+  - command: validate contract-ownership
+    target: tools/commands/validate/contract-ownership.rb
+    stability: stable
+  - command: validate domain-automation
+    target: tools/commands/validate/domain-automation.rb
+    stability: stable
+  - command: validate evidence-lineage
+    target: tools/commands/validate/evidence-lineage.rb
+    stability: stable
+  - command: validate platform-boundary
+    target: tools/commands/validate/platform-boundary.rb
+    stability: stable
+  - command: validate spawn-prompts
+    target: tools/commands/validate/spawn-prompts.sh
+    stability: stable
+  - command: validate benchmark-contracts
+    target: tools/commands/validate/benchmark-contracts.sh
+    stability: stable
+  - command: validate implementation-catalog
+    target: tools/commands/validate/implementation-catalog.sh
+    stability: stable
+  - command: verify
+    target: tools/commands/verify.sh
+    stability: stable
+  - command: gate toolchain
+    target: tools/commands/gate/toolchain-freeze.sh
+    stability: stable
+  - command: gate p0
+    target: tools/commands/gate/readiness.rb
+    stability: stable
+  - command: gate repository
+    target: tools/commands/gate/readiness.rb
+    stability: stable
+  - command: capability compile
+    target: tools/commands/capability/compile.sh
+    stability: stable
+  - command: capability add
+    target: tools/commands/capability/add
+    stability: stable
+  - command: run p0-acceptance
+    target: tools/commands/run/p0-acceptance.sh
+    stability: stable
+  - command: run writing-benchmark
+    target: tools/commands/run/writing-benchmark.sh
+    stability: stable
+
+compatibility:
+  root_script_policy: preserved_until_a_versioned_migration_replaces_it
+  deprecated_commands:
+    - target: tools/generate-capability-registries.sh
+      replacement: tools/bin/lenbands generate lifecycle
+      behavior: fail_closed
+
+invariants:
+  - public_commands_are_versioned_and_tested
+  - root_scripts_are_compatibility_entry_points_not_new_default_documentation
+  - generators_render_projections_only
+  - validators_do_not_promote_evidence_or_readiness
+  - runners_create_immutable_evidence_or_fail_closed
+  - tooling_must_not_introduce_a_generic_runtime_or_workflow_engine

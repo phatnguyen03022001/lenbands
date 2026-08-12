@@ -1,0 +1,41 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+description: Family dependency facts. Promotion thresholds are defined separately in promotion-policy.yaml.
+families:
+  IDENTITY.Core:
+    requires_families: []
+    requires_framework: []
+    requires_assets: []
+    requires_decisions: [ADR-0003]
+    requires_evidence: [provider_dpa, export_delete_acceptance_run]
+  PLACEMENT.Diagnosis:
+    requires_families: [IDENTITY.Core]
+    requires_framework: [framework.exam_module_differences, framework.skill_questiontype_band]
+    requires_assets: [placement_configuration]
+    requires_decisions: []
+    requires_evidence: [placement_calibration_run, placement_acceptance_run]
+  STUDY.DailyAction:
+    requires_families: [IDENTITY.Core, PLACEMENT.Diagnosis]
+    requires_framework: []
+    requires_assets: [daily_action_configuration]
+    requires_decisions: []
+    requires_evidence: [daily_action_acceptance_run]
+  WRITING.Evaluation:
+    requires_families: [IDENTITY.Core, PLACEMENT.Diagnosis]
+    requires_framework: [framework.writing_task, framework.band_descriptor_map, framework.error_taxonomy]
+    requires_assets: [writing_task_prompts, writing_gold_corpus]
+    requires_decisions: [ADR-0001]
+    requires_evidence: [gold_corpus, benchmark_run, idempotency_acceptance_run, redaction_acceptance_run]
+  REVIEW.ErrorToReview:
+    requires_families: [WRITING.Evaluation]
+    requires_framework: [framework.error_taxonomy, framework.review_mapping]
+    requires_assets: [review_mapping]
+    requires_decisions: []
+    requires_evidence: [review_scheduling_acceptance_run, retest_outcome_acceptance_run]
+  OPS.QualityEconomics:
+    requires_families: [IDENTITY.Core, WRITING.Evaluation, REVIEW.ErrorToReview]
+    requires_framework: []
+    requires_assets: []
+    requires_decisions: [ADR-0001, ADR-0002]
+    requires_evidence: [gold_corpus, benchmark_run, numeric_cost_threshold_approval]

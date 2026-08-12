@@ -1,0 +1,15 @@
+type: web-surface-inventory
+status: review
+version: 0.2.1
+owner: product + engineering + operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing, LEARN.Listening, LEARN.Reading, LEARN.Speaking, LEARN.Pronunciation, PRACTICE.MockTest]
+purpose: operational-capability-user-action-to-evidence-readiness-inventory
+consumed_by: [product, engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-11
+change_log:
+  - version: 0.2.1
+    date: 2026-08-11
+    changes:
+      - Translated mutable inventory guidance to English without changing capability, evidence, or readiness state.

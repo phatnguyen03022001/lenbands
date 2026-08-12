@@ -1,0 +1,10 @@
+type: agent-change-attestation
+status: review
+version: 0.2.0
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
+purpose: disclose-bounded-session-temp-reproducibility-and-skill-mcp-shadow-hardening
+consumed_by: [founder, codeowners, ci]
+created_at: 2026-08-08
+updated_at: 2026-08-08

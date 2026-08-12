@@ -1,0 +1,21 @@
+type: engineering-stack-recommendation
+status: review
+version: 0.2.2
+owner: engineering
+representation: markdown
+derived_from:
+  - OPS.Observability
+purpose: Technology Decision Record — capability-first stack recommendations with governance, lifecycle policies, exit criteria, and pending technology decisions for Go (services), Python (engines), and Next.js (apps)
+consumed_by: [engineering, business]
+created_at: 2026-08-07
+updated_at: 2026-08-11
+change_log:
+  - version: 0.2.2
+    date: 2026-08-11
+    changes:
+      - Translated mutable technology-decision prose to English without changing recommendation, lifecycle, phase, exit-criteria, or pending-decision semantics.
+      - Translated two remaining table fragments to English without changing provider, routing, or lifecycle semantics.
+  - version: 0.2.1
+    date: 2026-08-11
+    changes:
+      - Translated mutable technology-decision prose to English without changing recommendation, lifecycle, phase, exit-criteria, or pending-decision semantics.

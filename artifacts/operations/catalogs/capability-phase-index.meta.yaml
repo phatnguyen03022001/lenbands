@@ -1,0 +1,22 @@
+type: capability-phase-index
+status: draft
+version: 0.1.3
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate]
+purpose: explicit-capability-phasing-projection
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generated_from: blueprint/03-features.md + blueprint/08-roadmap.md
+generated_at: null
+schema_version: 1.0.0
+generation_state: manual_projection_pending_generator
+generator_owner: operations
+generator_registration: missing
+generator_gap: true
+generator_gap_reason: No registered generator exists; do not hand-translate the projection.
+change_log:
+  - version: 0.1.3
+    date: 2026-08-11
+    changes:
+      - Registered the missing generator gap and canonical owner for this manual projection; no generated output was edited.

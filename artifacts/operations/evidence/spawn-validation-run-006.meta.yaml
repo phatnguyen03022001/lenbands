@@ -1,0 +1,9 @@
+type: immutable-validation-evidence
+status: review
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [KA.Vocabulary, KA.Grammar, KA.Lesson, OPS.ReleaseGate]
+purpose: final-immutable-revalidation-of-seven-spawn-assets-against-framework-1.0.4
+created_at: 2026-08-07
+updated_at: 2026-08-07

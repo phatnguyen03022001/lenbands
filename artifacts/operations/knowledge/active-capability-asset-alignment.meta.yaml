@@ -1,0 +1,12 @@
+type: active-capability-asset-alignment
+status: review
+version: 0.1.0
+owner: content + operations
+representation: markdown
+derived_from: [LEARN.Writing, EVAL.Writing, REVIEW.MistakeNotebook, OPS.ContentQuality]
+source_files: [blueprint/framework/README.md, artifacts/experience/specs/skill-practice-coverage.md, knowledge-assets/README.md]
+purpose: active-family-required-asset-and-stimulus-coverage
+consumed_by: [content, engineering, operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+schema_version: 1.0.0

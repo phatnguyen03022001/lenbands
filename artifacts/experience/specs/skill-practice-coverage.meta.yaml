@@ -1,0 +1,24 @@
+type: coverage-contract
+status: review
+version: 0.1.0
+owner: product
+representation: markdown
+derived_from:
+  - LEARN.Listening
+  - LEARN.Reading
+  - LEARN.Writing
+  - LEARN.Speaking
+  - LEARN.Pronunciation
+  - PRACTICE.Set
+  - PRACTICE.Drill
+  - PRACTICE.Timed
+  - PRACTICE.Adaptive
+  - PRACTICE.MockTest
+  - PRACTICE.ExamSimulation
+  - EVAL.Writing
+  - EVAL.Speaking
+  - EVAL.Pronunciation
+purpose: complete-ielts-skill-and-learner-practice-coverage-contract
+consumed_by: [experience, engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

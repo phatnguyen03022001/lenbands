@@ -1,0 +1,921 @@
+openapi: 3.1.0
+info:
+  title: LenBands P0 Runtime API
+  version: 0.5.0
+  description: >-
+    Learner HTTP boundary for Writing Task 2. All mutations are idempotent;
+    raw essay text never enters analytics events. Shared HTTP lifecycle is defined
+    by the P0 API Governance Contract.
+servers:
+  - url: /api
+security:
+  - bearerAuth: []
+paths:
+  /v1/me/profile:
+    get:
+      operationId: getMyProfile
+      x-owner-pack: P0-01
+      summary: Read the authenticated learner profile.
+      responses:
+        '200':
+          description: Profile returned.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LearnerProfile'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      operationId: updateMyProfile
+      x-owner-pack: P0-01
+      summary: Update learner-owned profile fields.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UpdateProfileRequest'}
+      responses:
+        '200':
+          description: Profile updated.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LearnerProfile'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/placement:
+    post:
+      operationId: startPlacement
+      x-owner-pack: P0-02
+      summary: Start a versioned placement attempt.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/StartPlacementRequest'}
+      responses:
+        '201':
+          description: Placement attempt created.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlacementAttempt'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/placement/{attemptId}/responses:
+    post:
+      operationId: submitPlacementResponse
+      x-owner-pack: P0-02
+      summary: Submit one placement response.
+      parameters:
+        - $ref: '#/components/parameters/AttemptId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PlacementResponseRequest'}
+      responses:
+        '201':
+          description: Response persisted.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlacementAttempt'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/placement/{attemptId}:
+    get:
+      operationId: getPlacementAttempt
+      x-owner-pack: P0-02
+      summary: Read placement attempt state and result.
+      parameters:
+        - $ref: '#/components/parameters/AttemptId'
+      responses:
+        '200':
+          description: Placement state returned.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PlacementAttempt'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/today:
+    get:
+      operationId: getTodayPlan
+      x-owner-pack: P0-03
+      summary: Read the authenticated learner daily action plan.
+      description: |
+        Returns the current daily plan snapshot. When `plan_state` is not `ready`,
+        `actions` may be empty or contain fallback actions. `no_plan` means the
+        learner has no placement/goal yet (redirect to P0-02). `plan_stale` means
+        the snapshot should be regenerated. `plan_unavailable` means the rule/cache
+        engine is degraded. `fallback_offered` provides up to 3 deterministic
+        alternatives without recommendation confidence.
+      responses:
+        '200':
+          description: Daily plan returned (plan_state indicates readiness).
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DailyPlan'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/study/sessions:
+    post:
+      operationId: startStudySession
+      x-owner-pack: P0-03
+      summary: Start the selected daily action session.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/StartSessionRequest'}
+      responses:
+        '201':
+          description: Session started.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/StudySession'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/study/sessions/{sessionId}:
+    patch:
+      operationId: updateStudySession
+      x-owner-pack: P0-03
+      summary: Pause, resume, or complete a study session.
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/UpdateSessionRequest'}
+      responses:
+        '200':
+          description: Session state updated.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/StudySession'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/ops/quality-gate:
+    get:
+      operationId: getQualityGate
+      x-owner-pack: P0-06
+      summary: Read current quality and release gate status.
+      responses:
+        '200':
+          description: Quality gate returned.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QualityGate'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      operationId: evaluateQualityGate
+      x-owner-pack: P0-06
+      summary: Evaluate a release gate from immutable evidence references.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EvaluateQualityGateRequest'}
+      responses:
+        '200':
+          description: Gate decision returned.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QualityGate'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /v1/writing/tasks/{taskId}:
+    get:
+      operationId: getWritingTask
+      x-owner-pack: P0-04
+      summary: Read a published Writing Task 2 prompt.
+      parameters:
+        - $ref: '#/components/parameters/TaskId'
+      responses:
+        '200':
+          description: Published task returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingTask'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/writing/drafts/{draftId}:
+    put:
+      operationId: saveWritingDraft
+      x-owner-pack: P0-04
+      summary: Save a learner-owned draft using optimistic versioning.
+      parameters:
+        - $ref: '#/components/parameters/DraftId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SaveDraftRequest'}
+      responses:
+        '200':
+          description: Draft durably saved.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingDraft'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /v1/writing/submissions:
+    post:
+      operationId: createWritingSubmission
+      x-owner-pack: P0-04
+      summary: Submit a valid draft for asynchronous evaluation.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CreateSubmissionRequest'}
+      responses:
+        '202':
+          description: Submission accepted; evaluation job is durable and queued.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingSubmission'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/Unprocessable'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /v1/writing/submissions/{submissionId}:
+    get:
+      operationId: getWritingSubmission
+      x-owner-pack: P0-04
+      summary: Read learner-owned submission status and accepted result reference.
+      parameters:
+        - $ref: '#/components/parameters/SubmissionId'
+      responses:
+        '200':
+          description: Submission state returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingSubmission'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/writing/submissions/{submissionId}/retry:
+    post:
+      operationId: retryWritingEvaluation
+      x-owner-pack: P0-04
+      summary: Retry only a delayed or unavailable evaluation; never creates a new submission.
+      parameters:
+        - $ref: '#/components/parameters/SubmissionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Retry job accepted.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingSubmission'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /v1/writing/submissions/{submissionId}/evaluation:
+    get:
+      operationId: getWritingEvaluation
+      x-owner-pack: P0-04
+      summary: Read the learner-owned evaluation result and quality state.
+      parameters:
+        - $ref: '#/components/parameters/SubmissionId'
+      responses:
+        '200':
+          description: Evaluation result returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/WritingEvaluation'}
+        '202':
+          description: Evaluation exists but has no quality result yet; retry after the supplied delay.
+          headers:
+            Retry-After: {$ref: '#/components/headers/RetryAfter'}
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/EvaluationPending'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/writing/submissions/{submissionId}/feedback:
+    post:
+      operationId: submitWritingFeedback
+      x-owner-pack: P0-04
+      summary: Record learner feedback on an evaluation without changing the score.
+      parameters:
+        - $ref: '#/components/parameters/SubmissionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/FeedbackRequest'}
+      responses:
+        '201':
+          description: Feedback receipt returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FeedbackReceipt'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/me/quota:
+    get:
+      operationId: getMyQuota
+      x-owner-pack: P0-06
+      summary: Read current learner quota windows before a costly action.
+      responses:
+        '200':
+          description: Quota state returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/QuotaState'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/writing/errors:
+    get:
+      operationId: listWritingErrors
+      x-owner-pack: P0-05
+      summary: Read learner-owned writing errors available for fix and review.
+      parameters:
+        - in: query
+          name: status
+          required: false
+          schema: {type: string, enum: [open, in_review, improved, dismissed]}
+      responses:
+        '200':
+          description: Writing errors returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LearningErrorList'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      operationId: saveWritingError
+      x-owner-pack: P0-05
+      summary: Save one learner-confirmed error from an evaluation.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SaveErrorRequest'}
+      responses:
+        '201':
+          description: Error saved and review-card eligibility returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LearningError'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/writing/errors/{errorId}:
+    get:
+      operationId: getWritingError
+      x-owner-pack: P0-05
+      summary: Read one learner-owned writing error and its current status.
+      parameters:
+        - $ref: '#/components/parameters/ErrorId'
+      responses:
+        '200':
+          description: Writing error returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/LearningError'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /v1/writing/errors/{errorId}/fixes:
+    post:
+      operationId: completeWritingErrorFix
+      x-owner-pack: P0-05
+      summary: Save learner evidence from a fix drill.
+      parameters:
+        - $ref: '#/components/parameters/ErrorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CompleteFixRequest'}
+      responses:
+        '201':
+          description: Fix evidence saved.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FixEvidence'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /v1/writing/errors/{errorId}/retest:
+    post:
+      operationId: startWritingErrorRetest
+      x-owner-pack: P0-05
+      summary: Start a retest for one learner-owned error.
+      parameters:
+        - $ref: '#/components/parameters/ErrorId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RetestRequest'}
+      responses:
+        '202':
+          description: Retest accepted.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Retest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '429': {$ref: '#/components/responses/RateLimited'}
+  /v1/review/cards:
+    get:
+      operationId: listReviewCards
+      x-owner-pack: P0-05
+      summary: Read the learner-owned due review queue.
+      parameters:
+        - in: query
+          name: state
+          required: false
+          schema: {type: string, enum: [new, learning, review, relearning]}
+      responses:
+        '200':
+          description: Review cards returned.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReviewCardList'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /v1/review/cards/{cardId}/ratings:
+    post:
+      operationId: rateReviewCard
+      x-owner-pack: P0-05
+      summary: Apply an FSRS rating exactly once and return next due time.
+      parameters:
+        - $ref: '#/components/parameters/CardId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RateReviewCardRequest'}
+      responses:
+        '200':
+          description: Rating applied.
+          headers:
+            X-Request-Id: {$ref: '#/components/headers/RequestId'}
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReviewCardRating'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  headers:
+    RequestId:
+      description: Correlation identifier for support and distributed tracing.
+      schema: {type: string, minLength: 16, maxLength: 128}
+    RetryAfter:
+      description: Seconds before a retry is permitted.
+      schema: {type: integer, minimum: 1}
+  parameters:
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema: {type: string, minLength: 16, maxLength: 128}
+    TaskId:
+      in: path
+      name: taskId
+      required: true
+      schema: {type: string, minLength: 1}
+    DraftId:
+      in: path
+      name: draftId
+      required: true
+      schema: {type: string, minLength: 1}
+    SubmissionId:
+      in: path
+      name: submissionId
+      required: true
+      schema: {type: string, minLength: 1}
+    ErrorId:
+      in: path
+      name: errorId
+      required: true
+      schema: {type: string, minLength: 1}
+    CardId:
+      in: path
+      name: cardId
+      required: true
+      schema: {type: string, minLength: 1}
+    AttemptId:
+      in: path
+      name: attemptId
+      required: true
+      schema: {type: string, minLength: 1}
+    SessionId:
+      in: path
+      name: sessionId
+      required: true
+      schema: {type: string, minLength: 1}
+  responses:
+    BadRequest: {$ref: '#/components/responses/ErrorResponse'}
+    Unauthorized: {$ref: '#/components/responses/ErrorResponse'}
+    Forbidden: {$ref: '#/components/responses/ErrorResponse'}
+    NotFound: {$ref: '#/components/responses/ErrorResponse'}
+    Conflict: {$ref: '#/components/responses/ErrorResponse'}
+    Unprocessable: {$ref: '#/components/responses/ErrorResponse'}
+    RateLimited:
+      description: Rate, quota or concurrency limit reached.
+      headers:
+        Retry-After: {$ref: '#/components/headers/RetryAfter'}
+        X-Request-Id: {$ref: '#/components/headers/RequestId'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+    ErrorResponse:
+      description: User-safe, versioned problem response.
+      headers:
+        X-Request-Id: {$ref: '#/components/headers/RequestId'}
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ErrorResponse'}
+  schemas:
+    LearnerProfile:
+      type: object
+      required: [profile_id, locale, target_band]
+      properties:
+        profile_id: {type: string}
+        locale: {type: string}
+        target_band: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
+        weekly_goal_minutes: {type: integer, minimum: 0}
+    UpdateProfileRequest:
+      type: object
+      required: [locale, target_band]
+      properties:
+        locale: {type: string, minLength: 2}
+        target_band: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
+        weekly_goal_minutes: {type: integer, minimum: 0}
+    StartPlacementRequest:
+      type: object
+      required: [module]
+      properties:
+        module: {type: string, enum: [academic, general_training]}
+        goal_ref: {type: string}
+    PlacementResponseRequest:
+      type: object
+      required: [item_ref, response]
+      properties:
+        item_ref: {type: string}
+        response: {type: string, maxLength: 10000}
+    PlacementAttempt:
+      type: object
+      required: [attempt_id, state, module]
+      properties:
+        attempt_id: {type: string}
+        state: {type: string, enum: [new, in_progress, paused, submitted, diagnosed, insufficient_data]}
+        module: {type: string, enum: [academic, general_training]}
+        result_ref: {type: string}
+    DailyPlan:
+      type: object
+      required: [plan_id, plan_date, plan_state, actions]
+      properties:
+        plan_id: {type: string}
+        plan_date: {type: string, format: date}
+        plan_state: {type: string, enum: [plan_ready, no_plan, plan_stale, plan_unavailable, fallback_offered]}
+        actions:
+          type: array
+          maxItems: 3
+          items:
+            type: object
+            required: [action_id, capability_id, reason_code]
+            properties:
+              action_id: {type: string}
+              capability_id: {type: string}
+              reason_code: {type: string, enum: [placement_recent, review_due, weakness_practice, goal_aligned, continue_session, daily_goal_remaining, fallback_micro_session, unknown_reason_code]}
+              estimated_minutes: {type: integer, minimum: 5, maximum: 120}
+        generated_at: {type: string, format: date-time}
+        expires_at: {type: string, format: date-time}
+    StartSessionRequest:
+      type: object
+      required: [action_ref]
+      properties:
+        action_ref: {type: string, description: "Must match an action_id from the current DailyPlan.actions[]. Rejected if snapshot expired or action not in plan."}
+    UpdateSessionRequest:
+      type: object
+      required: [state]
+      properties:
+        state: {type: string, enum: [paused, completed, abandoned]}
+        checkpoint_ref: {type: string}
+    StudySession:
+      type: object
+      required: [session_id, state, action_ref]
+      properties:
+        session_id: {type: string}
+        state: {type: string, enum: [started, paused, completed, abandoned]}
+        action_ref: {type: string}
+        checkpoint_ref: {type: string}
+    EvaluateQualityGateRequest:
+      type: object
+      required: [evidence_refs]
+      properties:
+        evidence_refs:
+          type: array
+          minItems: 1
+          items: {type: string, minLength: 1}
+    QualityGate:
+      type: object
+      required: [gate_id, state, decision]
+      properties:
+        gate_id: {type: string}
+        state: {type: string, enum: [unarmed, collecting_evidence, blocked, approved_for_pilot, rolled_back]}
+        decision: {type: string, enum: [approve, block, rollback]}
+        reason_refs:
+          type: array
+          items: {type: string}
+    WritingTask:
+      type: object
+      required: [task_id, task_version, task_type, prompt, min_word_count]
+      properties:
+        task_id: {type: string}
+        task_version: {type: string}
+        task_type: {type: string, enum: [W_task2_opinion, W_task2_discussion, W_task2_advantages_disadvantages, W_task2_problem_solution, W_task2_two_part]}
+        prompt: {type: string}
+        min_word_count: {type: integer, minimum: 250}
+        estimated_minutes: {type: integer, minimum: 1}
+    SaveDraftRequest:
+      type: object
+      required: [text, version]
+      properties:
+        text: {type: string, minLength: 1, maxLength: 30000}
+        version: {type: integer, minimum: 0}
+    WritingDraft:
+      type: object
+      required: [draft_id, task_id, version, saved_at]
+      properties:
+        draft_id: {type: string}
+        task_id: {type: string}
+        version: {type: integer, minimum: 0}
+        saved_at: {type: string, format: date-time}
+        word_count: {type: integer, minimum: 0}
+    CreateSubmissionRequest:
+      type: object
+      required: [draft_id, draft_version]
+      properties:
+        draft_id: {type: string}
+        draft_version: {type: integer, minimum: 0}
+    WritingSubmission:
+      type: object
+      required: [submission_id, status, submitted_at]
+      properties:
+        submission_id: {type: string}
+        status: {$ref: '#/components/schemas/SubmissionStatus'}
+        submitted_at: {type: string, format: date-time}
+        evaluation_ref: {type: string}
+        failure: {$ref: '#/components/schemas/UserSafeFailure'}
+    WritingEvaluation:
+      type: object
+      required: [evaluation_id, submission_id, evaluation_state, quality_status, rubric_version, model_version, criteria, findings, anti_gaming_status]
+      properties:
+        evaluation_id: {type: string}
+        submission_id: {type: string}
+        evaluation_state: {type: string, enum: [submitted, processing, scored, low_confidence, invalid, anti_gaming_review, failed]}
+        quality_status: {type: string, enum: [accepted, low_confidence, insufficient_evidence, invalid]}
+        rubric_version: {type: string}
+        model_version: {type: string}
+        overall_band_estimate: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
+        overall_confidence: {type: number, minimum: 0, maximum: 1}
+        criteria:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items: {$ref: '#/components/schemas/CriterionResult'}
+        findings:
+          type: array
+          items: {$ref: '#/components/schemas/FeedbackFinding'}
+        anti_gaming_status: {type: string, enum: [clear, action_required]}
+        created_at: {type: string, format: date-time}
+    EvaluationPending:
+      type: object
+      required: [submission_id, evaluation_state, retry_after_seconds]
+      properties:
+        submission_id: {type: string}
+        evaluation_state: {type: string, enum: [submitted, processing, delayed]}
+        retry_after_seconds: {type: integer, minimum: 1}
+    CriterionResult:
+      type: object
+      required: [criterion, band_estimate, confidence, evidence_refs]
+      properties:
+        criterion: {type: string, enum: [task_response, coherence_cohesion, lexical_resource, grammar]}
+        band_estimate: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        evidence_refs:
+          type: array
+          items: {type: string, minLength: 1}
+    FeedbackFinding:
+      type: object
+      required: [finding_id, criterion, evidence_refs, explanation, priority, actionability]
+      properties:
+        finding_id: {type: string}
+        criterion: {type: string, enum: [task_response, coherence_cohesion, lexical_resource, grammar]}
+        error_pattern: {type: string, minLength: 1, description: "Framework error_id from blueprint/framework/error-taxonomy.md. Must resolve to a valid error_id (e.g. W_gra_relative_clause). Non-framework values rejected by domain validation; unknown_error blocks learner action per data-contract.md."}
+        severity: {type: string, enum: [high, medium, low]}
+        evidence_refs:
+          type: array
+          items: {type: string, minLength: 1}
+        explanation: {type: string}
+        recommended_fix_ref: {type: string}
+        priority: {type: integer, minimum: 1}
+        actionability: {type: string, enum: [actionable, insufficient_evidence]}
+    SaveErrorRequest:
+      type: object
+      required: [source_finding_id, source_evaluation_id, error_pattern, criterion, severity, evidence_ref, confidence, microskill_ref]
+      properties:
+        source_finding_id: {type: string, minLength: 1}
+        source_evaluation_id: {type: string, minLength: 1}
+        error_pattern: {type: string, minLength: 1, description: "Framework error_id from blueprint/framework/error-taxonomy.md. Must resolve to a valid error_id. Non-framework values rejected by domain validation per data-contract.md."}
+        criterion: {type: string, enum: [task_response, coherence_cohesion, lexical_resource, grammar]}
+        severity: {type: string, enum: [high, medium, low]}
+        evidence_ref: {type: string, minLength: 1}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        microskill_ref:
+          type: array
+          items: {type: string, minLength: 1}
+    LearningError:
+      type: object
+      required: [error_id, source_finding_id, source_evaluation_id, error_pattern, criterion, severity, evidence_ref, status, confidence]
+      properties:
+        error_id: {type: string}
+        source_finding_id: {type: string}
+        source_evaluation_id: {type: string}
+        error_pattern: {type: string, minLength: 1, description: "Framework error_id from blueprint/framework/error-taxonomy.md. Must resolve to a valid error_id (e.g. W_gra_relative_clause). Non-framework values rejected by domain validation; unknown_error blocks learner action per data-contract.md."}
+        criterion: {type: string, enum: [task_response, coherence_cohesion, lexical_resource, grammar]}
+        severity: {type: string, enum: [high, medium, low]}
+        evidence_ref: {type: string}
+        status: {type: string, enum: [open, in_review, improved, dismissed, resolved, recurring]}
+        confidence: {type: number, minimum: 0, maximum: 1}
+        microskill_ref:
+          type: array
+          items: {type: string}
+        review_card_ref: {type: string}
+    LearningErrorList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/LearningError'}
+    SubmissionStatus:
+      type: string
+      enum: [submitted, processing, delayed, scored, low_confidence, unavailable]
+    CompleteFixRequest:
+      type: object
+      required: [evidence]
+      properties:
+        evidence: {type: string, minLength: 1, maxLength: 10000}
+    FixEvidence:
+      type: object
+      required: [fix_id, error_id, status, completed_at]
+      properties:
+        fix_id: {type: string}
+        error_id: {type: string}
+        status: {type: string, enum: [completed]}
+        completed_at: {type: string, format: date-time}
+    RateReviewCardRequest:
+      type: object
+      required: [rating]
+      properties:
+        rating: {type: string, enum: [again, hard, good, easy]}
+    ReviewCardRating:
+      type: object
+      required: [card_id, next_due_at, algorithm_version]
+      properties:
+        card_id: {type: string}
+        next_due_at: {type: string, format: date-time}
+        algorithm_version: {type: string}
+    FeedbackRequest:
+      type: object
+      required: [label]
+      properties:
+        label: {type: string, enum: [helpful, incorrect, unclear]}
+        note: {type: string, maxLength: 2000}
+    FeedbackReceipt:
+      type: object
+      required: [feedback_id, submission_id, recorded_at]
+      properties:
+        feedback_id: {type: string}
+        submission_id: {type: string}
+        recorded_at: {type: string, format: date-time}
+    QuotaWindow:
+      type: object
+      required: [used, limit, resets_at]
+      properties:
+        used: {type: integer, minimum: 0}
+        limit: {type: integer, minimum: 0}
+        resets_at: {type: string, format: date-time}
+    QuotaState:
+      type: object
+      required: [plan, windows]
+      properties:
+        plan: {type: string, enum: [free, premium]}
+        windows:
+          type: object
+          required: [writing_evaluation, retest]
+          properties:
+            writing_evaluation:
+              type: object
+              required: [daily, weekly]
+              properties:
+                daily: {$ref: '#/components/schemas/QuotaWindow'}
+                weekly: {$ref: '#/components/schemas/QuotaWindow'}
+            retest:
+              type: object
+              required: [daily]
+              properties:
+                daily: {$ref: '#/components/schemas/QuotaWindow'}
+    RetestRequest:
+      type: object
+      properties:
+        prompt_ref: {type: string}
+    Retest:
+      type: object
+      required: [retest_id, error_id, status, created_at]
+      properties:
+        retest_id: {type: string}
+        error_id: {type: string}
+        status: {type: string, enum: [created, submitted, processing, completed, unavailable]}
+        created_at: {type: string, format: date-time}
+    ReviewCard:
+      type: object
+      required: [card_id, source_error_id, state, due_at, algorithm_version]
+      properties:
+        card_id: {type: string}
+        source_error_id: {type: string}
+        state: {type: string, enum: [new, learning, review, relearning]}
+        due_at: {type: string, format: date-time}
+        algorithm_version: {type: string}
+    ReviewCardList:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/ReviewCard'}
+    UserSafeFailure:
+      type: object
+      required: [code, message, state, recoverable]
+      properties:
+        code: {type: string, pattern: '^[A-Z][A-Z0-9_]*$'}
+        message: {type: string}
+        state: {type: string, enum: [action_required, processing, delayed, unavailable]}
+        recoverable: {type: boolean}
+        retry_after_seconds: {type: integer, minimum: 1}
+    ErrorResponse:
+      type: object
+      required: [error, request_id]
+      properties:
+        error: {$ref: '#/components/schemas/UserSafeFailure'}
+        request_id: {type: string}

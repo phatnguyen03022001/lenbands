@@ -1,0 +1,12 @@
+type: repository-baseline-capability
+status: draft
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate]
+source_files: [blueprint/03-features.md, artifacts/operations/catalogs/capability-index.md, artifacts/operations/catalogs/capability-phase-index.md]
+purpose: measured-capability-count-lifecycle-and-candidate-family-baseline
+consumed_by: [operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: generated_by_tools/generate-repository-baseline.sh

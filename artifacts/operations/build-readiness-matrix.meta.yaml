@@ -1,0 +1,15 @@
+type: build-readiness-matrix
+status: draft
+version: 0.2.6
+owner: product
+representation: markdown
+derived_from:
+  - PLACE.Test
+  - STUDY.DailyPlan
+  - LEARN.Writing
+  - EVAL.Writing
+  - REVIEW.FSRS
+  - OPS.ReleaseGate
+purpose: founder-agent-build-governance
+created_at: 2026-08-06
+updated_at: 2026-08-07

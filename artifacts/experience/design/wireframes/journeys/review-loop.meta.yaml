@@ -1,0 +1,15 @@
+type: journey-wireframe
+status: draft
+version: 0.1.2
+owner: product
+representation: html
+derived_from:
+  - REVIEW.SmartQueue
+  - REVIEW.FSRS
+  - REVIEW.MistakeNotebook
+purpose: review-loop
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.2
+    changes: "Restored Vietnamese learner-facing rating copy; design annotations remain unchanged."

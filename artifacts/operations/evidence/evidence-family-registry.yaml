@@ -1,0 +1,40 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+description: Evidence families reused by implementation families; this registry defines what must be measured, not results.
+
+evidence_families:
+  - evidence_family_id: LLM.Evaluation
+    method: rubric_labeled_evaluator_comparison
+    implementation_families: [WRITING.Evaluation, SPEAKING.Evaluation]
+    requires: [gold_corpus, evaluator_labels, numeric_thresholds, acceptance_run]
+    metrics: [criterion_mae, overall_mae, confidence_calibration, false_acceptance_rate, latency, cost]
+    current_status: pending_corpus
+
+  - evidence_family_id: ANSWER_KEY.Evaluation
+    method: deterministic_answer_key_comparison
+    implementation_families: [READING.Practice, LISTENING.Practice]
+    requires: [published_stimuli, answer_keys, normalization_rules, acceptance_run]
+    metrics: [answer_accuracy, normalization_accuracy, explanation_correctness, timing]
+    current_status: planned
+
+  - evidence_family_id: WORKFLOW.Runtime
+    method: state_transition_and_failure_acceptance
+    implementation_families: [IDENTITY.Core, PLACEMENT.Diagnosis, STUDY.DailyAction, REVIEW.ErrorToReview]
+    requires: [acceptance_cases, idempotency_cases, recovery_cases, privacy_cases]
+    metrics: [transition_correctness, duplicate_rate, recovery_success_rate, privacy_violation_count]
+    current_status: acceptance_not_run
+
+  - evidence_family_id: COMPOSITE.Exam
+    method: composite_section_and_conversion_validation
+    implementation_families: [MOCK.ExamSimulation]
+    requires: [module_forms, timing_contract, conversion_tables, composite_acceptance]
+    metrics: [section_completion, score_aggregation_accuracy, conversion_accuracy, resume_success_rate]
+    current_status: planned
+
+  - evidence_family_id: OPERATIONS.Quality
+    method: immutable_gate_and_cost_observation
+    implementation_families: [OPS.QualityEconomics]
+    requires: [benchmark_run, cost_threshold_approval, immutable_evidence, rollback_record]
+    metrics: [cost_per_outcome, p95_latency, drift_rate, gate_correctness, rollback_success_rate]
+    current_status: pending_thresholds

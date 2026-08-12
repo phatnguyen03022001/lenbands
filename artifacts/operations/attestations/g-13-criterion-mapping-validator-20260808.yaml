@@ -1,0 +1,20 @@
+schema_version: 1.0.0
+change_id: g-13-criterion-mapping-validator-20260808
+change_scope: add-mutation-tested-writing-criterion-mapping-consistency-validation
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby -Itools/lib tools/test/test_criterion_mapping_contract.rb
+  - tools/bin/lenbands validate contract-ownership
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - The validator keeps the canonical TR, CC, LR, and GRA mapping aligned with the Writing Task 2 taxonomy and OpenAPI enums.
+  - Mutation tests prove that canonical mapping, taxonomy, and OpenAPI drift each fail closed.
+  - No IELTS taxonomy node, runtime evidence, approval, benchmark result, or readiness state was changed.

@@ -1,0 +1,21 @@
+schema_version: 1.0.0
+change_id: toolchain-fail-closed-hardening-20260807
+change_scope: repair-test-harness-input-safety-registry-immutability-and-evidence-path-validation
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - Reporter-backed tests now fail when any assertion has accumulated.
+  - Lifecycle detection distinguishes artifact metadata from runtime payload schemas.
+  - Tool YAML inputs use safe loading; registry snapshots are deeply immutable.
+  - Evidence containment and missing-file handling fail closed without duplicate blockers.
+  - No immutable evidence, authority boundary, approval state, or readiness state was changed.

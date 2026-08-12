@@ -1,0 +1,83 @@
+contract: runtime-baseline-configuration
+version: 0.1.2
+status: draft
+scope: closed_pilot_p0
+owner: engineering
+assumption: >-
+  Safe starting values for a closed pilot. They are not measured production capacity,
+  pricing approval, or a substitute for quota/benchmark evidence. Any change requires
+  an Artifact review and a release-impact check.
+
+api:
+  request_id_header: X-Request-Id
+  idempotency_retention_hours: 48
+  quota:
+    timezone: UTC
+    reservation_required_before_costly_action: true
+    windows:
+      free:
+        writing_evaluation_daily: 3
+        writing_evaluation_weekly: 10
+        retest_daily: 3
+      premium:
+        writing_evaluation_daily: 50
+        writing_evaluation_weekly: null
+        retest_daily: 50
+    retry_reuses_reservation: true
+    terminal_failure_releases_reservation_when_no_result: true
+  rate_limits:
+    draft_save_per_minute_per_subject: 30
+    submission_create_per_hour_per_subject: 5
+    submission_retry_per_24h_per_submission: 3
+    review_rating_per_minute_per_subject: 60
+
+redis_streams:
+  evaluation_stream: p0.writing.evaluation.v1
+  evaluation_consumer_group: writing-evaluation-workers-v1
+  worker_lease_timeout_seconds: 120
+  max_attempts: 2
+  retry_backoff_seconds: [30]
+  job_deadline_seconds: 300
+  per_subject_in_flight_evaluations: 1
+  global_evaluation_concurrency: 4
+  dlq_stream: p0.writing.evaluation.dlq.v1
+  outbox_relay_poll_seconds: 5
+  reconciliation_interval_minutes: 15
+
+provider_adapter:
+  per_attempt_timeout_seconds: 75
+  circuit_breaker:
+    consecutive_transient_failures_to_open: 5
+    open_seconds: 120
+    half_open_probe_count: 1
+  allowed_provider_attempts_per_job: 1
+
+llm:
+  writing_evaluation:
+    target_input_tokens: 4000
+    target_output_tokens: 1500
+    hard_max_input_tokens: 6000
+    hard_max_output_tokens: 2000
+    prompt_template_id: writing_evaluation_v1
+    require_structured_evaluation_contract: true
+    allow_unbenchmarked_fallback: false
+
+cache:
+  public_read_ttl_seconds: 3600
+  public_read_stale_seconds: 300
+  private_read_ttl_seconds: 30
+  deterministic_compute_ttl_seconds: 300
+  accepted_model_result_ttl_seconds: 86400
+  negative_public_read_ttl_seconds: 30
+
+observability:
+  evaluation_queue_start_p95_seconds: 60
+  evaluation_terminal_p95_seconds: 300
+  sustained_slo_breach_minutes: 15
+  raw_content_telemetry_tolerance: 0
+
+retention:
+  idempotency_record_days: 7
+  outbox_record_days: 30
+  terminal_job_audit_days: 30
+  dlq_record_days: 30

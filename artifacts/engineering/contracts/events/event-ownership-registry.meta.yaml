@@ -1,0 +1,11 @@
+type: event-ownership-registry
+status: review
+version: 0.2.0
+owner: engineering
+representation: yaml
+derived_from: [OPS.Observability, OPS.ReleaseGate, EVAL.Writing, REVIEW.FSRS]
+purpose: canonical-p0-event-owner-and-allowed-producer-boundary
+consumed_by: [engineering, operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-08
+schema_version: 1.0.0

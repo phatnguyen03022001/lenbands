@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$repo_root"
+
+# Claude's macOS sandbox can deny the per-user OS TMPDIR even when a broad
+# /var/folders allowWrite is configured. Keep repository tooling deterministic
+# and sandbox-portable by owning one non-authoritative scratch root inside the
+# writable workspace. Every dispatched command, child process, mktemp and Ruby
+# Tempfile inherits this path. Tool-owned temporary files are cleaned by their
+# traps; runtime cache residue is disposable because the directory is persistent
+# and ignored rather than an artifact or source of truth.
+lenbands_scratch="$repo_root/artifacts/operations/.tmp"
+mkdir -p "$lenbands_scratch"
+export TMPDIR="$lenbands_scratch"
+
+usage() {
+  cat <<'USAGE'
+usage: tools/bin/lenbands <command> [arguments]
+
+Commands:
+  doctor
+  context [--yaml]
+  generate <all|catalog|lifecycle|coverage|baseline> [--check]
+  validate <all|tooling|claude-code|trust-boundary|phase-index|documents|framework|knowledge-assets|openapi|semantic-contracts|contract-ownership|domain-automation|evidence-lineage|platform-boundary|spawn-prompts|benchmark-contracts|implementation-catalog>
+  gate <toolchain|p0|repository>
+  verify
+  capability compile <CAPABILITY_ID|P0-XX>
+  capability add --id CAPABILITY_ID --family FAMILY_ID [--delta DELTA_ID] [--apply]
+  run <p0-acceptance|writing-benchmark> [runner arguments]
+  version
+USAGE
+}
+
+run_generate() {
+  local target="${1:-all}"
+  shift || true
+  case "$target" in
+    all) exec tools/commands/generate/all.sh "$@" ;;
+    catalog) exec tools/commands/generate/capability-index.sh "$@" ;;
+    lifecycle) exec tools/commands/generate/lifecycle-registry.sh "$@" ;;
+    coverage) exec tools/commands/generate/operational-coverage.sh "$@" ;;
+    baseline) exec tools/commands/generate/repository-baseline.sh "$@" ;;
+    *) echo "unknown generate target: $target" >&2; usage; exit 64 ;;
+  esac
+}
+
+run_validate() {
+  local target="${1:-all}"
+  shift || true
+  case "$target" in
+    all) exec tools/commands/verify.sh "$@" ;;
+    tooling) exec tools/commands/validate/toolchain.rb "$@" ;;
+    claude-code) exec tools/commands/validate/claude-code.rb "$@" ;;
+    trust-boundary) exec tools/commands/validate/trust-boundary.rb "$@" ;;
+    phase-index) exec tools/commands/validate/capability-phase-index.rb "$@" ;;
+    documents) exec tools/commands/validate/documents.rb "$@" ;;
+    framework) exec tools/commands/validate/framework.sh "$@" ;;
+    knowledge-assets) exec tools/commands/validate/knowledge-assets.sh "$@" ;;
+    openapi) exec tools/commands/validate/openapi.sh "$@" ;;
+    semantic-contracts) exec tools/commands/validate/semantic-contracts.sh "$@" ;;
+    contract-ownership) exec tools/commands/validate/contract-ownership.rb "$@" ;;
+    domain-automation) exec tools/commands/validate/domain-automation.rb "$@" ;;
+    evidence-lineage) exec tools/commands/validate/evidence-lineage.rb "$@" ;;
+    platform-boundary) exec tools/commands/validate/platform-boundary.rb "$@" ;;
+    spawn-prompts) exec tools/commands/validate/spawn-prompts.sh "$@" ;;
+    benchmark-contracts) exec tools/commands/validate/benchmark-contracts.sh "$@" ;;
+    implementation-catalog) exec tools/commands/validate/implementation-catalog.sh "$@" ;;
+    *) echo "unknown validate target: $target" >&2; usage; exit 64 ;;
+  esac
+}
+
+command_name="${1:-help}"
+shift || true
+case "$command_name" in
+  doctor) [[ $# -eq 0 ]] || { usage >&2; exit 64; }; exec tools/commands/doctor.rb ;;
+  context) exec tools/commands/context.rb "$@" ;;
+  generate) run_generate "$@" ;;
+  validate) run_validate "$@" ;;
+  verify) [[ $# -eq 0 ]] || { usage >&2; exit 64; }; exec tools/commands/verify.sh ;;
+  gate)
+    gate_name="${1:-}"
+    shift || true
+    case "$gate_name" in
+      toolchain) exec tools/commands/gate/toolchain-freeze.sh "$@" ;;
+      p0) exec tools/commands/gate/readiness.rb p0 "$@" ;;
+      repository) exec tools/commands/gate/readiness.rb repository "$@" ;;
+      *) echo "unknown gate: $gate_name" >&2; usage; exit 64 ;;
+    esac
+    ;;
+  capability)
+    action="${1:-}"
+    shift || true
+    case "$action" in
+      compile) exec tools/commands/capability/compile.sh "$@" ;;
+      add) exec tools/commands/capability/add "$@" ;;
+      *) echo "unknown capability action: $action" >&2; usage; exit 64 ;;
+    esac
+    ;;
+  run)
+    runner="${1:-}"
+    shift || true
+    case "$runner" in
+      p0-acceptance) exec tools/commands/run/p0-acceptance.sh "$@" ;;
+      writing-benchmark) exec tools/commands/run/writing-benchmark.sh "$@" ;;
+      *) echo "unknown runner: $runner" >&2; usage; exit 64 ;;
+    esac
+    ;;
+  version)
+    [[ $# -eq 0 ]] || { usage >&2; exit 64; }
+    ruby -ryaml -e 'data = YAML.safe_load(File.read("tools/toolchain.yaml"), aliases: false); puts "LenBands toolchain #{data.fetch("toolchain_version")}"'
+    ;;
+  help|-h|--help) usage ;;
+  *) echo "unknown command: $command_name" >&2; usage; exit 64 ;;
+esac

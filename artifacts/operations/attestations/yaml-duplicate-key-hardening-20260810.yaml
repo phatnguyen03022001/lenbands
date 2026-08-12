@@ -1,0 +1,20 @@
+schema_version: 1.0.0
+change_id: yaml-duplicate-key-hardening-20260810
+change_scope: reject-duplicate-yaml-mapping-keys-before-document-and-contract-validation
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby -Itools/lib tools/test/test_yaml_duplicate_keys.rb
+  - tools/bin/lenbands validate documents
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-2026-08-10-re-audit-and-update-batches
+notes:
+  - Independent audit found duplicate change_log keys in web-platform-pack-inventory metadata; the artifact history is merged before validation hardening.
+  - The loader rejects duplicates before YAML.safe_load can silently retain the last value.
+  - No authority, evidence, source code, application readiness or P0 readiness is promoted.

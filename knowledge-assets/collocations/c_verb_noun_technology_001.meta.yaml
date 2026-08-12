@@ -1,0 +1,17 @@
+type: knowledge-asset
+asset_kind: collocation
+asset_id: KA-000017
+status: draft
+version: 0.1.0
+owner: colab
+derived_from: [KA.Collocation]
+framework_refs:
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [c_verb_noun, t_technology]
+origin: {source: generated, license: unknown}
+integrity: {checksum: "sha256:ec1665be9b76e1e7c9dbddbed9f023dbd6d86c4d20984620f48cf713ebfeaa11", payload_file: c_verb_noun_technology_001.md}
+governance: {rights_status: pending_review, review_status: draft}
+spawn_lineage: {workflow_run_id: spawn-validation-run-001, prompt_template_id: spawn-collocation, prompt_hash: "sha256:11aa97ddb0e96b7f644680aaa43eb56325aeb5ffc0db26bea13dbf472d9d68f3", model: codex, parameters: {category: c_verb_noun, topic_ref: [t_technology], band_range: 6.5-7.5}}
+created_at: "2026-08-07T05:54:58Z"
+updated_at: "2026-08-07T05:54:58Z"

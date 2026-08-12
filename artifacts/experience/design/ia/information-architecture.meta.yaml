@@ -1,0 +1,14 @@
+type: information-architecture
+status: draft
+version: 0.1.2
+owner: product
+representation: markdown
+derived_from:
+  - STUDY.DailyPlan
+  - LEARN.Path
+  - PRACTICE.Drill
+  - REVIEW.SmartQueue
+  - PRACTICE.MockTest
+purpose: learner-navigation-structure
+created_at: 2026-08-06
+updated_at: 2026-08-11

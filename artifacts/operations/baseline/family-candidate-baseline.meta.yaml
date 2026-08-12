@@ -1,0 +1,12 @@
+type: repository-baseline-family-candidates
+status: draft
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [artifacts/operations/baseline/capability-baseline.md, artifacts/operations/capability-manifest.yaml]
+purpose: candidate-family-grouping-before-canonical-family-freeze
+consumed_by: [product, engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: generated_by_tools/generate-repository-baseline.sh

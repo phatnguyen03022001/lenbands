@@ -1,0 +1,56 @@
+schema_version: 1.0.0
+record_type: static_validation_snapshot
+run_id: spawn-validation-run-007
+recorded_at: "2026-08-07T21:00:00+07:00"
+framework_version: 1.0.6
+source_record: artifacts/operations/evidence/spawn-validation-run-007.md
+scope: generated_knowledge_asset_static_validation
+proves: [payload_identity, asset_revision, framework_reference, checksum_integrity]
+does_not_prove: [rights, content_approval, calibration, benchmark_quality, runtime_acceptance, founder_approval, publish_eligibility]
+reconciliation:
+  preserves_historical_records: true
+  revised_assets:
+    - {asset_id: KA-000013, from_version: 0.1.0, to_version: 0.1.1, reason: payload_changed_without_prior_revision_bump}
+    - {asset_id: KA-000014, from_version: 0.1.0, to_version: 0.1.1, reason: payload_changed_without_prior_revision_bump}
+    - {asset_id: KA-000015, from_version: 0.1.0, to_version: 0.1.1, reason: payload_changed_without_prior_revision_bump}
+    - {asset_id: KA-000016, from_version: 0.1.0, to_version: 0.1.1, reason: payload_changed_without_prior_revision_bump}
+assets:
+  - asset_id: KA-000011
+    payload: knowledge-assets/vocabulary/v_technology_001.md
+    version: 0.1.0
+    checksum: sha256:f1a9983d841064b53787b1d63e44569baecca538d2db5d2efa93523b21d6d69d
+    framework_refs: [{file: vocab-collocation-topic, version: 1.0.6, nodes: [t_technology]}]
+  - asset_id: KA-000012
+    payload: knowledge-assets/vocabulary/v_education_001.md
+    version: 0.1.0
+    checksum: sha256:261df888c56b6e83c0d2d4470e3c9139c75f37512a1d3c51fd5678e443038f0b
+    framework_refs: [{file: vocab-collocation-topic, version: 1.0.6, nodes: [t_education]}]
+  - asset_id: KA-000013
+    payload: knowledge-assets/grammar/gl_articles_basic_01.md
+    version: 0.1.1
+    checksum: sha256:051331bb841e2f17c5e7199403399057f1044c9a15965a18eb8a9e9cf8ec9852
+    framework_refs: [{file: grammar-band-framework, version: 1.0.6, nodes: [g_articles_basic]}]
+  - asset_id: KA-000014
+    payload: knowledge-assets/grammar/gl_present_perfect_01.md
+    version: 0.1.1
+    checksum: sha256:d8d8dcf7112e8ee5d47104c8fff4e3d0f091f32e40f286d27b209ba09f159d05
+    framework_refs: [{file: grammar-band-framework, version: 1.0.6, nodes: [g_present_perfect]}]
+  - asset_id: KA-000015
+    payload: knowledge-assets/writing-prompts/W_t_001.md
+    version: 0.1.1
+    checksum: sha256:f271f8ca18965e3bc45d2d4cd1cddb2823dd2f0e6e4f72d4979875a425d33264
+    framework_refs:
+      - {file: writing-task-framework, version: 1.0.6, nodes: [W_task2_opinion]}
+      - {file: vocab-collocation-topic, version: 1.0.6, nodes: [t_education]}
+  - asset_id: KA-000016
+    payload: knowledge-assets/writing-prompts/W_t_002.md
+    version: 0.1.1
+    checksum: sha256:7d639c21596f0c0d04970e7a5181b7e34bec88ce35b3d9698c451286c24b25b3
+    framework_refs:
+      - {file: writing-task-framework, version: 1.0.6, nodes: [W_task2_discussion]}
+      - {file: vocab-collocation-topic, version: 1.0.6, nodes: [t_technology, t_work_business]}
+  - asset_id: KA-000017
+    payload: knowledge-assets/collocations/c_verb_noun_technology_001.md
+    version: 0.1.0
+    checksum: sha256:ec1665be9b76e1e7c9dbddbed9f023dbd6d86c4d20984620f48cf713ebfeaa11
+    framework_refs: [{file: vocab-collocation-topic, version: 1.0.6, nodes: [c_verb_noun, t_technology]}]

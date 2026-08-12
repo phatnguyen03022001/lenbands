@@ -1,0 +1,51 @@
+type: phase-4-a-c-completion-addendum
+status: review
+version: 0.1.2
+owner: document-convergence-orchestrator
+representation: markdown
+derived_from:
+  - EVAL.Writing
+  - LEARN.Writing
+  - PRACTICE.Drill
+  - BAND.Current
+  - PERSONAL.GapAnalysis
+  - STUDY.CheckIn
+  - OPS.ContentQuality
+purpose: bounded-completion-package-for-phase-4-a-c-proposal-and-founder-direction-review
+consumed_by: [founder, engineering, governance, operations]
+created_at: 2026-08-12
+updated_at: 2026-08-12
+reviewed_by: document-convergence-orchestrator
+reviewed_at: 2026-08-12
+classification: non-protected-proposal
+authority_boundary: proposal_only_projection_of_phase_4_and_canonical_founder_packets
+protected_mutation: false
+runtime_claim: false
+readiness_claim: false
+source_unlock: false
+source_files:
+  - artifacts/engineering/contracts/phase-4-target-learning-architecture-proposal.md
+  - artifacts/engineering/decisions/phase-4-a-c-decision-ledger.md
+  - artifacts/operations/founder-review-packet-index.md
+  - artifacts/engineering/decisions/founder-review-21-diff-annex.md
+  - artifacts/operations/architecture-frozen.md
+  - artifacts/operations/agent-trust-policy.yaml
+  - artifacts/CONVENTION.md
+change_log:
+  - version: 0.1.2
+    date: 2026-08-12
+    changes:
+      - Added the canonical-record selection invariant and explicit verification_by_dimension values.
+      - Clarified that unresolved or pending canonical records cannot support direction_selected=true.
+  - version: 0.1.1
+    date: 2026-08-12
+    changes:
+      - Added a non-authoritative, dimension-scoped governance state model from working direction through verification by dimension.
+      - Clarified canonical adoption preconditions, partial-selection semantics, and the separation of tooling passes from runtime/evidence/readiness proof.
+      - Preserved all current Phase 4 and B packages as working directions only; no decision closure or application approval was asserted.
+  - version: 0.1.0
+    date: 2026-08-12
+    changes:
+      - Completed self-contained A01-A16 records with owner/evidence, resolution class, bounded target, migration/projection/validator plan, dependencies, conflicts, and non-claims.
+      - Completed founder-direction packets B01-B08 with direction_status, protected preconditions, compatibility, validation, rollback, and adoption boundaries.
+      - Audited all six Phase 4 workstreams and added target-only boundaries for claim types, evidence lineage, rights/deletion, CoverageContract, ReadinessContract, and CertificationClaim.

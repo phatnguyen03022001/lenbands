@@ -1,0 +1,353 @@
+<!--
+  LEARNER SHELL — Stage-Drawer, state-driven, loop-spined.
+  Canonical contract: information-architecture.md + navigation-model.md + interaction-model.md.
+  Render by MODE. Each region has a state matrix + interaction spec so the cheap agent can build it correctly.
+
+  MODE VARIANTS (rail + stage change by mode — this wireframe renders core mode;
+  the cheap agent must change the render for other modes according to the state matrix below the footer):
+    onboarding : rail only Today+Learn; stage = Welcome+baseline CTA; hide Tests/Practice
+    early      : rail Today+Learn+Practice+Review; hide Tests; stage = micro-session+1 Writing/lesson action
+    core       : (this wireframe) all 5 rail items; stage = full plan
+    exam_prep  : Tests+Review prominent, Learn recedes; stage = exam readiness+weak skill
+    comeback   : Today only; stage = 1 light micro-session; all drawers recede
+-->
+<style>
+  #learner-shell-v2 {
+    --bg: #f4efe6; --surface: #fffaf1; --ink: #1d2430; --muted: #637084;
+    --line: rgba(29,36,48,.12); --accent: #285f58; --accent-soft: #dbece4;
+    --warn: #b8621c; --warn-soft: #f4ddc4; --dim: rgba(29,36,48,.35);
+    color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 24px; padding: 0;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif; overflow: hidden;
+  }
+  #learner-shell-v2 * { box-sizing: border-box; }
+  #learner-shell-v2 .annot { font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted); }
+
+  /* ============ HEADER ============ */
+  #learner-shell-v2 .topbar { height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  #learner-shell-v2 .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -.03em; text-decoration: none; color: var(--ink); }
+  #learner-shell-v2 .brand-mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; background: var(--accent); color: #fffaf1; font-size: 13px; }
+  #learner-shell-v2 .ctx { min-width: 0; }
+  #learner-shell-v2 .ctx small { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+  #learner-shell-v2 .ctx strong { font-size: 15px; white-space: nowrap; }
+  /* Continue chip — 4 state variants (see state matrix) */
+  #learner-shell-v2 .continue { display: flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 600; border: 0; cursor: pointer; max-width: 260px; }
+  #learner-shell-v2 .continue small { opacity: .8; font-weight: 500; font-size: 10px; }
+  #learner-shell-v2 .continue-session { background: var(--accent); color: #fffaf1; }
+  #learner-shell-v2 .continue-mock { background: var(--warn); color: #fffaf1; }
+  #learner-shell-v2 .continue-eval { background: var(--warn-soft); color: var(--warn); cursor: default; }
+  #learner-shell-v2 .continue-hidden { display: none; }
+  #learner-shell-v2 .top-spacer { flex: 1; }
+  /* Search — functional affordance: hint + shortcut */
+  #learner-shell-v2 .search { display: flex; align-items: center; gap: 8px; min-width: 220px; padding: 7px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--muted); font-size: 12px; cursor: pointer; }
+  #learner-shell-v2 .search:hover { border-color: var(--accent); }
+  #learner-shell-v2 .search .kbd { margin-left: auto; padding: 1px 6px; border: 1px solid var(--line); border-radius: 5px; font-size: 10px; font-family: ui-monospace, monospace; background: var(--surface); }
+  #learner-shell-v2 .icon-btn { position: relative; width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 14px; }
+  #learner-shell-v2 .icon-btn:hover { border-color: var(--accent); }
+  #learner-shell-v2 .notif-dot { position: absolute; top: 5px; right: 6px; min-width: 8px; height: 8px; border-radius: 99px; background: var(--accent); }
+  #learner-shell-v2 .notif-dot.warn { background: var(--warn); }
+  #learner-shell-v2 .avatar { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px; cursor: pointer; }
+
+  /* ============ BODY: rail + stage ============ */
+  #learner-shell-v2 .body { display: grid; grid-template-columns: 200px minmax(0,1fr); min-height: 560px; }
+  /* RAIL — 2 levels: workspace + collapsed subnav. Weighted. */
+  #learner-shell-v2 .rail { padding: 14px 10px; background: var(--surface); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+  #learner-shell-v2 .rail-stage { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; width: 100%; text-align: left; }
+  #learner-shell-v2 .rail-stage .ic { font-size: 16px; }
+  #learner-shell-v2 .rail-divider { height: 1px; background: var(--line); margin: 10px 6px; }
+  #learner-shell-v2 .rail-group { display: flex; flex-direction: column; }
+  #learner-shell-v2 .rail-head { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; width: 100%; text-align: left; }
+  #learner-shell-v2 .rail-head .ic { width: 16px; text-align: center; font-size: 14px; }
+  #learner-shell-v2 .rail-head .label { flex: 1; }
+  #learner-shell-v2 .rail-head .caret { font-size: 9px; opacity: .6; }
+  #learner-shell-v2 .rail-head .badge { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: var(--accent); color: #fffaf1; font-size: 9px; font-weight: 700; display: grid; place-items: center; }
+  #learner-shell-v2 .rail-head .badge.warn { background: var(--warn); }
+  /* weight variants — no red badge; change prominence */
+  #learner-shell-v2 .rail-head.weighted { color: var(--accent); }
+  #learner-shell-v2 .rail-head.dim { opacity: .4; }
+  #learner-shell-v2 .rail-head.active { color: var(--accent); background: var(--accent-soft); }
+  #learner-shell-v2 .subnav { display: flex; flex-direction: column; gap: 1px; padding: 2px 0 6px 28px; }
+  #learner-shell-v2 .subnav.hidden { display: none; }
+  #learner-shell-v2 .subnav-item { padding: 6px 10px; border: 0; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; text-align: left; border-left: 1px solid var(--line); }
+  #learner-shell-v2 .subnav-item:hover, #learner-shell-v2 .subnav-item.active { color: var(--accent); border-left-color: var(--accent); }
+  #learner-shell-v2 .rail-spacer { flex: 1; }
+  #learner-shell-v2 .rail-mode { padding: 10px 12px; border-top: 1px solid var(--line); }
+  #learner-shell-v2 .rail-mode small { display: block; color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+  #learner-shell-v2 .rail-mode-pill { display: inline-block; margin-top: 3px; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-size: 10px; font-weight: 600; }
+
+  /* ============ STAGE (Today) ============ */
+  #learner-shell-v2 .stage { padding: 24px clamp(20px,4vw,44px) 36px; background: var(--bg); overflow-y: auto; }
+  #learner-shell-v2 .greeting { margin: 0 0 4px; font-family: Georgia, serif; font-size: clamp(24px,3.4vw,36px); font-weight: 500; line-height: 1.08; }
+  #learner-shell-v2 .streak { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; padding: 4px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 600; }
+  #learner-shell-v2 .streak.zero { background: var(--bg); color: var(--muted); }
+  /* loop position — has a tooltip data attribute + is interactive */
+  #learner-shell-v2 .loop { margin: 16px 0 8px; }
+  #learner-shell-v2 .loop-label { display: block; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+  #learner-shell-v2 .loop-bar { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
+  #learner-shell-v2 .loop-dot { cursor: pointer; padding: 4px 6px; border-radius: 8px; display: flex; align-items: center; gap: 4px; position: relative; }
+  #learner-shell-v2 .loop-dot:hover { background: var(--surface); }
+  #learner-shell-v2 .loop-dot::before { content: ""; width: 8px; height: 8px; border-radius: 99px; background: var(--line); }
+  #learner-shell-v2 .loop-dot.done::before { background: var(--accent); }
+  #learner-shell-v2 .loop-dot.now::before { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  #learner-shell-v2 .loop-dot.now { color: var(--ink); font-weight: 600; }
+  #learner-shell-v2 .loop-arrow { color: var(--line); font-size: 9px; }
+  /* primary CTA — exactly one, with a reason */
+  #learner-shell-v2 .primary { margin: 14px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-radius: 18px; background: var(--accent); color: #fffaf1; }
+  #learner-shell-v2 .primary small { display: block; opacity: .78; font-size: 11px; }
+  #learner-shell-v2 .primary strong { display: block; margin-top: 4px; font-size: 19px; }
+  #learner-shell-v2 .primary .reason { display: block; margin-top: 6px; opacity: .85; font-size: 11px; }
+  #learner-shell-v2 .primary button { flex: none; border: 0; border-radius: 10px; padding: 11px 16px; background: #fffaf1; color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; }
+  #learner-shell-v2 .insight { margin: 14px 0; padding: 13px 16px; border-radius: 14px; background: color-mix(in oklab, var(--accent) 8%, var(--surface)); border-left: 3px solid var(--accent); font-size: 12px; }
+  #learner-shell-v2 .insight strong { color: var(--accent); }
+  #learner-shell-v2 .plan-sec { margin-top: 18px; }
+  #learner-shell-v2 .plan-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  #learner-shell-v2 .plan-head h3 { margin: 0; font-size: 13px; }
+  #learner-shell-v2 .plan-head small { color: var(--muted); font-size: 11px; }
+  #learner-shell-v2 .task { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-top: 1px solid var(--line); }
+  #learner-shell-v2 .task:first-of-type { border-top: 0; }
+  #learner-shell-v2 .task-num { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 11px; font-weight: 700; }
+  #learner-shell-v2 .task-copy { flex: 1; min-width: 0; }
+  #learner-shell-v2 .task-copy strong { font-size: 12px; display: block; }
+  #learner-shell-v2 .task-copy span { font-size: 10px; color: var(--muted); }
+  #learner-shell-v2 .task .go { background: transparent; border: 0; color: var(--accent); font-size: 11px; font-weight: 700; cursor: pointer; }
+
+  /* ============ MOBILE ============ */
+  #learner-shell-v2 .bottom-nav { display: none; }
+  @media (max-width: 820px) {
+    #learner-shell-v2 .topbar { height: 56px; padding: 0 12px; gap: 8px; }
+    #learner-shell-v2 .brand span:not(.brand-mark), #learner-shell-v2 .ctx, #learner-shell-v2 .search .hint, #learner-shell-v2 .search .kbd { display: none; }
+    #learner-shell-v2 .search { min-width: 34px; padding: 7px; justify-content: center; }
+    #learner-shell-v2 .continue small { display: none; }
+    #learner-shell-v2 .body { grid-template-columns: 1fr; }
+    #learner-shell-v2 .rail { display: none; }
+    #learner-shell-v2 .stage { padding: 18px 14px 78px; }
+    /* bottom nav 5 items: 4 stage/drawer + More sheet entry */
+    #learner-shell-v2 .bottom-nav { display: grid; grid-template-columns: repeat(5,1fr); gap: 2px; padding: 8px 8px 9px; border-top: 1px solid var(--line); background: var(--surface); }
+    #learner-shell-v2 .bottom-nav button { border: 0; background: transparent; color: var(--muted); font-size: 9px; cursor: pointer; padding: 6px 2px; border-radius: 10px; position: relative; }
+    #learner-shell-v2 .bottom-nav button.active { color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+    #learner-shell-v2 .bottom-nav .bn-icon { display: block; font-size: 15px; margin-bottom: 2px; }
+    #learner-shell-v2 .bottom-nav .bn-badge { position: absolute; top: 2px; right: 14px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 99px; background: var(--accent); color: #fffaf1; font-size: 8px; font-weight: 700; display: grid; place-items: center; }
+  }
+</style>
+
+<div id="learner-shell-v2" aria-label="Learner shell — Stage-Drawer, mode: core">
+
+  <!-- ============ HEADER ============
+       State matrix:
+       - ctx title     : changes by route (Today/Practice/Review/Tests/...) — not hard-coded
+       - continue chip : 4 states (see below)
+       - search        : always present, opens an overlay, keyboard shortcut /
+       - notif dot     : 3 states (none / accent dot / warn dot for evaluation ready)
+       - quiet hours   : notif dot is off during the user-configured interval
+  -->
+  <header class="topbar">
+    <a class="brand" href="#today"><span class="brand-mark">L</span><span>LenBands</span></a>
+    <div class="ctx"><small>Điểm đến</small><strong>Hôm nay</strong></div>
+
+    <!-- CONTINUE CHIP — 4 state. Wireframe render state: continue-session.
+         The cheap agent chooses the state from runtime:
+           continue-session : an unfinished study draft exists
+           continue-mock   : an unfinished mock test exists (copy "Mock · còn 18:00")
+           continue-eval   : evaluation is being scored (copy "Đang chấm...", disabled)
+           continue-hidden : nothing is unfinished → hide -->
+    <button class="continue continue-session" type="button">
+      <span>▶</span><span>Writing Task 2</span><small>chưa hoàn tất</small>
+    </button>
+
+    <div class="top-spacer"></div>
+
+    <!-- SEARCH — functional affordance: hint text + keyboard shortcut -->
+    <button class="search" type="button" aria-label="Tìm kiếm toàn cục">
+      <span>⌕</span><span class="hint">Tìm bài, từ và bài mẫu...</span><span class="kbd">/</span>
+    </button>
+
+    <!-- NOTIF — 3 state. Render: accent dot (review due). Warn dot = evaluation ready. -->
+    <button class="icon-btn" type="button" aria-label="Notifications (3 new)">♢<span class="notif-dot"></span></button>
+    <button class="avatar" type="button" aria-label="Account">TP</button>
+  </header>
+
+  <div class="body">
+
+    <!-- ============ EDGE RAIL (desktop) ============
+         2 levels: workspace + collapsed subnav.
+         Weighting: .stage (Today active) / .weighted (prominent, with badge) / .dim (recessed) / .active (current route).
+         Active state follows the route concept, not the file.
+         Collapsed subnav: open only the group related to the current mode/loop.
+    -->
+    <aside class="rail" aria-label="Điều hướng chính">
+
+      <button class="rail-stage" type="button"><span class="ic">⌂</span><span>Hôm nay</span></button>
+      <div class="rail-divider"></div>
+
+      <!-- LEARN — normal weight. Subnav opens when mode is core/exam and route = learn -->
+      <div class="rail-group">
+        <button class="rail-head" type="button">
+          <span class="ic">◌</span><span class="label">Học</span><span class="caret">▾</span>
+        </button>
+        <div class="subnav">
+          <button class="subnav-item" type="button">Lộ trình</button>
+          <button class="subnav-item" type="button">Kỹ năng (5)</button>
+          <button class="subnav-item" type="button">Kiến thức</button>
+        </div>
+      </div>
+
+      <!-- PRACTICE — normal weight -->
+      <div class="rail-group">
+        <button class="rail-head" type="button">
+          <span class="ic">✦</span><span class="label">Luyện tập</span><span class="caret">▸</span>
+        </button>
+        <div class="subnav hidden"></div>
+      </div>
+
+      <!-- REVIEW — weight: WEIGHTED (12 due, prominent). Accent badge, not red. -->
+      <div class="rail-group">
+        <button class="rail-head weighted" type="button">
+          <span class="ic">↺</span><span class="label">Ôn tập</span><span class="badge">12</span>
+        </button>
+        <div class="subnav hidden"></div>
+      </div>
+
+      <!-- TESTS — weight: DIM (not near exam date, core mode). Opens in exam_prep mode. -->
+      <div class="rail-group">
+        <button class="rail-head dim" type="button">
+          <span class="ic">▣</span><span class="label">Bài kiểm tra</span><span class="caret">▸</span>
+        </button>
+        <div class="subnav hidden"></div>
+      </div>
+
+      <div class="rail-spacer"></div>
+
+      <!-- MORE — always present, at the end -->
+      <div class="rail-group">
+        <button class="rail-head" type="button">
+          <span class="ic">•••</span><span class="label">Thêm</span><span class="caret">▸</span>
+        </button>
+        <div class="subnav hidden"></div>
+      </div>
+
+      <!-- MODE indicator — the cheap agent uses this to verify the mode render -->
+      <div class="rail-mode">
+        <small>Chế độ shell</small>
+        <span class="rail-mode-pill">core · band 6.0</span>
+      </div>
+    </aside>
+
+    <!-- ============ STAGE (Today) ============
+         Loop router: primary action = the learner's next step in the loop.
+         Render by mode (state matrix below).
+    -->
+    <main class="stage">
+      <h1 class="greeting">Chào buổi sáng, Lan.</h1>
+
+      <!-- STREAK — state: active. Alternative cheap-agent renders:
+           zero  : day 0 → ".streak.zero", copy "Bắt đầu chuỗi hôm nay"
+           quota : quota exhausted → change chip to "Hết lượt đánh giá hôm nay" -->
+      <span class="streak">🔥 12 ngày · 18/30 phút hôm nay</span>
+
+      <!-- LOOP POSITION — interactive dots. data-step is for test/agent tracing.
+           Hover → tooltip with the step name. Click (done/now only) → jump to that loop position.
+           Future dots are not clickable. -->
+      <div class="loop">
+        <span class="loop-label">Vị trí trong vòng lặp học tập</span>
+        <div class="loop-bar">
+          <span class="loop-dot done" data-step="diagnose" title="Chẩn đoán — đã ghi nhận mức cơ sở 6.0">Chẩn đoán</span>
+          <span class="loop-arrow">→</span>
+          <span class="loop-dot done" data-step="learn" title="Học — đã học bài Task Response">Học</span>
+          <span class="loop-arrow">→</span>
+          <span class="loop-dot now" data-step="practice" title="Luyện tập — đang luyện Writing Task 2">Luyện tập</span>
+          <span class="loop-arrow">→</span>
+          <span class="loop-dot" data-step="fix" title="Sửa — chưa đến bước này">Sửa</span>
+          <span class="loop-arrow">→</span>
+          <span class="loop-dot" data-step="review" title="Ôn tập — chưa đến bước này">Ôn tập</span>
+          <span class="loop-arrow">→</span>
+          <span class="loop-dot" data-step="prove" title="Kiểm chứng — chưa đến bước này">Kiểm chứng</span>
+        </div>
+      </div>
+
+      <!-- PRIMARY CTA — exactly one. A reason is required (PERSONAL.NextBestAction). -->
+      <div class="primary">
+        <div>
+          <small>Bước tiếp theo trong vòng lặp</small>
+          <strong>Writing · Task 2</strong>
+          <span class="reason">Lý do: bạn vừa bỏ sót Task Response hai lần — hãy luyện sửa lập luận.</span>
+        </div>
+        <button type="button">Bắt đầu</button>
+      </div>
+
+      <div class="insight">
+        <strong>Nhận xét:</strong> Bạn thường bỏ sót Matching Headings vì nhận diện paraphrase còn yếu — không phải vì từ vựng yếu.
+      </div>
+
+      <div class="plan-sec">
+        <div class="plan-head"><h3>Kế hoạch hôm nay</h3><small>Còn 3 bài · ~28 phút</small></div>
+        <div class="task"><div class="task-num">1</div><div class="task-copy"><strong>Ôn 12 mục đến hạn</strong><span>FSRS · 8 phút · ưu tiên cao</span></div><button class="go" type="button">Mở</button></div>
+        <div class="task"><div class="task-num">2</div><div class="task-copy"><strong>Writing Task 2</strong><span>Task Response · 25 phút</span></div><button class="go" type="button">Mở</button></div>
+        <div class="task"><div class="task-num">3</div><div class="task-copy"><strong>Nghe Section 3</strong><span>Từ khóa &amp; đáp án gây nhiễu · 15 phút</span></div><button class="go" type="button">Mở</button></div>
+      </div>
+
+      <!-- ============ ANNOTATION BLOCK (for the cheap agent) ============ -->
+      <details class="annot" style="margin-top:28px;border-top:1px dashed var(--line);padding-top:14px;">
+        <summary style="cursor:pointer;font-weight:600;color:var(--ink);">State matrix &amp; build rules (expand)</summary>
+
+        <h4 style="margin:14px 0 6px;">Continue chip — 4 state</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:10px;">
+          <tr style="text-align:left;color:var(--muted);"><th style="padding:4px;border-bottom:1px solid var(--line);">State</th><th style="padding:4px;border-bottom:1px solid var(--line);">Trigger</th><th style="padding:4px;border-bottom:1px solid var(--line);">Class</th><th style="padding:4px;border-bottom:1px solid var(--line);">Copy</th></tr>
+          <tr><td style="padding:4px;">session</td><td>unfinished study draft</td><td>.continue-session</td><td>"Writing Task 2 · unfinished"</td></tr>
+          <tr><td style="padding:4px;">mock</td><td>unfinished mock test</td><td>.continue-mock (warn)</td><td>"Mock · 18:00 remaining"</td></tr>
+          <tr><td style="padding:4px;">eval</td><td>evaluation in progress</td><td>.continue-eval (disabled)</td><td>"Evaluating Writing..."</td></tr>
+          <tr><td style="padding:4px;">hidden</td><td>nothing unfinished</td><td>.continue-hidden</td><td>(hide button)</td></tr>
+        </table>
+
+        <h4 style="margin:14px 0 6px;">Notification dot — 3 state</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:10px;">
+          <tr style="text-align:left;color:var(--muted);"><th style="padding:4px;border-bottom:1px solid var(--line);">State</th><th style="padding:4px;border-bottom:1px solid var(--line);">Trigger</th><th style="padding:4px;border-bottom:1px solid var(--line);">Render</th></tr>
+          <tr><td style="padding:4px;">none</td><td>no notifications</td><td>no dot</td></tr>
+          <tr><td style="padding:4px;">accent</td><td>review due / reminder</td><td>.notif-dot (accent)</td></tr>
+          <tr><td style="padding:4px;">warn</td><td>evaluation ready</td><td>.notif-dot.warn</td></tr>
+          <tr><td style="padding:4px;">quiet</td><td>during quiet hours</td><td>dot off, aria suppressed</td></tr>
+        </table>
+
+        <h4 style="margin:14px 0 6px;">Rail weight — changes by mode/context</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:10px;">
+          <tr style="text-align:left;color:var(--muted);"><th style="padding:4px;border-bottom:1px solid var(--line);">Class</th><th style="padding:4px;border-bottom:1px solid var(--line);">When</th></tr>
+          <tr><td style="padding:4px;">.stage</td><td>Today (always)</td></tr>
+          <tr><td style="padding:4px;">.weighted</td><td>drawer containing the next loop step / high due</td></tr>
+          <tr><td style="padding:4px;">.dim</td><td>drawer unrelated to the mode (Tests in early mode)</td></tr>
+          <tr><td style="padding:4px;">.active</td><td>current route = this drawer</td></tr>
+        </table>
+
+        <h4 style="margin:14px 0 6px;">Mode variants (rail + stage)</h4>
+        <p style="font-size:10px;margin:0 0 8px;">This shell renders <strong>mode: core</strong>. For another mode, the cheap agent renders:</p>
+        <ul style="font-size:10px;margin:0;padding-left:18px;">
+          <li><strong>onboarding</strong>: rail only Today+Learn; stage = Welcome+baseline CTA; hide Tests/Practice/Review/More; no streak</li>
+          <li><strong>early</strong>: rail Today+Learn+Practice+Review; hide Tests; stage = 1 micro-session+1 lesson; streak.zero when none exists</li>
+          <li><strong>exam_prep</strong>: Tests+Review weighted, Learn dim; stage = exam readiness+risk+prioritized weak skill</li>
+          <li><strong>comeback</strong>: Today only; stage = 1 light micro-session+non-guilt comeback copy; defer all drawers</li>
+        </ul>
+
+        <h4 style="margin:14px 0 6px;">Build rules (invariants)</h4>
+        <ul style="font-size:10px;margin:0;padding-left:18px;">
+          <li>1 primary action per screen. Secondary actions recede.</li>
+          <li>No red badge. Change weight (.weighted/.dim) or use an accent dot.</li>
+          <li>Loop dots: done/now are clickable; future is not clickable.</li>
+          <li>Streak/Wellbeing must not create pressure.</li>
+          <li>Continue chip priority: mock &gt; eval &gt; session (only one at a time).</li>
+          <li>Mobile bottom nav has 5 items: Today/Learn/Practice/Review/More (More opens the Tests+Account sheet).</li>
+        </ul>
+      </details>
+    </main>
+  </div>
+
+  <!-- ============ MOBILE BOTTOM NAV ============
+       5 items: 4 primary drawers + More (opens a sheet containing Tests/Account/Progress/Library).
+       The cheap agent MUST NOT remove More — mobile learners need access to Tests/Account.
+       Accent badge (not red) when Review is due.
+  -->
+  <nav class="bottom-nav" aria-label="Điều hướng trên di động">
+    <button class="active" type="button"><span class="bn-icon">⌂</span>Hôm nay</button>
+    <button type="button"><span class="bn-icon">◌</span>Học</button>
+    <button type="button"><span class="bn-icon">✦</span>Luyện tập</button>
+    <button type="button"><span class="bn-icon">↺</span>Ôn tập<span class="bn-badge">12</span></button>
+    <button type="button"><span class="bn-icon">•••</span>Thêm</button>
+  </nav>
+</div>

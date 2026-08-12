@@ -1,0 +1,29 @@
+type: engineering-decision
+status: review
+version: 0.1.0
+owner: product + engineering + privacy
+representation: markdown
+derived_from:
+  - LEARN.Speaking
+  - EVAL.Speaking
+  - EVAL.Examiner
+  - LEARN.Pronunciation
+  - EVAL.Pronunciation
+  - PKM.Recordings
+  - IDENTITY.Privacy
+  - OPS.ModelRouting
+  - OPS.CostBudget
+  - OPS.Quota
+purpose: p1-provider-neutral-speaking-transcription-pronunciation-and-progressive-entitlement-boundary
+consumed_by: [experience, engineering, operations, business]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: pre-code-p1-decision
+change_log:
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Established browser transcript, service transcription and pronunciation evidence as distinct non-interchangeable classes.
+      - Defined progressive standard/trial/premium speaking experience without a hard-coded subscription quota.
+      - Defined provider-neutral adapter boundaries, privacy/admission/recovery rules, and an evidence-gated quality release ladder.
+      - Kept Speaking and Pronunciation P1/deferred; made no provider activation, runtime, OpenAPI, event, lifecycle, readiness or benchmark claim.

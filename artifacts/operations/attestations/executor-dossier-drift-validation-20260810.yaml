@@ -1,0 +1,19 @@
+schema_version: 1.0.0
+change_id: executor-dossier-drift-validation-20260810
+change_scope: validate-executor-dossier-membership-and-lifecycle-counts-against-canonical-family-authorities
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands validate documents
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-2026-08-10-re-audit-and-update-batches
+notes:
+  - Independent audit found that the manual dossier counted an orphan registry family as planned executor coverage.
+  - The dossier remains non-authoritative and cannot promote lifecycle, readiness or scope.
+  - No source code, authority, evidence or readiness claim is changed.

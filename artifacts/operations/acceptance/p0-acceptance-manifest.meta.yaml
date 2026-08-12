@@ -1,0 +1,10 @@
+type: acceptance-manifest
+status: review
+version: 0.2.0
+owner: operations + engineering
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, IDENTITY.Privacy, EVAL.Writing, REVIEW.FSRS]
+purpose: typed-p0-acceptance-test-and-evidence-index
+consumed_by: [engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

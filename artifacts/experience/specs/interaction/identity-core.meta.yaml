@@ -1,0 +1,11 @@
+type: interaction-contract
+status: review
+version: 0.1.0
+owner: product + engineering
+representation: markdown
+derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
+purpose: UI-to-runtime-behavior-contract-for-identity-core
+consumed_by: [experience, engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+family_id: IDENTITY.Core

@@ -1,0 +1,27 @@
+type: interaction-specification
+status: review
+version: 0.1.0
+owner: product + experience + engineering + privacy
+representation: markdown
+derived_from:
+  - LEARN.Speaking
+  - EVAL.Speaking
+  - EVAL.Examiner
+  - LEARN.Pronunciation
+  - EVAL.Pronunciation
+  - PKM.Recordings
+  - IDENTITY.Privacy
+  - OPS.Quota
+  - OPS.CostBudget
+purpose: p1-speaking-local-practice-browser-transcript-audio-review-and-feedback-behavior-contract
+consumed_by: [experience, engineering, operations, business]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: p1-deferred-interaction-specification
+change_log:
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Defined learner-safe standard, trial and premium speaking paths without activating P1 runtime work.
+      - Added browser-transcript correction, audio-review consent/admission, recovery, accessibility, privacy and quality invariants.
+      - Added future acceptance cases while preserving the separate P1 promotion, benchmark and provider gates.

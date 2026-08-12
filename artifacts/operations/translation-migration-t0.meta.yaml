@@ -1,0 +1,26 @@
+type: translation-governance-contract
+status: review
+version: 0.3.0
+owner: founder/translation-governance
+representation: markdown
+derived_from: [OPS.ReleaseGate]
+purpose: establish-English-only-documentation-migration-boundary-inventory-glossary-and-sequencing
+consumed_by: [operations, founder, engineering]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+reviewed_by: null
+reviewed_at: null
+change_log:
+  - version: 0.3.0
+    date: 2026-08-11
+    changes:
+      - Reconciled the full repository MD/YAML/YML universe at 491 files, registered Knowledge Asset bilingual-content boundaries, translated the remaining safe mutable proposal prose, and recorded the T2 protected/generator blockers.
+  - version: 0.2.0
+    date: 2026-08-11
+    changes:
+      - Recorded the T1.2 applied safe translation batch, span-oriented residual ledger, protected packet scopes, generator gaps, and truthful blocked/incomplete completion state.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Corrected the inventory from 213 documentation files to a 467-file documentation and structured-prose universe.
+      - Added an explicit root README profile, nine HTML design/wireframe surfaces, field-level YAML/JSON prose rules, exception registry, and generated-document ownership.

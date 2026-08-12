@@ -1,0 +1,49 @@
+type: api-ownership-bff-contract
+status: draft
+version: 0.1.7
+owner: engineering
+representation: markdown
+derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy, EVAL.Writing, OPS.Quota, OPS.Observability]
+purpose: canonical-http-api-ownership-version-deprecation-and-bff-server-client-boundary
+consumed_by: [engineering, experience]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: pre-code-design-contract
+change_log:
+  - version: 0.1.7
+    date: 2026-08-11
+    changes:
+      - Translated mutable documentation prose to English without changing ownership, lifecycle, readiness, or runtime claims.
+  - version: 0.1.6
+    date: 2026-08-11
+    changes:
+      - Terminology integrity correction: relabeled the two OpenAPI surface rows from "canonical identity-only OpenAPI" / "canonical consolidated P0 OpenAPI" to "selected logical identity surface" / "selected logical candidate surface for the P0 loop"; changed the ownership rule line from "canonical runtime surface" to "selected logical candidate surface" and added the explicit statement that no unified canonical OpenAPI authority exists and neither live spec is a complete build input. No endpoint, schema, state, conflict fact, owner, or readiness claim changed.
+  - version: 0.1.5
+    date: 2026-08-11
+    changes:
+      - Added the Batch B reconciliation boundary without creating duplicate endpoint, schema, event, lifecycle, or owner authority.
+      - Recorded unresolved profile, session transport, placement, daily-action, orphan feedback, privacy/error, and authorization-expression decisions.
+      - Confirmed existing D-02 as the founder dependency for session transport; no new protected/founder item was created.
+  - version: 0.1.4
+    date: 2026-08-10
+    changes:
+      - Reclassified legacy OpenAPI transition, deprecation mechanics and frontend session transport as unresolved pre-code design gaps after independent audit
+      - Removed false closure claim for deprecated loop operations and orphan GET feedback
+  - version: 0.1.3
+    date: 2026-08-10
+    changes:
+      - Corrected deprecation-successor pointers to real canonical operation IDs (completeWritingErrorFix, startWritingErrorRetest, submitWritingFeedback; GET /feedback noted as orphaned)
+      - Noted deprecation mechanics incomplete vs api-governance (no Deprecation header/migration window/release record); acceptance row for that left unchecked
+      - Red-team API canonicalization corrections (Batch 6)
+  - version: 0.1.2
+    date: 2026-08-10
+    changes:
+      - Resolved duplicate loop-path gap: contracts/openapi.yaml v0.2.0 re-scoped to identity surface; loop paths deprecated:true + x-canonical-owner; acceptance checked
+      - Convergence audit Batch 6 API canonicalization
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Fixed async-status vocabulary to canonical submitted/processing/delayed (EvaluationPending) + correct getWritingEvaluation endpoint path (removed invented evaluation_pending)
+      - Documented current duplicate loop-path gap in contracts/openapi.yaml (pre-code cleanup pending; not called complete)
+      - Added duplicate-surface cleanup to acceptance criteria
+      - Red-team Batch 5 corrections

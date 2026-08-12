@@ -1,0 +1,75 @@
+# Dependency Graph — PROJECTION (generated, không SSOT)
+#
+# File này là PROJECTION sinh tự động từ các framework node inline (depends_on).
+# KHÔNG sửa tay. Sửa edge = sửa node ở framework/, rồi regenerate.
+#
+# generated_from:
+#   - blueprint/framework/grammar-band-framework.md (g_*.depends_on)
+#   - blueprint/framework/microskill-enum.md (R_/L_/W_/S_/P_*.depends_on)
+#   - blueprint/framework/skill-questiontype-band.md (question_type.requires)
+# generated_at: null (chưa có generator run; file này chỉ là sample)
+# schema_version: 1.0.0
+# generator: null (tools/gen_dependency_graph.py chưa implement)
+#
+# Cách dùng: AI reasoning (prerequisite lookup, topological sort cho Learning Path,
+# Next Best Action, Gap Analysis). Đọc file này nhanh hơn join 3 framework.
+# Quyền viết: KHÔNG. Quyền đọc: mọi agent.
+
+generated_from:
+  - blueprint/framework/grammar-band-framework.md
+  - blueprint/framework/microskill-enum.md
+  - blueprint/framework/skill-questiontype-band.md
+generated_at: null
+schema_version: 1.0.0
+generator: null
+generation_state: sample_not_generated
+
+# Ví dụ projection (sẽ đầy đủ khi generator chạy):
+graph:
+  # Grammar chain
+  - from: g_zero_first_conditional
+    to: g_second_conditional
+    strength: hard_prerequisite
+    source: cambridge_syllabus
+    domain: grammar
+  - from: g_second_conditional
+    to: g_third_conditional
+    strength: hard_prerequisite
+    source: cambridge_syllabus
+    domain: grammar
+  - from: g_third_conditional
+    to: g_mixed_conditionals
+    strength: hard_prerequisite
+    source: cambridge_syllabus
+    domain: grammar
+  - from: g_relative_clauses_defining
+    to: g_relative_clauses_non_defining
+    strength: recommended
+    source: cambridge_syllabus
+    domain: grammar
+  - from: g_relative_clauses_non_defining
+    to: g_relative_clause_reduced
+    strength: recommended
+    source: efl_research
+    domain: grammar
+
+  # Micro-skill chain (Reading)
+  - from: R_skim_main_idea
+    to: R_matching_headings
+    strength: hard_prerequisite
+    source: colab_curated
+    domain: microskill
+  - from: R_paraphrase_recognition
+    to: R_matching_headings
+    strength: hard_prerequisite
+    source: colab_curated
+    domain: microskill
+  - from: R_matching_headings
+    to: R_matching_information
+    strength: recommended
+    source: colab_curated
+    domain: microskill
+
+# Lưu ý: ví dụ trên là sample; generator thực duyệt toàn bộ node trong 3 framework
+# và emit edge. Cho tới khi generator tồn tại, file này giữ status `draft` và không phải build input.
+status: draft

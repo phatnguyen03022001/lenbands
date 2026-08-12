@@ -1,0 +1,425 @@
+<style>
+  #lenbands-wireframe-project {
+    --bg: light-dark(#f4efe6, #0e1117);
+    --surface: light-dark(#fffaf1, #141a23);
+    --surface-2: light-dark(#f7f0e6, #171e29);
+    --ink: light-dark(#1d2430, #eef2fb);
+    --muted: light-dark(#637084, #9aa6bc);
+    --line: light-dark(rgba(26, 34, 48, 0.12), rgba(255, 255, 255, 0.10));
+    --accent: light-dark(#3157d3, #98b9ff);
+    --accent-2: light-dark(#b8621c, #f0b06e);
+    color: var(--ink);
+    background:
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 12%, transparent), transparent 30%),
+      radial-gradient(circle at top right, color-mix(in oklab, var(--accent-2) 12%, transparent), transparent 26%),
+      var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    box-sizing: border-box;
+    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.35;
+  }
+
+  #lenbands-wireframe-project * { box-sizing: border-box; }
+  #lenbands-wireframe-project h1,
+  #lenbands-wireframe-project h2,
+  #lenbands-wireframe-project h3,
+  #lenbands-wireframe-project p,
+  #lenbands-wireframe-project ul { margin: 0; }
+
+  #lenbands-wireframe-project .shell { display: grid; gap: 18px; }
+  #lenbands-wireframe-project .hero,
+  #lenbands-wireframe-project .section {
+    padding: 18px;
+    border-radius: 22px;
+    border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 90%, white 10%);
+  }
+  #lenbands-wireframe-project .hero { box-shadow: 0 14px 38px rgba(0, 0, 0, 0.10); }
+  #lenbands-wireframe-project .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  }
+  #lenbands-wireframe-project h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-top: 6px;
+  }
+  #lenbands-wireframe-project .lede { margin-top: 10px; max-width: 80ch; color: var(--muted); font-size: 14px; }
+  #lenbands-wireframe-project .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  #lenbands-wireframe-project .pill,
+  #lenbands-wireframe-project .tag {
+    display: inline-flex; align-items: center; min-height: 30px; padding: 6px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: color-mix(in oklab, var(--surface-2) 82%, transparent); font-size: 12px;
+  }
+  #lenbands-wireframe-project .pill strong { font-weight: 500; margin-right: 6px; }
+  #lenbands-wireframe-project .section { display: grid; gap: 12px; }
+  #lenbands-wireframe-project .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: end; }
+  #lenbands-wireframe-project .section-title { display: grid; gap: 3px; }
+  #lenbands-wireframe-project .section-title h2 { font-size: 16px; font-weight: 500; }
+  #lenbands-wireframe-project .section-title p { font-size: 13px; color: var(--muted); }
+  #lenbands-wireframe-project .three-planes,
+  #lenbands-wireframe-project .screen-grid,
+  #lenbands-wireframe-project .backstage { display: grid; gap: 12px; }
+  #lenbands-wireframe-project .three-planes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #lenbands-wireframe-project .screen-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  #lenbands-wireframe-project .backstage { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  #lenbands-wireframe-project .plane,
+  #lenbands-wireframe-project .screen {
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-2) 90%, transparent), var(--surface));
+  }
+  #lenbands-wireframe-project .plane h3,
+  #lenbands-wireframe-project .screen h3 { font-size: 14px; font-weight: 500; }
+  #lenbands-wireframe-project .plane ul {
+    margin-top: 8px; padding-left: 18px; display: grid; gap: 6px; color: var(--muted); font-size: 12px;
+  }
+  #lenbands-wireframe-project .caption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  #lenbands-wireframe-project .wire { display: grid; gap: 8px; margin-top: 12px; }
+  #lenbands-wireframe-project .bar,
+  #lenbands-wireframe-project .field,
+  #lenbands-wireframe-project .block,
+  #lenbands-wireframe-project .line,
+  #lenbands-wireframe-project .mini {
+    border: 1px solid var(--line); border-radius: 12px; background: color-mix(in oklab, var(--surface) 82%, white 18%);
+  }
+  #lenbands-wireframe-project .bar { height: 14px; }
+  #lenbands-wireframe-project .field { height: 28px; }
+  #lenbands-wireframe-project .block { min-height: 48px; padding: 10px; }
+  #lenbands-wireframe-project .line { height: 10px; }
+  #lenbands-wireframe-project .mini-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #lenbands-wireframe-project .mini { min-height: 56px; padding: 8px; }
+  #lenbands-wireframe-project .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  #lenbands-wireframe-project .good { color: #13795b; }
+  #lenbands-wireframe-project .warn { color: #9b6700; }
+  #lenbands-wireframe-project .danger { color: #b13c3c; }
+  #lenbands-wireframe-project .flow {
+    display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+  #lenbands-wireframe-project .flow-step {
+    position: relative; min-height: 64px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 18px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-2) 88%, transparent), var(--surface));
+  }
+  #lenbands-wireframe-project .flow-step::after {
+    content: "→"; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px;
+  }
+  #lenbands-wireframe-project .flow-step:last-child::after { content: ""; }
+  #lenbands-wireframe-project .kicker {
+    display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em;
+  }
+  #lenbands-wireframe-project .flow-step strong { display: block; margin-top: 6px; font-size: 13px; font-weight: 500; }
+  #lenbands-wireframe-project .footnote { font-size: 12px; color: var(--muted); }
+
+  /* === Detailed wireframe (annotation; no longer a blind block) === */
+  #lenbands-wireframe-project .cap {
+    display: inline-block; font-size: 10px; font-family: ui-monospace, monospace;
+    color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent);
+    padding: 2px 6px; border-radius: 6px; margin-bottom: 6px; letter-spacing: 0;
+  }
+  #lenbands-wireframe-project .anno {
+    display: grid; grid-template-columns: 70px 1fr; gap: 6px 10px; align-items: start;
+    padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px;
+    background: color-mix(in oklab, var(--surface) 80%, white 20%);
+    font-size: 11px;
+  }
+  #lenbands-wireframe-project .anno .lbl {
+    font-size: 9px; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted); padding-top: 1px;
+  }
+  #lenbands-wireframe-project .anno .txt { color: var(--ink); font-weight: 500; }
+  #lenbands-wireframe-project .anno .inp {
+    grid-column: 2; color: var(--muted); font-size: 10px; font-style: italic;
+  }
+  #lenbands-wireframe-project .bar-track {
+    grid-column: 2; height: 16px; border-radius: 8px;
+    background: color-mix(in oklab, var(--surface-2) 70%, transparent);
+    border: 1px solid var(--line); overflow: hidden; position: relative;
+  }
+  #lenbands-wireframe-project .bar-fill {
+    display: flex; align-items: center; padding: 0 8px; height: 100%;
+    background: color-mix(in oklab, var(--accent) 30%, var(--surface-2));
+    color: var(--ink); font-size: 10px; font-weight: 500;
+  }
+  #lenbands-wireframe-project .bar-fill.warn {
+    background: color-mix(in oklab, var(--accent-2) 35%, var(--surface-2));
+  }
+  #lenbands-wireframe-project .insight {
+    padding: 8px 10px; border-radius: 10px; font-size: 11px;
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
+    border-left: 3px solid var(--accent); color: var(--ink);
+  }
+  #lenbands-wireframe-project .cta {
+    padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 500;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--ink);
+    text-align: center;
+  }
+  #lenbands-wireframe-project .cta.primary {
+    background: var(--accent); color: white; border-color: transparent; font-weight: 600;
+  }
+  #lenbands-wireframe-project .cta.primary.big { padding: 12px; font-size: 13px; }
+  #lenbands-wireframe-project .cta.secondary { color: var(--muted); }
+  #lenbands-wireframe-project .cta-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  #lenbands-wireframe-project .cta.mini { padding: 6px 4px; font-size: 10px; }
+  #lenbands-wireframe-project .cta.mini.good { color: #13795b; border-color: #13795b; }
+  #lenbands-wireframe-project .cta.mini.warn { color: #9b6700; border-color: #9b6700; }
+  #lenbands-wireframe-project .cta.mini.danger { color: #b13c3c; border-color: #b13c3c; }
+  #lenbands-wireframe-project .cta.mini.rating-again { color: var(--ink); border-color: var(--line); }
+  #lenbands-wireframe-project .big-band {
+    font-family: "Fraunces", Georgia, serif; font-size: 22px; font-weight: 600;
+  }
+  #lenbands-wireframe-project .state {
+    font-size: 10px; color: var(--muted); font-style: italic;
+    border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 4px;
+  }
+
+  @media (max-width: 980px) {
+    #lenbands-wireframe-project .three-planes { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div id="lenbands-wireframe-project">
+  <div class="shell">
+    <section class="hero" aria-labelledby="wf-title">
+      <div class="eyebrow">LenBands • Full System Wireframe</div>
+      <h1 id="wf-title">Full wireframe for the evidence-based IELTS learning system</h1>
+      <p class="project-note">Horizon projection; closed-pilot build input comes only from P0 vertical slices and the Build Readiness Matrix, not every screen in this file.</p>
+      <p class="lede">
+        This version brings together the core learner-journey screens and the minimum backstage screens needed to see the system
+        operate end-to-end: onboarding, placement, home, study, practice, review, exam readiness, and failure recovery.
+      </p>
+      <div class="meta-row">
+        <span class="pill"><strong>Scope:</strong> MVP core loop</span>
+        <span class="pill"><strong>Focus:</strong> UX, progress, quality</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">
+          <h2>1. Main learner flow</h2>
+          <p>The MVP spine from first app open through the recurring learning loop.</p>
+        </div>
+      </div>
+      <div class="flow" role="list">
+        <div class="flow-step" role="listitem"><span class="kicker">01</span><strong>Start</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">02</span><strong>Placement</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">03</span><strong>Gap analysis</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">04</span><strong>Home</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">05</span><strong>Study session</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">06</span><strong>Feedback</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">07</span><strong>Review queue</strong></div>
+        <div class="flow-step" role="listitem"><span class="kicker">08</span><strong>Exam readiness</strong></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">
+          <h2>2. Core screens</h2>
+          <p>Enough to lock the layout, hierarchy, and primary states.</p>
+        </div>
+      </div>
+
+      <div class="screen-grid">
+        <article class="screen">
+          <span class="cap">[GOAL.Target, GOAL.Daily, PLACE.Test]</span>
+          <h3>Start (Onboarding)</h3>
+          <p class="caption">4 questions, 1 question/screen, progress 1/4.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Q1/4</span><span class="txt">"Band mục tiêu của bạn?"</span><span class="inp">○ 5.0  ○ 6.0  ● 7.0  ○ 8.0</span></div>
+            <div class="anno"><span class="lbl">Q2/4</span><span class="txt">"Ngày thi?"</span><span class="inp">[date picker]</span></div>
+            <div class="anno"><span class="lbl">Q3/4</span><span class="txt">"Mỗi ngày bạn học bao lâu?"</span><span class="inp">● 30p  ○ 60p  ○ 90p</span></div>
+            <div class="anno"><span class="lbl">Q4/4</span><span class="txt">"Band hiện tại?"</span><span class="inp">○ Tự báo cáo  ● Làm bài kiểm tra nhanh</span></div>
+            <div class="cta primary">Tiếp tục →</div>
+          </div>
+          <p class="state">State: empty(ready) → in_progress → done. Skip is allowed if the user wants.</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[PLACE.Test]</span>
+          <h3>Placement</h3>
+          <p class="caption">One question/screen, timer 00:42, no back.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Timer</span><span class="txt">00:42</span><span class="inp">question 12/20</span></div>
+            <div class="anno"><span class="lbl">Stimulus</span><span class="txt">[Passage paragraph 2]</span><span class="inp">scroll + highlight</span></div>
+            <div class="anno"><span class="lbl">Question</span><span class="txt">"Quan điểm của tác giả về...?"</span><span class="inp">○ A  ○ B  ● C  ○ D</span></div>
+            <div class="cta primary">Nộp →</div>
+            <div class="cta secondary">Bỏ qua (tự báo cáo)</div>
+          </div>
+          <p class="state">State: normal / loading(grading) / timeout(auto-submit).</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[PLACE.GapDetection, PLACE.InitialPath]</span>
+          <h3>Gap analysis</h3>
+          <p class="caption">4 skill bars, with a starting priority.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Listening</span><span class="bar-track"><span class="bar-fill" style="width:70%">6.5</span></span></div>
+            <div class="anno"><span class="lbl">Reading</span><span class="bar-track"><span class="bar-fill warn" style="width:55%">5.5 ← weakest</span></span></div>
+            <div class="anno"><span class="lbl">Writing</span><span class="bar-track"><span class="bar-fill" style="width:60%">6.0</span></span></div>
+            <div class="anno"><span class="lbl">Speaking</span><span class="bar-track"><span class="bar-fill" style="width:65%">6.0</span></span></div>
+            <div class="insight">Bắt đầu với <strong>Reading — Matching Headings</strong> (paraphrase còn yếu).</div>
+            <div class="cta primary">Tạo kế hoạch →</div>
+          </div>
+          <p class="state">State: empty(not tested) → ready. Low-confidence → flag "preliminary result; take a full test".</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[STUDY.DailyPlan, STUDY.Resume, PERSONAL.NextBestAction]</span>
+          <h3>Home</h3>
+          <p class="caption">One answer: "what should I do next today?"</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Greeting</span><span class="txt">"Chào Lan — 🔥 12 ngày"</span></div>
+            <div class="anno"><span class="lbl">Today's goal</span><span class="bar-track"><span class="bar-fill" style="width:60%">18/30 minutes</span></span></div>
+            <div class="cta primary big">▶ Tiếp tục phiên học (Reading Q18)</div>
+            <div class="anno"><span class="lbl">Today's plan</span><span class="txt">• Ôn 12 từ · 1 bài Reading · 1 bài Writing</span></div>
+            <div class="insight">Nhận xét: "Bạn thường bỏ sót Matching Headings vì paraphrase còn yếu".</div>
+          </div>
+          <p class="state">State: empty(new user) → "Start Placement Test". Resume(in-progress session) → Continue button at the top.</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[STUDY.Session, STUDY.SessionSummary]</span>
+          <h3>Study session</h3>
+          <p class="caption">Timer, goal, current task, and end button.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Timer</span><span class="txt">14:22 / 30:00</span><span class="inp">goal: 5 Reading questions</span></div>
+            <div class="anno"><span class="lbl">Task</span><span class="txt">Reading · Matching Headings · Q3/5</span></div>
+            <div class="anno"><span class="lbl">Question</span><span class="txt">[passage + question]</span></div>
+            <div class="cta primary">Kiểm tra →</div>
+            <div class="cta secondary">Tạm dừng ⏸</div>
+          </div>
+          <p class="state">State: running / paused / interrupted(recover timer) / done → summary.</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[COACH.AnswerExplanation, REVIEW.MistakeNotebook]</span>
+          <h3>Feedback (incorrect answer)</h3>
+          <p class="caption">Correct answer, why, why it was wrong, and what to do.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Result</span><span class="txt warn">Sai — đáp án D (bạn chọn B)</span></div>
+            <div class="anno"><span class="lbl">Why correct</span><span class="txt">D paraphrase "significant" = "marked"</span></div>
+            <div class="anno"><span class="lbl">Trap</span><span class="txt">B là bẫy từ vựng (cùng từ, khác nghĩa)</span></div>
+            <div class="cta primary">+ Thêm vào sổ lỗi</div>
+            <div class="cta secondary">Hỏi Tutor (theo ngữ cảnh)</div>
+          </div>
+          <p class="state">State: correct / wrong / low-confidence(flag) / explanation_loading.</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[EVAL.Writing, EVAL.RewriteSuggestion]</span>
+          <h3>Writing evaluation</h3>
+          <p class="caption">Four criteria bands + sentence fix + next action.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Overall</span><span class="txt big-band">6.0</span></div>
+            <div class="anno"><span class="lbl">Four criteria</span><span class="txt">TR 6.0 · CC 5.5 · LR 6.0 · GRA 6.5</span></div>
+            <div class="anno"><span class="lbl">Sentence fix</span><span class="txt">"Children nowadays are more smarter" → "are smarter" (double comparative)</span></div>
+            <div class="insight">Weakest: Coherence & Cohesion — linkers are missing.</div>
+            <div class="cta primary">Viết lại (vòng lặp viết lại)</div>
+            <div class="cta secondary">Lưu vào hồ sơ</div>
+          </div>
+          <p class="state">State: processing("being scored") / scored / low_confidence / anti_gaming_review / unavailable.</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[REVIEW.SmartQueue, REVIEW.FSRS]</span>
+          <h3>Review queue</h3>
+          <p class="caption">Due today, FSRS rating, forecast.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Due today</span><span class="txt">12 cards (8 words · 3 grammar · 1 incorrect answer)</span></div>
+            <div class="anno"><span class="lbl">Card front</span><span class="txt">"ephemeral" — bạn nhớ nghĩa không?</span></div>
+            <div class="cta-row">
+              <div class="cta mini rating-again">Lại</div>
+              <div class="cta mini warn">Khó</div>
+              <div class="cta mini">Tốt</div>
+              <div class="cta mini good">Dễ</div>
+            </div>
+            <div class="anno"><span class="lbl">Forecast</span><span class="txt">Tuần tới: 8 → 12 → 9 thẻ/ngày (nhẹ)</span></div>
+          </div>
+          <p class="state">State: empty("no cards yet") / due / loading / done(today clear).</p>
+        </article>
+
+        <article class="screen">
+          <span class="cap">[BAND.ExamReadiness, PRACTICE.MockTest]</span>
+          <h3>Exam readiness</h3>
+          <p class="caption">Overall + per-skill + confidence + risk.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Overall</span><span class="txt big-band warn">6.0 — gần mục tiêu 6.5</span></div>
+            <div class="anno"><span class="lbl">Per-skill</span><span class="txt">L 6.5 · R 5.5 ← · W 6.0 · S 6.0</span></div>
+            <div class="anno"><span class="lbl">Confidence</span><span class="txt">68% — dựa trên 3 bài mock gần nhất</span></div>
+            <div class="anno"><span class="lbl">Risk</span><span class="txt danger">Reading Matching Headings sai 2/3 lần</span></div>
+            <div class="cta primary">Ưu tiên ôn Reading →</div>
+            <div class="cta secondary">Làm bài mock kiểm chứng</div>
+          </div>
+          <p class="state">State: not_ready / borderline / ready / no_data(empty).</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-title">
+          <h2>3. Quality support</h2>
+          <p>Keep only what is needed to operate, verify, and recover.</p>
+        </div>
+      </div>
+      <div class="backstage">
+        <article class="screen">
+          <span class="cap">[CONTENT.Publish, CONTENT.Moderation]</span>
+          <h3>Content intake (Colab)</h3>
+          <p class="caption">Colab reviews tags + answer keys before publishing.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Queue</span><span class="txt">5 items awaiting review</span></div>
+            <div class="anno"><span class="lbl">Auto-tag</span><span class="txt">skill: reading, type: matching_headings</span></div>
+            <div class="anno"><span class="lbl">Review</span><span class="txt">check key + paraphrase + distractor</span></div>
+            <div class="cta primary">Publish</div>
+            <div class="cta secondary">Reject</div>
+          </div>
+          <p class="state">State: draft → in_review → published / rejected.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[GOVERNANCE.*, OPS.CostBudget]</span>
+          <h3>Quality &amp; cost</h3>
+          <p class="caption">Drift, benchmark, quota, fallback.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Drift</span><span class="txt warn">No approved threshold/run yet</span></div>
+            <div class="anno"><span class="lbl">Benchmark</span><span class="txt warn">No gold-standard run yet</span></div>
+            <div class="anno"><span class="lbl">Cost/learner</span><span class="txt warn">No pricing baseline yet</span></div>
+            <div class="anno"><span class="lbl">Quota</span><span class="txt">Displayed according to the approved policy</span></div>
+          </div>
+          <p class="state">State: healthy / drift_alert / over_budget / fallback_active.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[KA.*, CONTENT.BlueprintUpdate]</span>
+          <h3>Knowledge Asset registry</h3>
+          <p class="caption">Manifest, lifecycle, version, ownership.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Asset</span><span class="txt">question_482 — Matching Headings</span></div>
+            <div class="anno"><span class="lbl">Version</span><span class="txt">v3 · status: published</span></div>
+            <div class="anno"><span class="lbl">Reports</span><span class="txt warn">2 learners reported an incorrect key (view)</span></div>
+            <div class="cta secondary">Retire</div>
+          </div>
+          <p class="state">State: draft → published → deprecated → retired.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[ADMIN.AuditLog, OPS.Observability]</span>
+          <h3>System observability (Admin)</h3>
+          <p class="caption">Trace, event, failure code, recovery.</p>
+          <div class="wire">
+            <div class="anno"><span class="lbl">Trace</span><span class="txt">trace_id: a3f... · EVAL.Writing</span></div>
+            <div class="anno"><span class="lbl">Event</span><span class="txt">evaluation_submitted → evaluation_scored</span></div>
+            <div class="anno"><span class="lbl">Failure</span><span class="txt danger">retry budget exhausted → fallback state</span></div>
+            <div class="cta secondary">View recovery path</div>
+          </div>
+          <p class="state">State: ok / degraded / incident / recovering.</p>
+        </article>
+      </div>
+      <p class="footnote">This file is the repo-local version of the wireframe; the quick-view version in chat is used for direct review.</p>
+    </section>
+  </div>
+</div>

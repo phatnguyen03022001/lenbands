@@ -1,0 +1,25 @@
+schema_version: 1.0.0
+change_id: claude-code-bounded-contributor-20260807
+change_scope: add-claude-project-instructions-skills-role-agents-knowledge-convergence-hooks-and-protected-path-enforcement
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-claude-code-bounded-contributor-20260807
+notes:
+  - The user explicitly requested a Claude Code configuration for freely prompted bounded workers.
+  - Project auto-memory is disabled so durable knowledge remains in versioned repository owners.
+  - Six reusable skills and six least-privilege role agents separate discovery, writing and adversarial verification.
+  - Dynamic workflows and agent-team writers remain disabled until Git worktree isolation exists.
+  - Nested agent instructions, local Claude memory, project MCP injection, plugin manifests and Git metadata are protected against normal-session writes.
+  - Normal Claude sessions cannot edit Blueprint, tooling, evidence, readiness authority or their own guard configuration.
+  - Arbitrary Bash is denied; registered read-only LenBands commands remain available.
+  - P0 readiness remains blocked and no runtime, evidence, rights or approval claim was created.

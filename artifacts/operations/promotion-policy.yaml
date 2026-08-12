@@ -1,0 +1,16 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+description: Promotion policy. This file owns thresholds; dependency facts live in promotion-dependency-facts.yaml.
+promotion_policy:
+  required_family_status: ready
+  required_owner_spec_status: candidate
+  required_acceptance_status: passed
+  required_evidence_status: present
+  required_decision_status: approved
+  planned_to_active_requires:
+    - family_dependencies_resolved
+    - framework_dependencies_resolved
+    - asset_requirements_resolved
+    - decision_requirements_resolved
+    - evidence_requirements_resolved

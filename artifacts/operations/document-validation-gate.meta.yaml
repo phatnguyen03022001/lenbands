@@ -1,0 +1,9 @@
+type: document-validation-gate
+status: draft
+version: 0.1.4
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability]
+purpose: blueprint-artifact-static-and-semantic-validation
+created_at: 2026-08-06
+updated_at: 2026-08-11

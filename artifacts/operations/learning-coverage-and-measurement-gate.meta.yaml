@@ -1,0 +1,28 @@
+type: quality-gate
+status: review
+version: 0.1.1
+owner: operations
+representation: markdown
+derived_from:
+  - PLACE.Test
+  - PLACE.BandEstimation
+  - LEARN.Writing
+  - EVAL.Writing
+  - LEARN.Listening
+  - LEARN.Reading
+  - LEARN.Speaking
+  - LEARN.Pronunciation
+  - PRACTICE.MockTest
+purpose: learner-coverage-measurement-and-claim-admission-boundary
+consumed_by: [experience, engineering, operations]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Added a non-authoritative evidence-intake coverage record for skill/module/task/band-boundary/modality slices; no corpus, threshold, calibration, or readiness state changed.
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Created learner coverage, measurement, and claim-admission quality gate.

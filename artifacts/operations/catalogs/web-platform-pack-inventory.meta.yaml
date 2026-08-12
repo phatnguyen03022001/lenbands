@@ -1,0 +1,45 @@
+type: web-platform-pack-inventory
+status: draft
+version: 0.2.2
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability]
+purpose: web-platform-contract-pack-coverage-projection-and-gap-ledger
+created_at: 2026-08-10
+updated_at: 2026-08-10
+generated_from: artifacts/engineering/contracts/** + blueprint/02-architecture.md + blueprint/07-conventions.md + artifacts/operations/capability-family-map.yaml
+generated_at: 2026-08-10
+schema_version: 2.0.0
+generation_state: manual_projection_pending_generator
+generator_owner: operations
+generator_registration: missing
+generator_gap: true
+generator_gap_reason: No registered generator exists; do not hand-translate the projection.
+change_log:
+  - version: 0.2.2
+    date: 2026-08-11
+    changes:
+      - Registered the missing generator gap and canonical owner for this manual projection; no generated output was edited.
+  - version: 0.2.1
+    date: 2026-08-10
+    changes:
+      - Merged duplicate change_log keys so YAML parsers cannot silently discard Batch 5 history
+      - Reclassified API admin binding, deprecation transition and frontend session transport as open pre-code design gaps after independent audit
+  - version: 0.2.0
+    date: 2026-08-10
+    changes:
+      - Reclassified rows to canonical owner | status | pre-code document gap | post-code evidence gate
+      - D1/D2 resolved pre-code by cloud-platform-topology-contract (env/IAM/network/DNS/WAF/secrets/backup/DR/RPO/RTO); remaining restore drill/provider setup/IaC = post-code evidence
+      - E1 resolved pre-code by sre-delivery-security-contract (incident/runbook taxonomy); runbook drill = post-code evidence
+      - F1 resolved pre-code by sre-delivery-security-contract (SCA/migration/flag/kill-switch/rollback policy); scanner/CI run = post-code evidence
+      - API ownership model documented by api-ownership-bff-contract; legacy transition remains open until deprecation mechanics and admin binding are canonical
+      - Lifecycle rows note protected conflicts (SPEAKING.Practice/PRACTICE.Drill/interaction_spec) pending B4 diffs — not called complete
+      - Convergence audit Batch 5
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Corrected E1: evaluator-drift incident runbook exists (artifacts/operations/evaluator-drift-incident-runbook.md); gap narrowed to missing general runbook set
+      - Corrected F1: dependency-security tooling selected (Dependabot/Grype/Gitleaks/Trivy/SBOM); gap narrowed to missing binding dependency-security contract artifact
+      - Fixed OpenAPI version (writing-task-2/openapi.yaml is 3.1.0, not 3.0.3) and P0 loop scope description
+      - Normalized canonical-owner paths to full repo-relative paths
+      - Red-team web-platform-pack-inventory corrections

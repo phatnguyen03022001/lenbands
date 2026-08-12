@@ -1,0 +1,35 @@
+schema_version: 1.0.0
+change_id: claude-global-pre-code-lock-20260808
+change_scope: enforce-global-document-convergence-before-any-application-source-code
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - ruby -Itools/lib tools/test/test_claude_runtime_commands.rb
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands validate trust-boundary
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-correction-2026-08-08-global-documents-before-code
+notes:
+  - Source mutation is locked across apps, services and engines during document convergence.
+  - Runtime implementation commands are fail-closed while read-only diagnosis and registered repository checks remain available.
+  - There is no per-pack implementation unlock; the whole IELTS Blueprint and Artifact portfolio must satisfy the global completion criteria.
+  - Runtime workers and the implementation skill remain installed only as dormant future capability and are absent from the founder-local permission surface.
+  - Shared permissions explicitly deny invocation of every runtime worker and the implementation skill while the global gate is locked.
+  - The founder-local profile exposes a document-only convergence campaign with disjoint audit fan-out and one-owner-at-a-time deepening.
+  - Session bootstrap announces the document phase and provisions no application build caches while locked.
+  - No document completeness, application readiness, acceptance, benchmark, rights or calibration evidence is claimed.
+verification_results:
+  claude_code_phase_lock: passed
+  claude_code_hardening_tests: passed
+  runtime_command_policy_tests: passed
+  trust_boundary: passed
+  tooling_contract: passed
+  full_repository_verify: blocked_by_missing_metadata_for_artifacts_engineering_contracts_openapi_yaml
+  toolchain_gate: blocked_by_same_document_validation_gap
+  p0_gate: expected_exit_3_with_33_blockers

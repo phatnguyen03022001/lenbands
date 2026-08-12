@@ -1,0 +1,73 @@
+# Learning Outcome Index — PROJECTION (generated, không SSOT)
+#
+# File này là PROJECTION sinh tự động từ done_when inline trong các framework node.
+# KHÔNG sửa tay. Sửa done_when = sửa node ở framework/, rồi regenerate.
+#
+# generated_from:
+#   - blueprint/framework/grammar-band-framework.md (g_*.done_when)
+#   - blueprint/framework/microskill-enum.md (*.done_when)
+#   - blueprint/framework/skill-questiontype-band.md (question_type.done_when)
+#   - blueprint/framework/error-taxonomy.md (error_*.resolve_when)
+# generated_at: null (chưa có generator run; file này chỉ là sample)
+# schema_version: 1.0.0
+# generator: null (tools/gen_learning_outcome_index.py chưa implement)
+#
+# Cách dùng: BAND.Map tính ✓/⚠/✗, Progress tính mastery, AI Coach reasoning
+# "còn thiếu gì để đạt band X". Đọc index nhanh hơn scan 4 framework.
+# Quyền viết: KHÔNG. Quyền đọc: mọi agent.
+
+generated_from:
+  - blueprint/framework/grammar-band-framework.md
+  - blueprint/framework/microskill-enum.md
+  - blueprint/framework/skill-questiontype-band.md
+  - blueprint/framework/error-taxonomy.md
+generated_at: null
+schema_version: 1.0.0
+generator: null
+generation_state: sample_not_generated
+
+# Ví dụ projection (đầy đủ khi generator chạy):
+outcomes:
+  # Grammar
+  - node_id: g_second_conditional
+    node_type: grammar
+    done_when:
+      accuracy_pct: 90
+      consecutive_sessions: 3
+      no_review_regression_days: 30
+    can_statement: "Learner can form and use second conditional accurately."
+
+  - node_id: g_relative_clause_reduced
+    node_type: grammar
+    done_when:
+      accuracy_pct: 90
+      consecutive_sessions: 3
+      no_review_regression_days: 30
+    can_statement: "Learner can reduce relative clauses to participles correctly."
+
+  # Micro-skill
+  - node_id: R_matching_headings
+    node_type: microskill
+    done_when:
+      accuracy_pct: 80
+      consecutive_sessions: 3
+      no_review_regression_days: 30
+    can_statement: "Learner can match headings by main idea + paraphrase."
+
+  # Question type
+  - node_id: R_matching_headings
+    node_type: question_type
+    done_when:
+      accuracy_pct: 75
+      recent_mock_pass: true
+    can_statement: "Learner can complete Matching Headings tasks at band-appropriate accuracy."
+
+  # Error (resolve_when)
+  - node_id: W_gra_relative_clause
+    node_type: error
+    resolve_when:
+      no_recurrence_in_recent_n_submissions: 3
+      retest_accuracy_pct: 90
+      review_card_state: review
+
+status: draft

@@ -1,0 +1,33 @@
+type: convergence-projection
+status: review
+version: 0.1.4
+owner: document-convergence-orchestrator
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.EvaluationQuality, OPS.Observability]
+source_files: [artifacts/operations/capability-lifecycle-registry.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/operations/build-readiness-matrix.md, artifacts/operations/capability-manifest.yaml]
+purpose: 180-capability-certification-status-projection
+consumed_by: [founder, engineering, operations]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: projection
+change_log:
+  - version: 0.1.4
+    date: 2026-08-11
+    changes:
+      - Reordered changelog entries to descending semantic-version order (newest first).
+      - Replaced the false single causal chain "identity provider → gold corpus → benchmark → thresholds" with an accurate description of three independent blocker tracks, each with its own dependencies.
+      - Reconciled planned-family and planned-capability owner-spec aggregates against the canonical registries: 20 PLANNED families, and 25 of 146 PLANNED capabilities pointing to existing ACTIVE-family owner specs.
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Corrected v0.1.1 changelog wording: the family-count correction was to the v0.1.0 changelog entry, not to the purpose field (which does not carry a family count).
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Corrected family count in the v0.1.0 changelog entry from "across 25 families" to "across 26 defined families (25 reachable + 1 orphan SPEAKING.Practice)" to match the canonical family registry. The purpose field itself does not carry the family count; the correction was to the historical changelog record only.
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Initial projection from capability-lifecycle-registry.yaml, capability-family-registry.yaml, build-readiness-matrix.md, and capability-manifest.yaml.
+      - Covers all 180 capabilities (33 ACTIVE, 146 PLANNED, 1 DEPRECATED) across 26 defined families (25 reachable + 1 orphan SPEAKING.Practice).
+      - Records three independent P0 blocker tracks: (1) identity provider and DPA decisions (P0-01); (2) gold corpus rights, labels, and benchmark runs (P0-04, P0-06); (3) numeric cost thresholds and founder approval (P0-04, P0-06). These tracks have separate dependencies and are not a single causal chain.

@@ -1,0 +1,10 @@
+type: benchmark-dataset-manifest
+status: draft
+version: 0.1.0
+owner: founder + operations
+representation: yaml
+derived_from: [EVAL.Writing, GOVERNANCE.GoldStandardBenchmark, OPS.EvaluationQuality]
+purpose: rights-and-label-gated-manifest-for-authorized-writing-gold-corpus
+consumed_by: [engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

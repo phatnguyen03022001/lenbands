@@ -1,0 +1,12 @@
+type: promotion-policy
+status: review
+version: 0.1.0
+owner: product + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate]
+source_files: [artifacts/operations/architecture-frozen.md]
+purpose: canonical-promotion-thresholds-separate-from-dependency-facts
+consumed_by: [promotion-validator, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+schema_version: 1.0.0

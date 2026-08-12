@@ -1,0 +1,24 @@
+type: bops-contract-pack
+status: review
+version: 0.1.1
+owner: operations + engineering
+representation: markdown
+derived_from: [OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, EVAL.Writing, IDENTITY.Auth, IDENTITY.Privacy]
+source_files: [artifacts/business/decisions/managed-platform-baseline-decision.md, artifacts/business/decisions/build-buy-register.md, artifacts/operations/cost-budget.md, artifacts/engineering/contracts/runtime/observability-slo-contract.md, artifacts/engineering/contracts/runtime/provider-adapter-contract.md]
+purpose: complete-per-provider-bops-contracts-data-classes-iam-quota-slo-telemetry-redaction-backup-restore-rpo-rto-exit-scale-up
+consumed_by: [operations, engineering, founder, validators]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: pre-code-design-contract
+change_log:
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Corrected the provider inventory to 9 provider contracts plus 4 deferred adapter stubs; aligned the DeepSeek consent reference to the existing auth-identity contract. No provider, policy, runtime, or readiness state changed.
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Created BOPS contract pack with 9 provider contracts (Cloudflare, Cloud Run, Secret Manager, Neon, Upstash, Resend/Brevo, PostHog, Sentry, DeepSeek) plus 4 deferred adapter stubs.
+      - Defined data classification enforcement matrix, IAM rotation schedule, unified quota/cost operating bands, SLO targets, RPO/RTO targets.
+      - Established pre-code vs post-code evidence distinction per provider.
+      - Linked 4 founder decisions as conditional dependencies.

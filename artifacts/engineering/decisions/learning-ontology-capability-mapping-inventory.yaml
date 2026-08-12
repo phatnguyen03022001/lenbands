@@ -1,0 +1,278 @@
+# Learning Ontology Capability Mapping Inventory
+# Non-authoritative, non-protected draft inventory. 2026-08-11.
+# NOT a canonical registry or generated projection. Review inventory only.
+# Capability IDs, lifecycles, and phases are exact copies from the SSOT
+# artifacts/operations/capability-lifecycle-registry.yaml v1.0.0.
+# mapping_status is projection-local: mapped|partial|unknown_ontology_mapping|not_applicable.
+# It is not domain vocabulary and never flows into runtime.
+
+schema_version: 0.2.3
+status: draft
+source: artifacts/operations/capability-lifecycle-registry.yaml
+derived_from: artifacts/engineering/decisions/learning-ontology-adoption-readiness.md
+
+mapping_status_definition:
+  mapped: the declared primary ontology concept and relation are fully evidenced for this inventory scope
+  partial: one or more declared dimensions are evidenced while explicitly named dimensions remain missing
+  unknown_ontology_mapping: no contract evidence to determine primary ontology concept
+  not_applicable: genuinely platform/cross-cutting and outside the 8 ontology objects; explanation in rationale
+
+# For every mapped or partial row, evidence_refs must contain exact repository
+# path:line references; mapped_dimensions and missing_dimensions are projection-
+# local audit fields. Their labels are not domain vocabulary or lifecycle states.
+# mapped rows require missing_dimensions: []; partial rows require at least one
+# explicit missing_dimensions label.
+
+# The 8 ontology concepts: skill, knowledge, task_type, practice, content, assessment, evidence, mastery.
+# study, review, history, progress_personal, governance, ops, and orchestration are NOT ontology concepts.
+
+capabilities:
+  # ADMIN.* (12 PLANNED) — platform, not_applicable
+  - {id: ADMIN.AccountStatus, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability; outside ontology boundary}
+  - {id: ADMIN.AuditLog, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Billing, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Dashboard, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.GovernanceDashboard, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.ModerationLog, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Permission, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Premium, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Revenue, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.Role, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.SystemSetting, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+  - {id: ADMIN.User, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: admin platform capability}
+
+  # BAND.* (11: 1 ACTIVE P0, 10 PLANNED) — not ontology; progress projection/orchestration
+  - {id: BAND.Checklist, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred progress projection; no contract evidence of ontology relationship; PROGRESS.Learning family}
+  - {id: BAND.Completion, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred progress projection; PROGRESS.Learning}
+  - {id: BAND.Current, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "placement-diagnosis-runtime.md owner_spec", rationale: placement-derived band projection; not an ontology object. Forbidden as Mastery input per ontology proposal §2.2. Produces assessment-adjacent output but is not an ontology Assessment entity}
+  - {id: BAND.Descriptor, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning}
+  - {id: BAND.ExamReadiness, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: BAND.Map, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning}
+  - {id: BAND.ProgressionWarning, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning}
+  - {id: BAND.Readiness, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: BAND.RecommendedNext, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: BAND.Requirement, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning}
+  - {id: BAND.Target, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning}
+
+  # COACH.* (9: 2 ACTIVE P0, 7 PLANNED P1) — not ontology; coaching/orchestration
+  - {id: COACH.AnswerExplanation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback family; coaching is orchestration, not ontology}
+  - {id: COACH.DistractorExplanation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+  - {id: COACH.ErrorAnalysis, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "writing-evaluation-runtime.md owner_spec", rationale: consumes evaluation output; WRITING.Evaluation family; coaching is orchestration}
+  - {id: COACH.Feedback, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "writing-evaluation-runtime.md owner_spec", rationale: produces learner feedback; WRITING.Evaluation family; coaching is orchestration}
+  - {id: COACH.ListeningCoach, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+  - {id: COACH.ReadingCoach, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+  - {id: COACH.Recommendation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+  - {id: COACH.Tutor, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+  - {id: COACH.VocabularyExplanation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; COACH.Feedback}
+
+  # CONTENT.* (12 PLANNED P1) — content ontology (some); MockTest→MOCK.ExamSimulation
+  - {id: CONTENT.AutoTag, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management family}
+  - {id: CONTENT.BlueprintUpdate, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Feedback, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Knowledge, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Lesson, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.MockTest, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: MOCK.ExamSimulation family; mock is orchestration, not ontology}
+  - {id: CONTENT.Moderation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Publish, lc: PLANNED, ph: P1, concept: content, rel: produces, status: partial, evidence: "getWritingTask OpenAPI contract implies publish lifecycle at P0; owning capability is P1 — ownership tension", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:243-249", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/writing-task-2/openapi.yaml:188-204", "/Users/tienphat/Developer/lenbands/artifacts/engineering/decisions/learning-ontology-adoption-readiness.md:81-87"], mapped_dimensions: [concept, relation], missing_dimensions: [capability_scope_alignment], rationale: CONTENT.Management family; P0 WritingTask publish contract exists but capability is PLANNED}
+  - {id: CONTENT.QuestionBank, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Quiz, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.Tag, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+  - {id: CONTENT.TagReview, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Management}
+
+  # EVAL.* (7: 1 ACTIVE P0, 5 PLANNED, 1 DEPRECATED) — assessment ontology where contract evidence exists
+  - {id: EVAL.AntiGaming, lc: DEPRECATED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deprecated alias→GOVERNANCE.AntiGaming; GOVERNANCE.Quality family; no active contract}
+  - {id: EVAL.BandPrediction, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: deferred; PROGRESS.Learning; no owner_spec}
+  - {id: EVAL.Examiner, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; SPEAKING.Evaluation}
+  - {id: EVAL.Pronunciation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PRONUNCIATION.Practice}
+  - {id: EVAL.RewriteSuggestion, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: WRITING.Evaluation owner_spec exists, but the contract explicitly defers EVAL.RewriteSuggestion and does not establish an ontology relationship}
+  - {id: EVAL.Speaking, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; SPEAKING.Evaluation}
+  - {id: EVAL.Writing, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "writing-evaluation-runtime.md owner_spec + openapi.yaml v0.5.0 WritingEvaluation schema + evaluation-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:108-112", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/writing-evaluation-runtime.md:5-14", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/writing-evaluation-runtime.md:32-48", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/writing-task-2/openapi.yaml:719-740", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/evaluation/evaluation-contract.md:7-9", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/evaluation/evaluation-contract.md:41-68"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: sole-scorer writing evaluation; WRITING.Evaluation family; contract-defined}
+
+  # GOAL.* (5: 1 ACTIVE P0, 4 PLANNED/deferred) — not ontology; study orchestration
+  - {id: GOAL.Daily, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction family; study orchestration}
+  - {id: GOAL.ExamPlan, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: GOAL.StudyPlan, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: GOAL.Target, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md", rationale: PLACEMENT.Diagnosis family; goal setting feeds assessment input but is orchestration, not ontology}
+  - {id: GOAL.Weekly, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+
+  # GOVERNANCE.* (7: 2 ACTIVE P0, 5 PLANNED P1) — not ontology; governance is platform
+  - {id: GOVERNANCE.AntiGaming, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics family; governance platform capability}
+  - {id: GOVERNANCE.AuditTrail, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform}
+  - {id: GOVERNANCE.BiasMonitoring, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform}
+  - {id: GOVERNANCE.ConfidenceScore, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform. Consumes evaluation output but is governance, not assessment ontology}
+  - {id: GOVERNANCE.Dashboard, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform}
+  - {id: GOVERNANCE.DriftDetection, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform}
+  - {id: GOVERNANCE.GoldStandardBenchmark, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: OPS.QualityEconomics; governance platform}
+
+  # HISTORY.* (8 PLANNED P1) — not ontology; history projection/orchestration
+  - {id: HISTORY.Attempts, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment family; history is projection, not ontology}
+  - {id: HISTORY.BandTimeline, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.Compare, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.LearningTimeline, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.ScoreTimeline, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.SkillTimeline, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.SpeakingPortfolio, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+  - {id: HISTORY.WritingPortfolio, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; HISTORY.Assessment}
+
+  # IDENTITY.* (5: 3 ACTIVE P0, 2 PLANNED deferred) — platform, not_applicable
+  - {id: IDENTITY.Auth, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "identity-core-runtime.md owner_spec", rationale: authentication platform}
+  - {id: IDENTITY.DeleteAccount, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "identity-core-runtime.md owner_spec", rationale: account deletion platform}
+  - {id: IDENTITY.Privacy, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "identity-core-runtime.md owner_spec", rationale: privacy platform}
+  - {id: IDENTITY.Profile, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "identity-core-runtime.md owner_spec", rationale: profile platform}
+  - {id: IDENTITY.Recovery, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "identity-core-runtime.md owner_spec", rationale: recovery platform}
+
+  # KA.* (8 PLANNED deferred) — knowledge ontology where evidence exists
+  - {id: KA.Collocation, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge family; content exists in knowledge-assets/ ahead of authority}
+  - {id: KA.Example, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+  - {id: KA.Exercise, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+  - {id: KA.Grammar, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge; grammar points have framework IDs but no capability contract}
+  - {id: KA.Lesson, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+  - {id: KA.Strategy, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+  - {id: KA.Template, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+  - {id: KA.Vocabulary, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; CONTENT.Knowledge}
+
+  # LEARN.* (7: 1 ACTIVE P0, 6 PLANNED) — skill ontology where contract evidence exists
+  - {id: LEARN.Listening, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; LISTENING.Practice family}
+  - {id: LEARN.Path, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction family; learning path is orchestration, not ontology}
+  - {id: LEARN.Pronunciation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PRONUNCIATION.Practice}
+  - {id: LEARN.QuestionTypes, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: STUDY.DailyAction owner_spec exists, but it does not define a QuestionTypes ontology relationship}
+  - {id: LEARN.Reading, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; READING.Practice}
+  - {id: LEARN.Speaking, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; SPEAKING.Evaluation}
+  - {id: LEARN.Writing, lc: ACTIVE, ph: P0, concept: skill, rel: produces, status: mapped, evidence: "writing-evaluation-runtime.md owner_spec + openapi.yaml WritingTask/getWritingTask", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:64-67", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/writing-evaluation-runtime.md:5-22", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/writing-task-2/openapi.yaml:188-204", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/writing-task-2/openapi.yaml:679-688"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: WRITING.Evaluation family; writing skill practice surface}
+
+  # LOC.* (5 PLANNED) — platform, not_applicable
+  - {id: LOC.AIResponseLanguage, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: localization platform}
+  - {id: LOC.InterfaceLanguage, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: localization platform}
+  - {id: LOC.LocaleFormat, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: localization platform}
+  - {id: LOC.PreferenceSync, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: localization platform}
+  - {id: LOC.Switcher, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: localization platform}
+
+  # NOTIF.* (9 PLANNED) — platform, not_applicable
+  - {id: NOTIF.Goal, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.Preference, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.QuietHours, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.Reengagement, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.Result, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.Review, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.SRS, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.SmartDelivery, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+  - {id: NOTIF.Study, lc: PLANNED, ph: P2, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: notification platform}
+
+  # OPS.* (8 ACTIVE P0) — platform; not ontology (assessment-adjacent at most)
+  - {id: OPS.ContentQuality, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: content quality operations are a platform/gate concern outside the 8 ontology objects; ACTIVE but deferred-no-runtime per PD-05}
+  - {id: OPS.CostBudget, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: cost operations platform}
+  - {id: OPS.EvaluationQuality, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: evaluation quality operations; references assessment but is platform, not ontology Assessment}
+  - {id: OPS.ModelRouting, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: model routing platform}
+  - {id: OPS.Observability, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: observability platform}
+  - {id: OPS.OutcomeMeasurement, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: outcome measurement; references assessment outputs but is operations platform}
+  - {id: OPS.Quota, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: quota platform}
+  - {id: OPS.ReleaseGate, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "quality-economics-runtime.md owner_spec", rationale: release gate platform}
+
+  # PERSONAL.* (7: 1 ACTIVE P0, 6 PLANNED) — not ontology; personalization orchestration
+  - {id: PERSONAL.AdaptivePlan, lc: PLANNED, ph: P2, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation family; orchestration}
+  - {id: PERSONAL.GapAnalysis, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation; orchestration}
+  - {id: PERSONAL.GoalRecommendation, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation; orchestration}
+  - {id: PERSONAL.Insights, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation; orchestration}
+  - {id: PERSONAL.NextBestAction, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction family; deterministic NBA is orchestration}
+  - {id: PERSONAL.Recommendation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation; orchestration}
+  - {id: PERSONAL.WeaknessPractice, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PERSONAL.Recommendation; orchestration}
+
+  # PKM.* (10: 1 ACTIVE P0, 9 PLANNED) — not_applicable; personal knowledge management
+  - {id: PKM.Collections, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: learner-owned PKM; not learning ontology}
+  - {id: PKM.Drafts, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "writing-evaluation-runtime.md owner_spec", rationale: WRITING.Evaluation family; learner draft storage}
+  - {id: PKM.Export, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.Import, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.Notes, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.Offline, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.Recordings, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.SavedItems, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.Sync, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+  - {id: PKM.WordBank, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: PKM platform}
+
+  # PLACE.* (5 ACTIVE P0) — assessment ontology
+  - {id: PLACE.BandEstimation, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:50-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:5-21", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:29-37", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:7-13", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:34-45"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: PLACEMENT.Diagnosis family; band estimation produces assessment output}
+  - {id: PLACE.GapDetection, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:50-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:5-21", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:29-37", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:7-13", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:34-45"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: PLACEMENT.Diagnosis; gap detection assessment output}
+  - {id: PLACE.InitialPath, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:50-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:5-21", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:29-37", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:7-13", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:34-45"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: PLACEMENT.Diagnosis; initial path assessment output}
+  - {id: PLACE.SkillDiagnosis, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:50-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:5-21", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:29-37", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:7-13", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:34-45"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: PLACEMENT.Diagnosis; skill diagnosis assessment output}
+  - {id: PLACE.Test, lc: ACTIVE, ph: P0, concept: assessment, rel: produces, status: mapped, evidence: "placement-diagnosis-runtime.md owner_spec + placement-diagnosis-contract.md + openapi.yaml startPlacement", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:50-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/placement-diagnosis-runtime.md:5-21", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/placement-diagnosis-contract.md:47-54", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/writing-task-2/openapi.yaml:45-64"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: PLACEMENT.Diagnosis family; placement test produces assessment data}
+
+  # PRACTICE.* (6: 1 ACTIVE P0, 5 PLANNED P1) — practice ontology where contract evidence exists
+  - {id: PRACTICE.Adaptive, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PRACTICE.Drill family}
+  - {id: PRACTICE.Drill, lc: ACTIVE, ph: P0, concept: practice, rel: produces, status: mapped, evidence: "error-to-review-runtime.md owner_spec + error-to-review data-contract.md", evidence_refs: ["/Users/tienphat/Developer/lenbands/blueprint/03-features.md:96-100", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/error-to-review-runtime.md:5-29", "/Users/tienphat/Developer/lenbands/artifacts/engineering/runtime/error-to-review-runtime.md:60-72", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/error-to-review/data-contract.md:7-29", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/error-to-review/data-contract.md:57-68", "/Users/tienphat/Developer/lenbands/artifacts/engineering/contracts/error-to-review/data-contract.md:70-86"], mapped_dimensions: [concept, relation], missing_dimensions: [], rationale: REVIEW.ErrorToReview family; retest drill. Cap/family name collision with PRACTICE.Drill PLANNED family}
+  - {id: PRACTICE.ExamSimulation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: MOCK.ExamSimulation family; exam simulation is orchestration, not practice ontology}
+  - {id: PRACTICE.MockTest, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: MOCK.ExamSimulation family; mock test is orchestration}
+  - {id: PRACTICE.Set, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PRACTICE.Drill family}
+  - {id: PRACTICE.Timed, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PRACTICE.Drill family}
+
+  # PROGRESS.* (10 PLANNED) — not ontology; progress projection/orchestration
+  - {id: PROGRESS.Achievement, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning; progress is projection/orchestration}
+  - {id: PROGRESS.BandProgress, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.Dashboard, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.GoalTracking, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.LearningAnalytics, lc: PLANNED, ph: P2, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.Motivation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.Reactivation, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.SkillAnalytics, lc: PLANNED, ph: P2, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.WeeklyRecap, lc: PLANNED, ph: deferred, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+  - {id: PROGRESS.Wellbeing, lc: PLANNED, ph: P1, concept: null, rel: null, status: unknown_ontology_mapping, evidence: null, rationale: no owner_spec; PROGRESS.Learning}
+
+  # REVIEW.* (9: 3 ACTIVE P0, 6 PLANNED deferred) — not ontology; review orchestration
+  - {id: REVIEW.Bookmark, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview family; review orchestration}
+  - {id: REVIEW.FSRS, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; spaced repetition scheduling is orchestration}
+  - {id: REVIEW.History, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; review history projection}
+  - {id: REVIEW.MistakeNotebook, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec + error-to-review data-contract.md", rationale: REVIEW.ErrorToReview; review orchestration}
+  - {id: REVIEW.QuestionReview, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; review orchestration}
+  - {id: REVIEW.Queue, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; review orchestration}
+  - {id: REVIEW.SmartQueue, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; FSRS queue is orchestration}
+  - {id: REVIEW.WrongAnswer, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; review orchestration}
+  - {id: REVIEW.WrongQuestion, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "error-to-review-runtime.md owner_spec", rationale: REVIEW.ErrorToReview; review orchestration}
+
+  # SEARCH.* (8 PLANNED P1) — platform, not_applicable
+  - {id: SEARCH.BandDescriptor, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.Cheatsheet, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.Formula, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.Global, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.Knowledge, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.Question, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.SpeakingSample, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+  - {id: SEARCH.WritingSample, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: search platform}
+
+  # STUDY.* (8: 3 ACTIVE P0, 5 PLANNED) — not ontology; study orchestration
+  - {id: STUDY.CheckIn, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction family; study orchestration. No dedicated OpenAPI endpoint — D-06 unresolved}
+  - {id: STUDY.Continue, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: STUDY.DailyPlan, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec + daily-action-contract.md", rationale: STUDY.DailyAction; daily plan is orchestration}
+  - {id: STUDY.MicroSession, lc: ACTIVE, ph: P0, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; micro-session orchestration}
+  - {id: STUDY.Resume, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: STUDY.Session, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: STUDY.SessionSummary, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+  - {id: STUDY.TodayQueue, lc: PLANNED, ph: deferred, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: "daily-action-runtime.md owner_spec", rationale: STUDY.DailyAction; study orchestration}
+
+  # SUB.* (4 PLANNED P1) — platform, not_applicable
+  - {id: SUB.Payment, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: subscription platform}
+  - {id: SUB.Plan, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: subscription platform}
+  - {id: SUB.Premium, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: subscription platform}
+  - {id: SUB.UsageLimit, lc: PLANNED, ph: P1, concept: not_applicable, rel: not_applicable, status: not_applicable, evidence: null, rationale: subscription platform}
+
+# Verification (against artifacts/operations/capability-lifecycle-registry.yaml v1.0.0 SSOT):
+# Capability ID set equality: all 180 capability_id values in this inventory exactly match the registry.
+# Lifecycle equality: every lifecycle value is an exact copy of the registry value.
+# Phase equality: every phase value is an exact copy of the registry value (including "deferred" where present).
+# Lifecycle totals: 33 ACTIVE + 146 PLANNED + 1 DEPRECATED = 180.
+# Family assignment is not duplicated as a field in this inventory; it remains canonical in the lifecycle/family map and is not independently re-authored here.
+#
+# Post-fix mapping status counts (2026-08-11):
+#   mapped: 8 (ontology relationship has direct owner_spec + contract evidence)
+#   partial: 1 (CONTENT.Publish — P0 contract exists but capability is PLANNED; ownership tension)
+#   unknown_ontology_mapping: 76 (no contract evidence to determine the primary ontology concept; not every no-owner_spec row is unknown because some are not_applicable)
+#   not_applicable: 95 (genuinely platform/cross-cutting or orchestration outside the 8 ontology concepts)
+#   These are mutually exclusive row classifications; no additional summed total is asserted here.
+#
+# Ontology objects with contract-backed mapped rows:
+#   skill: LEARN.Writing (ACTIVE, mapped). All other skill caps are unknown_ontology_mapping.
+#   knowledge: none mapped. All KA.* + CONTENT.Knowledge are unknown_ontology_mapping (no owner_spec).
+#   task_type: none mapped. LEARN.QuestionTypes remains unknown_ontology_mapping because the family owner spec does not define the relationship.
+#   practice: PRACTICE.Drill (ACTIVE, mapped). All other practice caps are unknown_ontology_mapping.
+#   content: none mapped. CONTENT.Publish (PLANNED, partial — P0 contract tension); OPS.ContentQuality is not_applicable operations platform.
+#   assessment: EVAL.Writing, PLACE.* (5 caps) — mapped via direct owner_spec/contract evidence. EVAL.RewriteSuggestion remains unknown because its family contract explicitly defers it; OPS.EvaluationQuality and OPS.OutcomeMeasurement are not_applicable operations-platform rows.
+#   evidence: none mapped. No EVIDENCE.* capability exists. No unified EvidenceFact schema exists.
+#   mastery: none mapped. No MASTERY.* capability exists. BAND.Current is not Assessment and is not Evidence.

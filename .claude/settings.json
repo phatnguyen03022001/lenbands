@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "autoMemoryEnabled": false,
+  "disableWorkflows": true,
+  "workflowSizeGuideline": "small",
+  "fileCheckpointingEnabled": true,
+  "disableArtifact": true,
+  "disableClaudeAiConnectors": true,
+  "disableSkillShellExecution": true,
+  "skillOverrides": {
+    "claude-api": "off"
+  },
+  "permissions": {
+    "defaultMode": "default",
+    "disableBypassPermissionsMode": "disable",
+    "disableAutoMode": "disable",
+    "allow": [
+      "Bash",
+      "Bash(tools/bin/lenbands doctor)",
+      "Bash(tools/bin/lenbands verify)",
+      "Bash(tools/bin/lenbands gate toolchain)",
+      "Bash(tools/bin/lenbands gate p0)",
+      "Bash(tools/bin/lenbands gate repository)",
+      "Bash(tools/bin/lenbands context)",
+      "Bash(tools/bin/lenbands context --yaml)",
+      "Bash(tools/bin/lenbands validate all)",
+      "Bash(tools/bin/lenbands validate tooling)",
+      "Bash(tools/bin/lenbands validate trust-boundary)",
+      "Bash(tools/bin/lenbands validate phase-index)",
+      "Bash(tools/bin/lenbands validate documents)",
+      "Bash(tools/bin/lenbands validate framework)",
+      "Bash(tools/bin/lenbands validate knowledge-assets)",
+      "Bash(tools/bin/lenbands validate openapi)",
+      "Bash(tools/bin/lenbands validate semantic-contracts)",
+      "Bash(tools/bin/lenbands validate contract-ownership)",
+      "Bash(tools/bin/lenbands validate domain-automation)",
+      "Bash(tools/bin/lenbands validate evidence-lineage)",
+      "Bash(tools/bin/lenbands validate platform-boundary)",
+      "Bash(tools/bin/lenbands validate spawn-prompts)",
+      "Bash(tools/bin/lenbands validate benchmark-contracts)",
+      "Bash(tools/bin/lenbands validate implementation-catalog)",
+      "Bash(tools/bin/lenbands validate claude-code)",
+      "Bash(tools/bin/lenbands generate all --check)"
+    ],
+    "deny": [
+      "Artifact",
+      "Workflow",
+      "EnterWorktree",
+      "MultiEdit",
+      "Monitor",
+      "PowerShell",
+      "Skill(implement-p0-slice)",
+      "Agent(runtime-composer)",
+      "Agent(nextjs-implementer)",
+      "Agent(go-backend-implementer)",
+      "Agent(python-evaluation-implementer)",
+      "Agent(runtime-integration-verifier)",
+      "mcp__*",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secrets/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(~/.kube/**)",
+      "Bash(rm *)",
+      "Bash(git push *)",
+      "Bash(git reset *)",
+      "Bash(git clean *)",
+      "Bash(git checkout *)",
+      "Bash(git restore *)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "autoAllowBashIfSandboxed": false,
+    "allowUnsandboxedCommands": false,
+    "filesystem": {
+      "denyRead": [
+        "./.env",
+        "./.env.*",
+        "./**/.env",
+        "./**/.env.*",
+        "./secrets",
+        "./**/secrets",
+        "~/.ssh",
+        "~/.aws",
+        "~/.config/gcloud",
+        "~/.kube"
+      ],
+      "denyWrite": [
+        "./.claude",
+        "./.claude-plugin",
+        "./.git",
+        "./.github",
+        "./AGENTS.md",
+        "./CLAUDE.md",
+        "./blueprint",
+        "./tools"
+      ]
+    },
+    "network": {
+      "allowedDomains": [
+        "registry.npmjs.org",
+        "proxy.golang.org",
+        "sum.golang.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "github.com",
+        "api.github.com",
+        "raw.githubusercontent.com"
+      ]
+    },
+    "credentials": {
+      "files": [
+        { "path": "./.env", "mode": "deny" },
+        { "path": "./.env.*", "mode": "deny" },
+        { "path": "./**/.env", "mode": "deny" },
+        { "path": "./**/.env.*", "mode": "deny" },
+        { "path": "./secrets", "mode": "deny" },
+        { "path": "./**/secrets", "mode": "deny" }
+      ],
+      "envVars": [
+        { "name": "ANTHROPIC_AUTH_TOKEN", "mode": "deny" },
+        { "name": "ANTHROPIC_API_KEY", "mode": "deny" },
+        { "name": "DEEPSEEK_API_KEY", "mode": "deny" },
+        { "name": "OPENAI_API_KEY", "mode": "deny" },
+        { "name": "AWS_ACCESS_KEY_ID", "mode": "deny" },
+        { "name": "AWS_SECRET_ACCESS_KEY", "mode": "deny" },
+        { "name": "AWS_SESSION_TOKEN", "mode": "deny" },
+        { "name": "GOOGLE_APPLICATION_CREDENTIALS", "mode": "deny" },
+        { "name": "DATABASE_URL", "mode": "deny" },
+        { "name": "GH_TOKEN", "mode": "deny" },
+        { "name": "GITHUB_TOKEN", "mode": "deny" },
+        { "name": "CLOUDFLARE_API_TOKEN", "mode": "deny" },
+        { "name": "NEON_API_KEY", "mode": "deny" },
+        { "name": "SUPABASE_ACCESS_TOKEN", "mode": "deny" },
+        { "name": "VERCEL_TOKEN", "mode": "deny" }
+      ]
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/session-context.rb",
+            "args": [],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash|PowerShell|Monitor",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-tool-use.rb",
+            "args": [],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/mark-dirty.rb",
+            "args": [],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-handoff.rb",
+            "args": [],
+            "timeout": 180
+          }
+        ]
+      }
+    ],
+    "ConfigChange": [
+      {
+        "matcher": "project_settings|local_settings|skills",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-config-change.rb",
+            "args": [],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

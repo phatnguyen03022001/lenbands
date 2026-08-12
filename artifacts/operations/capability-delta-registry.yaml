@@ -1,0 +1,34 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+authority: ARCHITECTURE-FROZEN.md
+description: Canonical variation registry. Deltas extend family behavior and cannot replace it.
+
+delta_schema:
+  required: [delta_id, family_id, adds, cannot_override]
+  invariants:
+    - delta_id_unique_within_family
+    - family_exists
+    - cannot_override_contains_api_lifecycle_entity_event_failure
+    - no_family_redefinition
+
+deltas:
+  - delta_id: WRITING.Task2
+    family_id: WRITING.Evaluation
+    lifecycle: ACTIVE
+    adds:
+      - task2_prompt_shape
+      - task2_question_type
+      - task2_rubric_signals
+      - task2_minimum_word_count
+      - task2_task_timing
+    question_types:
+      - W_task2_opinion
+      - W_task2_discussion
+      - W_task2_advantages_disadvantages
+      - W_task2_problem_solution
+      - W_task2_two_part
+    knowledge_refs:
+      - blueprint/framework/writing-task-framework.md
+      - blueprint/framework/band-descriptor-map.md
+    cannot_override: [api, lifecycle, entity, event, failure, privacy, ownership]

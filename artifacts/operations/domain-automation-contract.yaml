@@ -1,0 +1,97 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+authority_scope: domain_automation_measurement
+success_metric: business_automation_coverage
+non_goal: infrastructure_automation_platform
+principle: business-value-logic-lives-in-domain-contracts; frameworks-runtimes-and-providers-are-replaceable-adapters
+policy_invariants:
+  - business_logic_domain_owned
+  - provider_semantics_neutral
+  - commodity_runtime_not_custom
+  - adapter_exit_path_required
+  - evidence_required_for_readiness
+
+commodity_concerns:
+  - cache framework
+  - event bus
+  - dependency-injection container
+  - validation library
+  - CLI framework
+  - config loader
+  - logger
+  - retry framework
+  - plugin loader
+  - template engine
+  - Markdown parser
+  - AST parser
+  - diff engine
+  - scheduler
+  - message broker
+  - search engine
+  - vector database
+
+domains:
+  repository:
+    coverage_state: enforced
+    authorities: [tools/manifest.yaml, tools/toolchain.yaml, artifacts/operations/ssot-registry.md]
+    controls:
+      - {id: repository_contract, command: verify}
+      - {id: agent_onboarding, command: context}
+      - {id: anti_bypass, command: validate trust-boundary}
+      - {id: ownership, command: validate contract-ownership}
+      - {id: dependency_and_projection, command: validate implementation-catalog}
+      - {id: migration_and_compatibility, command: validate tooling}
+    gaps: []
+
+  knowledge:
+    coverage_state: partial
+    authorities: [blueprint/framework/README.md, knowledge-assets/README.md]
+    controls:
+      - {id: terminology_and_band, command: validate framework}
+      - {id: knowledge_integrity, command: validate knowledge-assets}
+      - {id: lineage_and_revision, command: validate evidence-lineage}
+    gaps: [rights_and_content_review_evidence, calibrated_difficulty_registry]
+
+  learning:
+    coverage_state: partial
+    authorities: [blueprint/03-features.md, blueprint/framework/README.md]
+    controls:
+      - {id: prerequisite_vocabulary, command: validate framework}
+      - {id: capability_learning_coverage, command: validate implementation-catalog}
+    gaps: [runtime_learning_graph_evidence, recommendation_acceptance_evidence, practice_runtime_validation]
+
+  assessment:
+    coverage_state: evidence_blocked
+    authorities: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/operations/benchmark/gold-corpus-manifest.yaml]
+    controls:
+      - {id: rubric_and_state_contract, command: validate semantic-contracts}
+      - {id: benchmark_contract, command: validate benchmark-contracts}
+      - {id: release_threshold, command: gate p0}
+    gaps: [gold_corpus, examiner_labels, numeric_threshold_approval, benchmark_run]
+
+  ai:
+    coverage_state: partial
+    authorities: [artifacts/operations/spawn-prompts/registry.yaml, artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md]
+    controls:
+      - {id: prompt_contract_and_hash, command: validate spawn-prompts}
+      - {id: prompt_output_lineage, command: validate evidence-lineage}
+      - {id: provider_adapter_boundary, command: validate platform-boundary}
+    gaps: [runtime_model_evaluation, hallucination_benchmark, provider_switch_evidence, cost_route_evidence]
+
+  release:
+    coverage_state: evidence_blocked
+    authorities: [artifacts/operations/toolchain-freeze-contract.md, artifacts/operations/build-readiness-matrix.md]
+    controls:
+      - {id: repository_verification, command: verify}
+      - {id: toolchain_freeze, command: gate toolchain}
+      - {id: p0_readiness, command: gate p0}
+    gaps: [p0_acceptance_runs, founder_approvals, benchmark_evidence]
+
+  runtime_integration:
+    coverage_state: adapter_only
+    authorities: [artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md, artifacts/business/decisions/build-buy-register.md]
+    controls:
+      - {id: no_reinvented_runtime, command: validate platform-boundary}
+      - {id: dependency_and_runtime_presence, command: gate repository}
+    gaps: [go_dependency_manifest, python_dependency_manifest, nextjs_dependency_manifest, provider_integration_evidence]

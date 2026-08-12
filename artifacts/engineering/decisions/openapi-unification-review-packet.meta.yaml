@@ -1,0 +1,34 @@
+type: api-unification-review-packet
+status: review
+version: 0.1.3
+owner: engineering
+representation: markdown
+derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy, PLACE.Test, STUDY.DailyPlan, EVAL.Writing, REVIEW.MistakeNotebook, OPS.ReleaseGate]
+source_files: [artifacts/engineering/contracts/openapi.yaml, artifacts/engineering/contracts/writing-task-2/openapi.yaml, artifacts/engineering/contracts/openapi/README.md, artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md, artifacts/engineering/contracts/runtime/api-governance-contract.md, artifacts/engineering/contracts/runtime/auth-identity-contract.md, artifacts/engineering/contracts/placement-diagnosis-contract.md, artifacts/engineering/contracts/daily-action-contract.md, artifacts/engineering/contracts/runtime/lifecycle-contract.md]
+purpose: executor-grade-evidence-backed-review-of-two-live-openapi-specifications-before-unification
+consumed_by: [engineering, operations, founder, codeowners]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: pre-code-design-review
+change_log:
+  - version: 0.1.3
+    date: 2026-08-11
+    changes:
+      - Terminology integrity correction: §2 changed "the ownership contract names it canonical for the runtime loop" to "names it the selected logical candidate surface for the runtime loop". Cross-file citations to placement-diagnosis-contract.md and daily-action-contract.md re-verified and remain valid after the contracts' in-place terminology edits.
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Red-team corrections: fixed 5 file:line citations in §6.1.1, §6.2.1, and §6.3 that referenced pre-edit line numbers or wrong rows; corrected placement contract overstated response-body claim; fixed DailyPlan.plan_state field-name precision in §6.2.2.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Phase 2.1 P0 Transport Reconciliation: added evidence-backed P0-02/P0-03 capability-to-transport maps, state reconciliation tables, and conflict matrices for placement and daily-action. Documented 6 cross-file conflicts (placement paths, daily paths/methods, CheckIn endpoint gap, plan_replaced lifecycle drift, resume gap, P0-03 manifest events). Produced 4 privileged-review diffs (P0-02A, P0-03A-D) with target files, migration impact, regression checks, and attestation requirements. No endpoint, schema, state, event, or owner was invented. No single OpenAPI authority was declared by prose.
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Created Batch B review packet with complete inventories for 13 root path/method definitions and 25 P0 path/method definitions.
+      - Recorded confirmed path, schema, lifecycle, authorization, privacy, and transitional ownership conflicts with exact file and line evidence.
+      - Proposed a not-yet-created unified root and modular ref structure; no live specification or protected path was changed.
+      - Rejected intentional-transition, deferred-scope, ReviewCard queue-state, P1 anti-gaming, and operationId false positives.
+      - Determined that no new PD-08 is warranted; existing D-02 and engineering/CODEOWNERS review boundaries remain explicit.
+      - Recorded doctor, verify, toolchain gate, and expected p0 gate exit 3 results without claiming readiness.

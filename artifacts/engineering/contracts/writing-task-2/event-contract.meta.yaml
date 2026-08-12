@@ -1,0 +1,23 @@
+type: event-contract
+status: review
+version: 0.1.6
+owner: engineering
+representation: markdown
+derived_from: [EVAL.Writing, REVIEW.FSRS, OPS.OutcomeMeasurement]
+purpose: writing-task-2-event-producer-consumer-contract
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.6
+    date: 2026-08-11
+    changes:
+      - Aligned evaluation_failed producer with the canonical event-ownership registry; no event name, payload, consumer, privacy class, or runtime/readiness claim changed.
+      - Translated the remaining quality-rule phrase to English without changing event semantics or controlled vocabulary.
+  - version: 0.1.5
+    date: 2026-08-11
+    changes:
+      - Aligned evaluation_failed producer with the canonical event-ownership registry; no event name, payload, consumer, privacy class, or runtime/readiness claim changed.
+  - version: 0.1.4
+    date: 2026-08-10
+    changes:
+      - Fixed privacy_class compound learning|assessment → single member assessment (manifest P0-04 canonical); convergence audit M4 residual resolution

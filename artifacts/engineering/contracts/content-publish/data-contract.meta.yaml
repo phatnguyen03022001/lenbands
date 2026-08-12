@@ -1,0 +1,23 @@
+type: data-contract
+status: review
+version: 0.2.6
+owner: engineering + colab
+representation: markdown
+derived_from: [CONTENT.Publish, CONTENT.Moderation, KA.Lesson, LEARN.Writing]
+purpose: how-content-becomes-published-p0
+created_at: 2026-08-07
+updated_at: 2026-08-11
+change_log:
+  - version: 0.2.6
+    date: 2026-08-11
+    changes:
+      - Translated remaining explanatory YAML comments to English; preserved schema keys, IDs, enums, paths, and executable syntax.
+  - version: 0.2.5
+    date: 2026-08-11
+    changes:
+      - Translated mutable documentation prose to English; preserved executable YAML comments and controlled vocabulary.
+      - Translated the remaining lifecycle heading to English; preserved executable YAML comments and controlled vocabulary.
+  - version: 0.2.4
+    date: 2026-08-11
+    changes:
+      - Translated mutable documentation prose to English; preserved executable YAML comments and controlled vocabulary.

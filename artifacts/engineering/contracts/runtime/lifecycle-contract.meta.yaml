@@ -1,0 +1,32 @@
+type: lifecycle-contract
+status: review
+version: 0.1.2
+owner: engineering
+representation: markdown
+derived_from: [EVAL.Writing, REVIEW.FSRS, OPS.ReleaseGate, OPS.Observability, IDENTITY.Privacy]
+source_files: [artifacts/engineering/runtime/identity-core-runtime.md, artifacts/engineering/runtime/placement-diagnosis-runtime.md, artifacts/engineering/runtime/daily-action-runtime.md, artifacts/engineering/runtime/writing-evaluation-runtime.md, artifacts/engineering/runtime/error-to-review-runtime.md, artifacts/engineering/runtime/quality-economics-runtime.md]
+purpose: unified-cross-entity-lifecycle-state-machine-contract-with-terminal-retry-replay-idempotency-archival-deletion-export-and-restore-semantics
+consumed_by: [engineering, operations, validators]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: lifecycle-contract
+change_log:
+  - version: 0.1.0
+    date: 2026-08-10
+    changes:
+      - Created unified lifecycle contract covering all P0 entities (Account, ConsentRecord, PrivacyRequest, PlacementAttempt, Goal, DailyPlan, StudySession, WritingDraft, WritingSubmission, WritingEvaluation, LearningError, ReviewCard, RetestAttempt, BenchmarkRun, ReleaseGateDecision, AuditRecord).
+      - Defined cross-entity invariants: terminal state, idempotency, immutability, deletion cascade, export scope.
+      - Defined unified job lifecycle with retry/replay/dead-letter policies.
+      - Defined transition authority matrix (learner, runtime, evaluator, worker, identity_provider, admin).
+      - Registered 4 protected conflicts with pointer to privileged diff options in executor-dossier.md.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Redirected protected-conflict references from the deprecated historical executor dossier to the canonical founder-review packet index (PD-01..PD-04).
+      - No lifecycle states, ownership, retry policy, readiness, or evidence claim changed.
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Removed duplicate async retry ceilings and backoff schedules from the cross-entity lifecycle contract.
+      - Declared async-job-worker-contract.md the canonical owner for operational envelope, retry, deadline, and replay policy; retained only logical lifecycle semantics here.
+      - No readiness, evidence, or acceptance status changed.

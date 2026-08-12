@@ -1,0 +1,12 @@
+type: repository-baseline-artifact-coverage
+status: draft
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [artifacts/operations/baseline/capability-baseline.md, artifacts/experience, artifacts/engineering, artifacts/operations/acceptance]
+purpose: measured-existing-artifact-coverage-before-family-freeze
+consumed_by: [operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: generated_by_tools/generate-repository-baseline.sh

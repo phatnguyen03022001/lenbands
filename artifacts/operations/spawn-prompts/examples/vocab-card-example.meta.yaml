@@ -1,0 +1,21 @@
+type: prompt-golden-example
+status: review
+version: 0.2.0
+owner: colab
+representation: markdown
+derived_from: [CONTENT.Publish, OPS.ContentQuality]
+purpose: golden-example-for-spawn-vocab-output-shape
+consumed_by: [operations]
+example_only: true
+framework_refs:
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [t_environment]
+origin: {source: generated, license: unknown}
+integrity:
+  checksum: sha256:55c7eecf9562991b37a56b4ad54e5d224e2a18a967ba2117d76d9d77b8d53e78
+  payload_file: vocab-card-example.md
+governance: {rights_status: pending_review, review_status: review}
+spawn_lineage: {workflow_run_id: example-only, prompt_template_id: spawn-vocab, prompt_hash: example-only, model: example-only, parameters: {}}
+created_at: "2026-08-07T00:00:00Z"
+updated_at: "2026-08-07T00:00:00Z"

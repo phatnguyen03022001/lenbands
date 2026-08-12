@@ -1,0 +1,45 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+authority_scope: p0_implementation_event_ownership
+description: Canonical P0 event owner pack/family and allowed producer boundary.
+events:
+  account_created: {owner_pack: P0-01, owner_family: IDENTITY.Core, allowed_producers: [identity_service]}
+  consent_recorded: {owner_pack: P0-01, owner_family: IDENTITY.Core, allowed_producers: [identity_service]}
+  privacy_export_requested: {owner_pack: P0-01, owner_family: IDENTITY.Core, allowed_producers: [identity_service]}
+  privacy_deletion_requested: {owner_pack: P0-01, owner_family: IDENTITY.Core, allowed_producers: [identity_service]}
+  goal_set: {owner_pack: P0-02, owner_family: PLACEMENT.Diagnosis, allowed_producers: [placement_service]}
+  placement_started: {owner_pack: P0-02, owner_family: PLACEMENT.Diagnosis, allowed_producers: [placement_service]}
+  placement_completed: {owner_pack: P0-02, owner_family: PLACEMENT.Diagnosis, allowed_producers: [placement_service]}
+  daily_plan_generated: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [plan_service]}
+  session_started: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  session_paused: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  session_resumed: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  session_completed: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  session_abandoned: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  first_meaningful_session_completed: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  next_best_action_shown: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [plan_service]}
+  next_best_action_taken: {owner_pack: P0-03, owner_family: STUDY.DailyAction, allowed_producers: [session_service]}
+  writing_task_opened: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [writing_service]}
+  writing_draft_saved: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [writing_service]}
+  writing_submission_started: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [writing_service]}
+  writing_submission_accepted: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [writing_service]}
+  evaluation_submitted: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [evaluation_orchestrator]}
+  evaluation_scored: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [evaluation_worker]}
+  evaluation_failed: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [evaluation_worker]}
+  evaluation_delayed: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [evaluation_orchestrator]}
+  writing_feedback_viewed: {owner_pack: P0-04, owner_family: WRITING.Evaluation, allowed_producers: [writing_service]}
+  learning_error_saved: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  review_card_created: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  review_queue_opened: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  review_card_rated: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  review_completed: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  review_card_graduated: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [fsrs_engine]}
+  retest_started: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  retest_completed: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  learning_error_resolved: {owner_pack: P0-05, owner_family: REVIEW.ErrorToReview, allowed_producers: [review_service]}
+  benchmark_run_completed: {owner_pack: P0-06, owner_family: OPS.QualityEconomics, allowed_producers: [benchmark_runner]}
+  drift_threshold_exceeded: {owner_pack: P0-06, owner_family: OPS.QualityEconomics, allowed_producers: [governance_worker]}
+  anti_gaming_flagged: {owner_pack: P0-06, owner_family: OPS.QualityEconomics, allowed_producers: [governance_worker]}
+  quota_warning_shown: {owner_pack: P0-06, owner_family: OPS.QualityEconomics, allowed_producers: [quota_service]}
+  quota_exceeded: {owner_pack: P0-06, owner_family: OPS.QualityEconomics, allowed_producers: [quota_service]}

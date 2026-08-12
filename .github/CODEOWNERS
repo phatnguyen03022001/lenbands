@@ -1,0 +1,27 @@
+# Default ownership. Confirm that @tienphat is the repository-host account before enabling branch protection.
+* @tienphat
+
+/AGENTS.md @tienphat
+/CLAUDE.md @tienphat
+**/AGENTS.md @tienphat
+**/CLAUDE.md @tienphat
+**/CLAUDE.local.md @tienphat
+**/.mcp.json @tienphat
+/.claude/ @tienphat
+/.claude-plugin/ @tienphat
+/blueprint/ @tienphat
+/artifacts/operations/architecture-frozen* @tienphat
+/artifacts/operations/domain-automation-contract* @tienphat
+/artifacts/operations/agent-trust-policy* @tienphat
+/artifacts/operations/evidence/ @tienphat
+/artifacts/operations/build-readiness-matrix* @tienphat
+/artifacts/operations/PENDING-EVIDENCE* @tienphat
+/artifacts/operations/capability-* @tienphat
+/artifacts/operations/promotion-* @tienphat
+/artifacts/operations/acceptance/ @tienphat
+/artifacts/operations/benchmark/ @tienphat
+/artifacts/operations/attestations/ @tienphat
+/artifacts/operations/spawn-prompts/ @tienphat
+/artifacts/engineering/contracts/events/event-ownership-registry* @tienphat
+/tools/ @tienphat
+/.github/ @tienphat

@@ -1,0 +1,10 @@
+type: agent-change-attestation
+status: review
+version: 0.1.0
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
+purpose: disclose-deep-claude-settings-model-routing-and-credential-boundary-hardening
+consumed_by: [founder, codeowners, ci]
+created_at: 2026-08-08
+updated_at: 2026-08-08

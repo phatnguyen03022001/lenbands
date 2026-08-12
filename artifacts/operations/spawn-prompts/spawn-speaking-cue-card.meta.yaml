@@ -1,0 +1,28 @@
+type: prompt-template
+prompt_template_id: spawn-speaking-cue-card
+status: review
+version: 0.2.0
+owner: colab
+representation: markdown
+derived_from: [LEARN.Speaking, CONTENT.Publish]
+purpose: workflow-for-draft-speaking-cue-card-knowledge-assets
+consumed_by: [operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+framework_refs:
+  - file: speaking-parts-framework
+    version: 1.0.6
+    nodes: [S_fc_long_pause, S_long_turn_sustain]
+  - file: band-descriptor-map
+    version: 1.0.6
+    sections: ["Speaking — Fluency & Coherence (FC)", "Speaking — Lexical Resource (LR)", "Speaking — Grammatical Range & Accuracy (GRA)", "Speaking — Pronunciation (PR)"]
+  - file: microskill-enum
+    version: 1.0.6
+    nodes: [S_cue_card_structure, S_long_turn_sustain]
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [t_society_culture]
+output_contract: {asset_kind: speaking_cue_card, output_root: knowledge-assets/speaking-cue-cards, status: draft}
+hash_scope: full_file_bytes
+source_sha256: sha256:4aeded66881252116e6e0a67d9457e1606d93805485cdbfc8a28b5fe6ca15a01
+validation_command: ./tools/validate-spawn-prompts.sh

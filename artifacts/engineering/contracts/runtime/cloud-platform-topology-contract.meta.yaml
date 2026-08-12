@@ -1,0 +1,16 @@
+type: cloud-platform-topology-contract
+status: draft
+version: 0.1.1
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability, OPS.Quota, OPS.CostBudget]
+purpose: provider-neutral-environment-topology-trust-zones-iam-network-secrets-backup-dr-design
+consumed_by: [engineering, operations, founder]
+created_at: 2026-08-10
+updated_at: 2026-08-11
+classification: pre-code-design-contract
+change_log:
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Translated mutable documentation prose to English without changing topology, trust-zone, security, backup, or readiness semantics.

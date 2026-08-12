@@ -1,0 +1,24 @@
+schema_version: 1.0.0
+change_id: claude-workspace-temp-isolation-20260808
+change_scope: replace-unreliable-os-temp-sandbox-allowwrite-with-stable-cli-workspace-tmpdir
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-provided-second-bounded-session-mktemp-reproduction-20260808
+notes:
+  - A second bounded-session run showed verify and gate toolchain still failing under Seatbelt despite explicit OS temp allowWrite roots.
+  - The stable CLI now creates and exports artifacts/operations/.tmp as a workspace-local non-authoritative TMPDIR before command dispatch.
+  - All generators, Ruby Tempfile users, regression tests, compatibility shims and Stop-hook child verification inherit the same scratch root.
+  - Doctor probes both Ruby Tempfile and the shell mktemp executable and requires their files to remain inside the configured TMPDIR.
+  - External sandbox filesystem allowWrite roots were removed; protected denyWrite paths and fail-closed sandbox controls remain unchanged.
+  - Toolchain advances from 1.6.1 to 1.6.2 without changing public commands or arguments.
+  - P0 readiness remains blocked and no runtime, evidence, rights, calibration or approval claim was created.

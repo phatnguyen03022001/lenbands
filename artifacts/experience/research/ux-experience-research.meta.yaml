@@ -1,0 +1,13 @@
+type: ux-research-synthesis
+status: draft
+version: 0.1.1
+owner: product
+representation: markdown
+derived_from: [STUDY.DailyPlan, PERSONAL.NextBestAction, EVAL.Writing, REVIEW.FSRS, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore]
+purpose: deepen-p0-user-experience-behavior
+created_at: 2026-08-06
+updated_at: 2026-08-11
+consumed_by:
+  - Interaction Model
+  - P0 Experience Contract
+  - Vertical Slice Specs

@@ -1,0 +1,27 @@
+type: navigation-shell
+status: draft
+version: 0.2.4
+owner: product
+representation: html
+derived_from:
+  - STUDY.DailyPlan
+  - STUDY.Resume
+  - STUDY.TodayQueue
+  - REVIEW.SmartQueue
+  - REVIEW.FSRS
+  - PERSONAL.NextBestAction
+  - PERSONAL.Insights
+purpose: learner-shell-stage-drawer
+convention:
+  architecture: stage-drawer
+  state_driven_modes: true
+  loop_spine: true
+  primary_action_rule: one-per-screen
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.2.4
+    date: 2026-08-11
+    changes: "Translated non-visible shell documentation annotations to English; Vietnamese learner-facing copy and machine tokens remain unchanged."
+  - version: 0.2.3
+    changes: "Restored Vietnamese learner-facing shell copy; engineering annotations and machine tokens remain unchanged."

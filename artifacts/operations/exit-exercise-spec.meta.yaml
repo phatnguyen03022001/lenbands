@@ -1,0 +1,9 @@
+type: exit-exercise-specification
+status: review
+version: 0.1.1
+owner: operations
+representation: markdown
+derived_from: [IDENTITY.Auth, EVAL.Writing, OPS.ReleaseGate, OPS.Observability]
+purpose: testable-managed-provider-exit-and-migration-path
+created_at: 2026-08-06
+updated_at: 2026-08-07

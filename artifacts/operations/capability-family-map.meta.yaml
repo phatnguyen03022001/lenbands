@@ -1,0 +1,12 @@
+type: capability-family-map
+status: review
+version: 0.1.0
+owner: product + engineering
+representation: yaml
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [blueprint/03-features.md, artifacts/operations/capability-lifecycle-registry.yaml, artifacts/operations/capability-family-registry.yaml]
+purpose: canonical-capability-to-family-delta-owner-spec-mapping
+consumed_by: [validators, operations, engineering, experience]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+schema_version: 1.0.0

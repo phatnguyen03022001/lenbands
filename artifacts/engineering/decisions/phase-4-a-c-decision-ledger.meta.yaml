@@ -1,0 +1,38 @@
+type: phase-4-decision-ledger
+status: review
+version: 0.1.1
+owner: document-convergence-orchestrator
+representation: markdown
+derived_from:
+  - EVAL.Writing
+  - LEARN.Writing
+  - STUDY.CheckIn
+  - OPS.ContentQuality
+source_files:
+  - artifacts/engineering/contracts/phase-4-target-learning-architecture-proposal.md
+  - artifacts/operations/founder-review-packet-index.md
+  - artifacts/engineering/decisions/founder-review-21-diff-annex.md
+purpose: founder-directed-a-c-decision-package-ledger-with-protected-application-boundaries
+consumed_by: [founder, engineering, governance]
+created_at: 2026-08-12
+updated_at: 2026-08-12
+classification: non-protected-coordination-projection
+authority_boundary: projection_of_phase_4_proposal
+protected_mutation: false
+runtime_claim: false
+readiness_claim: false
+source_unlock: false
+change_log:
+  - version: 0.1.1
+    date: 2026-08-12
+    changes:
+      - Reframed handoff material as application-ready proposal references, not implementation-ready protected diffs.
+      - Added explicit ledger-wide dependencies, conflicts_detected, and non_claims controls.
+      - Clarified A01-A06 external-source dependency from actual track evidence.
+      - Added per-item-group dependency, conflict, and negative-scope controls.
+  - version: 0.1.0
+    date: 2026-08-12
+    changes:
+      - Recorded A01-A16 classifications and protected application conditions.
+      - Recorded founder-directed B01-B08 directions without claiming founder-approved status.
+      - Recorded C01-C02 official-source blockers and C10 calibration blocker.

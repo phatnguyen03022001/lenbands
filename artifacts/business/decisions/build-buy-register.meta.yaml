@@ -1,0 +1,24 @@
+type: build-buy-decision-register
+status: draft
+version: 0.1.2
+owner: founder
+representation: markdown
+derived_from:
+  - OPS.CostBudget
+  - OPS.ModelRouting
+  - OPS.Quota
+  - OPS.EvaluationQuality
+  - EVAL.Writing
+  - PERSONAL.NextBestAction
+  - IDENTITY.Auth
+  - SUB.Premium
+purpose: mvp-build-buy-operating-policy
+created_at: 2026-08-06
+updated_at: 2026-08-10
+change_log:
+  - version: 0.1.2
+    date: 2026-08-10
+    changes:
+      - Replaced obsolete Anthropic/Supabase planning assumptions with the founder-selected free-first managed-platform baseline reference.
+      - Recalculated the unarmed DeepSeek V4 Flash sensitivity scenario from a dated official price snapshot.
+      - Kept numeric cost approval, DPA, benchmark and activation evidence explicitly pending.

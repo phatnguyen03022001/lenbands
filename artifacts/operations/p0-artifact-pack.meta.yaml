@@ -1,0 +1,15 @@
+type: capability-pack-contract
+status: draft
+version: 0.3.1
+owner: product
+representation: markdown
+derived_from:
+  - IDENTITY.Auth
+  - PLACE.Test
+  - STUDY.DailyPlan
+  - EVAL.Writing
+  - REVIEW.FSRS
+  - OPS.ReleaseGate
+purpose: closed-pilot-artifact-coverage-and-definition-of-done
+created_at: 2026-08-06
+updated_at: 2026-08-11

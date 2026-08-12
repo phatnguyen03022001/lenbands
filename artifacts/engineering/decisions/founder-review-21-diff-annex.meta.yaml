@@ -1,0 +1,48 @@
+type: detailed-annex
+status: review
+version: 0.2.1
+owner: engineering
+representation: markdown
+derived_from: [OPS.ReleaseGate]
+source_files: [artifacts/operations/founder-review-packet-index.md]
+purpose: detailed-21-diff-annex-preserving-full-historical-record-of-protected-diffs-from-prior-convergence-batches
+consumed_by: [engineering, operations, founder]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: projection
+change_log:
+  - version: 0.2.1
+    date: 2026-08-11
+    changes:
+      - Reconciled stale historical/current count claims with the canonical non-overlapping founder ledger: 16 separately tracked historical B-IDs, B3-3 routed under PD-05, 7 current PD records, and 6 current D records; removed the false summed current-item total. No protected authority or decision option changed.
+  - version: 0.2.0
+    date: 2026-08-11
+    changes:
+      - Phase 2 consolidated remediation release. Canonically routed B3-3 to PD-05 in the canonical index (P0-06 scope exceptions). Updated B3-3 revalidation row, category (e) sub-table, and explanatory note. All B-diff counts preserved; no new PD-ID created. Bidirectional reference to canonical index Phase 2 Execution Plan.
+  - version: 0.1.4
+    date: 2026-08-11
+    changes:
+      - Moved B4-1/PD-03 from founder scope (e) to technical protected alignment (d): it is a known-target reference fix in a protected registry; protected-path review is required but that does not make it a founder product decision.
+      - Moved B2-M6 from controlled-vocabulary verification (b) to technical framework semantics (d): compound fsrs_card_kind cells are a design-choice question (add composition rule or normalize), not a vocabulary-resolution question.
+      - Renamed category (d) from "Contract/privacy semantic alignment" to "Technical protected alignment / framework semantics" to cover both manifest/blueprint alignment and framework design choices.
+      - Recalculated all five categories: hygiene=6, controlled-vocab=2, external-source=2, technical-alignment=7, founder-scope=4. Total = 21.
+  - version: 0.1.3
+    date: 2026-08-11
+    changes:
+      - Replaced 3-category aggregate with precise 5-category classification: (a) hygiene, (b) controlled-vocab-verification, (c) external-source-blockers, (d) contract/privacy-semantic, (e) founder-scope. Recalculated all counts from the actual revalidated list.
+      - Removed false B3-3–PD-06 overlap claim: anti_gaming_flagged has canonical ownership; the open question is P0-vs-P1 scope. Marked B3-3 as unassigned founder scope decision adjacent to PD-05 (P0-06 boundary) but independent.
+      - Corrected B3-3 revalidation row to cite event-ownership-registry.yaml:43 and governance-ops-dashboard.meta.yaml:14-15 as evidence.
+  - version: 0.1.2
+    date: 2026-08-11
+    changes:
+      - Corrected Purpose section to reference PD-01..PD-07 (not PD-01..PD-05) and noted that PD-06/PD-07 are defined in the canonical index only.
+      - Completed revalidation of all 17 historical B-diffs against current protected files; replaced vague "pending — file not rechecked" with evidence-based dispositions.
+  - version: 0.1.1
+    date: 2026-08-11
+    changes:
+      - Updated count arithmetic to acknowledge PD-06 (event authority) and PD-07 (readiness-matrix fail-closed) added in canonical index v0.1.2; no new PDs were reclassified as historical diffs.
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Created detailed annex preserving 21 historical protected diffs (4 verified + 17 awaiting revalidation).
+      - Bidirectional link to canonical index at operations/founder-review-packet-index.md.

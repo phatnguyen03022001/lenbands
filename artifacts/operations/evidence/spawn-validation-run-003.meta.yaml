@@ -1,0 +1,15 @@
+type: immutable-spawn-validation-record
+status: review
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from:
+  - KA.Vocabulary
+  - KA.Grammar
+  - KA.Collocation
+  - LEARN.Writing
+  - OPS.ReleaseGate
+purpose: immutable-revalidation-record-for-framework-1-0-2
+consumed_by: [operations, engineering]
+created_at: 2026-08-07
+updated_at: 2026-08-07

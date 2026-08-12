@@ -1,0 +1,105 @@
+<style>
+  #journey-exam-readiness {
+    --bg: light-dark(#f4efe6, #0e1117);
+    --surface: light-dark(#fffaf1, #141a23);
+    --surface-2: light-dark(#f7f0e6, #171e29);
+    --ink: light-dark(#1d2430, #eef2fb);
+    --muted: light-dark(#637084, #9aa6bc);
+    --line: light-dark(rgba(26, 34, 48, 0.12), rgba(255, 255, 255, 0.10));
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  }
+  #journey-exam-readiness * { box-sizing: border-box; }
+  #journey-exam-readiness h1, #journey-exam-readiness h2, #journey-exam-readiness h3, #journey-exam-readiness p { margin: 0; }
+  #journey-exam-readiness .stack { display: grid; gap: 16px; }
+  #journey-exam-readiness .hero, #journey-exam-readiness .panel {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--surface) 90%, white 10%);
+  }
+  #journey-exam-readiness .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  #journey-exam-readiness h1 { margin-top: 6px; font-family: "Fraunces", Georgia, serif; font-size: clamp(28px, 4vw, 40px); line-height: 1.05; font-weight: 500; }
+  #journey-exam-readiness .lede { margin-top: 10px; color: var(--muted); max-width: 78ch; font-size: 14px; }
+  #journey-exam-readiness .flow { display: grid; gap: 8px; margin-top: 12px; }
+  #journey-exam-readiness .step {
+    min-height: 52px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 84%, white 16%);
+  }
+  #journey-exam-readiness .step strong { display: block; font-size: 13px; font-weight: 500; }
+  #journey-exam-readiness .step span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+  #journey-exam-readiness .screens { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 4px; }
+  #journey-exam-readiness .screen { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: color-mix(in oklab, var(--surface) 84%, white 16%); }
+  #journey-exam-readiness .cap { display: inline-block; font-size: 10px; font-family: ui-monospace, monospace; color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); padding: 2px 6px; border-radius: 6px; margin-bottom: 6px; }
+  #journey-exam-readiness .screen h3 { font-size: 13px; font-weight: 600; }
+  #journey-exam-readiness .anno { display: grid; grid-template-columns: 60px 1fr; gap: 4px 8px; margin-top: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 10px; }
+  #journey-exam-readiness .anno .lbl { font-size: 9px; text-transform: uppercase; color: var(--muted); }
+  #journey-exam-readiness .anno .txt { font-weight: 500; }
+  #journey-exam-readiness .cta { margin-top: 8px; padding: 7px 10px; border-radius: 8px; font-size: 11px; font-weight: 500; background: var(--accent); color: white; text-align: center; }
+  #journey-exam-readiness .cta.secondary { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  #journey-exam-readiness .state { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 6px; }
+</style>
+
+<div id="journey-exam-readiness">
+  <div class="stack">
+    <section class="hero">
+      <div class="eyebrow">Journey • Exam Readiness</div>
+      <h1>The final stretch should answer practically: what is missing, and what comes first before test day?</h1>
+      <p class="lede">
+        This journey connects the countdown, readiness check, weak-skill focus, and a confirming mock test before the exam.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Main flow</h2>
+      <div class="flow">
+        <div class="step"><strong>1. Xem mức sẵn sàng</strong><span>Overall, per-skill, confidence, risk.</span></div>
+        <div class="step"><strong>2. Xem kỹ năng yếu rõ nhất</strong><span>Do not make the learner guess what is missing.</span></div>
+        <div class="step"><strong>3. Đẩy ôn tập về điểm yếu</strong><span>A short, high-priority, easy-to-follow plan.</span></div>
+        <div class="step"><strong>4. Kiểm chứng bằng bài mock</strong><span>Show whether readiness is sufficient yet.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Screens in the journey</h2>
+      <div class="screens">
+        <article class="screen">
+          <span class="cap">[BAND.ExamReadiness]</span>
+          <h3>1. Overall readiness</h3>
+          <div class="anno"><span class="lbl">Overall</span><span class="txt" style="color:#9b6700">6.0 — gần mục tiêu 6.5</span></div>
+          <div class="anno"><span class="lbl">Confidence</span><span class="txt">68% (3 bài mock gần nhất)</span></div>
+          <div class="anno"><span class="lbl">Risk</span><span class="txt" style="color:#b13c3c">Reading MH sai 2/3 lần</span></div>
+          <p class="state">State: no_data / not_ready / borderline / ready.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[PERSONAL.Insights]</span>
+          <h3>2. Clearest weak skill</h3>
+          <div class="anno"><span class="lbl">Weak</span><span class="txt">Reading — Matching Headings</span></div>
+          <div class="anno"><span class="lbl">Why</span><span class="txt">thiếu khả năng nhận diện paraphrase</span></div>
+          <div class="cta">Ưu tiên ôn tập →</div>
+          <p class="state">State: empty if there is no data.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[REVIEW.SmartQueue]</span>
+          <h3>3. Review the weakness</h3>
+          <div class="anno"><span class="lbl">Queue</span><span class="txt">Hàng đợi kỹ năng yếu · 8 thẻ</span></div>
+          <div class="anno"><span class="lbl">Card</span><span class="txt">paraphrase: significant = ?</span></div>
+          <div class="cta">Tốt →</div>
+          <p class="state">State: due / loading / done.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[PRACTICE.MockTest]</span>
+          <h3>4. Confirming mock</h3>
+          <div class="anno"><span class="lbl">Mode</span><span class="txt">Chế độ thi · có giờ</span></div>
+          <div class="anno"><span class="lbl">Result</span><span class="txt">6.5 tổng thể → sẵn sàng ✓</span></div>
+          <div class="cta secondary">So sánh với lần trước</div>
+          <p class="state">State: ready → update ExamReadiness; interrupt → resume.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

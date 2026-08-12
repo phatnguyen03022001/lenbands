@@ -1,0 +1,17 @@
+schema_version: 1.0.0
+change_id: toolchain-trust-hardening-20260807
+change_scope: add-agent-onboarding-anti-bypass-structured-evidence-and-external-enforcement-config
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+external_review_required: true
+approval_ref: null
+notes:
+  - Existing immutable evidence was not edited; a new structured snapshot was added.
+  - P0 readiness remains blocked and is not claimed by this change.

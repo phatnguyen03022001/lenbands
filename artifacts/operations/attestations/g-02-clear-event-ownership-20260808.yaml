@@ -1,0 +1,21 @@
+schema_version: 1.0.0
+change_id: g-02-clear-event-ownership-20260808
+change_scope: atomically-register-four-unambiguous-p0-events-across-owner-publisher-and-family-contracts
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands validate contract-ownership
+  - tools/bin/lenbands generate all --check
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - Only next_best_action_shown, next_best_action_taken, writing_submission_started, and writing_feedback_viewed were assigned.
+  - The capability manifest publisher lists and family shared-event lists changed atomically with ownership.
+  - practice_started and the paired learning_error_fix events remain unassigned pending an explicit founder decision.
+  - No runtime evidence, approval, benchmark result, or readiness state was changed.

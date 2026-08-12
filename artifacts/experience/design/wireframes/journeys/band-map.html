@@ -1,0 +1,199 @@
+<!--
+  BAND MAP — wireframe for "the full view of what is missing to reach band X".
+  Capability: BAND.Map (render layer of BAND.Requirement + BAND.Checklist + coverage matrix).
+  Canonical contract: information-architecture.md (Learn → Band Map) + interaction-model.md (Band Map = zoom-out symmetric to Today).
+  The symmetric surface of Today: Today = zoom-in (1 action), Band Map = zoom-out (the full checklist view).
+
+  STATE MATRIX:
+    empty       : placement not completed → CTA "Làm placement để xem band map"
+    partial     : current band exists, data is partial → show ✓ available, ⚠/✗ "chưa đủ data"
+    full        : coverage data is complete → full checklist with ✓/⚠/✗
+    locked      : higher band is not open (P0: current+1 only) → "Mở khi đạt band X"
+
+  BUILD RULES:
+    - Every item has a ✓ achieved / ⚠ near / ✗ not-yet status, not only a number.
+    - Click item ⚠/✗ → open the drill/lesson or add it to Smart Queue.
+    - Per-skill completion % at the top of each skill; aggregate at the top of the page.
+    - Band displayed: current → target (e.g. 6.0 → 7.0).
+    - Progressive disclosure: low band (early mode) shows only current+0.5; do not show the full band 9.
+-->
+<style>
+  #band-map {
+    --bg: #f4efe6; --surface: #fffaf1; --ink: #1d2430; --muted: #637084;
+    --line: rgba(29,36,48,.12); --accent: #285f58; --accent-soft: #dbece4;
+    --warn: #b8621c; --warn-soft: #f4ddc4; --danger: #b13c3c; --good: #13795b;
+    color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 24px; padding: 0;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif; overflow: hidden;
+  }
+  #band-map * { box-sizing: border-box; }
+  #band-map .annot { font-family: ui-monospace, monospace; font-size: 10px; color: var(--muted); }
+  #band-map .page { padding: 24px clamp(20px,4vw,40px) 36px; }
+  #band-map .crumb { color: var(--muted); font-size: 11px; }
+  #band-map .crumb a { color: var(--accent); text-decoration: none; }
+  #band-map h1 { margin: 6px 0 4px; font-family: Georgia, serif; font-size: clamp(22px,3vw,30px); font-weight: 500; line-height: 1.1; }
+  #band-map .band-range { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; padding: 4px 12px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; }
+  /* aggregate progress */
+  #band-map .agg { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+  #band-map .agg-head { display: flex; justify-content: space-between; align-items: baseline; }
+  #band-map .agg-head h2 { margin: 0; font-size: 14px; }
+  #band-map .agg-head small { color: var(--muted); font-size: 11px; }
+  #band-map .agg-bar { margin-top: 10px; height: 14px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+  #band-map .agg-fill { height: 100%; background: var(--accent); display: flex; align-items: center; padding: 0 8px; color: #fffaf1; font-size: 10px; font-weight: 600; }
+  #band-map .agg-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 14px; }
+  #band-map .agg-cell { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  #band-map .agg-cell small { display: block; color: var(--muted); font-size: 10px; }
+  #band-map .agg-cell strong { font-size: 16px; }
+  /* skill section */
+  #band-map .skill { margin-top: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; }
+  #band-map .skill-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  #band-map .skill-head .ic { font-size: 18px; }
+  #band-map .skill-head .name { flex: 1; font-weight: 600; font-size: 14px; }
+  #band-map .skill-head .pct { font-size: 12px; color: var(--accent); font-weight: 600; }
+  #band-map .skill-head .caret { color: var(--muted); font-size: 10px; }
+  #band-map .skill-body { padding: 6px 16px 14px; }
+  #band-map .grp { margin-top: 12px; }
+  #band-map .grp-title { display: flex; justify-content: space-between; align-items: baseline; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  #band-map .grp-title .cnt { color: var(--ink); font-weight: 600; }
+  #band-map .item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 12px; }
+  #band-map .item:first-of-type { border-top: 0; }
+  #band-map .item .mk { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 6px; font-size: 11px; font-weight: 700; flex: none; }
+  #band-map .item .mk.ok { background: color-mix(in oklab, var(--good) 18%, transparent); color: var(--good); }
+  #band-map .item .mk.warn { background: var(--warn-soft); color: var(--warn); }
+  #band-map .item .mk.no { background: color-mix(in oklab, var(--danger) 14%, transparent); color: var(--danger); }
+  #band-map .item .lbl { flex: 1; }
+  #band-map .item .lbl small { display: block; color: var(--muted); font-size: 10px; }
+  #band-map .item .act { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; color: var(--accent); font-size: 10px; font-weight: 600; cursor: pointer; }
+  #band-map .item .act:hover { background: var(--accent-soft); }
+  /* vocab topic bar */
+  #band-map .vitem { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 12px; }
+  #band-map .vitem:first-of-type { border-top: 0; }
+  #band-map .vitem .topic { flex: none; width: 110px; }
+  #band-map .vitem .vtrack { flex: 1; height: 10px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+  #band-map .vitem .vfill { height: 100%; background: var(--accent); }
+  #band-map .vitem .vfill.warn { background: var(--warn); }
+  #band-map .vitem .vcnt { flex: none; width: 64px; text-align: right; color: var(--muted); font-size: 10px; }
+  @media (max-width: 720px) {
+    #band-map .agg-row { grid-template-columns: repeat(2,1fr); }
+    #band-map .item .act { padding: 5px 6px; font-size: 9px; }
+  }
+</style>
+
+<div id="band-map" aria-label="Band Map — overview of what is still missing to reach band 7.0">
+
+  <div class="page">
+    <div class="crumb"><a href="#learn">Học</a> › <span>Bản đồ band</span></div>
+    <h1>Bản đồ band</h1>
+    <span class="band-range">Bạn đang ở 6.0 → mục tiêu 7.0</span>
+
+    <!-- AGGREGATE -->
+    <div class="agg">
+      <div class="agg-head">
+        <h2>Tiến độ tổng thể tới band 7.0</h2>
+        <small>cập nhật từ 3 bài mock gần nhất + dữ liệu luyện tập</small>
+      </div>
+      <div class="agg-bar"><div class="agg-fill" style="width:54%">54%</div></div>
+      <div class="agg-row">
+        <div class="agg-cell"><small>Reading</small><strong>62%</strong></div>
+        <div class="agg-cell"><small>Listening</small><strong>71%</strong></div>
+        <div class="agg-cell"><small>Writing</small><strong>40%</strong></div>
+        <div class="agg-cell"><small>Speaking</small><strong>45%</strong></div>
+      </div>
+    </div>
+
+    <!-- READING -->
+    <section class="skill">
+      <div class="skill-head"><span class="ic">📖</span><span class="name">Reading</span><span class="pct">62%</span><span class="caret">▾</span></div>
+      <div class="skill-body">
+        <div class="grp">
+        <div class="grp-title"><span>Dạng câu hỏi (13)</span><span class="cnt">11/13 ở band 7.0</span></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">Matching Headings</span><button class="act" type="button">Luyện thêm</button></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">True / False / Not Given</span></div>
+          <div class="item"><span class="mk warn">⚠</span><span class="lbl">Matching Information<small>hiện tại 6.0 — cần luyện paraphrase</small></span><button class="act" type="button">Luyện tập</button></div>
+          <div class="item"><span class="mk no">✗</span><span class="lbl">Short Answer<small>chưa luyện tập</small></span><button class="act" type="button">Bắt đầu</button></div>
+        </div>
+        <div class="grp">
+          <div class="grp-title"><span>Vi kỹ năng</span><span class="cnt">7/12 ở band 7.0</span></div>
+          <div class="item"><span class="mk warn">⚠</span><span class="lbl">paraphrase_recognition<small>sai ở 3 trong 5 lần gần nhất</small></span><button class="act" type="button">Luyện tập</button></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">synonym_identification</span></div>
+        </div>
+        <div class="grp">
+          <div class="grp-title"><span>Từ vựng theo chủ đề (band 6.5–7.0)</span><span class="cnt">320/450 từ</span></div>
+          <div class="vitem"><span class="topic">Môi trường</span><span class="vtrack"><span class="vfill" style="width:75%"></span></span><span class="vcnt">45/60</span></div>
+          <div class="vitem"><span class="topic">Công nghệ</span><span class="vtrack"><span class="vfill" style="width:76%"></span></span><span class="vcnt">38/50</span></div>
+          <div class="vitem"><span class="topic">Sức khỏe</span><span class="vtrack"><span class="vfill warn" style="width:31%"></span></span><span class="vcnt">22/70 ← còn thiếu</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WRITING -->
+    <section class="skill">
+      <div class="skill-head"><span class="ic">✍</span><span class="name">Writing</span><span class="pct">40%</span><span class="caret">▾</span></div>
+      <div class="skill-body">
+        <div class="grp">
+          <div class="grp-title"><span>Dạng bài</span><span class="cnt">2/3</span></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">Task 2 — Opinion</span></div>
+          <div class="item"><span class="mk warn">⚠</span><span class="lbl">Task 1 Academic — Chart<small>hiện tại 6.0</small></span><button class="act" type="button">Luyện tập</button></div>
+          <div class="item"><span class="mk no">✗</span><span class="lbl">Task 1 General — Letter</span></div>
+        </div>
+        <div class="grp">
+          <div class="grp-title"><span>Điểm ngữ pháp (band 7.0)</span><span class="cnt">8/18</span></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">conditionals</span></div>
+          <div class="item"><span class="mk warn">⚠</span><span class="lbl">relative clauses<small>thỉnh thoảng dùng sai</small></span><button class="act" type="button">Luyện tập</button></div>
+          <div class="item"><span class="mk no">✗</span><span class="lbl">inversion<small>chưa dùng</small></span><button class="act" type="button">Học</button></div>
+        </div>
+        <div class="grp">
+          <div class="grp-title"><span>Cụm từ (band 7.0)</span><span class="cnt">45/120</span></div>
+          <div class="vitem"><span class="topic">Động từ học thuật</span><span class="vtrack"><span class="vfill" style="width:50%"></span></span><span class="vcnt">20/40</span></div>
+          <div class="vitem"><span class="topic">Nguyên nhân/kết quả</span><span class="vtrack"><span class="vfill warn" style="width:25%"></span></span><span class="vcnt">5/20 ← còn thiếu</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRAMMAR (cross-skill) -->
+    <section class="skill">
+      <div class="skill-head"><span class="ic">⚙</span><span class="name">Grammar (cross-skill)</span><span class="pct">55%</span><span class="caret">▾</span></div>
+      <div class="skill-body">
+        <div class="grp">
+          <div class="grp-title"><span>Danh sách band 7.0</span><span class="cnt">12/22 điểm ngữ pháp</span></div>
+          <div class="item"><span class="mk ok">✓</span><span class="lbl">present perfect</span></div>
+          <div class="item"><span class="mk warn">⚠</span><span class="lbl">passive voice<small>thiếu dạng phức tạp</small></span><button class="act" type="button">Luyện tập</button></div>
+          <div class="item"><span class="mk no">✗</span><span class="lbl">cleft sentences</span><button class="act" type="button">Học</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANNOTATION (for the cheap agent) -->
+    <details class="annot" style="margin-top:24px;border-top:1px dashed var(--line);padding-top:14px;">
+      <summary style="cursor:pointer;font-weight:600;color:var(--ink);">State matrix &amp; build rules (expand)</summary>
+
+        <h4 style="margin:14px 0 6px;">Item status — 3 markers</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:10px;">
+        <tr style="text-align:left;color:var(--muted);"><th style="padding:4px;border-bottom:1px solid var(--line);">Marker</th><th style="padding:4px;border-bottom:1px solid var(--line);">Meaning</th><th style="padding:4px;border-bottom:1px solid var(--line);">Class</th><th style="padding:4px;border-bottom:1px solid var(--line);">Action</th></tr>
+        <tr><td style="padding:4px;">✓</td><td>at target band</td><td>.mk.ok</td><td>hide / "Practice more"</td></tr>
+        <tr><td style="padding:4px;">⚠</td><td>near target, currently one band lower</td><td>.mk.warn</td><td>"Practice" → drill/lesson</td></tr>
+        <tr><td style="padding:4px;">✗</td><td>not practiced / no data yet</td><td>.mk.no</td><td>"Start" / "Learn"</td></tr>
+      </table>
+
+      <h4 style="margin:14px 0 6px;">Page state — 4</h4>
+      <ul style="font-size:10px;margin:0;padding-left:18px;">
+        <li><strong>empty</strong>: placement not completed → show only CTA "Complete placement to view the band map"</li>
+        <li><strong>partial</strong>: current band exists, data is partial → ✓ available, ⚠/✗ "not enough data to assess"</li>
+        <li><strong>full</strong>: coverage is complete → full checklist with ✓/⚠/✗ (this wireframe)</li>
+        <li><strong>locked</strong>: higher band is not open → "Open when you reach band X" (progressive disclosure)</li>
+      </ul>
+
+      <h4 style="margin:14px 0 6px;">Build rules (invariants)</h4>
+      <ul style="font-size:10px;margin:0;padding-left:18px;">
+        <li>Every item must have a ✓/⚠/✗ status — not only a raw number.</li>
+        <li>Click item ⚠/✗ → open the CORRESPONDING drill/lesson or add it to Smart Queue (do not return to Home).</li>
+        <li>Per-skill % at the top of each skill; aggregate % at the top of the page.</li>
+        <li>Vocabulary by topic: progress bar + count; the largest gap is highlighted (.vfill.warn).</li>
+        <li>Band displayed as current → target (e.g. 6.0 → 7.0).</li>
+        <li>Progressive disclosure: early mode shows only current+0.5; do not show the full band 9.</li>
+        <li>Data source: BAND.Requirement + BAND.Checklist + coverage matrix (05-content.md). Do NOT infer requirements.</li>
+        <li>Peek link from Today: "View band map →" in the progress proof area (does not replace the primary action).</li>
+      </ul>
+    </details>
+  </div>
+</div>

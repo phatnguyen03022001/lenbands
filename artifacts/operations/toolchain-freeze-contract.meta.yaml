@@ -1,0 +1,10 @@
+type: governance-contract
+status: review
+version: 0.4.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability]
+purpose: separate-toolchain-contract-validity-from-runtime-and-p0-readiness
+consumed_by: [engineering, operations, governance, ai-agents]
+created_at: 2026-08-07
+updated_at: 2026-08-08

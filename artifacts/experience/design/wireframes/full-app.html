@@ -1,0 +1,90 @@
+<style>
+  #full-app-wireframe { --wf-bg:#f3eee5; --wf-surface:#fffaf1; --wf-ink:#202731; --wf-muted:#687487; --wf-line:rgba(32,39,49,.14); --wf-accent:#285f58; --wf-soft:#dcece4; color:var(--wf-ink); background:var(--wf-bg); border:1px solid var(--wf-line); border-radius:24px; padding:20px; font-family:Inter,ui-sans-serif,system-ui,sans-serif; }
+  #full-app-wireframe * { box-sizing:border-box; }
+  #full-app-wireframe h1,#full-app-wireframe h2,#full-app-wireframe h3,#full-app-wireframe p { margin:0; }
+  #full-app-wireframe .intro { padding:8px 4px 18px; }
+  #full-app-wireframe .eyebrow { color:var(--wf-accent); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+  #full-app-wireframe h1 { margin-top:6px; font:500 clamp(28px,4vw,42px)/1.05 Georgia,serif; }
+  #full-app-wireframe .lede { margin-top:9px; max-width:72ch; color:var(--wf-muted); font-size:13px; line-height:1.5; }
+  #full-app-wireframe .app-frame { overflow:hidden; border:1px solid var(--wf-line); border-radius:20px; background:var(--wf-surface); }
+  #full-app-wireframe .topbar { display:flex; align-items:center; gap:18px; min-height:58px; padding:0 18px; border-bottom:1px solid var(--wf-line); }
+  #full-app-wireframe .brand { display:flex; align-items:center; gap:8px; min-width:155px; font-weight:700; letter-spacing:-.03em; }
+  #full-app-wireframe .mark { display:grid; place-items:center; width:27px; height:27px; border-radius:9px; color:#fffaf1; background:var(--wf-accent); }
+  #full-app-wireframe .top-title { flex:1; color:var(--wf-muted); font-size:12px; }
+  #full-app-wireframe .top-actions { display:flex; gap:8px; color:var(--wf-muted); font-size:12px; }
+  #full-app-wireframe .top-actions span { padding:6px 9px; border:1px solid var(--wf-line); border-radius:9px; }
+  #full-app-wireframe .app-body { display:grid; grid-template-columns:182px minmax(0,1fr); }
+  #full-app-wireframe .side { padding:15px 10px; border-right:1px solid var(--wf-line); }
+  #full-app-wireframe .side-label { padding:0 9px 8px; color:var(--wf-muted); font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+  #full-app-wireframe .side-item { display:flex; align-items:center; gap:9px; padding:9px; border-radius:9px; color:var(--wf-muted); font-size:12px; }
+  #full-app-wireframe .side-item.active { color:var(--wf-accent); background:var(--wf-soft); font-weight:700; }
+  #full-app-wireframe .main { min-width:0; padding:18px; background:var(--wf-bg); }
+  #full-app-wireframe .screen-map { display:grid; gap:14px; }
+  #full-app-wireframe .screen { overflow:hidden; border:1px solid var(--wf-line); border-radius:16px; background:var(--wf-surface); }
+  #full-app-wireframe .screen-head { display:flex; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid var(--wf-line); }
+  #full-app-wireframe .screen-head h2 { font-size:15px; }
+  #full-app-wireframe .screen-head p { margin-top:4px; color:var(--wf-muted); font-size:11px; }
+  #full-app-wireframe .tag { flex:none; height:max-content; padding:4px 7px; border-radius:7px; color:var(--wf-accent); background:var(--wf-soft); font-size:9px; font-weight:700; }
+  #full-app-wireframe .screen-body { display:grid; gap:12px; padding:16px; }
+  #full-app-wireframe .screen-grid { display:grid; gap:12px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #full-app-wireframe .block { min-height:62px; padding:12px; border:1px dashed var(--wf-line); border-radius:11px; }
+  #full-app-wireframe .block strong { display:block; font-size:12px; }
+  #full-app-wireframe .block span { display:block; margin-top:5px; color:var(--wf-muted); font-size:11px; line-height:1.4; }
+  #full-app-wireframe .action { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border-radius:11px; color:#fffaf1; background:var(--wf-accent); font-size:12px; }
+  #full-app-wireframe .action b { font-weight:700; }
+  #full-app-wireframe .flow-note { padding:10px 12px; border-left:3px solid var(--wf-accent); color:var(--wf-muted); background:rgba(220,236,228,.38); font-size:11px; line-height:1.45; }
+  #full-app-wireframe .state-row { display:flex; flex-wrap:wrap; gap:6px; padding-top:2px; }
+  #full-app-wireframe .state { padding:4px 7px; border:1px solid var(--wf-line); border-radius:7px; color:var(--wf-muted); font-size:9px; }
+  #full-app-wireframe .state.current { color:var(--wf-accent); border-color:var(--wf-accent); background:var(--wf-soft); }
+  #full-app-wireframe .mobile-nav { display:none; }
+  @media (max-width:700px) {
+    #full-app-wireframe { padding:12px; }
+    #full-app-wireframe .brand { min-width:auto; }
+    #full-app-wireframe .brand-word,#full-app-wireframe .top-title { display:none; }
+    #full-app-wireframe .app-body { display:block; }
+    #full-app-wireframe .side { display:none; }
+    #full-app-wireframe .main { padding:12px; }
+    #full-app-wireframe .screen-grid { grid-template-columns:1fr; }
+    #full-app-wireframe .mobile-nav { display:grid; grid-template-columns:repeat(4,1fr); padding:8px; border-top:1px solid var(--wf-line); color:var(--wf-muted); font-size:9px; text-align:center; }
+    #full-app-wireframe .mobile-nav span { display:block; margin-bottom:3px; font-size:13px; }
+  }
+</style>
+
+<div id="full-app-wireframe">
+  <div class="intro">
+    <div class="eyebrow">LenBands · Full learner wireframe</div>
+    <h1>The full learning experience loop, from first app open to readiness.</h1>
+    <p class="lede">This is a horizon wireframe: only screens named by the P0 vertical slice and Build Readiness Matrix are build inputs. Mock Test/Exam Readiness screens and flows without a slice are post-P0 references, not sources for code.</p>
+  </div>
+
+  <div class="app-frame">
+    <header class="topbar"><div class="brand"><span class="mark">L</span><span class="brand-word">LenBands</span></div><div class="top-title">Khung learner · Header dùng chung</div><div class="top-actions"><span>Thông báo</span><span>TP</span></div></header>
+    <div class="app-body">
+      <aside class="side"><div class="side-label">Điều hướng</div><div class="side-item active">⌂ <span>Hôm nay</span></div><div class="side-item">◌ <span>Học</span></div><div class="side-item">✦ <span>Luyện tập</span></div><div class="side-item">↺ <span>Ôn tập · 7</span></div><div class="side-item">▣ <span>Bài kiểm tra</span></div></aside>
+      <main class="main">
+        <div class="screen-map">
+          <section class="screen"><div class="screen-head"><div><h2>01 · First Day / Onboarding</h2><p>State: new · Intent: know where to start</p></div><span class="tag">PLACE</span></div><div class="screen-body"><div class="block"><strong>Q1/4 · Target band</strong><span>One decision per screen; the learner can return without losing data.</span></div><div class="block"><strong>Exam date + study time</strong><span>Allow skipping when unknown; do not create a blocked feeling.</span></div><div class="action"><b>Tiếp tục</b><span>→</span></div><div class="flow-note">Submit → create placement context → move to Placement; do not send the user to an empty dashboard.</div><div class="state-row"><span class="state current">Mặc định</span><span class="state">Đang tải</span><span class="state">Lỗi lưu</span><span class="state">Tiếp tục lại</span></div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>02 · Placement Test</h2><p>State: diagnosing · Intent: know the current ability</p></div><span class="tag">PLACE</span></div><div class="screen-body"><div class="block"><strong>Progress + section context</strong><span>Show what remains and why this question was selected.</span></div><div class="block"><strong>Question workspace</strong><span>Answer, flag, pause; autosave after every change.</span></div><div class="action"><b>Nộp phần này</b><span>→</span></div><div class="flow-note">Interrupt/offline → save checkpoint → resume the same question and timer on the next open.</div><div class="state-row"><span class="state current">Đang thực hiện</span><span class="state">Ngoại tuyến</span><span class="state">Hết giờ</span><span class="state">Tiếp tục lại</span></div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>03 · Gap Analysis / Initial Path</h2><p>State: diagnosed · Intent: understand the gap and choose a direction</p></div><span class="tag">PATH</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Current → Target</strong><span>Current band, target band, confidence, and skill gap.</span></div><div class="block"><strong>Why this plan?</strong><span>Explain with concise evidence; do not make absolute claims.</span></div></div><div class="action"><b>Chấp nhận kế hoạch 30 phút/ngày</b><span>→</span></div><div class="flow-note">Accept → create Daily Plan → Home shows one next best action. Edit → return to goal/time, without resetting placement.</div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>04 · Today / Home</h2><p>State: learning · Intent: know the most important task today</p></div><span class="tag">STUDY</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Continue session</strong><span>If a task is in progress, it always appears above Today's Plan.</span></div><div class="block"><strong>Plan progress</strong><span>Review · Practice · Lesson; do not turn it into a dashboard with many cards.</span></div></div><div class="action"><b>Bắt đầu: Writing Task 2 · 25 phút</b><span>→</span></div><div class="flow-note">No placement → CTA is Placement. No task → create a replacement micro-session.</div><div class="state-row"><span class="state current">Kế hoạch sẵn sàng</span><span class="state">Chưa có kế hoạch</span><span class="state">Trống</span><span class="state">Ngoại tuyến</span></div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>05 · Study Session</h2><p>State: practicing · Intent: complete one specific outcome</p></div><span class="tag">SESSION</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Goal + timer</strong><span>Always know what you are doing, how much time remains, and what completion means.</span></div><div class="block"><strong>Workspace</strong><span>Skill-specific: passage, audio, essay, or recording.</span></div></div><div class="action"><b>Lưu và kết thúc phiên học</b><span>→</span></div><div class="flow-note">Pause/exit → save checkpoint. Complete → Session Summary; do not jump straight to Home.</div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>06 · Writing Evaluation</h2><p>State: practicing → reviewing · Intent: know which error to fix first</p></div><span class="tag">EVAL</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Evidence</strong><span>Show the learner's excerpt/answer first.</span></div><div class="block"><strong>Feedback + confidence</strong><span>Issue → why → suggested fix; distinguish certainty from items needing review.</span></div></div><div class="action"><b>Lưu lỗi này để ôn tập</b><span>→</span></div><div class="flow-note">Low confidence → show evidence and mark incorrect feedback. Save → Mistake Notebook + FSRS queue.</div><div class="state-row"><span class="state current">Kết quả</span><span class="state">Độ tin cậy thấp</span><span class="state">Không có đánh giá</span><span class="state">Thử lại</span></div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>07 · Review Queue / Mistake Notebook</h2><p>State: reviewing · Intent: remember and fix the right error</p></div><span class="tag">REVIEW</span></div><div class="screen-body"><div class="block"><strong>Queue priority</strong><span>Due → weak skill → exam relevance; show the estimated duration.</span></div><div class="block"><strong>Review card</strong><span>Recall first, reveal the answer afterward; includes Again / Hard / Good / Easy.</span></div><div class="action"><b>Bắt đầu 7 mục đến hạn</b><span>→</span></div><div class="flow-note">Queue empty → explain the next review and suggest a related practice task.</div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>08 · Mock Test / Exam Mode</h2><p>State: assessing · Intent: measure ability under exam conditions</p></div><span class="tag">TEST</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Mode contract</strong><span>Timer, section order, no hints, confirm before submit.</span></div><div class="block"><strong>Recovery checkpoint</strong><span>Show the last saved state; resume without losing answered questions.</span></div></div><div class="action"><b>Tiếp tục bài kiểm tra</b><span>→</span></div><div class="flow-note">Submit/timeout → Result Analysis. Network loss → preserve state and allow resume; do not create a duplicate submission.</div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>09 · Result Analysis / Exam Readiness</h2><p>State: ready-check · Intent: know what is missing before exam day</p></div><span class="tag">BAND</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Overall + per skill</strong><span>Band range, confidence, and risk; do not present false precision.</span></div><div class="block"><strong>Priority next steps</strong><span>Weak-skill queue, targeted lesson, or next mock test.</span></div></div><div class="action"><b>Ôn Task Response trước</b><span>→</span></div><div class="flow-note">Readiness changes after assessment/review; Home and notifications should remind only meaningful actions.</div></div></section>
+
+          <section class="screen"><div class="screen-head"><div><h2>10 · Recovery / Account / Access</h2><p>Cross-cutting states: offline, locked, inactive, blocked</p></div><span class="tag">SYSTEM UX</span></div><div class="screen-body"><div class="screen-grid"><div class="block"><strong>Offline</strong><span>Keep local content and report which actions have not synced.</span></div><div class="block"><strong>Locked/Premium</strong><span>State access rights and a suitable alternative; do not block the entire learning loop.</span></div><div class="block"><strong>Inactive</strong><span>Invite a micro-session; do not use guilt or streak pressure.</span></div><div class="block"><strong>Blocked</strong><span>Explain the error, retry/contact options, and preserve learner data.</span></div></div><div class="flow-note">Every recovery preserves restorable context, input, and progress.</div></div></section>
+        </div>
+      </main>
+    </div>
+    <nav class="mobile-nav"><div><span>⌂</span>Today</div><div><span>◌</span>Learn</div><div><span>✦</span>Practice</div><div><span>↺</span>Review</div></nav>
+  </div>
+</div>

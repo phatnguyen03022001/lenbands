@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Generate capability-lifecycle-registry.yaml from canonical sources.
+# Reads: capability-family-map.yaml (hand-maintained mapping) + capability-phase-index.md (phase assignments)
+# Derives: lifecycle from phase (P0→ACTIVE, otherwise→PLANNED, EVAL.AntiGaming→DEPRECATED)
+# Does NOT generate capability-family-map.yaml — that file is hand-maintained canonical.
+# Replaces the old generate-capability-registries.sh which used case statements for family assignment.
+#
+# This generator deliberately owns only the lifecycle projection. Promotion facts and
+# promotion policy are canonical operational inputs, so a generator must never rewrite
+# them (see artifacts/operations/architecture-frozen.md).
+
+repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
+out="$repo_root/artifacts/operations"
+
+check=false
+if [[ "${1:-}" == "--check" ]]; then
+  check=true
+  shift
+fi
+if [[ $# -ne 0 ]]; then
+  echo "usage: $0 [--check]" >&2
+  exit 64
+fi
+
+# Build lifecycle registry from canonical family-map (hand-maintained) + phase index.
+# shellcheck disable=SC2016
+ruby -I"$repo_root/tools/lib" -rlenbands -rlenbands/yaml_loader - "$out" "$repo_root" "$check" <<'RUBY'
+out_dir, repo_root, check = ARGV
+map_path = File.join(repo_root, "artifacts/operations/capability-family-map.yaml")
+map_data = Lenbands::YamlLoader.load_file(map_path, mapping: true)
+entries = Array(map_data["capability_map"])
+
+phase_index_path = File.join(repo_root, "artifacts/operations/catalogs/capability-phase-index.md")
+phase_lines = File.read(phase_index_path).lines
+
+phase_for = lambda do |id|
+  phase_lines.each do |line|
+    parts = line.split("|").map(&:strip)
+    next unless parts.length >= 3
+    row_id = parts[1].to_s[/\A`([^`]+)`\z/, 1]
+    next unless row_id == id
+    return parts[2]
+  end
+  "deferred"
+end
+
+interpretation_for = lambda do |id|
+  phase_lines.each do |line|
+    parts = line.split("|").map(&:strip)
+    next unless parts.length >= 4
+    row_id = parts[1].to_s[/\A`([^`]+)`\z/, 1]
+    next unless row_id == id
+    return parts[3]
+  end
+  ""
+end
+
+output = {
+  "schema_version" => "1.0.0",
+  "status" => "review",
+  "source_of_truth" => true,
+  "description" => "Canonical lifecycle registry derived from capability-family-map.yaml (hand-maintained) and capability-phase-index.md.",
+  "states" => %w[ACTIVE PLANNED DEPRECATED],
+  "capabilities" => []
+}
+
+entries.each do |entry|
+  id = entry["capability_id"]
+  phase = phase_for.call(id)
+  interpretation = interpretation_for.call(id)
+
+  lifecycle = if id == "EVAL.AntiGaming" || interpretation.include?("deprecated alias")
+               "DEPRECATED"
+             elsif phase == "P0"
+               "ACTIVE"
+             else
+               "PLANNED"
+             end
+
+  status = case lifecycle
+           when "ACTIVE" then "candidate"
+           when "DEPRECATED" then "deprecated"
+           else "planned"
+           end
+
+  output["capabilities"] << {
+    "capability_id" => id,
+    "lifecycle" => lifecycle,
+    "phase" => phase == "" ? "deferred" : phase,
+    "family_id" => entry["family_id"],
+    "delta_id" => entry["delta_id"],
+    "owner_spec" => entry["owner_spec"],
+    "status" => status
+  }
+end
+
+path = File.join(out_dir, "capability-lifecycle-registry.yaml")
+rendered = output.to_yaml
+current = File.file?(path) ? File.read(path) : nil
+
+if check == "true"
+  abort("capability-lifecycle-registry.yaml is stale; run tools/generate-lifecycle-registry.sh") unless current == rendered
+  puts "capability lifecycle registry is current (#{output["capabilities"].length} capabilities)"
+elsif current == rendered
+  puts "capability lifecycle registry unchanged (#{output["capabilities"].length} capabilities)"
+else
+  File.write(path, rendered)
+  puts "capability lifecycle registry generated (#{output["capabilities"].length} capabilities)"
+end
+RUBY

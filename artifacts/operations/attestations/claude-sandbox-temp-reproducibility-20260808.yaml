@@ -1,0 +1,25 @@
+schema_version: 1.0.0
+change_id: claude-sandbox-temp-reproducibility-20260808
+change_scope: restore-bounded-session-toolchain-temp-writes-and-close-skill-shell-mcp-provider-shadow-surfaces
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-provided-bounded-session-sandbox-reproduction-20260808
+notes:
+  - Independent bounded-session reproduction showed mktemp failing under the Claude sandbox although terminal-only verification passed.
+  - Version 1.6.1 attempted standard POSIX/macOS temp allow-writes, but a second bounded-session reproduction showed shell mktemp remained blocked; 1.6.2 supersedes that incomplete approach.
+  - The change preserves failIfUnavailable and forbids unsandboxed command escape.
+  - Skill inline-shell preprocessing is disabled so skill content cannot bypass the registered Bash guard.
+  - MCP tools are denied by default pending a versioned plugin and server allowlist.
+  - The user-level claude-api skill shadow is disabled because it overrides the bundled command and conflicts with provider-neutral DeepSeek routing.
+  - Toolchain 1.6.1 preserved public commands and arguments but did not close the bounded-session reproduction.
+  - P0 readiness remains blocked; no runtime, evidence, rights, calibration or approval claim was created.

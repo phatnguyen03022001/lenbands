@@ -1,0 +1,533 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+authority: artifacts/operations/architecture-frozen.md
+description: >
+  Canonical implementation-family registry. A family is a runtime implementation unit,
+  not a domain taxonomy. Capability identity remains authoritative in blueprint/03-features.md.
+
+family_schema:
+  required:
+    - family_id
+    - family_version
+    - status
+    - last_changed
+    - compatible_since
+    - purpose
+    - owner
+    - runtime_boundary
+    - owner_spec
+    - allowed_deltas
+    - shared_contracts
+    - shared_entities
+    - shared_events
+    - shared_failures
+    - shared_acceptance
+    - shared_evidence
+  required_for_active:
+    - owner_spec
+    - interaction_spec
+    - shared_contracts
+    - shared_entities
+    - shared_events
+    - shared_failures
+    - shared_acceptance
+    - shared_evidence
+  invariants:
+    - family_id_unique
+    - owner_spec_unique
+    - owner_spec_maps_to_one_family
+    - family_owns_behavior_delta_owns_variation
+    - no_capability_family_cycle
+
+families:
+  - family_id: IDENTITY.Core
+    family_version: 1.0.0
+    status: candidate
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    purpose: Account, consent, profile ownership, and privacy boundary for the pilot.
+    owner: product+engineering
+    lifecycle: ACTIVE
+    runtime_boundary: authenticated learner identity and consent boundary
+    owner_spec: artifacts/engineering/runtime/identity-core-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/identity-core.md
+    allowed_deltas: []
+    shared_contracts:
+      - artifacts/engineering/contracts/runtime/auth-identity-contract.md
+    shared_entities: [Account, ConsentRecord, LearnerProfile]
+    shared_events: [account_created, consent_recorded, privacy_export_requested, privacy_deletion_requested]
+    shared_failures: [AUTH_UNAVAILABLE, PERMISSION_DENIED, PRIVACY_EXPORT_FAILED]
+    shared_acceptance: [identity_privacy_acceptance]
+    shared_evidence: [provider_dpa, export_delete_acceptance_run]
+
+  - family_id: PLACEMENT.Diagnosis
+    family_version: 1.0.0
+    status: candidate
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    purpose: Goal, baseline placement, band estimation, gap detection, and initial path.
+    owner: product
+    lifecycle: ACTIVE
+    runtime_boundary: learner diagnosis and initial-path boundary
+    owner_spec: artifacts/engineering/runtime/placement-diagnosis-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/placement-diagnosis.md
+    allowed_deltas: []
+    shared_contracts:
+      - artifacts/engineering/contracts/placement-diagnosis-contract.md
+    shared_entities: [Goal, PlacementAttempt, BandEstimate, GapProfile]
+    shared_events: [goal_set, placement_started, placement_completed]
+    shared_failures: [INSUFFICIENT_EVIDENCE, CONFIG_NOT_PUBLISHED, SCORING_UNAVAILABLE]
+    shared_acceptance: [placement_acceptance_run]
+    shared_evidence: [placement_calibration_run, placement_acceptance_run]
+
+  - family_id: STUDY.DailyAction
+    family_version: 1.1.0
+    status: candidate
+    last_changed: 2026-08-08
+    compatible_since: 1.0.0
+    purpose: Generate and execute one reasoned daily learning action.
+    owner: product
+    lifecycle: ACTIVE
+    runtime_boundary: daily plan, action selection, and study session boundary
+    owner_spec: artifacts/engineering/runtime/daily-action-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/daily-action.md
+    allowed_deltas: []
+    shared_contracts:
+      - artifacts/engineering/contracts/daily-action-contract.md
+    shared_entities: [DailyPlan, NextAction, StudySession]
+    shared_events: [daily_plan_generated, session_started, session_paused, session_resumed, session_completed, session_abandoned, first_meaningful_session_completed, next_best_action_shown, next_best_action_taken]
+    shared_failures: [NO_ELIGIBLE_ACTION, STALE_PLAN, SESSION_RESTORE_FAILED]
+    shared_acceptance: [daily_action_acceptance_run]
+    shared_evidence: [daily_action_acceptance_run]
+
+  - family_id: WRITING.Evaluation
+    family_version: 1.1.0
+    status: candidate
+    last_changed: 2026-08-08
+    compatible_since: 1.0.0
+    purpose: Writing Task 2 submission, evaluation, evidence-linked feedback, and draft ownership.
+    owner: product+engineering
+    lifecycle: ACTIVE
+    runtime_boundary: writing task editor, submission, evaluation, and feedback boundary
+    owner_spec: artifacts/engineering/runtime/writing-evaluation-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/writing-evaluation.md
+    allowed_deltas: [WRITING.Task2]
+    shared_contracts:
+      - artifacts/engineering/contracts/writing-task-2/runtime-spec.md
+      - artifacts/engineering/contracts/writing-task-2/openapi.yaml
+      - artifacts/engineering/contracts/writing-task-2/data-contract.md
+      - artifacts/engineering/contracts/writing-task-2/event-contract.md
+      - artifacts/engineering/contracts/writing-task-2/failure-contract.md
+      - artifacts/engineering/contracts/writing-task-2/evaluation-contract.md
+    shared_entities: [WritingTask, WritingDraft, WritingSubmission, WritingEvaluation, FeedbackFinding]
+    shared_events: [writing_task_opened, writing_draft_saved, writing_submission_started, writing_submission_accepted, evaluation_submitted, evaluation_scored, evaluation_failed, evaluation_delayed, writing_feedback_viewed]
+    shared_failures: [EVAL_LOW_CONFIDENCE, EVAL_INSUFFICIENT_EVIDENCE, EVAL_TIMEOUT, EVAL_PROVIDER_UNAVAILABLE, QUOTA_EXCEEDED]
+    shared_acceptance: [writing_idempotency, writing_redaction, writing_recovery]
+    shared_evidence: [gold_corpus, benchmark_run, redaction_acceptance_run, idempotency_acceptance_run]
+
+  - family_id: REVIEW.ErrorToReview
+    family_version: 1.1.0
+    status: candidate
+    last_changed: 2026-08-08
+    compatible_since: 1.0.0
+    purpose: Convert evidence-backed learning errors into review, scheduling, and retest outcomes.
+    owner: product
+    lifecycle: ACTIVE
+    runtime_boundary: learning error, review queue, FSRS transition, and retest boundary
+    owner_spec: artifacts/engineering/runtime/error-to-review-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/error-to-review.md
+    allowed_deltas: []
+    shared_contracts:
+      - artifacts/engineering/contracts/error-to-review/data-contract.md
+      - artifacts/engineering/contracts/error-to-review/event-contract.md
+      - artifacts/engineering/contracts/error-to-review/failure-contract.md
+    shared_entities: [LearningError, ReviewCard, ReviewAttempt, RetestAttempt]
+    shared_events: [learning_error_saved, review_card_created, review_queue_opened, review_card_rated, review_completed, review_card_graduated, retest_started, retest_completed, learning_error_resolved]
+    shared_failures: [NO_EVIDENCE_NO_CARD, REVIEW_QUEUE_EMPTY, RETEST_INVALID]
+    shared_acceptance: [review_scheduling_acceptance_run, retest_outcome_acceptance_run]
+    shared_evidence: [review_scheduling_acceptance_run, retest_outcome_acceptance_run]
+
+  - family_id: OPS.QualityEconomics
+    family_version: 1.1.0
+    status: candidate
+    last_changed: 2026-08-08
+    compatible_since: 1.0.0
+    purpose: Quality, cost, quota, observability, audit, and release controls for active runtime.
+    owner: operations
+    lifecycle: ACTIVE
+    runtime_boundary: evidence collection, quality gate, cost boundary, and release decision boundary
+    owner_spec: artifacts/engineering/runtime/quality-economics-runtime.md
+    interaction_spec: artifacts/experience/specs/interaction/quality-economics.md
+    allowed_deltas: []
+    shared_contracts:
+      - artifacts/operations/evaluation-benchmark-spec.md
+      - artifacts/operations/release-gate.md
+      - artifacts/engineering/contracts/runtime/observability-slo-contract.md
+      - artifacts/engineering/contracts/events/event-schema-pack.md
+      - artifacts/engineering/contracts/quota-usage/quota-usage-contract.md
+    shared_entities: [BenchmarkRun, CostMeasurement, ReleaseGateDecision, AuditRecord]
+    shared_events: [benchmark_run_completed, drift_threshold_exceeded, anti_gaming_flagged, quota_warning_shown, quota_exceeded]
+    shared_failures: [RELEASE_BLOCKED, COST_CEILING_UNARMED, BENCHMARK_MISSING, DRIFT_THRESHOLD_EXCEEDED]
+    shared_acceptance: [release_gate_acceptance, evidence_immutability_acceptance]
+    shared_evidence: [gold_corpus, benchmark_run, numeric_cost_threshold_approval, rollout_rollback_record]
+
+  - family_id: READING.Practice
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Passage-based reading practice, answer evaluation, review, and retest.
+    owner: product+engineering
+    runtime_boundary: reading passage, attempt, answer result, review, and retest
+    owner_spec: null
+    allowed_deltas: [READING.QuestionType]
+    shared_contracts: []
+    shared_entities: [ReadingPassage, ReadingAttempt, ReadingAnswer, ReadingReview]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [reading_answer_key_benchmark]
+
+  - family_id: LISTENING.Practice
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Audio-based listening practice, answer evaluation, review, and retest.
+    owner: product+engineering
+    runtime_boundary: audio stimulus, attempt, answer result, review, and retest
+    owner_spec: null
+    allowed_deltas: [LISTENING.QuestionType]
+    shared_contracts: []
+    shared_entities: [ListeningAudio, ListeningAttempt, ListeningAnswer, ListeningReview]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [listening_answer_key_benchmark]
+
+  - family_id: SPEAKING.Practice
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Speaking prompt, recording, timing, and retest workflow.
+    owner: product+engineering
+    runtime_boundary: speaking prompt, recording, transcript, and retest
+    owner_spec: null
+    allowed_deltas: [SPEAKING.Part]
+    shared_contracts: []
+    shared_entities: [SpeakingPrompt, SpeakingRecording, SpeakingAttempt]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [speaking_recording_acceptance]
+
+  - family_id: SPEAKING.Evaluation
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Evidence-backed speaking evaluation and feedback.
+    owner: product+engineering
+    runtime_boundary: speaking recording, evaluation, feedback, and recovery
+    owner_spec: null
+    allowed_deltas: [SPEAKING.Part]
+    shared_contracts: []
+    shared_entities: [SpeakingEvaluation, SpeakingFinding]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [speaking_evaluator_benchmark]
+
+  - family_id: PRONUNCIATION.Practice
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Pronunciation target, model, recording, feature feedback, and retest.
+    owner: product+engineering
+    runtime_boundary: pronunciation target, audio attempt, feature result, and retest
+    owner_spec: null
+    allowed_deltas: [PRONUNCIATION.Unit]
+    shared_contracts: []
+    shared_entities: [PronunciationTarget, PronunciationAttempt, PronunciationResult]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [pronunciation_feature_benchmark]
+
+  - family_id: MOCK.ExamSimulation
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Composite IELTS exam simulation, timing, resume, scoring, and routing.
+    owner: product+engineering
+    runtime_boundary: composite test session, section timing, score aggregation, and recovery
+    owner_spec: null
+    allowed_deltas: [MOCK.Module]
+    shared_contracts: []
+    shared_entities: [MockSession, MockSection, MockResult]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [mock_composite_benchmark]
+
+  - family_id: PRACTICE.Drill
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Reusable question/task drill attempt and result workflow.
+    owner: product+engineering
+    runtime_boundary: drill selection, attempt, result, review, and retest
+    owner_spec: null
+    allowed_deltas: [PRACTICE.Type]
+    shared_contracts: []
+    shared_entities: [PracticeSet, PracticeAttempt, PracticeResult]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [practice_workflow_acceptance]
+
+  - family_id: HISTORY.Assessment
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Assessment history, comparison, portfolio, and timeline projections.
+    owner: product+engineering
+    runtime_boundary: persisted assessment facts and learner history views
+    owner_spec: null
+    allowed_deltas: [HISTORY.View]
+    shared_contracts: []
+    shared_entities: [AssessmentHistory, AssessmentSnapshot]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [history_consistency_acceptance]
+
+  - family_id: PROGRESS.Learning
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Progress, band, goal, and learning analytics projections.
+    owner: product+engineering
+    runtime_boundary: evidence-derived progress and learner-facing progress views
+    owner_spec: null
+    allowed_deltas: [PROGRESS.View]
+    shared_contracts: []
+    shared_entities: [ProgressSnapshot, BandTimeline, GoalProgress]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [progress_projection_acceptance]
+
+  - family_id: PERSONAL.Recommendation
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Evidence-backed personalization, gaps, recommendations, and next action selection.
+    owner: product+engineering
+    runtime_boundary: learner evidence to recommendation decision boundary
+    owner_spec: null
+    allowed_deltas: [PERSONAL.Strategy]
+    shared_contracts: []
+    shared_entities: [Recommendation, GapProfile, PersonalPlan]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [recommendation_outcome_evidence]
+
+  - family_id: NOTIFICATION.Delivery
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Preference-aware delivery of study, result, review, and goal notifications.
+    owner: product+engineering
+    runtime_boundary: notification decision, preference, delivery, and suppression
+    owner_spec: null
+    allowed_deltas: [NOTIFICATION.Channel]
+    shared_contracts: []
+    shared_entities: [Notification, NotificationPreference, DeliveryAttempt]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [notification_delivery_acceptance]
+
+  - family_id: SUBSCRIPTION.Usage
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Plan, payment, premium entitlement, quota, and usage boundary.
+    owner: product+engineering
+    runtime_boundary: entitlement, usage measurement, quota, and graceful degradation
+    owner_spec: null
+    allowed_deltas: [SUBSCRIPTION.Plan]
+    shared_contracts: []
+    shared_entities: [Subscription, Entitlement, UsageLedger]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [quota_and_entitlement_acceptance]
+
+  - family_id: PKM.Content
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Learner-owned drafts, notes, recordings, collections, import/export, and sync.
+    owner: product+engineering
+    runtime_boundary: learner content ownership, persistence, sync, and export boundary
+    owner_spec: null
+    allowed_deltas: [PKM.ContentType]
+    shared_contracts: []
+    shared_entities: [LearnerContent, Collection, SyncCursor]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [content_ownership_acceptance]
+
+  - family_id: LOCALIZATION.Preference
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Interface language, response language, locale format, and preference sync.
+    owner: product+engineering
+    runtime_boundary: locale preference and localized web rendering
+    owner_spec: null
+    allowed_deltas: [LOCALIZATION.Locale]
+    shared_contracts: []
+    shared_entities: [LocalePreference]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [localization_acceptance]
+
+  - family_id: SEARCH.Knowledge
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Search across canonical knowledge, questions, descriptors, and learner-accessible samples.
+    owner: product+engineering
+    runtime_boundary: query, retrieval, permission filtering, and result presentation
+    owner_spec: null
+    allowed_deltas: [SEARCH.Index]
+    shared_contracts: []
+    shared_entities: [SearchQuery, SearchResult]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [search_relevance_acceptance]
+
+  - family_id: CONTENT.Management
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Content authoring, question bank, knowledge, moderation, tagging, and publishing workflow.
+    owner: content+operations
+    runtime_boundary: content lifecycle, moderation, publication, and learner availability
+    owner_spec: null
+    allowed_deltas: [CONTENT.AssetType]
+    shared_contracts: []
+    shared_entities: [ContentAsset, ContentRevision, PublicationRecord]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [content_quality_acceptance]
+
+  - family_id: ADMIN.Governance
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Administrative users, permissions, billing views, moderation logs, and governance dashboard.
+    owner: operations
+    runtime_boundary: privileged administration and audit boundary
+    owner_spec: null
+    allowed_deltas: [ADMIN.Surface]
+    shared_contracts: []
+    shared_entities: [AdminUser, Permission, AuditLog]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [admin_permission_acceptance]
+
+  - family_id: CONTENT.Knowledge
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Canonical grammar, vocabulary, collocation, strategy, lesson, and exercise knowledge assets.
+    owner: content
+    runtime_boundary: canonical knowledge asset retrieval and learner consumption
+    owner_spec: null
+    allowed_deltas: [CONTENT.KnowledgeType]
+    shared_contracts: []
+    shared_entities: [KnowledgeAsset, KnowledgeManifest]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [knowledge_quality_acceptance]
+
+  - family_id: GOVERNANCE.Quality
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Anti-gaming, bias, drift, confidence, audit, and gold-standard governance beyond P0.
+    owner: operations
+    runtime_boundary: evaluator governance and quality decision boundary
+    owner_spec: null
+    allowed_deltas: [GOVERNANCE.Control]
+    shared_contracts: []
+    shared_entities: [GovernanceFinding, QualityDecision]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [governance_benchmark]
+
+  - family_id: COACH.Feedback
+    family_version: 1.0.0
+    status: planned
+    last_changed: 2026-08-07
+    compatible_since: 1.0.0
+    lifecycle: PLANNED
+    purpose: Cross-skill explanatory feedback and tutoring behavior after P0.
+    owner: product+engineering
+    runtime_boundary: learner result to explainable feedback response
+    owner_spec: null
+    allowed_deltas: [COACH.FeedbackType]
+    shared_contracts: []
+    shared_entities: [FeedbackResponse, Explanation]
+    shared_events: []
+    shared_failures: []
+    shared_acceptance: []
+    shared_evidence: [feedback_helpfulness_evidence]

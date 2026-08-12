@@ -1,0 +1,154 @@
+<style>
+  #journey-first-day {
+    --bg: light-dark(#f4efe6, #0e1117);
+    --surface: light-dark(#fffaf1, #141a23);
+    --surface-2: light-dark(#f7f0e6, #171e29);
+    --ink: light-dark(#1d2430, #eef2fb);
+    --muted: light-dark(#637084, #9aa6bc);
+    --line: light-dark(rgba(26, 34, 48, 0.12), rgba(255, 255, 255, 0.10));
+    --accent: light-dark(#3157d3, #98b9ff);
+    color: var(--ink);
+    background:
+      radial-gradient(circle at top left, color-mix(in oklab, var(--accent) 12%, transparent), transparent 30%),
+      var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  }
+  #journey-first-day * { box-sizing: border-box; }
+  #journey-first-day h1, #journey-first-day h2, #journey-first-day h3, #journey-first-day p { margin: 0; }
+  #journey-first-day .stack { display: grid; gap: 16px; }
+  #journey-first-day .hero, #journey-first-day .panel {
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: color-mix(in oklab, var(--surface) 90%, white 10%);
+  }
+  #journey-first-day .eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  }
+  #journey-first-day h1 {
+    margin-top: 6px;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.05;
+    font-weight: 500;
+  }
+  #journey-first-day .lede { margin-top: 10px; color: var(--muted); max-width: 78ch; font-size: 14px; }
+  #journey-first-day .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  #journey-first-day .card {
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--surface-2) 90%, transparent), var(--surface));
+  }
+  #journey-first-day .card h3 { font-size: 14px; font-weight: 500; }
+  #journey-first-day .card p { margin-top: 6px; color: var(--muted); font-size: 12px; }
+  #journey-first-day .flow {
+    display: grid; gap: 8px; margin-top: 12px;
+  }
+  #journey-first-day .step {
+    min-height: 52px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 84%, white 16%);
+  }
+  #journey-first-day .step strong { display: block; font-size: 13px; font-weight: 500; }
+  #journey-first-day .step span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
+  #journey-first-day .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  #journey-first-day .tag {
+    padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: 11px; color: var(--muted);
+  }
+  #journey-first-day .screens { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  #journey-first-day .screen {
+    padding: 14px; border-radius: 16px; border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--surface) 84%, white 16%);
+  }
+  #journey-first-day .cap {
+    display: inline-block; font-size: 10px; font-family: ui-monospace, monospace;
+    color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent);
+    padding: 2px 6px; border-radius: 6px; margin-bottom: 6px;
+  }
+  #journey-first-day .screen h3 { font-size: 13px; font-weight: 600; }
+  #journey-first-day .anno {
+    display: grid; grid-template-columns: 60px 1fr; gap: 4px 8px; margin-top: 8px;
+    padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--surface); font-size: 10px;
+  }
+  #journey-first-day .anno .lbl { font-size: 9px; text-transform: uppercase; color: var(--muted); }
+  #journey-first-day .anno .txt { font-weight: 500; }
+  #journey-first-day .anno .inp { grid-column: 2; color: var(--muted); font-style: italic; }
+  #journey-first-day .cta {
+    margin-top: 8px; padding: 7px 10px; border-radius: 8px; font-size: 11px; font-weight: 500;
+    background: var(--accent); color: white; text-align: center;
+  }
+  #journey-first-day .state { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 6px; }
+  @media (max-width: 720px) { #journey-first-day { padding: 18px; } }
+</style>
+
+<div id="journey-first-day">
+  <div class="stack">
+    <section class="hero">
+      <div class="eyebrow">Journey • First Day</div>
+      <h1>On first opening the app, the system should make the learner feel “it understands me.”</h1>
+      <p class="lede">
+        This journey locks the onboarding, placement, gap analysis, and first entry to home flows.
+        The goal is to reduce uncertainty and create an immediate sense of a path.
+      </p>
+      <div class="tag-row">
+        <span class="tag">PLACE.Test</span>
+        <span class="tag">GOAL.Target</span>
+        <span class="tag">GOAL.Daily</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Main flow</h2>
+      <div class="flow">
+        <div class="step"><strong>1. Declare the goal</strong><span>Target band, test date, and daily study duration.</span></div>
+        <div class="step"><strong>2. Complete placement</strong><span>Use a quick test or self-report to establish an initial baseline.</span></div>
+        <div class="step"><strong>3. Analyze the gaps</strong><span>Show which skills are missing and where to start.</span></div>
+        <div class="step"><strong>4. Create the first plan</strong><span>Send the learner to home with a clear next step.</span></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 style="font-size:16px;font-weight:500;margin:0;">Screens in the journey</h2>
+      <div class="screens">
+        <article class="screen">
+          <span class="cap">[GOAL.Target]</span>
+          <h3>1. Declare the goal</h3>
+          <div class="anno"><span class="lbl">Q1</span><span class="txt">"Band mục tiêu?"</span><span class="inp">○5.0 ○6.0 ●7.0 ○8.0</span></div>
+          <div class="anno"><span class="lbl">Q2</span><span class="txt">"Ngày thi?"</span><span class="inp">[date picker]</span></div>
+          <div class="anno"><span class="lbl">Q3</span><span class="txt">"Mỗi ngày học bao lâu?"</span><span class="inp">●30p ○60p ○90p</span></div>
+          <div class="cta">Tiếp tục →</div>
+          <p class="state">State: skip allowed. Empty → in_progress → done.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[PLACE.Test]</span>
+          <h3>2. Complete placement</h3>
+          <div class="anno"><span class="lbl">Timer</span><span class="txt">00:42</span><span class="inp">question 12/20</span></div>
+          <div class="anno"><span class="lbl">Q</span><span class="txt">"Quan điểm của tác giả về...?"</span><span class="inp">○A ○B ●C ○D</span></div>
+          <div class="cta">Nộp →</div>
+          <p class="state">State: normal / timeout(auto) / skip→self-report.</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[PLACE.GapDetection]</span>
+          <h3>3. Analyze the gap</h3>
+          <div class="anno"><span class="lbl">Reading</span><span class="txt" style="color:#9b6700">5.5 ← weakest</span></div>
+          <div class="anno"><span class="lbl">Others</span><span class="txt">L6.5 · W6.0 · S6.0</span></div>
+          <div class="anno"><span class="lbl">Priority</span><span class="txt">Reading — Matching Headings</span></div>
+          <div class="cta">Tạo kế hoạch →</div>
+          <p class="state">State: low-confidence → flag "preliminary result".</p>
+        </article>
+        <article class="screen">
+          <span class="cap">[STUDY.DailyPlan]</span>
+          <h3>4. First home</h3>
+          <div class="anno"><span class="lbl">Greeting</span><span class="txt">"Chào Lan — sẵn sàng học ngày đầu tiên"</span></div>
+          <div class="anno"><span class="lbl">Today</span><span class="txt">1 bài Reading · 1 mục từ vựng</span></div>
+          <div class="cta" style="background:var(--accent)">▶ Bắt đầu phiên học đầu tiên →</div>
+          <p class="state">State: empty if there is no plan yet → "creating...".</p>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

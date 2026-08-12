@@ -1,0 +1,16 @@
+type: agent-trust-policy
+status: review
+version: 0.6.1
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
+purpose: prevent-silent-agent-bypass-of-authority-validators-gates-evidence-and-claude-project-controls
+consumed_by: [all-agents, engineering, operations, ci]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+change_log:
+  - version: 0.6.1
+    date: 2026-08-10
+    changes:
+      - Replaced the non-canonical DeepSeek Pro context annotation with the official plain API model ID deepseek-v4-pro.
+      - Retained deepseek-v4-flash as the default and pinned subagent model.

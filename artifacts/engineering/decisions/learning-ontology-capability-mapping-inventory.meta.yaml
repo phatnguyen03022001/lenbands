@@ -1,0 +1,41 @@
+type: ontology-capability-mapping-inventory
+status: draft
+version: 0.2.4
+owner: document-convergence-orchestrator
+representation: yaml
+derived_from:
+  - EVAL.Writing
+  - LEARN.Writing
+  - BAND.Current
+source_files:
+  - artifacts/operations/capability-lifecycle-registry.yaml
+  - artifacts/operations/capability-family-map.yaml
+  - artifacts/engineering/decisions/learning-ontology-adoption-readiness.md
+purpose: non-authoritative-180-capability-ontology-mapping-review-inventory-not-canonical-registry-or-generated-projection
+consumed_by: [founder, engineering]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: draft-review-projection
+change_log:
+  - version: 0.2.4
+    date: 2026-08-11
+    changes:
+      - Narrow mechanical correction: set concept and rel to YAML null on all pre-edit unknown_ontology_mapping rows; preserved all IDs, lifecycle, phase, status, row order, and other fields. No schema migration or ontology reclassification.
+  - version: 0.2.3
+    date: 2026-08-11
+    changes:
+      - Added exact absolute evidence_refs, mapped_dimensions, and missing_dimensions to every mapped or partial row without changing capability identity, lifecycle, phase, or mapping status vocabulary.
+      - Kept CONTENT.Publish partial with capability_scope_alignment explicitly missing; no runtime/domain state or canonical authority was created.
+      - Removed the projection-local summed total claim while preserving mutually exclusive status counts.
+  - version: 0.2.2
+    date: 2026-08-11
+    changes:
+      - Fail-closed unsupported ontology mappings for EVAL.RewriteSuggestion and LEARN.QuestionTypes because their family owner specs do not establish ontology relationships.
+      - Reclassified OPS.ContentQuality as not_applicable because its owner contract is an operations platform/gate, not an ontology object.
+      - Reconciled mapping counts to mapped 8, partial 1, unknown_ontology_mapping 76, and not_applicable 95.
+  - version: 0.2.1
+    date: 2026-08-11
+    changes:
+      - Reconciled mapping-status labels so concept not_applicable rows are not_applicable rather than mapped.
+      - Corrected status counts and mechanically verified exact equality of all 180 IDs, lifecycle values, and phases against the lifecycle registry.
+      - Kept family assignment canonical in the family map rather than duplicating it in this review inventory.

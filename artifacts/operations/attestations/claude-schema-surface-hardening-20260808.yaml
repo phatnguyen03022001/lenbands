@@ -1,0 +1,25 @@
+schema_version: 1.0.0
+change_id: claude-schema-surface-hardening-20260808
+change_scope: harden-claude-permission-sandbox-alternate-tool-config-change-and-schema-validation-boundaries
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-claude-schema-surface-hardening-20260808
+notes:
+  - The user explicitly requested implementation after reviewing the external Claude Code configuration audit.
+  - The project settings pin the SchemaStore Claude Code settings contract and the validator enforces a strict security-relevant repository overlay.
+  - Bypass and auto permission modes, MultiEdit, PowerShell, Monitor, Claude AI connectors, artifacts and unsandboxed command escapes are disabled.
+  - Bash sandboxing is enabled with fail-if-unavailable behavior, no implicit Bash allowance and protected authority deny-write paths.
+  - ConfigChange blocks project settings, local settings and skill activation inside bounded sessions.
+  - Hook mutation probes cover protected/out-of-repository writes, alternate execution tools, arbitrary Bash and configuration changes.
+  - Public command compatibility is unchanged; toolchain version advances to 1.6.0.
+  - P0 readiness remains blocked and no runtime, evidence, rights, calibration or approval claim was created.

@@ -1,0 +1,19 @@
+type: full-learner-wireframe
+status: draft
+version: 0.1.3
+owner: product
+representation: html
+derived_from:
+  - PLACE.Test
+  - STUDY.DailyPlan
+  - STUDY.Session
+  - EVAL.Writing
+  - REVIEW.SmartQueue
+  - PRACTICE.MockTest
+  - BAND.ExamReadiness
+purpose: screen-level-learner-wireframe
+created_at: 2026-08-06
+updated_at: 2026-08-11
+change_log:
+  - version: 0.1.3
+    changes: "Restored Vietnamese learner-facing navigation, actions, and state copy; annotations remain English."

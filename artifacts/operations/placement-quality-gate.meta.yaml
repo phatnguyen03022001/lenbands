@@ -1,0 +1,10 @@
+type: quality-gate
+status: review
+version: 0.1.2
+owner: operations
+representation: markdown
+derived_from: [PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current, OPS.ContentQuality]
+purpose: p0-placement-configuration-calibration-and-result-admission
+consumed_by: [experience, engineering]
+created_at: 2026-08-06
+updated_at: 2026-08-07

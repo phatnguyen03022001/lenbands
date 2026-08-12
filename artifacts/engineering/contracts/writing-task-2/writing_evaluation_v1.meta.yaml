@@ -1,0 +1,10 @@
+type: prompt-specification
+status: review
+version: 1.0.2
+owner: engineering
+representation: markdown
+derived_from: [EVAL.Writing, GOVERNANCE.ConfidenceScore, OPS.EvaluationQuality, OPS.CostBudget]
+purpose: p0-writing-evaluation-controlled-prompt-template
+consumed_by: [experience, operations]
+created_at: 2026-08-06
+updated_at: 2026-08-07

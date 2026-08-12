@@ -1,0 +1,10 @@
+type: remediation-ledger
+status: review
+version: 0.1.2
+owner: operations + founder
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability, OPS.EvaluationQuality]
+purpose: disposition-and-evidence-tracking-for-2026-08-07-re-audit
+consumed_by: [engineering, experience, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-11

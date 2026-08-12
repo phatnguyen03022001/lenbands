@@ -1,0 +1,12 @@
+type: capability-family-registry
+status: review
+version: 0.2.0
+owner: operations + founder
+representation: yaml
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [blueprint/03-features.md, blueprint/08-roadmap.md, artifacts/operations/architecture-frozen.md]
+purpose: canonical-implementation-family-identity-and-shared-behavior-ownership
+consumed_by: [engineering, experience, operations, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-08
+schema_version: 1.0.0

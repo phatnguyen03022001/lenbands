@@ -1,0 +1,12 @@
+type: generated-operationalization-matrix
+status: draft
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [tools/generate-operational-coverage.sh, artifacts/operations/capability-family-map.yaml]
+purpose: generated-capability-to-family-runtime-coverage-dashboard
+consumed_by: [operations, engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: generated_by_tools/generate-operational-coverage.sh

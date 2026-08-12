@@ -1,0 +1,21 @@
+schema_version: 1.0.0
+change_id: deepseek-official-model-ids-20260810
+change_scope: replace-noncanonical-deepseek-pro-client-annotation-with-official-api-model-identifiers
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - official-deepseek-model-and-pricing-documentation-review
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands validate trust-boundary
+  - tools/bin/lenbands validate tooling
+external_review_required: true
+approval_ref: user-request-deepseek-v4-flash-and-v4-pro-model-ids-20260810
+notes:
+  - Active Claude Code routing uses only the official API identifiers deepseek-v4-flash and deepseek-v4-pro.
+  - The former remains the cost-bounded default and explicit subagent model; the latter remains explicit founder main-session escalation only.
+  - The historical deepseek-v4-pro[1m] text is preserved only as superseded migration history; it is not an active model configuration.
+  - DeepSeek documents a one-million-token context capability for V4 separately from the model identifier.
+  - No credential, learner content, runtime evidence, DPA approval, benchmark, numeric threshold or P0 readiness claim was created.

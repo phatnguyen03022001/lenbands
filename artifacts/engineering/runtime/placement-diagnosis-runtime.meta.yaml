@@ -1,0 +1,19 @@
+type: owner-runtime-spec
+status: review
+version: 0.1.1
+owner: product
+representation: markdown
+derived_from: [GOAL.Target, PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current]
+purpose: implementation-definition-for-placement-diagnosis-family
+consumed_by: [engineering, validators]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+family_id: PLACEMENT.Diagnosis
+family_version: 1.0.0
+build_status: candidate
+change_log:
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Aligned persisted placement attempt status to placement-diagnosis-contract canonical (new/in_progress/paused/submitted/diagnosed/insufficient_data); scoring/diagnosing marked transition-only
+      - Convergence audit H1 resolution

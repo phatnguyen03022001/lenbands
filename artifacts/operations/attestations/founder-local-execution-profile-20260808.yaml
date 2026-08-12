@@ -1,0 +1,26 @@
+schema_version: 1.0.0
+change_id: founder-local-execution-profile-20260808
+change_scope: add-a-validated-cost-bounded-founder-local-claude-code-execution-profile
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands validate trust-boundary
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-request-founder-local-execution-profile-20260808
+notes:
+  - The solo founder explicitly requested that project-local settings become the personal execution profile without replacing the shared repository policy.
+  - The committed example is the reproducible contract; the ignored local instance must match it exactly.
+  - DeepSeek V4 Flash at medium effort is the cost-bounded default. V4 Pro remains an explicit short-session escalation through the CLI model flag.
+  - No API key, authentication token, credential or learner content is stored in the profile.
+  - Local permissions are limited to reviewed web domains, read-only agents and document skills; Bash, Edit, MCP, hooks, sandbox and permission-mode overrides remain forbidden.
+  - ConfigChange continues to block bounded agents from mutating project settings, local settings or skills.
+  - P0 readiness remains blocked and no runtime, evidence, rights, calibration or approval claim was created.
+

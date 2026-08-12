@@ -1,0 +1,38 @@
+name: LenBands Toolchain Trust
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-trust-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # actions/checkout v7.0.1; pin full verified commit to prevent tag movement.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install declared toolchain prerequisites
+        run: sudo apt-get update && sudo apt-get install -y ruby-full ripgrep
+      - name: Doctor
+        run: tools/bin/lenbands doctor
+      - name: Verify repository contracts
+        run: tools/bin/lenbands verify
+      - name: Verify toolchain freeze contract
+        run: tools/bin/lenbands gate toolchain
+      - name: Build change set
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ! git cat-file -e "${BASE_SHA}^{commit}"; then
+            BASE_SHA="$(git rev-list --max-parents=0 HEAD)"
+          fi
+          git diff --name-status "$BASE_SHA" "$GITHUB_SHA" > /tmp/lenbands-change-set.txt
+      - name: Enforce protected paths, append-only evidence and attestation
+        run: tools/bin/lenbands validate trust-boundary --diff /tmp/lenbands-change-set.txt

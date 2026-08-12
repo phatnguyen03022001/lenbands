@@ -1,0 +1,22 @@
+schema_version: 1.0.0
+change_id: g-01-family-event-alignment-20260808
+change_scope: align-active-family-shared-events-and-add-bidirectional-mutation-tested-drift-detection
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands validate contract-ownership
+  - ruby -Itools/lib tools/test/test_event_ownership_contract.rb
+  - tools/bin/lenbands generate all --check
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: null
+notes:
+  - Every owned event must occur in its owner family's shared_events list.
+  - Every shared event of an active family must have one matching ownership declaration.
+  - Family versions received additive minor bumps because the public shared behavior surface expanded.
+  - No runtime evidence, approval, benchmark result, or readiness state was changed.

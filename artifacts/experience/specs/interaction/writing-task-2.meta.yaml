@@ -1,0 +1,10 @@
+type: interaction-specification
+status: review
+version: 0.1.0
+owner: product + engineering
+representation: markdown
+derived_from: [LEARN.Writing, EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback, PKM.Drafts, REVIEW.FSRS]
+purpose: p0-04-user-action-to-runtime-to-evidence-behavior-contract
+consumed_by: [experience, engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07

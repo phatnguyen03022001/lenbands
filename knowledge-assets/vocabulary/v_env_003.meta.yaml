@@ -1,0 +1,20 @@
+type: knowledge-asset
+asset_kind: vocabulary
+asset_id: KA-000003
+status: draft
+version: 0.1.0
+owner: colab
+derived_from:
+  - KA.Vocabulary
+framework_refs:
+  - file: vocab-collocation-topic
+    version: 1.0.6
+    nodes: [t_environment]
+origin: {source: unknown, license: unknown}
+integrity:
+  checksum: sha256:4e8fbff8605e8467f98783abea1730b091d814d5374aa320a0701c0b80981f07
+  payload_file: v_env_003.md
+governance: {rights_status: pending_review, review_status: draft}
+spawn_lineage: {workflow_run_id: null, prompt_template_id: null, prompt_hash: null, model: null, parameters: {}}
+created_at: "2026-08-06"
+updated_at: "2026-08-07"

@@ -1,0 +1,10 @@
+type: vertical-slice-spec
+status: draft
+version: 0.2.1
+owner: product
+representation: markdown
+derived_from: [STUDY.DailyPlan, STUDY.CheckIn, STUDY.MicroSession, PERSONAL.NextBestAction]
+purpose: p0-deterministic-today-plan-and-next-action-behavior
+consumed_by: [P0 Experience Contract, engineering, operations, source-code]
+created_at: 2026-08-06
+updated_at: 2026-08-07

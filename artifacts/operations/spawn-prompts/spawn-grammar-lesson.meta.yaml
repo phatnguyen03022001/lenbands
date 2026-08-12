@@ -1,0 +1,28 @@
+type: prompt-template
+prompt_template_id: spawn-grammar-lesson
+status: review
+version: 0.2.0
+owner: colab
+representation: markdown
+derived_from: [CONTENT.Publish, OPS.ContentQuality]
+purpose: workflow-for-draft-grammar-lesson-knowledge-assets
+consumed_by: [operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+framework_refs:
+  - file: grammar-band-framework
+    version: 1.0.6
+    nodes: [g_second_conditional]
+  - file: error-taxonomy
+    version: 1.0.6
+    nodes: [W_gra_complex_with_error]
+  - file: review-mapping
+    version: 1.0.6
+    nodes: [W_gra_complex_with_error]
+  - file: microskill-enum
+    version: 1.0.6
+    nodes: [W_complex_structure_range]
+output_contract: {asset_kind: grammar_lesson, output_root: knowledge-assets/grammar, status: draft}
+hash_scope: full_file_bytes
+source_sha256: sha256:a0fbfcd134e45a6ccf8237763a7fa200b456a718b0311f1bf77df7fc84eabbf0
+validation_command: ./tools/validate-spawn-prompts.sh

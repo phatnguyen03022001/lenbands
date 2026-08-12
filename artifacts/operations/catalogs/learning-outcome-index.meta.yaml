@@ -1,0 +1,17 @@
+type: generated-learning-outcome-catalog
+status: draft
+version: 0.1.0
+owner: operations
+representation: yaml
+derived_from: [BAND.Map, COACH.ErrorAnalysis]
+purpose: planned-projection-of-framework-learning-outcomes
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: sample_not_generated
+generated_from:
+  - blueprint/framework/grammar-band-framework.md
+  - blueprint/framework/microskill-enum.md
+  - blueprint/framework/skill-questiontype-band.md
+  - blueprint/framework/error-taxonomy.md
+generated_at: null
+schema_version: 1.0.0

@@ -1,0 +1,52 @@
+type: api-contract
+status: draft
+version: 0.2.1
+owner: engineering
+representation: openapi
+derived_from:
+  - IDENTITY.Auth
+  - IDENTITY.Profile
+  - IDENTITY.Privacy
+  - EVAL.Writing
+  - REVIEW.FSRS
+  - OPS.Quota
+purpose: Closed-pilot identity API surface; canonical P0 runtime loop is writing-task-2/openapi.yaml
+consumed_by: [engineering]
+created_at: 2026-08-07
+updated_at: 2026-08-10
+canonical_owner_note: >
+  This file is the canonical IDENTITY surface only. All /v1/writing/*, /v1/me/quota
+  and /v1/review/cards paths are deprecated placeholders; the canonical P0 runtime
+  surface is artifacts/engineering/contracts/writing-task-2/openapi.yaml.
+  See runtime/api-ownership-bff-contract.md. Batch 6 canonicalization.
+change_log:
+  - version: 0.2.1
+    date: 2026-08-10
+    changes:
+      - Corrected deprecation successor pointers to real canonical operation IDs (completeWritingErrorFix, startWritingErrorRetest); GET /feedback noted as orphaned (no canonical GET)
+      - Renamed deprecated listWritingErrors placeholder operationId to listWritingErrorsDeprecated to avoid cross-file collision
+      - Marked placeholder writing schemas block as deprecated (not build inputs); corrected info.description over-claim
+      - Deprecation mechanics (Deprecation header, migration window, release record) not yet added — tracked in api-ownership-bff-contract acceptance
+      - Red-team API canonicalization corrections (Batch 6)
+  - version: 0.2.0
+    date: 2026-08-10
+    changes:
+      - Re-scoped to identity surface only; marked /v1/writing/*, /v1/me/quota, /v1/review/cards as deprecated:true + x-canonical-owner pointing to writing-task-2/openapi.yaml
+      - info.version bumped 0.1.0 → 0.2.0
+      - Convergence audit Batch 6 API canonicalization
+  - version: 0.1.2
+    date: 2026-08-10
+    changes:
+      - Replaced single action_ref/reason DailyPlan with plan_state + actions array (max 3) matching daily-action-contract.md data shape
+      - Added plan_state enum (ready/no_plan/plan_stale/plan_unavailable/fallback_offered) for GET /v1/today fallback representation
+      - Added reason_code enum to action items (placement_recent/review_due/weakness_practice/goal_aligned/continue_session/daily_goal_remaining/fallback_micro_session)
+      - Added framework error_id constraint description to error_pattern fields (FeedbackFinding + SaveErrorRequest)
+      - Convergence audit M2/M7/M13 resolution
+  - version: 0.1.1
+    date: 2026-08-10
+    changes:
+      - Aligned PlacementAttempt.state enum with canonical placement-diagnosis-contract.md
+      - Aligned StudySession.state enum with daily-action-contract.md (active→started)
+      - Removed resumed from UpdateSessionRequest.state
+      - Fixed ReviewCard filter states and Retest.status enum
+      - Convergence audit H1/M1/L6 resolution

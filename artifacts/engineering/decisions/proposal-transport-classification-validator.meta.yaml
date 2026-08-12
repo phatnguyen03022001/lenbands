@@ -1,0 +1,19 @@
+type: privileged-validator-proposal
+status: review
+version: 0.1.0
+owner: document-convergence-orchestrator
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability]
+source_files: [artifacts/engineering/contracts/openapi/transport-classification.yaml, artifacts/operations/capability-lifecycle-registry.yaml]
+purpose: privileged-validator-proposal-for-transport-classification-arithmetic-and-id-completeness-enforcement
+consumed_by: [operations, engineering, founder]
+created_at: 2026-08-11
+updated_at: 2026-08-11
+classification: proposal
+change_log:
+  - version: 0.1.0
+    date: 2026-08-11
+    changes:
+      - Proposed validate-transport-classification validator with 6 invariants (ID completeness, arithmetic, lifecycle-consistent classification, class enumeration, OpenAPI ref check, matrix discrepancy check).
+      - Does NOT modify tools/**. Requires privileged review + attestation + CODEOWNERS approval.
+      - No readiness claim.

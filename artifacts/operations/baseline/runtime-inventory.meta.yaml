@@ -1,0 +1,12 @@
+type: repository-baseline-runtime-inventory
+status: draft
+version: 0.1.0
+owner: operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, EVAL.Writing]
+source_files: [artifacts/experience, artifacts/engineering]
+purpose: classify-existing-runtime-and-contract-artifacts-before-owner-spec-work
+consumed_by: [engineering, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+generation_state: generated_by_tools/generate-repository-baseline.sh

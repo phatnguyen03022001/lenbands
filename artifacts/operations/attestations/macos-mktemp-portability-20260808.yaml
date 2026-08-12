@@ -1,0 +1,24 @@
+schema_version: 1.0.0
+change_id: macos-mktemp-portability-20260808
+change_scope: replace-bare-mktemp-with-explicit-workspace-tmpdir-templates-in-doctor-and-generators
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands validate claude-code
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+  - tools/bin/lenbands gate p0
+external_review_required: true
+approval_ref: user-provided-bounded-macos-bare-mktemp-reproduction-20260808
+notes:
+  - Bounded-session reproduction isolated the failure to BSD/macOS mktemp calls without explicit templates.
+  - Bare mktemp may ignore TMPDIR on macOS even though the stable CLI exports a writable workspace-local value.
+  - Doctor and all three temporary-output generators now pass explicit templates beneath the configured TMPDIR.
+  - Tooling contract regression tests reject future bare mktemp or mktemp -d calls in those generators.
+  - Sandbox fail-closed behavior remains active and no external filesystem allowWrite or unsandboxed escape was introduced.
+  - Toolchain advances from 1.6.3 to 1.6.4 without changing public commands or arguments.
+  - P0 readiness remains blocked and no runtime, evidence, rights, calibration or approval claim was created.

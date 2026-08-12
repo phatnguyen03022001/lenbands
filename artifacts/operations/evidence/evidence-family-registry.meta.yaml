@@ -1,0 +1,12 @@
+type: evidence-family-registry
+status: review
+version: 0.1.0
+owner: operations + quality
+representation: yaml
+derived_from: [OPS.EvaluationQuality, OPS.ReleaseGate, EVAL.Writing]
+source_files: [artifacts/operations/architecture-frozen.md, artifacts/operations/promotion-dependency-facts.yaml]
+purpose: canonical-evidence-method-and-requirement-reuse-by-family
+consumed_by: [validators, benchmark-runners, operations]
+created_at: 2026-08-07
+updated_at: 2026-08-07
+schema_version: 1.0.0
