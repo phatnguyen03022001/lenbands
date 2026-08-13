@@ -45,6 +45,75 @@ attestation before application.
 | PD-06 | Event authority completeness for learning/error-fix, practice, and release-gate events | event-schema-pack.md, event-ownership-registry.yaml, lifecycle-contract.md, blueprint/03-features.md | Add canonical ownership / rename to an existing canonical event / remove only from a non-authoritative reference | Unresolved — founder/engineering decision required; no owner, schema, privacy class, or producer is invented here. |
 | PD-07 | P0 readiness matrix row comparison false-green hardening | tools/commands/validate/documents.rb, proposed regression coverage under tools/test/ | Fail closed on missing/malformed rows and compare only complete matching row signatures | Unresolved — exact protected implementation proposal recorded below; no validator or test change applied. |
 
+## Imported founder decision register — scoped A1 relationship and reconciliation
+
+`artifacts/operations/decisions/lenbands-decision-register-v1.0.0-founder-locked-2026-08-12.md`
+is the immutable repository record of the Founder’s 2026-08-12 decision-phase selections.
+Its row authority is `A1_FOUNDER_SELECTED_UNRECORDED`, not `A0_CANONICAL`; the import records
+founder selection and does not itself adopt a decision into canonical repository governance.
+The companion reconciliation ledger is a row-level projection of the immutable source, not an
+SSOT. The sequence remains:
+
+```text
+working direction / founder selection
+→ per-dimension adoption
+→ change authorization
+→ protected application
+→ structural/contract/runtime/evidence verification
+```
+
+The current pending/unresolved records above remain the owner-facing records. The table below
+records only exact or explicitly partial scope proven by the imported source; nonmatches retain
+their existing status. No row below is called applied, authorized, verified, ready, or approved
+merely because an A1 selection was recorded.
+
+| ID | Previous index status | Reconciliation status | Exact source anchor | Selected dimension / scope | Remaining owner, protected, or external prerequisites; reason |
+|---|---|---|---|---|---|
+| D-01 | Pending founder decision | `founder_direction_recorded` | Register §6.1 `V1.1`, line 296 | No hard early data-residency requirement; Vietnam is the initial market. This records the residency-stance dimension only; the Singapore topology rows are separate provider direction. | Canonical A0 adoption; legal/DPA and provider-region review; provisioning/activation gates. No legal approval or provider activation is claimed. |
+| D-02 | Pending founder decision | `founder_direction_recorded` | Register §6.3 `V3.2`, line 339; §6.4 `V4.2`, line 359; §6.8 V7 `Identity`, line 487 | Auth0 is the selected managed identity direction. | Canonical A0 adoption; DPA/data-use/region review; export/delete/token/rate-limit tests; activation gates. No provider procurement or activation is claimed. |
+| D-03 | Pending founder decision | `not_reconciled_from_register` | Related register §6.13 V10C, lines 653–719 | No exact gold-corpus procurement, rights, or label-selection row is present; evidence/retest rows do not select a corpus. | Gold-corpus owner must choose/procure/rights-verify/label-verify a corpus before benchmark. Existing status unchanged. |
+| D-04 | Pending founder decision | `partial_scope_recorded` | Register §6.15 `10E.13`, line 793 | Multiple operational budgets are selected instead of only a monthly company bill. Numeric warning/hard threshold values are not selected. | Founder must approve numeric thresholds, measurement source, provider-price version, owner, and review frequency; current policy remains unarmed. |
+| D-05 | Pending founder decision | `partial_scope_recorded` | Register §6.10 `V9.29`, line 569; §6.15 `10E.22`, line 802 | Premium value direction is depth/personalization/assessment/analytics with fair-use entitlement, not token packages. Numeric pricing is not selected. | Founder/product/operations must set price, entitlement/quota, fair-use and measured economics; canonical adoption remains pending. |
+| D-06 | Pending founder decision | `not_reconciled_from_register` | Related register §6.10 `V9.23`, line 563 | Daily Plan inputs are selected, but no exact standalone-retain/remove `STUDY.CheckIn` scope decision is present. | Founder must choose retain/remove; protected manifest/Blueprint/lifecycle and contract reconciliation then require owner review and, where applicable, CODEOWNERS/attestation. Existing status unchanged. |
+| PD-01 | Unresolved | `not_reconciled_from_register` | Related register §6.10 `V9.13`, line 553 | Speaking progression is selected, but no exact orphan-family remove/assign/keep-idle decision is present. | Founder scope choice plus protected family/lifecycle reconciliation and review. Existing status unchanged. |
+| PD-02 | Partial (documented in runtime spec) | `not_reconciled_from_register` | Related register §6.10 `V9.2`, line 542 | Skill presentation is selected, but no exact `PRACTICE.Drill` capability/family rename-or-document decision is present. | Founder/engineering namespace decision, migration/projection review, and protected application prerequisites. Existing status unchanged. |
+| PD-03 | Unresolved | `not_reconciled_from_register` | Related register §6.10 `V9.10–V9.12`, lines 550–552 | Writing progression and rewrite loop are selected, but no exact `interaction_spec` reference alignment/deprecation decision is present. | Engineering owner and protected registry review; no reference change applied. Existing status unchanged. |
+| PD-04 | Unresolved | `not_reconciled_from_register` | Related register §6.9 V8, lines 513–532 | Operational quality/recovery directions are selected, but no exact `GOVERNANCE.Quality` family merge/keep/demote decision is present. | Founder/engineering family decision and protected registry/lifecycle review. Existing status unchanged. |
+| PD-05 | Unresolved | `not_reconciled_from_register` | Related register §7 V10F.13–V10F.19, lines 830–836 | Coverage/support/calibration gate semantics are selected, but no exact P0-06 `OPS.ContentQuality` or `anti_gaming_flagged` scope decision is present. | Founder P0 scope choice plus protected lifecycle/manifest/transport/event review. Existing status unchanged. |
+| PD-06 | Unresolved | `not_reconciled_from_register` | Related register §6.13 V10C.1, lines 655–659 | Evidence provenance semantics are selected, but no exact canonical owner/schema/producer decision for the five event questions is present. | Founder/engineering event-authority choice, protected contract/registry review, attestation and external CODEOWNERS review. Existing status unchanged. |
+| PD-07 | Unresolved | `not_reconciled_from_register` | Related register §10 W0-C, lines 935–935 | Canonical reconciliation is a pending gate, but no exact fail-closed parser/comparator implementation decision is present. | Protected validator-owner review, attestation, regression tests, and external CODEOWNERS review. Existing status unchanged. |
+
+For the 13 current D/PD records, reconciliation counts are exactly:
+`founder_direction_recorded=2`, `partial_scope_recorded=2`,
+`not_reconciled_from_register=9`, `out_of_repository_decision=0`.
+The full 325-row projection and its separate row-level counts are in the companion ledger.
+
+### Cross-reference: V7 provider topology and 10F implementation rows
+
+The enhanced reconciliation ledger (v1.1.1) reclassifies an additional 31 rows that have proven
+canonical targets beyond the 13 D/PD dimensions above. Owner references are dimension-scoped:
+
+- **19 rows `canonical_reconciliation_required`**: 6 D-dimension rows (D-01, D-02 ×3, D-05 ×2)
+  plus 11 V7 non-Auth0 boundary rows (Cloud Run, Cloudflare/OpenNext, Region, Neon, Backup,
+  R2, Redis, Admin auth, Staging, IaC, Provider rule) plus 2 audio-ephemeral rows (V3.7,
+  V9.14). The managed-platform baseline is retained only for its exact provider/baseline
+  dimensions: Cloud Run, Cloudflare/OpenNext, Neon, R2, Redis, and the provider rule. D-02
+  owns the Admin auth identity boundary; the provider-neutral topology contract is cited for
+  Region, independent backup/restore, and Staging; IaC has no current canonical owner because
+  that contract expressly excludes it. V3.7 and V9.14 target the speaking/speech-processing
+  decision owner. All remain blocked by engineering specification and A0 adoption, not founder
+  choice.
+- **22 rows `implementation_specification_required`**: 20 10F rows (IMPL-1 schemas) plus
+  2 V9.21–V9.22 Mastery rows (missing Mastery entity/contract).
+- **2 rows `external_evidence_or_legal_required`**: V3.8 (AI training DPA) and 10E.13
+  (numeric cost thresholds).
+- **1 row `calibration_or_validation_required`**: V6.10 (calibrated quality floor).
+- **281 rows `no_current_owner_target`**: Legitimate founder decisions without current
+  repository canonical owner files.
+
+No A0 adoption, protected mutation, or readiness claim is made for any row. The immutable A1
+register remains the sole authority for all 325 rows pending the W0-C canonicalization gate.
+
 ## PD-06 — Event authority completeness
 
 **Status:** Unresolved. This packet records a protected-change proposal only. No event schema, ownership registry, lifecycle contract, Blueprint, projection, or evidence file was changed.

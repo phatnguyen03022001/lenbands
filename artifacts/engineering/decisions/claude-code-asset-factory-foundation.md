@@ -225,6 +225,38 @@ and explicit protected-policy permission. CC-8 additionally requires approved fr
 rights/content, generation/source, and budget policies; frozen queue hash; budget enforcement;
 approved pilot admission/exit criteria; and independent QA.
 
+### CC-1 local-bootstrap authorization boundary
+
+```yaml
+authorization_ref: "source_thread_id=019fdc47-d20b-7600-8b49-dbe8f3c56f4d; current user-delegated CC-1 clarification"
+authorization_classification: execution-only_non-canonical
+execution_authorization: user-delegated task instruction
+canonical_governance_authorization: not established
+authorized_actions_actually_performed:
+  - git init -b main
+  - repository-local user.name and user.email from existing read-only Git configuration
+  - minimal .gitignore adjustment for the local dependency cache
+  - one initial local baseline commit
+not_authorized:
+  - remote binding or push
+  - canonical-history assertion
+  - GitHub configuration
+  - branch-protection or CODEOWNERS enforcement assertion
+```
+
+Literal invariants:
+
+```text
+local baseline commit != canonical repository history
+local main != canonical protected main
+clean working tree != canonical provenance
+```
+
+Future reconciliation rule: the external canonical repository owner must compare the local
+baseline tree with the verified canonical repository/history and explicitly select
+import/replay/cherry-pick/archive before canonical lineage is asserted. Never push local
+`main` and infer canon.
+
 ## 8. Asset Factory target design
 
 Target only; no assets or global lifecycle are created.

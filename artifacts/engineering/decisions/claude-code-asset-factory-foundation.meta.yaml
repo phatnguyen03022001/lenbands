@@ -1,6 +1,6 @@
 type: privileged-review-proposal
 status: draft
-version: 0.1.5
+version: 0.1.6
 owner: founder + engineering
 representation: markdown
 derived_from: [OPS.ModelRouting, OPS.CostBudget, OPS.Observability]
@@ -11,6 +11,11 @@ updated_at: 2026-08-12
 review_required: true
 review_type: founder_and_external_codeowners
 change_log:
+  - version: 0.1.6
+    date: 2026-08-12
+    changes:
+      - Added the CC-1 local-bootstrap authorization boundary, distinguishing execution-only user delegation from canonical repository governance authority.
+      - Recorded non-canonical Git invariants and the required external-owner reconciliation rule before any canonical lineage assertion.
   - version: 0.1.5
     date: 2026-08-12
     changes:

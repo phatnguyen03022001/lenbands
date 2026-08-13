@@ -1,0 +1,42 @@
+type: founder-decision-register-import
+status: review
+version: 1.0.0
+owner: founder
+representation: markdown
+derived_from: [OPS.ReleaseGate, IDENTITY.Auth, EVAL.Writing]
+purpose: immutable-exact-import-of-the-founder-locked-2026-08-12-decision-phase-register
+consumed_by: [engineering, operations]
+created_at: 2026-08-12
+updated_at: 2026-08-12
+review_required: true
+review_type: founder_and_governance_reconciliation
+source_filename: lenbands-decision-register-v1.0.0-founder-locked-2026-08-12.md
+source_path: /Users/tienphat/Downloads/lenbands-decision-register-v1.0.0-founder-locked-2026-08-12.md
+source_raw_sha256: d6c67f91e03ab612918d7eae4cd31719810c023fa6d9ffd46edf6c0e2f28cc63
+source_self_sha256: 858a1eeda8c40b2074dc2355fc41990d6845164ce474b6ee9c194d25a1409f41
+imported_raw_sha256: d6c67f91e03ab612918d7eae4cd31719810c023fa6d9ffd46edf6c0e2f28cc63
+imported_self_sha256: 858a1eeda8c40b2074dc2355fc41990d6845164ce474b6ee9c194d25a1409f41
+row_count: 325
+row_count_equation: "V1=12 + V2=10 + V3=10 + V4=16 + V5=14 + V6=12 + V7_boundary_rows=12 + V8=16 + V9=30 + 10A=15 + 10B=40 + 10C=54 + 10D=40 + 10E=24 + 10F=20 = 325"
+authority_class: A1_FOUNDER_SELECTED_UNRECORDED
+canonical_repository_authority: false
+immutable_exact_copy: true
+append_only_handling: true
+reconciliation_ledger: artifacts/operations/decisions/lenbands-decision-register-v1.0.0-founder-locked-2026-08-12.reconciliation.md
+implementation_authorization: false
+protected_technical_authorization: false
+provider_activation_authorization: false
+legal_approval: false
+source_unlock_authorization: false
+runtime_authorization: false
+evidence_authorization: false
+calibration_authorization: false
+outcome_claim_authorization: false
+readiness_claim: false
+change_log:
+  - version: 1.0.0
+    date: 2026-08-12
+    changes:
+      - Imported the Founder-provided register as an exact byte-preserving A1 source record after raw and zeroed-self-hash verification.
+      - Recorded the immutable/append-only handling, 325-row deterministic count, and explicit non-authorizations.
+      - Canonical Founder Review Packet Index reconciliation remains per-dimension and does not promote A1 to A0.

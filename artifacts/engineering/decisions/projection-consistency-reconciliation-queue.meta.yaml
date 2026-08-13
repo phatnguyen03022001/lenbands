@@ -1,0 +1,96 @@
+---
+schema_version: "0.7.0"
+version: "0.7.0"
+type: "projection-consistency-reconciliation-queue"
+status: "review"
+owner: "engineering_document_convergence"
+representation: "yaml"
+purpose: "compact_reconciliation_queue_for_round_2_2_3_execution_exceptions"
+derived_from:
+  - "OPS.ReleaseGate"
+created_at: "2026-08-13"
+updated_at: "2026-08-13"
+round: "2.2.3"
+authority_class: "proposal_only_projection"
+canonical_authority: false
+source_snapshot_hash: "129c0d44c17e0b8abf419199b460ea9b5abf8726dea7a5c3d9fc1eb50caf887b"
+consumed_authority_manifest_hash: "10628eaf3c448ebe9d16d19f2d096854c94d83ecde2a36ab50783931b240dac7"
+historical_round_2_2_2:
+  status_role: "historical_checkpoint"
+  execution_payload_embedded: false
+  invalidation_reason: "not current proof"
+execution_replay_contract_ref: "decision-to-authority-compiler-foundation.meta.yaml#execution_replay_contract"
+execution_ledger_ref: "decision-to-authority-compiler-foundation.meta.yaml#execution_ledger"
+exception_index_ref: "decision-to-authority-compiler-foundation.meta.yaml#exception_index"
+accepted_audit_findings: 58
+finding_identity_order: []
+findings: []
+queue_summary: "source_snapshot=129c0d44c17e0b8abf419199b460ea9b5abf8726dea7a5c3d9fc1eb50caf887b;source_entries=450;consumed_authority=10628eaf3c448ebe9d16d19f2d096854c94d83ecde2a36ab50783931b240dac7;rows=325;seeds_resolved=325;seed_unresolved=0;search_hits=1262;raw_refs=46;class_counts={'missing_in_universe_target': 5, 'out_of_universe': 8, 'resolved_in_universe_file': 33};complete=322;incomplete=3;blocking=5;unresolved=0;causal_observations=1262;writer_replay_mismatches=0;r2_f06=still_failed;closure_candidate=not_ready;unsatisfied=['CP223-021', 'CP223-026', 'CP223-042']"
+unresolved_relationship_material:
+  total: 0
+  proven: 0
+  candidate: 0
+  fingerprints: 0
+  semantic_dedup: 0
+  relationship_refs: 0
+  canonical_graph_contribution: 0
+ten_f_fifteen:
+  obligation_state: "obligation_only"
+  relationship_material_state: "none"
+  A1_used_as_graph_proof: false
+closure_candidate:
+  required_predicate_ids:
+    - "CP223-001"
+    - "CP223-002"
+    - "CP223-003"
+    - "CP223-004"
+    - "CP223-005"
+    - "CP223-006"
+    - "CP223-007"
+    - "CP223-008"
+    - "CP223-009"
+    - "CP223-010"
+    - "CP223-011"
+    - "CP223-012"
+    - "CP223-013"
+    - "CP223-014"
+    - "CP223-015"
+    - "CP223-016"
+    - "CP223-017"
+    - "CP223-018"
+    - "CP223-019"
+    - "CP223-020"
+    - "CP223-021"
+    - "CP223-022"
+    - "CP223-023"
+    - "CP223-024"
+    - "CP223-025"
+    - "CP223-026"
+    - "CP223-027"
+    - "CP223-028"
+    - "CP223-029"
+    - "CP223-030"
+    - "CP223-031"
+    - "CP223-032"
+    - "CP223-033"
+    - "CP223-034"
+    - "CP223-035"
+    - "CP223-036"
+    - "CP223-037"
+    - "CP223-038"
+    - "CP223-039"
+    - "CP223-040"
+    - "CP223-041"
+    - "CP223-042"
+  unsatisfied_predicate_ids:
+    - "CP223-021"
+    - "CP223-026"
+    - "CP223-042"
+  blocked_predicate_ids: []
+  status: "not_ready"
+non_claims:
+  - "no Session E"
+  - "no repository closure"
+  - "no P0 readiness"
+  - "no runtime readiness"
+  - "no canonical adoption"

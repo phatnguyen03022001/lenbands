@@ -1,0 +1,60 @@
+type: founder-decision-register-reconciliation-ledger
+status: review
+version: 1.1.1
+owner: founder + governance
+representation: markdown
+derived_from: [OPS.ReleaseGate, IDENTITY.Auth, EVAL.Writing]
+purpose: bounded-row-level-projection-for-a1-founder-decision-register-reconciliation
+consumed_by: [engineering, operations]
+created_at: 2026-08-12
+updated_at: 2026-08-12
+review_required: true
+review_type: founder_and_governance_reconciliation
+source_register: artifacts/operations/decisions/lenbands-decision-register-v1.0.0-founder-locked-2026-08-12.md
+source_register_sha256: d6c67f91e03ab612918d7eae4cd31719810c023fa6d9ffd46edf6c0e2f28cc63
+authority_class: A1_FOUNDER_SELECTED_UNRECORDED
+projection_only: true
+source_of_truth: false
+row_count: 325
+disposition_counts:
+  authority_permitted_applied_reconciliation: 0
+  canonical_reconciliation_required: 19
+  protected_change_packeted: 0
+  external_evidence_or_legal_required: 2
+  implementation_specification_required: 22
+  calibration_or_validation_required: 1
+  out_of_repository_scope: 0
+  no_current_owner_target: 281
+canonical_governance_authorization: false
+protected_application_authorization: false
+provider_legal_activation: false
+source_unlock: false
+runtime_authorization: false
+evidence_authorization: false
+calibration_authorization: false
+outcome_claim_authorization: false
+readiness_claim: false
+append_only_handling: true
+change_log:
+  - version: 1.1.1
+    date: 2026-08-12
+    changes:
+      - Corrected V3.7 and V9.14 owner references to the speaking/speech-processing decision owner without changing their disposition or A1 authority.
+      - Corrected V7 owner granularity: managed-platform references remain only for exact provider/baseline dimensions; provider-neutral topology, identity, staging, backup, and IaC boundaries are scoped separately without inventing an owner.
+      - |
+        Changed-file-attribution finding: not_reproduced in the current artifact prose; no complete three-file campaign claim was present. The truthful audit wording is: "The later convergence enhancement modified three files. The complete imported decision-record scope comprises six repository files. No clean Git commit boundary attributes those layers as separate historical changes."
+      - Aligned the sidecar disposition_counts projection with the unchanged eight-state ledger counts; no row disposition changed.
+      - No disposition, founder selection, technical authority, readiness, evidence, calibration, or protected state changed.
+  - version: 1.1.0
+    date: 2026-08-12
+    changes:
+      - Upgraded disposition vocabulary from 4 simplified states to the full 8-state goal vocabulary.
+      - Added current_owner_state, authority_to_adopt_into_owner, and changed_file_ref columns for rows with proven canonical target mappings.
+      - Reclassified 42 rows with known canonical targets: 19 canonical_reconciliation_required, 22 implementation_specification_required, 2 external_evidence_or_legal_required, 1 calibration_or_validation_required, 281 no_current_owner_target.
+      - Added integrity proof: unique_register_rows=325, disposition_rows=325, missing_rows=0, duplicate_dispositions=0, unknown_or_unparsed_rows=0.
+      - No A0 adoption, protected mutation, provider/legal activation, source unlock, or readiness claim was made.
+  - version: 1.0.0
+    date: 2026-08-12
+    changes:
+      - Created the bounded 325-row traceability projection because the canonical Founder Review Packet Index cannot safely enumerate every imported row.
+      - Each source row has exactly one disposition and remains subordinate to the immutable imported A1 register.
