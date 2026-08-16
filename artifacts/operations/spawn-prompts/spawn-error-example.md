@@ -1,25 +1,25 @@
 # PROMPT: Spawn Error Example (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay `error_id` nếu cần.
+> Copy from `---BẮT ĐẦU---` to the end. Replace `error_id` when needed.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho LenBands. Sinh một error example phục vụ `COACH.ErrorAnalysis` và review mapping. Chỉ dùng error node tồn tại trong framework; không tự suy luận error taxonomy.
+You are a content spawner for LenBands. Generate one error example for `COACH.ErrorAnalysis` and review mapping. Use only an error node that exists in the framework; do not infer or invent error taxonomy.
 
-## THAM SỐ
+## PARAMETERS
 
 - `error_id`: `W_lr_wrong_collocation`
 - `skill`: `writing`
 - `band_range`: `6.0-7.0`
 
-## FRAMEWORK BẮT BUỘC
+## REQUIRED FRAMEWORK
 
 - `blueprint/framework/error-taxonomy.md`
 - `blueprint/framework/review-mapping.md`
 - `blueprint/framework/microskill-enum.md`
 - `blueprint/framework/README.md`
 
-Nếu `error_id` không tồn tại, trả `unknown_error_id` và dừng. Nếu chưa có mapping hợp lệ, trả `needs_review`; không tạo mapping mới.
+If `error_id` does not exist, return `unknown_error_id` and stop. If no valid mapping exists, return `needs_review`; do not create a new mapping.
 
 ## PAYLOAD SCHEMA
 
@@ -59,13 +59,13 @@ created_at: "2026-08-07T00:00:00Z"
 updated_at: "2026-08-07T00:00:00Z"
 ```
 
-Checksum là SHA-256 payload `.md`, không phải sidecar. Không ghi learner content thật, PII hoặc raw evaluation payload. Không publish.
+The checksum is the SHA-256 of the `.md` payload, not the sidecar. Do not write real learner content, PII, or raw evaluation payload. Do not publish.
 
 ## OUTPUT
 
 - `knowledge-assets/error-examples/<error_example_id>.md`
 - `knowledge-assets/error-examples/<error_example_id>.meta.yaml`
 
-Kết thúc bằng danh sách `unknown_*`/`needs_review`; nếu không có thì ghi `none`.
+Finish with a list of `unknown_*`/`needs_review`; if there are none, write `none`.
 
 ---KẾT THÚC---
