@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-vocab
 status: review
-version: 0.2.2
+version: 0.2.3
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
@@ -11,10 +11,10 @@ created_at: 2026-08-07
 updated_at: 2026-08-17
 framework_refs:
   - file: vocab-collocation-topic
-    version: 1.0.6
+    version: 1.0.7
     nodes: [t_environment, t_technology, t_education, t_health, t_work_business, t_society_culture, t_media_news, t_transport_travel, t_crime_law, t_science_arts]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [W_lexical_precision]
   - file: band-descriptor-map
     version: 1.0.7
