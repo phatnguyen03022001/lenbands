@@ -76,6 +76,9 @@ if diff_path
 
   if protected_changes.any? && policy.dig("attestation", "required_for_protected_change") == true
     errors << "protected changes require one changed attestation" if attestation_paths.empty?
+
+    records = {}
+    path_by_id = {}
     attestation_paths.each do |path|
       absolute = File.join(root, path)
       unless File.file?(absolute)
@@ -88,6 +91,7 @@ if diff_path
         errors << "#{path}: #{e.message}"
         next
       end
+
       Array(policy.dig("attestation", "required_fields")).each { |field| errors << "#{path}: missing #{field}" unless attestation.key?(field) }
       policy.fetch("attestation").fetch("invariants").each do |field, expected|
         errors << "#{path}: #{field} must be #{expected.inspect}" unless attestation[field] == expected
@@ -96,10 +100,58 @@ if diff_path
       if attestation["authority_boundaries_changed"] == true || attestation["readiness_claimed"] == true
         errors << "#{path}: authority/readiness change requires approval_ref" if attestation["approval_ref"].to_s.empty?
       end
+
+      change_id = attestation["change_id"].to_s
+      if change_id.empty?
+        errors << "#{path}: change_id must be non-empty"
+        next
+      end
+      if records.key?(change_id)
+        errors << "#{path}: duplicate change_id #{change_id} also used by #{path_by_id[change_id]}"
+        next
+      end
+      records[change_id] = attestation
+      path_by_id[change_id] = path
+    end
+
+    superseded_ids = Set.new
+    records.each do |change_id, attestation|
+      predecessor = attestation["supersedes"].to_s
+      next if predecessor.empty?
+      unless records.key?(predecessor)
+        errors << "#{path_by_id[change_id]}: supersedes unresolved changed attestation #{predecessor}"
+        next
+      end
+      errors << "#{path_by_id[change_id]}: attestation cannot supersede itself" if predecessor == change_id
+      superseded_ids << predecessor
+    end
+
+    # Fail closed on cycles. Supersession is a single-predecessor append-only chain,
+    # so walking predecessors from every changed record is sufficient.
+    records.each_key do |start_id|
+      seen = Set.new
+      cursor = start_id
+      while cursor && records.key?(cursor)
+        if seen.include?(cursor)
+          errors << "#{path_by_id[start_id]}: attestation supersession cycle detected at #{cursor}"
+          break
+        end
+        seen << cursor
+        predecessor = records[cursor]["supersedes"].to_s
+        cursor = predecessor.empty? ? nil : predecessor
+      end
+    end
+
+    terminal_ids = records.keys.reject { |id| superseded_ids.include?(id) }
+    errors << "protected changes require one terminal attestation" if records.any? && terminal_ids.empty?
+
+    required_verification_commands = ["tools/bin/lenbands verify", "tools/bin/lenbands gate toolchain"]
+    terminal_ids.each do |change_id|
+      attestation = records.fetch(change_id)
+      path = path_by_id.fetch(change_id)
       commands_run = Array(attestation["commands_run"])
-      %w[tools/bin/lenbands\ verify tools/bin/lenbands\ gate\ toolchain].each do |command|
-        command = command.gsub("\\ ", " ")
-        errors << "#{path}: commands_run missing #{command}" unless commands_run.include?(command)
+      required_verification_commands.each do |command|
+        errors << "#{path}: terminal commands_run missing #{command}" unless commands_run.include?(command)
       end
     end
   end
