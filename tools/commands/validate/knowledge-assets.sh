@@ -17,7 +17,6 @@ end
 def payload_data(path)
   data, _err = Lenbands::Frontmatter.parse(path)
   return data unless data.nil? || data.empty?
-  # Fallback: file may be pure YAML without frontmatter delimiters
   YAML.safe_load(File.read(path), permitted_classes: [Date], aliases: false) || {}
 rescue StandardError
   {}
@@ -25,6 +24,10 @@ end
 
 def ids_in(path, prefix)
   File.read(path).scan(/`(#{prefix}_[a-z0-9_]+)`/).flatten.to_h { |id| [id, true] }
+end
+
+def semver_major(value)
+  value.to_s.split(".").first
 end
 
 framework_root = File.join(root, "blueprint", "framework")
@@ -137,8 +140,16 @@ metas.each do |meta_path|
     errors << "#{label}: invalid framework version" unless version.is_a?(String) && version.match?(/\A\d+\.\d+\.\d+\z/)
     errors << "#{label}: framework nodes missing" unless nodes.is_a?(Array) && !nodes.empty?
     next unless File.file?(framework_path)
-    expected_version = Lenbands::Frontmatter.version(framework_path)
-    errors << "#{label}: framework version mismatch for #{file}" unless expected_version.to_s == version.to_s
+
+    expected_version = Lenbands::Frontmatter.version(framework_path).to_s
+    authored_version = version.to_s
+    if expected_version != authored_version
+      historical_draft = status == "draft" && governance["review_status"] == "draft" && semver_major(authored_version) == semver_major(expected_version)
+      unless historical_draft
+        errors << "#{label}: stale framework ref #{file}@#{authored_version}; current is #{expected_version}; only draft/unreviewed assets may preserve same-major historical provenance"
+      end
+    end
+
     prefix = case file
              when "vocab-collocation-topic" then "[tc]"
              when "grammar-band-framework" then "g"
