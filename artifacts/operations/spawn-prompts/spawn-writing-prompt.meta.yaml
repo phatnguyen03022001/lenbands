@@ -1,26 +1,26 @@
 type: prompt-template
 prompt_template_id: spawn-writing-prompt
 status: review
-version: 0.2.1
+version: 0.2.2
 owner: colab
 representation: markdown
 derived_from: [LEARN.Writing, CONTENT.Publish]
 purpose: workflow-for-draft-writing-task-prompt-knowledge-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 framework_refs:
   - file: writing-task-framework
     version: 1.0.6
     nodes: [W_task2_opinion]
   - file: band-descriptor-map
-    version: 1.0.6
-    sections: ["Writing — Task Response (TR)", "Writing — Coherence & Cohesion (CC)", "Writing — Lexical Resource (LR)", "Writing — Grammatical Range & Accuracy (GRA)"]
+    version: 1.0.7
+    sections: ["Writing — Task Response / Task Achievement signals", "Writing — Coherence & Cohesion signals", "Writing — Lexical Resource signals", "Writing — Grammatical Range & Accuracy signals"]
   - file: vocab-collocation-topic
     version: 1.0.6
     nodes: [t_education]
   - file: grammar-band-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [g_second_conditional]
 output_contract: {asset_kind: writing_prompt, output_root: knowledge-assets/writing-prompts, status: draft}
 hash_scope: full_file_bytes
