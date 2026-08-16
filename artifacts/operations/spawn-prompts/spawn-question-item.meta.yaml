@@ -1,14 +1,14 @@
 type: prompt-template
 prompt_template_id: spawn-question-item
 status: review
-version: 0.2.1
+version: 0.2.2
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, PRACTICE.Drill]
 purpose: workflow-for-draft-reading-listening-question-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 framework_refs:
   - file: skill-questiontype-band
     version: 1.0.6
@@ -20,8 +20,8 @@ framework_refs:
     version: 1.0.6
     nodes: [R_ans_paraphrase_missed, R_distractor]
   - file: exam-module-differences
-    version: 1.0.6
-    sections: ["Academic vs General Training", "Listening/Reading — raw score → band conversion"]
+    version: 1.0.7
+    sections: ["Academic vs General Training", "Listening/Reading — raw score → band authority"]
 output_contract: {asset_kind: question_item, output_root: knowledge-assets/questions, status: draft}
 hash_scope: full_file_bytes
 source_sha256: sha256:57baca0aaf2aaf41311dd484259cdae0694caee03f3208de0ff8075ecdd3e6c0
