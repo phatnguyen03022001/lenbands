@@ -12,7 +12,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-vocab.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-vocab.meta.yaml
     owner: colab
-    source_sha256: sha256:9edcdf3b3b298dcbd667fe64de6e076d707fb6fc6aba716937a09d488ee61824
+    source_sha256: sha256:8b86f67acb7db098c889c7bdd64815586ecf15cdf3339a6af668832dc0c7a5be
     framework_files: [vocab-collocation-topic, microskill-enum, band-descriptor-map]
     output_kind: vocabulary
     output_root: knowledge-assets/vocabulary
@@ -21,7 +21,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-collocation.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-collocation.meta.yaml
     owner: colab
-    source_sha256: sha256:408ddb3961a05a5aa10e3696b958227a56e3e0411f37bade8e79392a3d851ff1
+    source_sha256: sha256:7317d6036654bc58080aa31b97e284d1b9972547de559b9f86adc15eac7a8b06
     framework_files: [vocab-collocation-topic, microskill-enum]
     output_kind: collocation
     output_root: knowledge-assets/collocations
@@ -48,7 +48,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-error-example.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-error-example.meta.yaml
     owner: colab
-    source_sha256: sha256:521e541a82e3e4f97e4c7638bcd2b23c995aa5facf1931ad8e73342924b0ff40
+    source_sha256: sha256:f96d0ebd1ed621293fcb3668ad96fb3acae731681a9209b15b26c09683564175
     framework_files: [error-taxonomy, review-mapping, microskill-enum]
     output_kind: error_example
     output_root: knowledge-assets/error-examples
