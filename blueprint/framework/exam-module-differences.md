@@ -1,22 +1,27 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Exam Module Differences (Academic vs General Training) + Score Conversion
 
-Status: `framework` — defines Academic vs General Training differences and raw-score-to-band conversion for Listening/Reading. Feeds `PRACTICE.MockTest`, `BAND.ExamReadiness`, and `LEARN.Path` module routing.
+Status: `framework` — defines Academic vs General Training differences, answer normalization, and the authority boundary for Listening/Reading raw-score conversion. Feeds `PRACTICE.MockTest`, `BAND.ExamReadiness`, and `LEARN.Path` module routing.
+
+Authority:
+- Test format and published score anchors are **official-derived** from IELTS.org.
+- Exact per-form raw-score boundaries are **not** invented by this framework. They must come from a versioned, reviewed score-conversion source.
+- If a configured conversion conflicts with current official IELTS guidance, the official source wins and the configuration must be reviewed.
 
 ## Academic vs General Training — differences
 
-IELTS has two modules: **Academic** for higher education/professional registration and **General Training** for migration/work contexts. They differ in Reading and Writing; Listening and Speaking are shared:
+IELTS has two modules: **Academic** and **General Training**. Reading and Writing differ; Listening and Speaking use the same test format for both modules.
 
 | Skill | Academic | General Training |
 |---|---|---|
-| Listening | **Same**: four sections and shared format | Same as Academic |
-| Reading | Three longer, more scholarly passages from magazines, books, journals, etc. | Three sections: Section 1 has short everyday texts, Section 2 workplace texts, Section 3 one longer general-interest text |
-| Writing | Task 1: describe chart/table/process/map/diagram. Task 2: essay | Task 1: letter (formal/semi-formal/informal). Task 2: essay with generally more everyday context |
-| Speaking | **Same** | Same as Academic |
+| Listening | **Same format**: four parts, 40 questions | Same as Academic |
+| Reading | Three sections using texts drawn from books, journals, magazines, newspapers, and online resources for a non-specialist audience | Three sections progressing from everyday material to workplace material and a longer general-interest text |
+| Writing | Task 1 describes visual information; Task 2 responds to a point of view, argument, or problem | Task 1 is a letter; Task 2 responds to a point of view, argument, or problem |
+| Speaking | **Same** three-part interview | Same as Academic |
 
 The learner selects a module during setup. `GOAL.Target` must contain `exam_module: academic | general_training`. Learning paths and content routing depend on this field.
 
@@ -24,181 +29,158 @@ The learner selects a module during setup. `GOAL.Target` must contain `exam_modu
 
 | Capability | Academic | General Training |
 |---|---|---|
-| `LEARN.Reading` | scholarly passages, academic vocabulary | everyday/workplace passages |
-| `LEARN.Writing` Task 1 | chart/table/process/map/diagram | letter (3 registers) |
-| `LEARN.Writing` Task 2 | more academic/general-public topics such as education, technology, science | more everyday topics such as family, work, community |
-| `PRACTICE.MockTest` | full Academic | full GT |
-| `KA.Vocabulary` | academic emphasis across all 10 topics | all 10 topics with stronger everyday emphasis |
+| `LEARN.Reading` | Academic Reading source style and task mix | General Training Reading source style and task mix |
+| `LEARN.Writing` Task 1 | visual-information response | letter |
+| `LEARN.Writing` Task 2 | Academic Task 2 | General Training Task 2 |
+| `PRACTICE.MockTest` | full Academic | full General Training |
+| `KA.Vocabulary` | curriculum may emphasize academic-register vocabulary | curriculum may emphasize everyday/workplace vocabulary where appropriate |
 
-A learner does not mix modules within one path. A rare module switch triggers re-placement according to policy.
+A learner does not mix modules within one mock-test attempt. Product policy may require re-placement or a new diagnostic when a learner changes module; that policy is LenBands-specific, not an IELTS rule.
 
-## Listening/Reading — raw score → band conversion
+## Listening/Reading — raw score → band authority
 
-Listening and Reading use objective answer keys. Band is derived from raw score through a **conversion table**. Exact boundaries can vary slightly between test forms, so the table below is a default benchmark rather than an immutable official per-form curve.
+Listening and Reading each contain 40 questions and award one mark for each correct answer. IELTS converts raw marks to whole/half band scores. IELTS explicitly states that the precise number of marks needed can vary slightly from one test version to another.
 
-### Listening (40 questions) → band
+### Official published average anchors
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 6-9 |
-| 4.5 | 10-11 |
-| 5.0 | 12-15 |
-| 5.5 | 16-18 |
-| 6.0 | 19-22 |
-| 6.5 | 23-25 |
-| 7.0 | 26-29 |
-| 7.5 | 30-31 |
-| 8.0 | 32-34 |
-| 8.5 | 35-36 |
-| 9.0 | 37-40 |
+These are the **average marks published by IELTS.org**, not complete half-band conversion tables:
 
-### Reading Academic (40 questions) → band
+| Skill/module | Band | Average marks out of 40 |
+|---|---:|---:|
+| Listening | 5 | 16 |
+| Listening | 6 | 23 |
+| Listening | 7 | 30 |
+| Listening | 8 | 35 |
+| Academic Reading | 5 | 15 |
+| Academic Reading | 6 | 23 |
+| Academic Reading | 7 | 30 |
+| Academic Reading | 8 | 35 |
+| General Training Reading | 4 | 15 |
+| General Training Reading | 5 | 23 |
+| General Training Reading | 6 | 30 |
+| General Training Reading | 7 | 35 |
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 4-5 |
-| 4.5 | 6-7 |
-| 5.0 | 8-11 |
-| 5.5 | 12-13 |
-| 6.0 | 14-18 |
-| 6.5 | 19-22 |
-| 7.0 | 23-25 |
-| 7.5 | 26-28 |
-| 8.0 | 29-31 |
-| 8.5 | 32-33 |
-| 9.0 | 34-40 |
+The framework **must not interpolate or invent** missing half-band cut-offs from these anchors.
 
-### Reading General Training (40 questions) → band
+### Runtime conversion contract
 
-GT Reading generally requires more correct answers for the same band because the source texts are less academically demanding.
+A scored mock must reference an explicit, reviewed conversion version:
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 6-8 |
-| 4.5 | 9-11 |
-| 5.0 | 12-14 |
-| 5.5 | 15-18 |
-| 6.0 | 19-22 |
-| 6.5 | 23-25 |
-| 7.0 | 26-29 |
-| 7.5 | 30-31 |
-| 8.0 | 32-33 |
-| 8.5 | 34-35 |
-| 9.0 | 36-40 |
+```yaml
+score_conversion:
+  source: ielts_public_or_calibrated_table
+  source_ref: <immutable-source-or-reviewed-config-ref>
+  version: <version>
+  module: listening | academic_reading | general_training_reading
+  status: approved
+```
 
-Note: these are benchmark approximations based on common published patterns. A real test-form conversion may differ slightly.
+Rules:
+- `PRACTICE.MockTest` may calculate a Listening/Reading band only when an approved conversion version covering the raw score is available.
+- The result stores `raw_score`, `conversion_version`, and `conversion_source_ref` for auditability.
+- If no approved conversion covers the score, return `conversion_unavailable`; do **not** guess or interpolate a band.
+- The official average anchors above are suitable for sanity checks, not sufficient by themselves to define every half-band boundary.
 
 ## Answer normalization rules (Listening/Reading)
 
-Answer-key matching normalizes input before comparison:
+Answer-key matching may normalize mechanically equivalent representations before comparison, but normalization must never turn a semantically different answer into a correct one.
 
 | Rule | Description |
 |---|---|
-| Case-insensitive | "Paris" = "paris" = "PARIS" |
-| Trim whitespace | " Paris " = "Paris" |
-| Article optional (if allowed) | "a book" = "book" when configured for that question |
-| Plural sensitivity | strict (book ≠ books) or lenient according to key/instruction |
-| Alternative spelling | British vs American spelling such as colour/color according to key config |
-| Number format | "1,000" = "1000" = "one thousand" when the key permits it |
-| Word limit | instruction "NO MORE THAN TWO WORDS" → an answer over two words is wrong |
-| Hyphenation | "well-known" = "well known" when the key permits it; default yes |
+| Case normalization | compare case-insensitively when case is not part of the answer construct |
+| Trim whitespace | remove accidental leading/trailing whitespace |
+| Alternative accepted answer | accept only alternatives explicitly registered in the question key |
+| Spelling variant | accept British/American variants only when the reviewed key permits them |
+| Number/date formatting | normalize mechanically equivalent formats only when the reviewed key permits them |
+| Word limit | enforce the wording of the question instruction; an answer exceeding the stated limit is wrong |
+| Hyphenation | treat variants as equivalent only when the reviewed key explicitly permits it |
 
-### Number/date/phone/currency normalization (Listening depth)
+Do not apply global rules such as "articles are always optional" or "plural is always lenient". Those decisions belong to the reviewed answer key for the specific item.
 
-Listening contains many number formats that need dedicated normalization because learners hear the value and then write it:
+### Number/date/phone/currency normalization
 
-| Type | Rule | Example |
-|---|---|---|
-| Date | accept multiple configured formats: DD/MM/YYYY, DD Month YYYY, Month DD | "5 March 2024" = "05/03/2024" = "March 5, 2024" |
-| Phone | accept spaces/dashes; leading 0 optional according to key | "020 7946 0958" = "0207-946-0958" |
-| Currency | symbol (£/$/€) optional if key does not require it; word forms may be accepted according to key config | "£15.50" = "15.50" when key is lenient |
-| Decimal | "0.5" = "point five" = "nought point five" | — |
-| Time | "9.30" = "9:30" = "half past nine" according to key | — |
-| Age | "18-year-old" = "18 years old" = "18" according to key | — |
-| Quantity + unit | "2 kilograms" = "2 kilos" = "2 kg" = "2" when key requires only the number | — |
-| Ordinal | "3rd" = "third" = "3" according to key | — |
+Listening items may register controlled normalization for mechanically equivalent forms:
 
-Key configuration determines strict/lenient behavior:
+| Type | Example of configurable equivalence |
+|---|---|
+| Date | `15 March` / `March 15` when both are accepted by the reviewed key |
+| Phone | spaces or hyphens may be ignored when they do not change the digits |
+| Currency | symbol/word form may be normalized only when the reviewed key permits it |
+| Decimal | numeric and spoken-number forms may be mapped when explicitly configured |
+| Time | equivalent clock formats may be mapped when explicitly configured |
+| Quantity + unit | unit omission is accepted only when the item asks for the number alone |
+
+Example key configuration:
+
 ```yaml
 correct_answer:
-  - value: "15 March"
-  - value: "March 15"
-  - value: "15th March"
+  values: ["15 March", "March 15"]
   normalize: [lowercase, trim, date_flexible]
+word_limit: 2
 ```
 
 Listening-specific errors:
+
 | error_id | Description |
 |---|---|
-| `L_ans_number_format` | Wrong number/date/phone/currency format despite hearing the value correctly |
-| `L_ans_unit_missing` | Required unit such as kg/pounds is missing |
+| `L_ans_number_format` | Format does not match an accepted normalized representation |
+| `L_ans_unit_missing` | A required unit is missing |
 
-Key structure inside a `question_id` asset:
+## Overall band calculation
 
-```yaml
-question_id: R_q_482
-correct_answer:
-  - value: "environment"
-  - value: "the environment"
-  - value: "environments"
-  - rule: lenient_plural
-  - normalize: [lowercase, trim]
-word_limit: 2
-explanation_ref: ...
-```
+IELTS overall band is the average of the four section band scores. If the average ends in `.25`, it is rounded up to the next half band; if it ends in `.75`, it is rounded up to the next whole band. Other averages are reported to the nearest whole or half band according to IELTS rules.
 
-## Overall band calculation (IELTS rule)
-
-Overall band = **average of the four skill bands**, rounded to the nearest half/whole band according to IELTS rounding rules: .25 → .5 and .75 → next whole.
-
-| Average | Overall band |
-|---|---|
-| x.00-x.24 | x.0 |
-| x.25-x.74 | x.5 |
-| x.75-x.99 | (x+1).0 |
-
-Example: L6.5 R6.0 W6.0 S6.5 → average 6.25 → overall **6.5**.
+Examples:
+- L6.5 R6.0 W6.0 S6.5 → average 6.25 → overall **6.5**.
+- L6.5 R6.5 W6.5 S6.5 → average 6.5 → overall **6.5**.
+- L7.0 R7.0 W6.5 S6.5 → average 6.75 → overall **7.0**.
 
 ## Mock test scoring (`PRACTICE.MockTest`)
 
-- Listening/Reading: auto-score through answer key + conversion table.
-- Writing/Speaking: score through `EVAL.Writing`/`EVAL.Speaking` + descriptors.
-- Overall: calculate using the rule above.
-- Output: per-skill band + overall + L/R raw score + W/S criterion bands.
+- Listening/Reading: raw score from the answer key, then an **approved versioned conversion table**.
+- Writing: criterion scoring for both tasks, with Task 2 carrying twice the weight of Task 1 in the Writing section score.
+- Speaking: four equally weighted criteria.
+- Overall IELTS band: calculated from the four section bands using the official rounding rule.
+- Audit output: per-skill band, overall band, L/R raw score + conversion version, and W/S criterion evidence.
 
-## Band vs CEFR cross-reference
+## IELTS ↔ CEFR guardrails
 
-IELTS band does not map 1:1 to CEFR, but an approximate cross-reference is useful:
+IELTS and CEFR do **not** align at exact transition points. Do not assign a precise CEFR level to every IELTS half band as if the scales were interchangeable.
 
-| IELTS Band | CEFR approx |
-|---|---|
-| 4.0 | A2+ |
-| 4.5-5.0 | B1 |
-| 5.5-6.0 | B1+ / B2 |
-| 6.5-7.0 | B2 / B2+ |
-| 7.5-8.0 | C1 |
-| 8.5-9.0 | C1+ / C2 |
+Current public IELTS guidance states, in particular:
+- the minimum C1 threshold falls **between IELTS 6.5 and 7.0**;
+- IELTS **8.5 and above** is recognized as C2, while band 8 is borderline.
 
-Use this only as a cross-reference for the vocabulary `cefr` field, not as a replacement for IELTS band.
+Any finer CEFR crosswalk used by LenBands must carry its own research/provenance and must be presented as an approximation, not an official one-to-one conversion.
+
+## Official references
+
+- IELTS scoring in detail: `https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail`
+- IELTS and the CEFR: `https://ielts.org/organisations/ielts-for-organisations/compare-ielts/ielts-and-the-cefr`
+- Academic test format: `https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-academic-test/academic-test-format-in-detail`
+- General Training test format: `https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-general-training-test/general-training-test-format-in-detail`
 
 ## Usage
 
 - `GOAL.Target` contains `exam_module` and determines path direction.
 - `LEARN.Path` routes content by module.
-- `PRACTICE.MockTest` selects the module and scores through conversion + descriptors.
-- `BAND.ExamReadiness` calculates overall using IELTS rules.
-- `EVAL.Writing` reads Academic vs GT task type and applies the appropriate task structure.
+- `PRACTICE.MockTest` selects the module and records the approved score-conversion version.
+- `BAND.ExamReadiness` consumes scored evidence; it must not manufacture missing conversions.
+- `EVAL.Writing` reads Academic vs General Training task type and applies the appropriate task contract.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
 - `version: 1.0.1` — reconciled answer-normalization error references.
-- `version: 1.0.6` — normalized the per-file release record; module and score rules are unchanged.
-- Update conversion tables when authoritative/public benchmark patterns change: patch + note.
-- Adding a new module such as Life Skills, currently out of scope: minor.
+- `version: 1.0.6` — normalized the per-file release record; module and score rules were unchanged.
+- `version: 1.0.7` — replaced incorrect inferred raw-score ranges with current IELTS.org average anchors, made exact half-band conversion fail-closed and versioned, tightened answer-normalization authority, and corrected CEFR claims.
+- A correction to an official-derived fact requires a patch bump plus source review.
+- Adding a new product-supported IELTS test type requires an explicit scope decision rather than agent inference.
 
 ## Do not infer
 
-- Conversion must follow this registered framework/default source; do not invent a mapping such as "L 30 = band 7.5" outside the configured table.
-- Module must be `academic` or `general_training`; do not invent another module.
-- Answer normalization follows the rules above; an unknown key rule must report `unknown_normalization`.
+- Do not infer a half-band conversion from neighboring official anchor points.
+- Do not present a LenBands score table as an official IELTS per-form curve.
+- Do not convert IELTS to CEFR one-to-one without an explicitly sourced crosswalk.
+- Module values supported by this contract are `academic` and `general_training`; additional IELTS products require an explicit product decision.
+- Unknown answer-normalization behavior must return `unknown_normalization` rather than silently accepting an answer.
