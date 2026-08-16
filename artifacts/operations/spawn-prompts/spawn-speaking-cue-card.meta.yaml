@@ -1,21 +1,21 @@
 type: prompt-template
 prompt_template_id: spawn-speaking-cue-card
 status: review
-version: 0.2.1
+version: 0.2.2
 owner: colab
 representation: markdown
 derived_from: [LEARN.Speaking, CONTENT.Publish]
 purpose: workflow-for-draft-speaking-cue-card-knowledge-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 framework_refs:
   - file: speaking-parts-framework
     version: 1.0.6
     nodes: [S_fc_long_pause, S_long_turn_sustain]
   - file: band-descriptor-map
-    version: 1.0.6
-    sections: ["Speaking — Fluency & Coherence (FC)", "Speaking — Lexical Resource (LR)", "Speaking — Grammatical Range & Accuracy (GRA)", "Speaking — Pronunciation (PR)"]
+    version: 1.0.7
+    sections: ["Speaking — Fluency & Coherence signals", "Speaking — Lexical Resource signals", "Speaking — Grammatical Range & Accuracy signals", "Speaking — Pronunciation signals"]
   - file: microskill-enum
     version: 1.0.6
     nodes: [S_cue_card_structure, S_long_turn_sustain]
