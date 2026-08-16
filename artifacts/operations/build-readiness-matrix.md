@@ -1,26 +1,26 @@
 # Build Readiness Matrix
 
-## Mục đích
+## Purpose
 
-Đây là operational projection cho founder/agent biết P0 capability pack nào đã có đủ input để bước sang Source Code. Nó không thay thế Capability Catalog hay P0 Capability Profile Matrix trong Blueprint.
+This operational projection tells founders/agents which P0 capability packs have enough input to move into Source Code. It does not replace the Capability Catalog or P0 Capability Profile Matrix in the Blueprint.
 
-**Scope:** chỉ sáu pack closed pilot `P0-01` → `P0-06` trong `blueprint/03-features.md`. Listening, Reading, Speaking, Mock Test và Exam Readiness không được thêm vào matrix này cho đến khi roadmap nâng scope bằng decision có evidence.
+**Scope:** only the six closed-pilot packs `P0-01` → `P0-06` in `blueprint/03-features.md`. Listening, Reading, Speaking, Mock Test, and Exam Readiness must not be added to this matrix until the roadmap expands scope through an evidence-backed decision.
 
-**Re-audit update 2026-08-07:** semantic contract remediation đã chạy qua framework/KA/event/failure/OpenAPI validators; không pack nào được nâng trạng thái. P0 vẫn `not ready` vì founder approval và evidence thật còn thiếu.
+**Re-audit update 2026-08-07:** semantic-contract remediation ran across framework/KA/event/failure/OpenAPI validators; no pack changed state. P0 remains `not ready` because founder approval and real evidence are still missing.
 
-**Knowledge OS hardening update 2026-08-07:** P0 capability families đã có typed seed ở `artifacts/operations/capability-manifest.yaml`, và semantic validator kiểm tra manifest coverage/ref resolution. Đây là bước chuẩn bị graph/compiler, không nâng bất kỳ pack nào lên `ready`.
+**Knowledge OS hardening update 2026-08-07:** P0 capability families now have typed seeds in `artifacts/operations/capability-manifest.yaml`, and the semantic validator checks manifest coverage/reference resolution. This is graph/compiler preparation and does not promote any pack to `ready`.
 
-**Benchmark/acceptance hardening update 2026-08-07:** benchmark intake, candidate numeric policy, P0 acceptance manifest và executable runners đã tồn tại. Corpus vẫn `missing`, policy vẫn `unarmed`, không có runtime result/evidence; vì vậy P0-04/P0-05/P0-06 vẫn `not ready`.
+**Benchmark/acceptance hardening update 2026-08-07:** benchmark intake, candidate numeric policy, P0 acceptance manifest, and executable runners exist. The corpus remains `missing`, policy remains `unarmed`, and no runtime result/evidence exists; therefore P0-04/P0-05/P0-06 remain `not ready`.
 
-## Quy ước trạng thái
+## Status conventions
 
-- `missing`: chưa có artifact/contract.
-- `draft`: đã có nhưng chưa review.
-- `review`: nội dung đã đủ để founder kiểm tra, nhưng chưa được founder approve hoặc còn chờ evidence thật.
-- `approved`: đủ điều kiện làm input cho bước tiếp theo.
-- `n/a`: không áp dụng cho slice.
+- `missing`: required artifact/contract does not exist.
+- `draft`: exists but has not been reviewed.
+- `review`: content is sufficient for founder review, but founder approval or real evidence is still pending.
+- `approved`: eligible as input to the next step.
+- `n/a`: not applicable to the slice.
 
-## Matrix hiện tại — closed pilot
+## Current matrix — closed pilot
 
 | P0 pack | Capability backbone | Behavior/design | Product spec | Engineering contracts | Quality / ops | Acceptance run | Build state |
 |---|---|---|---|---|---|---|---|
@@ -33,31 +33,31 @@
 
 ## Gate
 
-Một P0 row chỉ thành `ready` khi:
+A P0 row becomes `ready` only when:
 
-- Capability Profile trong Blueprint hoàn chỉnh.
-- Capability Manifest row resolve đúng capability IDs, events, artifacts, cost boundary, privacy class và blockers.
-- Interaction + Screen behavior đã `approved`.
-- Vertical Slice Spec đã `approved`.
-- API/data/event/failure/prompt contracts cần thiết đã `approved`.
-- Acceptance tests có owner và có thể chạy.
-- Privacy, quality và cost gate không còn `missing`.
-- Nếu row có learner-visible evaluation hoặc rights claim: evidence/run thật đã được reference theo `CONVENTION.md` §6, không chỉ có prose.
+- The Blueprint Capability Profile is complete.
+- The Capability Manifest row resolves the correct capability IDs, events, artifacts, cost boundary, privacy class, and blockers.
+- Interaction + Screen behavior is `approved`.
+- Vertical Slice Spec is `approved`.
+- Required API/data/event/failure/prompt contracts are `approved`.
+- Acceptance tests have an owner and can run.
+- Privacy, quality, and cost gates are no longer `missing`.
+- If the row includes learner-visible evaluation or a rights claim, real evidence/run is referenced according to `CONVENTION.md` §6 rather than merely described in prose.
 
-`ready` chỉ được ghi khi các artifact cần thiết đã `approved` và mọi evidence bắt buộc đã tồn tại, được reference bằng immutable record.
+Write `ready` only when required artifacts are `approved` and every mandatory piece of evidence exists and is referenced by an immutable record.
 
-Một closed pilot chỉ thành `ready` khi **toàn bộ P0-01 → P0-06** là `ready`; không bù một pack thiếu bằng UI đẹp hoặc code đã chạy.
+A closed pilot becomes `ready` only when **all P0-01 → P0-06** are `ready`; a missing pack cannot be offset by polished UI or working code elsewhere.
 
 ## Cross-pack dependencies (silent)
 
-- **P0-04 (Writing)** dùng một `WritingTask` đã được seed qua content-publish contract; đây là shared input/content-quality gate, không phải full `CONTENT.Publish` product scope.
-- **P0-04/P0-05** phụ thuộc **quota-usage-contract** — ranh giới free/premium quyết định khi learner hit wall.
-- **P0-06** phụ thuộc **governance-ops-dashboard** — founder cần surface vận hành calibration trong pilot.
-- Các dependency này đã có contract ở `review`; readiness vẫn phụ thuộc founder approval và evidence thật (gold-standard corpus, published task batch).
+- **P0-04 (Writing)** uses a `WritingTask` seeded through the content-publish contract; this is a shared input/content-quality gate, not full `CONTENT.Publish` product scope.
+- **P0-04/P0-05** depend on the **quota-usage-contract** — free/premium boundaries determine what happens when a learner hits a usage wall.
+- **P0-06** depends on the **governance-ops-dashboard** — the founder needs an operational calibration surface during the pilot.
+- These dependencies already have contracts in `review`; readiness still depends on founder approval and real evidence such as a gold-standard corpus and a published task batch.
 
 ## Update rule
 
-- Cập nhật matrix cùng lúc khi artifact đổi status.
-- Blueprint đổi semantics → row liên quan quay về `review`.
-- Không dùng matrix để thay capability identity, scope hoặc product decision.
-- `not run` không phải failure; nó là trạng thái trung thực trước khi có Source Code, benchmark hoặc pilot.
+- Update this matrix whenever an artifact changes status.
+- A Blueprint semantic change returns the affected row to `review`.
+- Do not use this matrix to redefine capability identity, scope, or product decisions.
+- `not run` is not a failure; it is the truthful state before Source Code, benchmark, or pilot execution exists.
