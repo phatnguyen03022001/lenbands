@@ -1,73 +1,73 @@
 # PROMPT: Spawn Vocabulary Cards (DeepSeek V4 Flash)
 
-> Copy toàn bộ nội dung dưới đây (từ dòng `---BẮT ĐẦU---` đến cuối) và dán vào CLI của agent spawn.
-> Thay 3 tham số ở đầu nếu cần đổi topic/band/số lượng.
+> Copy all content below, from `---BẮT ĐẦU---` to the end, and paste it into the spawn-agent CLI.
+> Replace the three parameters at the top when changing topic/band/count.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho app IELTS LenBands. Nhiệm vụ: sinh vocabulary card từ framework đã có trong repo. KHÔNG dùng kiến thức IELTS từ training của bạn — chỉ dùng framework trong repo làm source of truth.
+You are a content spawner for the LenBands IELTS app. Your task is to generate vocabulary cards from the framework already present in the repository. DO NOT use IELTS knowledge from training; use only the repository framework as the source of truth.
 
-## THAM SỐ
-- topic: `t_environment`  (đổi tại đây nếu spawn topic khác: t_technology, t_education, t_health, t_work_business, t_society_culture, t_media_news, t_transport_travel, t_crime_law, t_science_arts)
+## PARAMETERS
+- topic: `t_environment`  (change when spawning another topic: t_technology, t_education, t_health, t_work_business, t_society_culture, t_media_news, t_transport_travel, t_crime_law, t_science_arts)
 - band_range: `6.5-7.5`
-- số lượng: 10 card
-- topic prefix ID: `v_env`  (đổi theo topic: v_tech, v_edu, v_health, v_work, v_soc, v_media, v_trans, v_crime, v_sci)
+- count: 10 cards
+- topic prefix ID: `v_env`  (change by topic: v_tech, v_edu, v_health, v_work, v_soc, v_media, v_trans, v_crime, v_sci)
 
-## BƯỚC 1 — ĐỌC FRAMEWORK (bắt buộc, trước khi viết)
-Đọc các file này để hiểu schema + controlled vocabulary:
-- `blueprint/framework/vocab-collocation-topic.md`  ← topic enum (10 topic) + vocab metadata schema + target count + CEFR↔band mapping
-- `blueprint/framework/microskill-enum.md`  ← microskill id hợp lệ (chỉ dùng id có trong file này)
-- `blueprint/framework/band-descriptor-map.md`  ← band range hợp lệ
-- `blueprint/framework/README.md`  ← nguyên tắc: controlled vocabulary, versioning, không tự suy luận
+## STEP 1 — READ FRAMEWORK (required before writing)
+Read these files to understand the schema + controlled vocabulary:
+- `blueprint/framework/vocab-collocation-topic.md`  ← topic enum (10 topics) + vocabulary metadata schema + target counts + CEFR↔band mapping
+- `blueprint/framework/microskill-enum.md`  ← valid micro-skill IDs; use only IDs from this file
+- `blueprint/framework/band-descriptor-map.md`  ← valid band range
+- `blueprint/framework/README.md`  ← principles: controlled vocabulary, versioning, no inference
 
-Nếu file nào không đọc được → BÁO "framework thiếu X", DỪNG, không spawn.
+If any file cannot be read → REPORT "framework missing X" and STOP; do not spawn.
 
-## BƯỚC 2 — SINH 10 CARD
-Vocab phải là **less common** (không phải từ basic như "pollution, environment, tree"). Band 6.5-7.5 cần từ academic/topic-specific. Ví dụ cho t_environment: biodegradable, biodiversity, ecosystem, emissions, sustainable, conservation, deforestation, renewable, contamination, habitat (đây là gợi ý; chọn 10, không trùng với card đã có trong `knowledge-assets/vocabulary/`).
+## STEP 2 — GENERATE 10 CARDS
+Vocabulary must be **less common**, not basic words such as "pollution, environment, tree". Band 6.5-7.5 requires academic/topic-specific vocabulary. Examples for t_environment include biodegradable, biodiversity, ecosystem, emissions, sustainable, conservation, deforestation, renewable, contamination, habitat. These are suggestions only; choose 10 that do not duplicate existing cards in `knowledge-assets/vocabulary/`.
 
-Trước khi sinh, đọc `knowledge-assets/vocabulary/` để biết ID nào đã dùng (tránh trùng `word_id`). ID mới bắt đầu từ số tiếp theo.
+Before generating, read `knowledge-assets/vocabulary/` to determine which IDs already exist and avoid duplicate `word_id`. New IDs begin from the next unused number.
 
-## BƯỚC 3 — SCHEMA BẮT BUỘC (KHÔNG thêm field, KHÔNG bỏ field)
+## STEP 3 — REQUIRED SCHEMA (DO NOT add or remove fields)
 
 ```yaml
-word_id: v_env_011            # dạng {topic_prefix}_{NNN}, NNN tăng dần từ số chưa dùng
-headword: <từ tiếng Anh>
-phonetic: /IPA/               # IPA chuẩn, không tự chế
+word_id: v_env_011            # format {topic_prefix}_{NNN}; NNN increments from the next unused value
+headword: <English word>
+phonetic: /IPA/               # standard IPA; do not invent
 pos: adjective | noun | verb | adverb
 band_range: 6.5-7.5
-topic_ref: [t_environment]    # PHẢI thuộc 10 topic trong enum
-cefr: B2 | C1 | C2            # theo CEFR↔band mapping trong framework
-definition_en: <tiếng Anh, ngắn, chính xác>
-definition_vi: <tiếng Việt, DỊCH ĐÚNG definition_en, không diễn dịch thêm>
-example: <1 câu tiếng Anh tự nhiên, đúng collocation, đúng ngữ pháp, KHÔNG lặp pattern câu của card khác>
-collocations: [cụm từ thực tế đi cùng headword, 2-4 cụm]
-synonyms: [từ đồng nghĩa THẬT, cùng band/register; không chắc → []]
-antonyms: [từ trái nghĩa THẬT; không chắc → []]
-microskill_ref: [W_lexical_precision]   # hoặc id khác hợp lệ trong microskill-enum.md
+topic_ref: [t_environment]    # MUST belong to the 10-topic enum
+cefr: B2 | C1 | C2            # follow CEFR↔band mapping in the framework
+definition_en: <short, precise English definition>
+definition_vi: <Vietnamese translation that matches definition_en exactly; do not add interpretation>
+example: <1 natural English sentence using a valid collocation and correct grammar; do NOT repeat the same sentence pattern across cards>
+collocations: [2-4 genuine collocations with the headword]
+synonyms: [genuine synonyms at the same band/register; if uncertain → []]
+antonyms: [genuine antonyms; if uncertain → []]
+microskill_ref: [W_lexical_precision]   # or another valid id from microskill-enum.md
 frequency: less_common
 ```
 
-## LUẬT CỨNG (vi phạm = output bị reject)
-1. `word_id` dạng `{topic_prefix}_{NNN}`, NNN tăng dần, không trùng card đã có.
-2. `topic_ref` PHẢI thuộc 10 topic trong enum (xem framework). Ngoài enum → ghi `unknown_topic` và DỪNG, không tự đặt.
-3. `microskill_ref` PHẢI có trong `microskill-enum.md`. Ngoài → `unknown_microskill`, DỪNG.
-4. `phonetic` PHẢI IPA chuẩn (vd /ˌbaɪəʊdɪˈɡreɪdəbl/), không tự chế.
-5. `definition_vi` phải DỊCH ĐÚNG `definition_en`, không thêm ý, không bớt ý.
-6. `example` phải câu tiếng Anh thật, đúng collocation đã liệt kê, đúng ngữ pháp.
-7. `synonyms` phải cùng band/register với headword (headword `less_common` → synonym cũng phải less_common trở lên). Từ basic (vd "good", "bad", "big") KHÔNG hợp lệ làm synonym cho band 6.5+. Không chắc → `[]`.
-8. `antonyms` tương tự. Không chắc → `[]`.
-9. `cefr` theo mapping trong framework (B2 ≈ band 5.5-6.5, C1 ≈ 6.5-7.5, C2 ≈ 7.5+). Band 6.5-7.5 thường C1.
-10. `example` phải đa dạng cấu trúc — không lặp pattern câu > 20% giữa các card (vd không phải tất cả đều "X has led to Y").
-11. KHÔNG bịa synonym/antonym/collocation. Không chắc → để mảng rỗng `[]` + ghi `needs_review`.
-12. Mỗi card = 2 file:
-    - `knowledge-assets/vocabulary/{word_id}.md`       (nội dung schema trên, dạng YAML front matter)
-    - `knowledge-assets/vocabulary/{word_id}.meta.yaml` (sidecar canonical)
+## HARD RULES (violation = rejected output)
+1. `word_id` format is `{topic_prefix}_{NNN}` with sequential unused NNN values; do not duplicate an existing card.
+2. `topic_ref` MUST belong to the 10-topic enum. Outside the enum → write `unknown_topic` and STOP; do not invent a topic.
+3. `microskill_ref` MUST exist in `microskill-enum.md`. Otherwise → `unknown_microskill`, STOP.
+4. `phonetic` MUST use standard IPA, e.g. /ˌbaɪəʊdɪˈɡreɪdəbl/; do not invent phonetic notation.
+5. `definition_vi` must accurately TRANSLATE `definition_en` without adding or removing meaning.
+6. `example` must be genuine English, grammatically correct, and use a listed collocation appropriately.
+7. `synonyms` must match the headword's band/register. A `less_common` headword should not use basic words such as "good", "bad", or "big" as supposed same-register synonyms. If uncertain → `[]`.
+8. `antonyms` follow the same rule. If uncertain → `[]`.
+9. `cefr` follows framework mapping (B2 ≈ band 5.5-6.5, C1 ≈ 6.5-7.5, C2 ≈ 7.5+). Band 6.5-7.5 is commonly C1 in this framework.
+10. `example` structure must vary; no single sentence pattern may appear in >20% of cards.
+11. DO NOT invent synonyms/antonyms/collocations. If uncertain → use an empty array `[]` + record `needs_review`.
+12. Each card = 2 files:
+    - `knowledge-assets/vocabulary/{word_id}.md`       (the schema above as YAML front matter)
+    - `knowledge-assets/vocabulary/{word_id}.meta.yaml` (canonical sidecar)
 
-## SIDECAR META.YAML SCHEMA (canonical, mỗi card 1 file)
+## SIDECAR META.YAML SCHEMA (canonical, one per card)
 ```yaml
 type: knowledge-asset
 asset_kind: vocabulary
-asset_id: KA-NNNNNN                 # allocate unique ID trong toàn bộ knowledge-assets
+asset_id: KA-NNNNNN                 # allocate a unique ID across all knowledge-assets
 status: draft
 version: 0.1.0
 owner: colab
@@ -89,7 +89,7 @@ created_at: "2026-08-07T00:00:00Z"
 updated_at: "2026-08-07T00:00:00Z"
 ```
 
-## VÍ DỤ 1 CARD ĐÚNG (clone pattern)
+## EXAMPLE OF ONE VALID CARD (clone the pattern)
 ```yaml
 word_id: v_env_011
 headword: biodegradable
@@ -109,7 +109,7 @@ frequency: less_common
 ```
 
 ```yaml
-# canonical sidecar meta.yaml tương ứng
+# corresponding canonical sidecar meta.yaml
 type: knowledge-asset
 asset_kind: vocabulary
 asset_id: KA-000011
@@ -129,15 +129,15 @@ created_at: "2026-08-07T00:00:00Z"
 updated_at: "2026-08-07T00:00:00Z"
 ```
 
-## ĐIỀU KIỆN DỪNG — hỏi lại, không đoán
-- Framework file không đọc được → báo, dừng.
-- Enum không chứa id bạn cần → báo `unknown_*`, dừng.
-- Không chắc định nghĩa/IPA/ví dụ/synonym → để trống + ghi `needs_review`, KHÔNG bịa.
+## STOP CONDITIONS — ask/review rather than guess
+- Framework file cannot be read → report and stop.
+- Enum does not contain the required ID → report `unknown_*` and stop.
+- Uncertain about definition/IPA/example/synonym → leave the uncertain field empty where allowed + record `needs_review`; DO NOT invent.
 
 ## OUTPUT
-Tạo 20 file (10 card × 2 file) trong `knowledge-assets/vocabulary/`.
-Cuối cùng liệt kê mọi `unknown_*` hoặc `needs_review`.
+Create 20 files (10 cards × 2 files) under `knowledge-assets/vocabulary/`.
+Finally list every `unknown_*` or `needs_review`.
 
-Bắt đầu: đọc framework trước, rồi sinh 10 card.
+Begin by reading the framework, then generate the 10 cards.
 
 ---KẾT THÚC---
