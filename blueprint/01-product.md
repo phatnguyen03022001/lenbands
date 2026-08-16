@@ -1,46 +1,46 @@
 # 01 — Product
 
-File này trả lời **WHY / WHO / WHAT**, không trả lời HOW (HOW thuộc `02-architecture.md` trở đi).
+This file answers **WHY / WHO / WHAT**, not HOW (HOW belongs in `02-architecture.md` and later files).
 
 ## Vision
 
-Đây là một app học IELTS theo hướng **AI-first Knowledge OS**:
+This is an IELTS learning application designed as an **AI-first Knowledge OS**:
 
-- Không chỉ là LMS chứa lesson
-- Không chỉ là app làm quiz
-- Là hệ thống giúp learner hiểu toàn bộ IELTS blueprint, biết mình đang ở đâu, thiếu gì, và cần học gì tiếp theo
+- Not merely an LMS that stores lessons
+- Not merely a quiz app
+- A system that helps learners understand the full IELTS blueprint, know where they are, identify what is missing, and decide what to learn next
 
-## Đối tượng người dùng
+## Target users
 
-- Người học IELTS từ band 3.0 đến 8.5
-- Người muốn biết mình đang yếu ở đâu và cần học gì tiếp theo
-- Người cần luyện IELTS theo kỹ năng, dạng bài, band target và kế hoạch cụ thể
+- IELTS learners from band 3.0 to 8.5
+- Learners who want to know exactly where they are weak and what to learn next
+- Learners who need IELTS practice organized by skill, question type, target band, and a concrete plan
 
-## Giá trị cốt lõi
+## Core value
 
-- Mô hình hóa IELTS thành một hệ tri thức có cấu trúc
-- Cá nhân hóa lộ trình theo band, kỹ năng, dạng bài và lỗi sai
-- AI chấm Writing, Speaking và Pronunciation — hệ thống tự chấm 100%, không có con người can thiệp
-- AI phân tích gap, gợi ý next best action và hỗ trợ giải thích kiến thức
-- Colab chỉ thêm, cập nhật, kiểm duyệt và publish nội dung (không chấm bài)
-- Admin quản lý hệ thống, người dùng, billing và quyền truy cập (không chấm bài)
+- Model IELTS as a structured knowledge system
+- Personalize learning paths by band, skill, question type, and recurring error
+- AI scores Writing, Speaking, and Pronunciation — the system scores 100% automatically with no human intervention
+- AI analyzes gaps, recommends the next best action, and supports knowledge explanation
+- Colab only adds, updates, moderates, and publishes content; it does not score learner work
+- Admin manages the system, users, billing, and access permissions; it does not score learner work
 
-## Định vị sản phẩm
+## Product positioning
 
-AI-first Knowledge OS — không phải LMS, không phải quiz app.
+AI-first Knowledge OS — not an LMS and not a quiz app.
 
-## Principles (nguyên tắc xuyên suốt)
+## Principles
 
-1. **Blueprint structured** — IELTS được mô hình hóa thành blueprint có cấu trúc, không phải danh sách lesson. Band progression là khuyến nghị mềm, không khóa cứng.
-2. **Sole evaluator + governance** — toàn bộ tầng evaluation do AI xử lý 100%, không human-in-the-loop. Quality-control target là AI Governance (backend invisible): confidence scoring, gold-standard benchmark, drift/bias monitoring, anti-gaming detection — chưa phải guarantee cho tới khi có evidence thật.
-3. **No-AI-label UI** — trong docs dùng chữ "AI" ở capability để dev hiểu nguồn gốc; trong UI người dùng không hiển thị chữ "AI" hay icon AI, chỉ tên chức năng thuần túy. Chi tiết `07-conventions.md`.
-4. **Content taxonomy depth** — FSRS, Adaptive Practice, Gap Analysis, Learning Insights, AI Error Analysis chỉ chính xác khi Colab tagging siêu chi tiết (band, micro-skill, question type, distractor type, paraphrase pattern, grammar point). Metadata nông = garbage in, garbage out. Chi tiết `05-content.md`.
-5. **SSOT** — mỗi năng lực có một capability id duy nhất, mô tả ở `03-features.md`, được reference ở các spoke khác chứ không lặp lại.
-6. **Progress over pressure** — retention là hệ quả của tiến bộ thật, không phải notification dồn dập, streak anxiety hay dark pattern.
-7. **Outcome loop** — mọi lỗi hoặc điểm yếu phải đi qua vòng `Understand → Practice → Retest → Confirm`; không xem việc hoàn thành activity là outcome.
-8. **Quality/cost guardrail** — giảm chi phí chỉ được phép khi không làm giảm rubric accuracy, helpfulness, accessibility hoặc learner trust.
+1. **Blueprint structured** — IELTS is modeled as a structured blueprint rather than a list of lessons. Band progression is a soft recommendation and does not hard-lock access.
+2. **Sole evaluator + governance** — the entire evaluation layer is handled 100% by AI, with no human in the loop. The quality-control target is AI Governance (invisible backend): confidence scoring, gold-standard benchmark, drift/bias monitoring, and anti-gaming detection. This is not a guarantee until real evidence exists.
+3. **No-AI-label UI** — documentation may use the term "AI" on capabilities so developers understand their origin; the user interface does not display the word "AI" or an AI icon and instead uses plain functional names. See `07-conventions.md`.
+4. **Content taxonomy depth** — FSRS, Adaptive Practice, Gap Analysis, Learning Insights, and AI Error Analysis are only as accurate as Colab's detailed tagging across band, micro-skill, question type, distractor type, paraphrase pattern, and grammar point. Shallow metadata means garbage in, garbage out. See `05-content.md`.
+5. **SSOT** — each capability has exactly one capability ID and one canonical description in `03-features.md`; other spokes reference it rather than duplicating it.
+6. **Progress over pressure** — retention is a consequence of real progress, not notification pressure, streak anxiety, or dark patterns.
+7. **Outcome loop** — every error or weakness must pass through `Understand → Practice → Retest → Confirm`; completing an activity alone is not an outcome.
+8. **Quality/cost guardrail** — cost reduction is allowed only when it does not reduce rubric accuracy, helpfulness, accessibility, or learner trust.
 
-> **Evidence boundary:** sole-evaluator và governance là product design decision. Benchmark corpus, numeric thresholds, drift detector và cost ceiling chưa được founder/evidence activate; không dùng prose này để claim evaluation đã calibrated hoặc governance đang chạy.
+> **Evidence boundary:** sole-evaluator and governance are product design decisions. Benchmark corpus, numeric thresholds, drift detector, and cost ceiling have not yet been activated by founder/evidence; this prose must not be used to claim that evaluation is calibrated or governance is currently operational.
 
 ## Role Model
 
@@ -77,104 +77,104 @@ Manage users, permissions, billing, and system settings
 
 ### Role boundaries
 
-- **Learner** học, luyện tập, làm bài và xem tiến độ
-- **Premium Learner** truy cập nội dung, phân tích và AI feature nâng cao
-- **AI** là evaluator duy nhất: chấm Writing, Speaking, Pronunciation, giải thích đáp án, phân tích lỗi, dự đoán band và đề xuất học tập — không có con người đứng giữa
-- **Colab** chỉ làm content (thêm, kiểm duyệt, publish), không bao giờ chấm bài hay can thiệp vào kết quả evaluation
-- **Admin** chỉ vận hành hệ thống (user, role, billing, audit), không bao giờ chấm bài hay override kết quả AI
+- **Learner** studies, practices, takes tests, and reviews progress
+- **Premium Learner** accesses advanced content, analysis, and AI-powered features
+- **AI** is the sole evaluator: it scores Writing, Speaking, and Pronunciation, explains answers, analyzes errors, predicts bands, and recommends learning actions — no human stands in the evaluation path
+- **Colab** only manages content (add, moderate, publish); it never scores learner work or intervenes in evaluation results
+- **Admin** only operates the system (user, role, billing, audit); it never scores learner work or overrides AI evaluation results
 
 ## Scope
 
 ### In scope
 
-- Học IELTS theo band, kỹ năng và dạng bài
-- Mô hình hóa 4 kỹ năng (Listening/Reading/Writing/Speaking) + Pronunciation thành domain Learning thống nhất, mỗi skill có 4 layer: Learning / Practice / Evaluation / Review
-- Evaluation: AI chấm 100% Writing/Speaking/Pronunciation, không human-in-the-loop; kèm band prediction, rewrite suggestion, calibration và consistency monitoring
+- Learn IELTS by band, skill, and question type
+- Model the four skills (Listening/Reading/Writing/Speaking) plus Pronunciation as one Learning domain, with four layers for each skill: Learning / Practice / Evaluation / Review
+- Evaluation: AI scores 100% of Writing/Speaking/Pronunciation without a human in the loop, including band prediction, rewrite suggestion, calibration, and consistency monitoring
 - Coaching: answer/vocabulary/distractor explanation, listening/reading coach, feedback, error analysis, recommendation, IELTS Q&A tutor
 - Personalization: gap analysis, next best action, adaptive learning plan, weakness-based practice, learning insights
-- Review & revision: bookmark, mistake notebook, wrong answer/question review, revision queue + FSRS spaced repetition + smart review queue
+- Review & revision: bookmark, mistake notebook, wrong-answer/question review, revision queue, FSRS spaced repetition, and smart review queue
 - Assessment history: all attempts, score/band/skill timeline, learning timeline, writing/speaking portfolio, compare attempts
-- Progress & analytics: dashboard, learning/skill analytics, band progress, goal tracking + motivation + achievement nhẹ
+- Progress & analytics: dashboard, learning/skill analytics, band progress, goal tracking, lightweight motivation, and lightweight achievement
 - Study orchestration: study session, daily plan, today's queue, continue on another device
-- Knowledge assets (hệ thống) + Personal knowledge (cá nhân: notes, word bank, collections, drafts, recordings, import, export, offline)
-- Band framework & progression (readiness, exam readiness, khuyến nghị mềm)
+- System Knowledge Assets plus Personal Knowledge (personal notes, word bank, collections, drafts, recordings, import, export, offline)
+- Band framework & progression (readiness, exam readiness, soft recommendations)
 - Goal & exam plan (target band/date, weekly/daily goal, countdown, checklist, timeline)
 - Search & resource center
-- Đa ngôn ngữ cho UI và AI response; nội dung IELTS giữ nguyên tiếng Anh
-- AI Governance: confidence scoring, gold-standard eval benchmark, drift/bias monitoring, anti-gaming detection (backend invisible)
-- Colab quản lý, kiểm duyệt, publish nội dung + xử lý content feedback
-- Admin quản lý hệ thống, user, billing và permission
+- Multilingual UI and AI responses; IELTS test content remains in English
+- AI Governance: confidence scoring, gold-standard evaluation benchmark, drift/bias monitoring, anti-gaming detection (invisible backend)
+- Colab manages, moderates, and publishes content and handles content feedback
+- Admin manages the system, users, billing, and permissions
 
 ### Out of scope
 
-- Live class trực tiếp
-- Video call 1:1 real-time
-- Human examiner / human-in-the-loop trong đánh giá (AI là nguồn chấm điểm duy nhất)
-- Community forum phức tạp
-- Gamification nặng kiểu game (leaderboard, badge hierarchy, avatar)
-- Marketplace ngoài phạm vi học IELTS
+- Live classes
+- Real-time 1:1 video calls
+- Human examiner / human-in-the-loop evaluation; AI is the sole scoring source
+- Complex community forum
+- Heavy game-style gamification such as leaderboards, badge hierarchies, or avatars
+- Marketplace outside the scope of IELTS learning
 
 ### Scope note
 
-- AI là nguồn chấm điểm duy nhất cho Writing, Speaking và Pronunciation; hệ thống tự chấm 100%, không có con người can thiệp (no human-in-the-loop) ở bất kỳ tầng nào của evaluation
-- Không tồn tại vai trò human examiner hay human reviewer trong flow đánh giá; mọi band score, feedback và recommendation đều do AI phát ra
-- Chất lượng chấm được đảm bảo bằng calibration trên dataset chuẩn, monitoring độ nhất quán, tuning model và AI Governance (`06-engines.md`), chứ không bằng con người chấm lại từng bài
-- AI Examiner là nguồn chấm Speaking duy nhất, không phải "mô phỏng" hay "thay thế" ai khác
-- Pronunciation analysis là kết quả của speech engine, được tối ưu liên tục để tiệm cận độ chính xác của hệ thống chuẩn
-- Colab chỉ can thiệp ở tầng content, không bao giờ ở tầng evaluation
-- Admin chỉ vận hành hệ thống (user, billing, audit), không bao giờ chấm bài hay override kết quả AI
-- Band framework là core IP của sản phẩm, không nên chỉ là metadata phụ
-- Band progression không khóa cứng việc học; hệ thống khuyến nghị, cảnh báo và đo readiness thay vì ép learner đi theo một đường duy nhất
-- Band access chỉ nên dùng để mô tả trạng thái truy cập hoặc khuyến nghị, không dùng để khóa toàn bộ kiến thức của band cao hơn
-- Question type là đơn vị học quan trọng ngang với lesson
-- Đa ngôn ngữ chỉ áp dụng cho giao diện và AI response; nội dung IELTS (audio, passage, question, writing task, speaking prompt) luôn giữ tiếng Anh nguyên bản vì learner cần học với ngôn ngữ thi thật
-- AI response language tuân theo ngôn ngữ user chọn, giúp learner hiểu feedback và giải thích dễ dàng; ngôn ngữ AI không ảnh hưởng đến kết quả chấm (band score vẫn chuẩn theo IELTS rubric)
-- Personal Knowledge là không gian cá nhân của từng user; nội dung Colab publish đi vào hệ thống chung (Knowledge Assets), còn Personal Knowledge là nơi user tự thu thập và tổ chức lại theo nhu cầu riêng
-- Assessment History là nguồn sự thật duy nhất về toàn bộ kết quả đánh giá của learner, feed ngược về Personalization và Progress; tránh duplicate timeline rải rác ở nhiều nơi
-- Content Taxonomy Depth: FSRS, Adaptive Practice, Gap Analysis, Learning Insights và AI Error Analysis chỉ chính xác khi Colab tagging siêu chi tiết (band, micro-skill, question type, distractor, paraphrase, grammar) — chi tiết `05-content.md`
-- AI Governance là tầng kiểm soát chất lượng **được thiết kế** cho sole evaluator: confidence scoring, gold-standard benchmark, drift/bias monitoring, anti-gaming detection — tất cả invisible với user, không mở lại luồng human-in-the-loop. Các control chưa active nếu thiếu corpus/threshold/run — chi tiết `06-engines.md`
+- AI is the sole scoring source for Writing, Speaking, and Pronunciation; the system scores 100% automatically and no human intervenes at any layer of evaluation
+- There is no human examiner or human reviewer role in the evaluation flow; every band score, feedback item, and recommendation is emitted by AI
+- Evaluation quality is designed to be controlled through calibration on a standard dataset, consistency monitoring, model tuning, and AI Governance (`06-engines.md`), not by humans re-scoring individual submissions
+- AI Examiner is the sole Speaking scoring source, not a simulation of, or replacement for, a separate human role inside LenBands
+- Pronunciation analysis is produced by the speech engine and is intended to be continuously optimized toward the accuracy of a reference-quality system
+- Colab only intervenes at the content layer, never at the evaluation layer
+- Admin only operates the system (users, billing, audit); it never scores learner work or overrides AI results
+- The band framework is core product IP and must not be treated as incidental metadata
+- Band progression does not hard-lock learning; the system recommends, warns, and measures readiness instead of forcing learners through one path
+- Band access may describe access state or recommendation but must not lock all knowledge at higher bands
+- Question type is a learning unit as important as a lesson
+- Multilingual behavior applies only to interface and AI responses; IELTS content (audio, passage, question, writing task, speaking prompt) always remains in its original English because learners need authentic exam-language exposure
+- AI response language follows the user's selected language so feedback and explanations are easier to understand; response language does not affect scoring, which remains aligned to the IELTS rubric
+- Personal Knowledge is each user's private learning space; Colab-published content becomes shared system Knowledge Assets, while Personal Knowledge lets a learner collect and reorganize material for personal use
+- Assessment History is the single source of truth for all learner evaluation results and feeds Personalization and Progress; do not duplicate timelines across domains
+- Content Taxonomy Depth: FSRS, Adaptive Practice, Gap Analysis, Learning Insights, and AI Error Analysis depend on highly detailed Colab tagging across band, micro-skill, question type, distractor, paraphrase, and grammar; see `05-content.md`
+- AI Governance is the quality-control layer **designed** for the sole evaluator: confidence scoring, gold-standard benchmark, drift/bias monitoring, and anti-gaming detection, all invisible to the user and without reopening a human-in-the-loop path. These controls are not active when corpus/threshold/run evidence is missing; see `06-engines.md`
 
 ## Product success contract
 
 ### North Star
 
-**Weekly Meaningful Progress** — số learner active mỗi tuần có ít nhất một bằng chứng tiến bộ thật: giảm error recurrence, hoàn thành retest với kết quả tốt hơn, cải thiện readiness hoặc tạo được output Writing/Speaking tốt hơn.
+**Weekly Meaningful Progress** — the number of active learners each week with at least one piece of evidence of real progress: lower error recurrence, a better retest result, improved readiness, or stronger Writing/Speaking output.
 
 ### Metric tree
 
-| Tầng | Chỉ số | Guardrail |
+| Layer | Metric | Guardrail |
 |---|---|---|
-| Activation | hoàn thành placement hoặc first meaningful session trong 24 giờ | không ép placement dài; cho phép quick start |
-| Retention | D7/W4 retention, meaningful study days, comeback rate | notification opt-out, không phạt bỏ streak |
-| Learning | readiness lift, error recurrence, retest gain, skill balance | không tối ưu theo minutes hoặc số câu đơn thuần |
-| Trust/quality | calibration error, low-confidence rate, helpfulness, content report rate | low-confidence phải có trạng thái và recovery |
-| Economics | cost/active learner, cost/evaluation, cache hit, model escalation rate | vượt budget thì degrade có kiểm soát, không âm thầm giảm chất lượng |
+| Activation | complete placement or first meaningful session within 24 hours | do not force a long placement; allow quick start |
+| Retention | D7/W4 retention, meaningful study days, comeback rate | notification opt-out; do not punish broken streaks |
+| Learning | readiness lift, error recurrence, retest gain, skill balance | do not optimize only for minutes or number of questions |
+| Trust/quality | calibration error, low-confidence rate, helpfulness, content report rate | low-confidence must have explicit state and recovery |
+| Economics | cost/active learner, cost/evaluation, cache hit, model escalation rate | if budget is exceeded, degrade in a controlled way; never silently reduce quality |
 
 ### Retention promise
 
-- Mỗi lần quay lại phải thấy: **mình đang ở đâu, hôm nay nên làm gì, làm xong sẽ cải thiện gì**.
-- Có phiên `5–10 phút` cho ngày bận, phiên chuẩn cho ngày bình thường và phiên sâu cho ngày có nhiều năng lượng.
-- Sau thời gian vắng mặt, hệ thống tạo **comeback plan** ngắn, không dồn toàn bộ backlog và không dùng ngôn ngữ trách móc.
-- Notification chỉ gửi khi có giá trị rõ ràng, theo preference, quiet hours, frequency cap và mức độ ưu tiên.
+- Every return should answer: **where am I, what should I do today, and what will improve if I complete it?**
+- Provide `5–10 minute` sessions for busy days, standard sessions for normal days, and deeper sessions when the learner has more energy.
+- After an absence, create a short **comeback plan** rather than dumping the entire backlog or using blame-oriented language.
+- Send notifications only when they provide clear value and respect preference, quiet hours, frequency caps, and priority.
 
 ### Quality promise
 
-- Feedback phải nêu evidence, lỗi/điểm mạnh, hành động tiếp theo và cách kiểm chứng lại.
-- Score luôn gắn với rubric version, model version, timestamp và confidence state.
-- Không ghi kết quả có trạng thái `invalid`, `low_confidence` hoặc `anti_gaming_review` vào readiness như kết quả bình thường.
+- Feedback must state evidence, strengths/errors, the next action, and how to verify improvement.
+- Every score is associated with rubric version, model version, timestamp, and confidence state.
+- Results in `invalid`, `low_confidence`, or `anti_gaming_review` state must not be fed into readiness as ordinary results.
 
 ### Cost principles
 
-- Rẻ nhất ở nơi không làm giảm outcome: cache explanation, batch tagging/analytics, precompute queue và dùng model nhỏ cho routing/classification.
-- Chỉ dùng model lớn cho task có tác động trực tiếp tới learning outcome hoặc evaluation quality.
-- Mọi request có budget, quota, timeout, retry limit, observability và fallback rõ ràng.
+- Save cost where outcome quality is unaffected: cache explanations, batch tagging/analytics, precompute queues, and use smaller models for routing/classification.
+- Use larger models only for tasks with direct impact on learning outcome or evaluation quality.
+- Every request has a budget, quota, timeout, retry limit, observability, and fallback.
 
 ## Runtime contract boundary
 
-Ba contract dưới đây là phần bắt buộc của blueprint trước khi build, nhưng được giữ mỏng và có mục đích rõ:
+The three contracts below are mandatory Blueprint inputs before build, but intentionally remain narrow and purpose-specific:
 
-- **Runtime State Model** (`02-architecture.md`) quyết định Home, plan, recommendation, notification và recovery theo state vector đa trục.
-- **Event Contract** (`03-features.md`) là SSOT cho fact product/learning, analytics, experimentation và outcome measurement.
-- **Failure Contract** (`06-engines.md`) quy định retry, fallback, data safety, quota, user-facing state và telemetry cho mọi failure.
+- **Runtime State Model** (`02-architecture.md`) determines Home, plan, recommendation, notification, and recovery from a multidimensional state vector.
+- **Event Contract** (`03-features.md`) is the SSOT for product/learning facts, analytics, experimentation, and outcome measurement.
+- **Failure Contract** (`06-engines.md`) defines retry, fallback, data safety, quota, user-facing state, and telemetry for every failure.
 
-Không được dùng role, UI click hoặc exception text thay thế cho ba contract này.
+Role, UI clicks, or exception text must not be used as substitutes for these three contracts.
