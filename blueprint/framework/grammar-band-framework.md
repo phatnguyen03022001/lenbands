@@ -1,56 +1,61 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Grammar × Band Framework
 
-Status: `framework` — versioned controlled vocabulary of grammar points by band. Feeds `KA.Grammar`, the `BAND.Map` grammar row, `BAND.Requirement` grammar checklist, and FSRS `recall_grammar_rule` card sources.
+Status: `framework` — LenBands-controlled grammar curriculum. It provides stable `grammar_id` values, instructional sequencing, and heuristic band labels for content routing. It feeds `KA.Grammar`, curriculum views in `BAND.Map`, and FSRS grammar-card sources.
+
+Authority:
+- Grammar IDs, dependency edges, completion rules, and curriculum ordering are `lenbands-controlled`.
+- `band_introduce` and `band_master` are `experimental-heuristic` curriculum labels. IELTS does **not** publish a checklist saying a particular named grammar structure is required at a particular band.
+- These band fields must not be presented as official IELTS requirements or used as the sole basis for a predicted/awarded band.
+- Writing/Speaking grammar scores come from the official-derived Grammatical Range & Accuracy descriptors and observed performance, not completion of this inventory.
 
 Conventions:
 - `grammar_id` is snake_case and versioned.
-- Each point has `band_introduce` (band where use begins to matter), `band_master` (band where accurate/flexible use should be mastered), and `error_refs` (related error-taxonomy IDs, not micro-skills).
-- Band ranges follow standard EFL/IELTS difficulty guidance; they are not hard rules, but answer the question **"should a learner at band X be able to use this yet?"**
-- This does not list all English grammar; it includes only points that have **band-discriminating value** in IELTS.
+- `band_introduce` is the LenBands curriculum point where instruction may begin emphasizing the structure.
+- `band_master` is the LenBands curriculum target where stronger independent control is expected.
+- `error_refs` contains related error-taxonomy IDs, not prerequisites.
+- This is a selective teaching inventory, not a claim to enumerate all English grammar or all grammatical evidence relevant to IELTS.
 
-## Node schema (each grammar point)
+## Node schema
 
-Each grammar point is a **self-contained node** that owns its relationships, completion conditions, and learner-facing statement inline. Global graph/index views are generated projections, not SSOT; see `framework/README.md`.
-
-The band tables below are inventory summaries. Only nodes with complete `can_statement`, `depends_on`, `done_when`, and `error_refs` are spawn-ready; summary-only nodes must be marked `needs_review` by assets and must not be published as if learning outcomes were fully defined.
+A complete grammar node owns its relationships, completion conditions, and learner-facing statement inline. Global graph/index views are generated projections, not SSOT.
 
 ```yaml
 grammar_id: g_second_conditional
 name: Second Conditional
-band_introduce: 6.0
-band_master: 7.0
+band_introduce: 6.0       # LenBands curriculum heuristic, not official IELTS threshold
+band_master: 7.0          # LenBands curriculum heuristic, not official IELTS threshold
 error_refs: [W_gra_complex_with_error]
 can_statement: "Learner can form and use second conditional to talk about hypothetical present/future situations accurately in writing and speaking."
 depends_on:
   - id: g_zero_first_conditional
-    strength: hard_prerequisite      # hard_prerequisite | recommended | soft
-    source: cambridge_syllabus       # cambridge_syllabus | efl_research | colab_curated
+    strength: hard_prerequisite
+    source: colab_curated
   - id: g_past_simple
     strength: hard_prerequisite
-    source: cambridge_syllabus
+    source: colab_curated
 done_when:
-  accuracy_pct: 90                   # in practice/drill linked to this grammar_id
-  consecutive_sessions: 3            # 3 consecutive sessions at target accuracy
-  no_review_regression_days: 30      # no relapse for 30 days after FSRS rating Good
+  accuracy_pct: 90
+  consecutive_sessions: 3
+  no_review_regression_days: 30
   evidence_source: [practice, writing_eval, speaking_eval]
-unlocks:                             # forward nodes unlocked by this node; projection use
+unlocks:
   - g_mixed_conditionals
 ```
 
-Field conventions:
-- `depends_on`: edges **into** prerequisites required by this node. Empty means no prerequisite.
-- `unlocks`: forward edges **out** from this node. This is a projection and does not have to be manually authored.
-- `strength`: `hard_prerequisite` means learning is blocked without it; `recommended` means it should be learned first; `soft` means weakly related.
-- `source`: edge provenance and must NOT be inferred. `cambridge_syllabus` = Cambridge syllabus; `efl_research` = EFL research; `colab_curated` = Colab curated.
-- `done_when`: conditions for ✓ in `BAND.Map` mastery. `accuracy_pct` + `consecutive_sessions` + `no_review_regression_days` are AND conditions.
-- `can_statement`: learner-facing "Learner can ..." statement rather than a technical label.
+Field rules:
+- `depends_on`: teaching prerequisite asserted by an approved provenance source. Missing provenance → `needs_review`.
+- `unlocks`: forward projection; may be generated from prerequisites.
+- `strength`: `hard_prerequisite | recommended | soft` is a LenBands instructional relation, not an IELTS scoring relation.
+- `source`: provenance for the edge. Do not label an edge `cambridge_syllabus` or `efl_research` without a concrete source reference in the governed asset/metadata layer.
+- `done_when`: internal mastery condition for curriculum review. It does not prove an IELTS band.
+- `can_statement`: learner-facing skill statement.
 
-## Band 4.0–5.0 — Foundation (required to enter band 5)
+## Curriculum bucket 4.0–5.0 — Foundation heuristic
 
 | grammar_id | Grammar point | band_introduce | band_master | error_refs | done_when (summary) |
 |---|---|---|---|---|---|
@@ -64,26 +69,26 @@ Field conventions:
 | `g_articles_basic` | Basic a/an/the | 4.5 | 6.0 | `W_gra_article` | |
 | `g_plural_nouns` | Plural nouns + irregular forms | 4.0 | 5.0 | — | |
 | `g_basic_conjunctions` | and/but/because/so | 4.0 | 5.0 | — | |
-| `g_modals_basic` | can/could/must/should (ability, advice, obligation) | 4.5 | 5.5 | — | |
+| `g_modals_basic` | can/could/must/should | 4.5 | 5.5 | — | |
 
-Dependency edges for the two foundation rows below are not taxonomy links:
+Example instructional prerequisites:
 
 | grammar_id | depends_on | strength |
 |---|---|---|
 | `g_present_continuous` | `g_present_simple` | hard_prerequisite |
 | `g_past_simple` | `g_present_simple` | hard_prerequisite |
 
-## Band 5.0–6.0 — Developing (required to enter band 6)
+## Curriculum bucket 5.0–6.0 — Developing heuristic
 
 | grammar_id | Grammar point | band_introduce | band_master | error_refs |
 |---|---|---|---|---|
 | `g_present_perfect_continuous` | Present perfect continuous | 5.5 | 6.5 | `W_gra_tense` |
 | `g_past_perfect` | Past perfect | 5.5 | 6.5 | — |
 | `g_zero_first_conditional` | Zero + first conditional | 5.5 | 6.5 | `W_gra_complex_with_error` |
-| `g_second_conditional` | Second conditional (hypothetical) | 6.0 | 7.0 | — |
+| `g_second_conditional` | Second conditional | 6.0 | 7.0 | — |
 | `g_passive_voice` | Passive voice (present/past) | 5.5 | 6.5 | `W_gra_complex_with_error` |
-| `g_relative_clauses_defining` | Defining relative clauses (who/which/that) | 5.5 | 6.5 | `W_gra_relative_clause` |
-| `g_relative_clauses_non_defining` | Non-defining relative clauses (comma + who/which) | 6.0 | 7.0 | — |
+| `g_relative_clauses_defining` | Defining relative clauses | 5.5 | 6.5 | `W_gra_relative_clause` |
+| `g_relative_clauses_non_defining` | Non-defining relative clauses | 6.0 | 7.0 | — |
 | `g_gerund_infinitive` | Gerund vs infinitive after verbs | 5.5 | 6.5 | — |
 | `g_comparatives_superlatives` | Comparative + superlative forms | 5.0 | 6.0 | — |
 | `g_quantifiers` | some/any/much/many/few/a few | 5.0 | 6.0 | — |
@@ -91,95 +96,84 @@ Dependency edges for the two foundation rows below are not taxonomy links:
 | `g_used_to` | used to / be used to / get used to | 5.5 | 6.5 | — |
 | `g_reported_speech` | Reported speech + backshift | 5.5 | 6.5 | — |
 | `g_question_tags` | Question tags | 5.5 | 6.5 | — |
-| `g_articles_advanced` | The with unique/geographical/generic reference | 6.0 | 7.0 | `W_gra_article` |
+| `g_articles_advanced` | Advanced article reference | 6.0 | 7.0 | `W_gra_article` |
 
-## Band 6.0–7.0 — Target (required to enter band 7; most important discriminating range)
+## Curriculum bucket 6.0–7.0 — Upper-intermediate heuristic
 
 | grammar_id | Grammar point | band_introduce | band_master | error_refs |
 |---|---|---|---|---|
-| `g_third_conditional` | Third conditional (past unreal) | 6.5 | 7.5 | `W_gra_complex_with_error` |
+| `g_third_conditional` | Third conditional | 6.5 | 7.5 | `W_gra_complex_with_error` |
 | `g_mixed_conditionals` | Mixed conditionals | 7.0 | 8.0 | — |
 | `g_wish_if_only` | wish + past/past perfect; if only | 6.5 | 7.5 | — |
 | `g_passive_advanced` | Passive with modals/reporting verbs | 6.5 | 7.5 | — |
-| `g_relative_clause_reduced` | Reduced relative clauses (participle) | 7.0 | 8.0 | — |
-| `g_participle_clauses` | Participle clauses (-ing/-ed reduced) | 7.0 | 8.0 | `W_gra_complex_with_error` |
+| `g_relative_clause_reduced` | Reduced relative clauses | 7.0 | 8.0 | — |
+| `g_participle_clauses` | Participle clauses | 7.0 | 8.0 | `W_gra_complex_with_error` |
 | `g_inversion` | Inversion after negative/restrictive adverbs | 7.0 | 8.0 | `W_gra_complex_with_error` |
-| `g_cleft_sentences` | Cleft sentences (It is... that...) | 7.0 | 8.0 | — |
-| `g_modal_perfect` | Modal + perfect (must have done, should have done) | 6.5 | 7.5 | — |
-| `g_subordinate_clauses` | Concession (although/despite), purpose (so that), result (such) | 6.5 | 7.5 | — |
+| `g_cleft_sentences` | Cleft sentences | 7.0 | 8.0 | — |
+| `g_modal_perfect` | Modal + perfect | 6.5 | 7.5 | — |
+| `g_subordinate_clauses` | Concession/purpose/result clauses | 6.5 | 7.5 | — |
 | `g_emphatic_do_did` | Emphatic do/did | 6.5 | 7.5 | — |
-| `g_noun_clauses` | Noun clauses (that/whether) | 6.5 | 7.5 | — |
+| `g_noun_clauses` | Noun clauses | 6.5 | 7.5 | — |
 | `g_indirect_questions` | Indirect-question word order | 6.5 | 7.5 | — |
 | `g_punctuation_advanced` | Semicolon, colon, dash, parallel structure | 6.5 | 7.5 | `W_gra_punctuation` |
 
-## Band 7.5–9.0 — Advanced/Precision (required for band 8+)
+## Curriculum bucket 7.5–9.0 — Advanced heuristic
 
 | grammar_id | Grammar point | band_introduce | band_master | error_refs |
 |---|---|---|---|---|
-| `g_inversion_conditional` | Inversion in conditionals (Had I known...) | 7.5 | 8.5 | — |
-| `g_emphatic_inversion` | Emphatic inversion (Not only did he...) | 8.0 | 9.0 | — |
-| `g_elliptical_clauses` | Ellipsis (omitting words) | 8.0 | 9.0 | — |
-| `g_nominalization` | Nominalization (academic style) | 7.5 | 8.5 | — |
-| `g_subjunctive` | Subjunctive (suggest/recommend that he be) | 8.0 | 9.0 | — |
+| `g_inversion_conditional` | Inversion in conditionals | 7.5 | 8.5 | — |
+| `g_emphatic_inversion` | Emphatic inversion | 8.0 | 9.0 | — |
+| `g_elliptical_clauses` | Ellipsis | 8.0 | 9.0 | — |
+| `g_nominalization` | Nominalization | 7.5 | 8.5 | — |
+| `g_subjunctive` | Subjunctive | 8.0 | 9.0 | — |
 | `g_complex_parallelism` | Parallelism in long sentences | 7.5 | 8.5 | — |
-| `g_fronting` | Fronting for emphasis (On the table was...) | 8.0 | 9.0 | — |
+| `g_fronting` | Fronting for emphasis | 8.0 | 9.0 | — |
 
-## Cumulative grammar-point count by target band (`BAND.Map` checklist)
+## Inventory count
 
-| Band target | Grammar points to master (cumulative) |
-|---|---|
-| 5.0 | 11 (Foundation) |
-| 7.0 | 40 (including Target; discriminating 6→7 range) |
-| 8.0 | 47 (including Advanced) |
-| 9.0 | 47 (all Advanced) |
+The controlled inventory currently contains 47 grammar IDs. Counts by curriculum bucket are useful for authoring coverage only. They are **not** minimum grammar counts required by IELTS and must not appear learner-facing as "master N structures to reach Band X".
 
-These counts are **band-completion guidance**, not hard rules. `BAND.Map` displays each point as ✓/⚠/✗ using `band_master` plus real learner evidence.
-
-## Important dependency chains (examples; full edges live inline in nodes)
+## Example dependency chains
 
 ```text
 Tense chain:
   g_present_simple ─hard─▶ g_past_simple ─hard─▶ g_present_perfect ─hard─▶ g_past_perfect
-                                  │                              │
-                                  └─hard─▶ g_present_continuous  └─recommended─▶ g_present_perfect_continuous
 
 Conditional chain:
   g_zero_first_conditional ─hard─▶ g_second_conditional ─hard─▶ g_third_conditional ─hard─▶ g_mixed_conditionals
-                                                                          │
-                                                                          └─recommended─▶ g_inversion_conditional
 
 Relative clause chain:
   g_relative_clauses_defining ─hard─▶ g_relative_clauses_non_defining ─recommended─▶ g_relative_clause_reduced ─recommended─▶ g_participle_clauses
-
-Passive chain:
-  g_passive_voice ─recommended─▶ g_passive_advanced ─recommended─▶ (g_inversion — advanced)
 
 Inversion cluster:
   g_inversion ─recommended─▶ g_inversion_conditional ─recommended─▶ g_emphatic_inversion
 ```
 
-A `hard` edge means the next node should not be learned before the prerequisite. A `recommended` edge means prior learning is preferred but can be skipped at a cost.
+These are instructional paths. They do not mean IELTS examiners require a named structure before awarding a band.
 
 ## Usage
 
-- `KA.Grammar` asset: every grammar lesson has a `grammar_id` from this framework + `band_master`.
-- `BAND.Map` grammar row: list grammar points with `band_master <= target_band`, then mark ✓/⚠/✗ from evidence such as recent `REVIEW.MistakeNotebook` and `EVAL.Writing/Speaking` results.
-- `BAND.Requirement` checklist: use these points to represent grammar required for band X.
-- FSRS `recall_grammar_rule` card: source = `grammar_id` + rule.
-- `COACH.ErrorAnalysis`: map grammar errors to `grammar_id`.
+- `KA.Grammar`: lessons reference a controlled `grammar_id`.
+- `BAND.Map`: may show **Grammar curriculum coverage** separately from IELTS band evidence. It must not convert inventory completion into an IELTS band.
+- `BAND.Requirement`: must derive official band requirements from the Grammatical Range & Accuracy descriptors, not from a list of named grammar structures. This file may supply examples/drills only.
+- `REVIEW.FSRS`: grammar cards may use `grammar_id` as source identity.
+- `COACH.ErrorAnalysis`: observed grammar errors may map to `grammar_id` for remediation, while band impact remains holistic and evidence-based.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-- `version: 1.0.1` — corrected inventory count/identifier and marked incomplete summary rows; no new grammar point added.
-- `version: 1.0.2` — corrected the inventory column label so `error_refs` is not confused with `depends_on`.
-- `version: 1.0.4` — moved foundation prerequisites out of `error_refs` and removed the duplicate 6.0 summary row; no new grammar node added.
-- `version: 1.0.5` — corrected `g_participle_clauses.error_refs` to a taxonomy error id after semantic validator hardening; no new grammar node added.
-- `version: 1.0.6` — normalized the changelog order; grammar nodes and band mappings are unchanged.
-- Addition: minor bump + `added_in`.
-- Change to `band_master`: patch + note.
-- Removal: `deprecated_in`, never deletion.
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
+- `version: 1.0.1` — corrected inventory count/identifier and marked incomplete summary rows.
+- `version: 1.0.2` — clarified `error_refs` versus prerequisite `depends_on`.
+- `version: 1.0.4` — moved foundation prerequisites out of `error_refs` and removed a duplicate summary row.
+- `version: 1.0.5` — corrected `g_participle_clauses.error_refs` to a taxonomy error ID.
+- `version: 1.0.6` — normalized changelog order; grammar nodes were unchanged.
+- `version: 1.0.7` — corrected authority: grammar-to-band mappings are explicitly LenBands curriculum heuristics, not official IELTS structure requirements, and inventory completion may not produce a band claim.
+- Adding a grammar ID: minor bump + `added_in`.
+- Changing a heuristic band label: patch + note and calibration review.
+- Removal: deprecate rather than delete.
 
 ## Do not infer
 
-A grammar point outside this framework must not be used as a `BAND.Map` item or FSRS card source. Adding a rare point requires Colab review.
+- Do not claim IELTS requires a particular named grammar construction at a particular band unless the claim is directly supported by the official descriptor/evidence contract.
+- Do not use completion of the 47-item inventory as a scoring formula.
+- A grammar item outside this controlled inventory requires review before becoming a LenBands curriculum ID; its absence does not mean the structure is irrelevant to IELTS performance.
