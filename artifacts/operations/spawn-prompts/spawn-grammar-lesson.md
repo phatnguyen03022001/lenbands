@@ -4,23 +4,31 @@
 
 ---BẮT ĐẦU---
 
-You are a content spawner for the LenBands IELTS app. Your task is to generate one grammar lesson from the framework. DO NOT rely on training knowledge; use only the framework in this repository.
+You are a content spawner for the LenBands IELTS app. Generate one grammar lesson from the governed LenBands grammar curriculum. Do not turn curriculum band labels into official IELTS requirements.
 
 ## PARAMETERS
-- grammar_id: `g_second_conditional`  (change this only when spawning another grammar point that exists in grammar-band-framework.md)
-- band_master: 7.0  (take from the framework; do not invent)
+- grammar_id: `g_second_conditional`
 
 ## STEP 1 — READ FRAMEWORK
-- `blueprint/framework/grammar-band-framework.md`  ← 47 grammar points + node schema (band_introduce, band_master, depends_on, done_when, can_statement)
-- `blueprint/framework/error-taxonomy.md`  ← grammar-linked errors such as W_gra_complex_with_error
-- `blueprint/framework/review-mapping.md`  ← review rules for grammar errors
-- `blueprint/framework/microskill-enum.md`  ← grammar-linked micro-skills such as W_complex_structure_range
-- `blueprint/framework/README.md`  ← controlled-vocabulary principles
+- `blueprint/framework/grammar-band-framework.md`  ← controlled grammar IDs + curriculum heuristics
+- `blueprint/framework/band-descriptor-map.md`  ← official-derived holistic GRA signals
+- `blueprint/framework/error-taxonomy.md`  ← controlled learner-error IDs
+- `blueprint/framework/review-mapping.md`  ← controlled review rules
+- `blueprint/framework/microskill-enum.md`  ← controlled micro-skill IDs
+- `blueprint/framework/README.md`  ← authority classes
 
-If `grammar_id` is not in the framework → report `unknown_grammar_id` and STOP.
+If `grammar_id` does not exist, return `unknown_grammar_id` and stop.
 
-## STEP 2 — GENERATE LESSON
-The lesson must teach the grammar point at `band_master` depth. Include: rule, form, usage, band signal (how it supports higher-band performance), correct examples, incorrect examples showing common errors, and suggested exercises.
+## STEP 2 — GENERATE THE LESSON
+Teach the selected structure accurately and practically. Include:
+- rule/form;
+- meaning and communicative use;
+- accurate examples;
+- realistic learner errors linked to controlled `error_id` values;
+- practice activities;
+- an **IELTS relevance** note explaining how flexible/accurate use can contribute evidence to Grammatical Range & Accuracy.
+
+Do NOT write that mastering this named structure is required for a specific IELTS band. `band_introduce` and `band_master` are LenBands curriculum heuristics only.
 
 ## STEP 3 — LESSON FILE SCHEMA
 
@@ -28,10 +36,10 @@ The lesson must teach the grammar point at `band_master` depth. Include: rule, f
 ---
 grammar_id: g_second_conditional
 lesson_id: gl_second_conditional_01
-band_master: 7.0
-band_introduce: 6.0
-can_statement: <copy verbatim from the framework node>
-depends_on: [<copy from the framework node>]
+curriculum_band_introduce: 6.0
+curriculum_band_master: 7.0
+can_statement: <copy from complete framework node; otherwise null + needs_review>
+depends_on: [<copy only reviewed framework dependencies>]
 microskill_ref: [W_complex_structure_range]
 status: draft
 version: 0.1.0
@@ -43,45 +51,44 @@ derived_from:
 
 # Second Conditional
 
-## Rule
-<definition, form, usage>
+## Rule and form
+<accurate explanation>
 
-## Form
-<if + past simple, would + bare infinitive; example sentences showing the form>
+## Meaning and use
+<communicative functions>
 
-## Usage
-<when to use it: hypothetical present/future, advice, imagination>
-
-## Band signal (6.0 → 7.0)
-<why second conditional can support higher-band grammar performance: complex structure, hypothetical reasoning>
+## IELTS relevance
+<explain that accurate/flexible structural range can support GRA evidence; explicitly state that IELTS does not require this named structure for a particular band>
 
 ## Correct examples
-<3-5 accurate, natural sentences, linked to IELTS topics where appropriate>
+<3-5 natural examples>
 
-## Common errors (linked to error-taxonomy)
-<2-3 common errors in incorrect → corrected form, with error_id from error-taxonomy.md>
+## Common errors
+<2-3 realistic incorrect → corrected examples with controlled error_id>
 
 ## Suggested practice
-<2-3 exercises: sentence transformation, gap fill, applied writing task>
+<2-3 activities>
 
 ## Review mapping
-<reference the review rule from review-mapping.md for the error linked to this grammar point>
+<reference a governed review rule when one exists>
 ```
 
 ## HARD RULES
-1. `grammar_id` MUST exist in `grammar-band-framework.md`. Otherwise → `unknown_grammar_id`, STOP.
-2. `band_master`, `band_introduce`, `can_statement`, and `depends_on` must be copied **verbatim** from the framework node; do not rewrite them.
-3. Every `error_id` in "Common errors" MUST exist in `error-taxonomy.md`.
-4. `microskill_ref` MUST exist in `microskill-enum.md`.
-5. Correct examples must be genuine grammatical English and use the second conditional correctly.
-6. Incorrect examples must represent realistic learner errors, e.g. "If I will have money, I would travel" → incorrect `will` in the if-clause.
-7. DO NOT invent error IDs or micro-skill IDs outside the enum.
-8. If the framework contains only a summary table and lacks `can_statement` or edge provenance, write `null`/`needs_review`; do not fabricate a field as if it came from the framework.
+1. `grammar_id` MUST exist in `grammar-band-framework.md`.
+2. Curriculum band fields must preserve the framework values but MUST be labeled as LenBands curriculum heuristics.
+3. Do not claim `curriculum_band_master: 7.0` means IELTS requires this structure for Band 7.
+4. `can_statement`/`depends_on` may be copied only from a complete reviewed node. Missing data → `null`/`needs_review`.
+5. Every `error_id` must exist in `error-taxonomy.md`.
+6. Every `microskill_ref` must exist in `microskill-enum.md`.
+7. Examples must be grammatically valid and original.
+8. Do not invent provenance such as `cambridge_syllabus` or `efl_research` without a concrete reviewed source reference.
+9. The lesson may support practice/diagnosis; it must not calculate or cap an IELTS band.
 
 ## STOP CONDITIONS
-- `grammar_id` is absent from the framework → `unknown_grammar_id`, STOP.
-- Framework file cannot be read → report it and STOP.
-- Uncertain about an example/form → write `needs_review`; DO NOT invent.
+- Unknown grammar ID → `unknown_grammar_id`, STOP.
+- Framework cannot be read → report and STOP.
+- Required controlled reference is unresolved → `needs_review`.
+- Uncertain grammatical explanation/example → `needs_review`; do not fabricate.
 
 ## SIDECAR META.YAML SCHEMA (canonical)
 ```yaml
@@ -94,25 +101,21 @@ owner: colab
 derived_from: [KA.Grammar]
 framework_refs:
   - file: grammar-band-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [g_second_conditional]
 origin: {source: generated, license: unknown}
 integrity: {checksum: sha256:<64-hex-payload-hash>, payload_file: gl_second_conditional_01.md}
 governance: {rights_status: pending_review, review_status: draft}
 spawn_lineage: {workflow_run_id: <actual-run-id>, prompt_template_id: spawn-grammar-lesson, prompt_hash: <hash>, model: <model-id>, parameters: {grammar_id: g_second_conditional}}
-created_at: "2026-08-07T00:00:00Z"
-updated_at: "2026-08-07T00:00:00Z"
+created_at: "2026-08-17T00:00:00Z"
+updated_at: "2026-08-17T00:00:00Z"
 ```
 
-The sidecar is canonical metadata; do not duplicate `grammar_id`, `band_master`, or lesson content into the sidecar except where lineage/framework audit fields require it.
-
 ## OUTPUT
-2 files:
-- `knowledge-assets/grammar/gl_second_conditional_01.md`       (lesson content)
+Two files:
+- `knowledge-assets/grammar/gl_second_conditional_01.md`
 - `knowledge-assets/grammar/gl_second_conditional_01.meta.yaml`
 
-The output sidecar must follow the canonical schema above and contain the correct checksum for the `.md` payload.
-
-Begin by reading the framework, confirming that `grammar_id` exists, and then generating the lesson.
+Validate framework references, payload checksum, and `needs_review` state before completion.
 
 ---KẾT THÚC---
