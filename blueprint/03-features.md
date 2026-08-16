@@ -1,12 +1,12 @@
 # 03 — Features (Capability Catalog)
 
-Đây là **Capability Catalog** — danh sách năng lực hệ thống với capability id duy nhất. Mỗi năng lực mô tả **có gì**, không mô tả cảm xúc (cảm xúc ở `04-experience.md`) hay thuật toán (thuật toán ở `06-engines.md`). Architecture/context ở `02-architecture.md`.
+This is the **Capability Catalog** — the list of system capabilities, each with a unique capability ID. Each capability describes **what exists**, not the emotional experience (defined in `04-experience.md`) or the algorithm (defined in `06-engines.md`). Architecture and context are defined in `02-architecture.md`.
 
-## Quy ước
+## Conventions
 
-- Mỗi capability có `id` duy nhất dạng `{DOMAIN}.{Capability}`.
-- `04-experience.md` và `06-engines.md` tham chiếu bằng id, không lặp mô tả.
-- UI label theo `07-conventions.md` (không chữ AI, không icon AI).
+- Every capability has a unique `id` in the form `{DOMAIN}.{Capability}`.
+- `04-experience.md` and `06-engines.md` reference capabilities by ID rather than duplicating descriptions.
+- UI labels follow `07-conventions.md` (no AI wording, no AI icon).
 
 ---
 
@@ -16,23 +16,23 @@
 
 | id | Capability |
 |---|---|
-| `IDENTITY.Auth` | Đăng ký / đăng nhập / phân quyền |
-| `IDENTITY.Profile` | Hồ sơ, ngôn ngữ ưu tiên, target band/date, weekly/daily goal, tiến độ |
+| `IDENTITY.Auth` | Sign-up / sign-in / authorization |
+| `IDENTITY.Profile` | Profile, preferred language, target band/date, weekly/daily goal, progress |
 | `IDENTITY.Recovery` | Forgot Password, Email Verification, Change Email |
 | `IDENTITY.Privacy` | Export Data, Delete Data, Consent, AI Data Usage |
-| `IDENTITY.DeleteAccount` | Xóa tài khoản |
+| `IDENTITY.DeleteAccount` | Delete account |
 
 ### Localization (LOC)
 
 | id | Capability |
 |---|---|
-| `LOC.InterfaceLanguage` | Ngôn ngữ giao diện (mặc định Tiếng Việt) |
+| `LOC.InterfaceLanguage` | Interface language (Vietnamese by default) |
 | `LOC.Switcher` | Language switcher |
-| `LOC.LocaleFormat` | Định dạng ngày/giờ/số |
-| `LOC.AIResponseLanguage` | AI trả lời theo ngôn ngữ user chọn |
-| `LOC.PreferenceSync` | Sync ngôn ngữ across devices |
+| `LOC.LocaleFormat` | Date/time/number formatting |
+| `LOC.AIResponseLanguage` | AI responds in the user's selected language |
+| `LOC.PreferenceSync` | Sync language preference across devices |
 
-> Nội dung IELTS luôn giữ tiếng Anh nguyên bản, không dịch.
+> IELTS content always remains in its original English and is not translated.
 
 ### Goal Management (GOAL)
 
@@ -47,20 +47,20 @@
 
 | id | Capability |
 |---|---|
-| `PLACE.Test` | Kiểm tra đầu vào |
-| `PLACE.SkillDiagnosis` | Đánh giá từng kỹ năng |
-| `PLACE.BandEstimation` | Đánh giá band tổng quan |
-| `PLACE.GapDetection` | Phát hiện gap ban đầu |
-| `PLACE.InitialPath` | Gợi ý lộ trình ban đầu |
+| `PLACE.Test` | Placement test |
+| `PLACE.SkillDiagnosis` | Per-skill diagnosis |
+| `PLACE.BandEstimation` | Overall band estimation |
+| `PLACE.GapDetection` | Initial gap detection |
+| `PLACE.InitialPath` | Initial learning-path recommendation |
 
 ### Learning (LEARN)
 
-Mỗi skill có 4 layer: Learning / Practice / Evaluation / Review. Evaluation/Review của skill nằm ở domain EVAL/REVIEW (xem dưới), đây chỉ liệt kê Learning + Practice layer.
+Each skill has four layers: Learning / Practice / Evaluation / Review. The Evaluation and Review layers are owned by the EVAL/REVIEW domains below; this section lists only the Learning and Practice surfaces.
 
 | id | Capability |
 |---|---|
-| `LEARN.Path` | Lộ trình theo band / kỹ năng / dạng bài, Next Best Lesson, Learning Milestone |
-| `LEARN.QuestionTypes` | Question/task types cho 4 kỹ năng IELTS; pronunciation dùng practice units hỗ trợ Speaking |
+| `LEARN.Path` | Path by band / skill / question type, Next Best Lesson, Learning Milestone |
+| `LEARN.QuestionTypes` | Question/task types for the four IELTS skills; pronunciation uses practice units that support Speaking |
 | `LEARN.Listening` | Audio Player, Transcript, Replay, Playback Speed, Section Practice, Keyword Highlight, Dictation, Shadowing |
 | `LEARN.Reading` | Passage Reader, Paragraph Navigation, Highlight, Underline, Annotation, Vocabulary Lookup, Bookmark Paragraph |
 | `LEARN.Writing` | Workspace (Word Count, Task Timer, Auto-save), Draft History |
@@ -71,20 +71,20 @@ Mỗi skill có 4 layer: Learning / Practice / Evaluation / Review. Evaluation/R
 
 | id | Capability |
 |---|---|
-| `KA.Lesson`, `KA.Grammar`, `KA.Vocabulary`, `KA.Collocation`, `KA.Template`, `KA.Strategy`, `KA.Example`, `KA.Exercise` | Tri thức hệ thống do Colab publish |
+| `KA.Lesson`, `KA.Grammar`, `KA.Vocabulary`, `KA.Collocation`, `KA.Template`, `KA.Strategy`, `KA.Example`, `KA.Exercise` | System knowledge published by Colab |
 
-> Cấu trúc chi tiết + taxonomy ở `05-content.md`.
+> Detailed structure and taxonomy are defined in `05-content.md`.
 
 ### Personal Knowledge / PKM (PKM)
 
 | id | Capability |
 |---|---|
-| `PKM.Notes` | Notes cá nhân (viết tự do, không gắn cứng passage) |
-| `PKM.Collections` | Gộp theo chủ đề |
-| `PKM.WordBank` | Từ vựng user tự thu thập |
+| `PKM.Notes` | Personal notes (free-form, not hard-bound to a passage) |
+| `PKM.Collections` | Group items by topic |
+| `PKM.WordBank` | Vocabulary collected by the user |
 | `PKM.SavedItems` | Bookmark (question, passage, lesson, vocab, cue card) |
-| `PKM.Drafts` | Bài viết lưu |
-| `PKM.Recordings` | Bản ghi âm lưu |
+| `PKM.Drafts` | Saved writing drafts |
+| `PKM.Recordings` | Saved recordings |
 | `PKM.Import` | Import Vocabulary / Notes / CSV / Anki package |
 | `PKM.Export` | Export PDF / CSV / Anki package |
 | `PKM.Sync` | Cross-device Sync (Continue on another device, current session handoff, conflict resolution) |
@@ -103,9 +103,9 @@ Mỗi skill có 4 layer: Learning / Practice / Evaluation / Review. Evaluation/R
 
 ### Evaluation (EVAL)
 
-AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng chữ AI (`07-conventions.md`). Chất lượng được **thiết kế để kiểm soát** bởi `GOVERNANCE.*`; không claim calibrated khi evidence gate chưa pass.
+AI is the sole scorer and performs 100% of scoring without a human in the loop. UI names do not use AI wording (`07-conventions.md`). Quality is **designed to be controlled** by `GOVERNANCE.*`; no calibrated-quality claim is made before the evidence gate passes.
 
-| id | Capability | Ghi chú |
+| id | Capability | Notes |
 |---|---|---|
 | `EVAL.Writing` | Writing Evaluation | sole scorer |
 | `EVAL.Speaking` | Speaking Evaluation | sole scorer |
@@ -113,21 +113,21 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng ch�
 | `EVAL.Examiner` | Examiner — interactive dialogue Part 1/2/3, follow-up generation | sole scorer |
 | `EVAL.BandPrediction` | Band Prediction | |
 | `EVAL.RewriteSuggestion` | Rewrite Suggestion (sentence-level feedback, scorecard) | |
-| `EVAL.AntiGaming` | Deprecated alias; identity giữ để tương thích, implementation canonical là `GOVERNANCE.AntiGaming` |
+| `EVAL.AntiGaming` | Deprecated alias; identity is retained for compatibility, while canonical implementation is `GOVERNANCE.AntiGaming` | |
 
 ### Coaching (COACH)
 
 | id | Capability |
 |---|---|
-| `COACH.AnswerExplanation` | Giải thích đáp án (Listening/Reading) |
-| `COACH.VocabularyExplanation` | Giải thích từ vựng |
-| `COACH.DistractorExplanation` | Giải thích bẫy distractor |
+| `COACH.AnswerExplanation` | Answer explanation (Listening/Reading) |
+| `COACH.VocabularyExplanation` | Vocabulary explanation |
+| `COACH.DistractorExplanation` | Distractor explanation |
 | `COACH.ListeningCoach` | Listening Coach |
 | `COACH.ReadingCoach` | Reading Coach |
-| `COACH.Feedback` | Feedback chung |
-| `COACH.ErrorAnalysis` | Phân tích lỗi |
-| `COACH.Recommendation` | Đề xuất cải thiện |
-| `COACH.Tutor` | IELTS Q&A, context-aware (biết user đang ở passage/question/skill nào → trả lời trong ngữ cảnh) |
+| `COACH.Feedback` | General feedback |
+| `COACH.ErrorAnalysis` | Error analysis |
+| `COACH.Recommendation` | Improvement recommendation |
+| `COACH.Tutor` | IELTS Q&A, context-aware (knows the current passage/question/skill and answers in context) |
 
 ### Personalization (PERSONAL)
 
@@ -139,22 +139,22 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng ch�
 | `PERSONAL.WeaknessPractice` | Weakness-based Practice |
 | `PERSONAL.GoalRecommendation` | Goal-based Recommendation |
 | `PERSONAL.GapAnalysis` | Gap Analysis |
-| `PERSONAL.Insights` | Learning Insights — AI giải thích vì sao yếu ("bạn luôn sai Matching Headings vì thiếu paraphrase", "bạn mất điểm Task Response không phải Grammar") |
+| `PERSONAL.Insights` | Learning Insights — AI explains why the learner is weak (for example, consistently missing Matching Headings because of paraphrase weakness, or losing Task Response points rather than Grammar points) |
 
 ### Band Framework & Progression (BAND)
 
 | id | Capability |
 |---|---|
-| `BAND.Descriptor` | Band Descriptor chính thức (reference IELTS rubric) |
-| `BAND.Requirement` | Yêu cầu theo band (grammar points, question types, vocab count/topic, micro-skills) — data layer, feed `BAND.Map` |
-| `BAND.Checklist` | Checklist theo band (cross-skill) — data layer, feed `BAND.Map` |
-| `BAND.Map` | **Band Map** — render learner-facing "toàn cảnh còn thiếu gì để lên band X": per-skill completion, question types đạt/chưa, micro-skills, grammar points, vocab count theo topic. Mặt đối xứng của Today (zoom-out). |
+| `BAND.Descriptor` | Official Band Descriptor reference (IELTS rubric) |
+| `BAND.Requirement` | Band-level requirements (grammar points, question types, vocab count/topic, micro-skills) — data layer feeding `BAND.Map` |
+| `BAND.Checklist` | Cross-skill checklist by band — data layer feeding `BAND.Map` |
+| `BAND.Map` | **Band Map** — learner-facing overview of what remains to reach band X: per-skill completion, achieved/unachieved question types, micro-skills, grammar points, and vocabulary count by topic. It is the zoomed-out counterpart of Today. |
 | `BAND.Current`, `BAND.Target` | Current / Target Band |
 | `BAND.Completion` | Band Completion (per-skill %, aggregate) |
 | `BAND.Readiness` | Band Readiness Score |
 | `BAND.RecommendedNext` | Recommended Next Band, Recommended Access |
 | `BAND.ProgressionWarning` | Progression Warning |
-| `BAND.ExamReadiness` | Exam Readiness (Overall / per-skill readiness, Confidence, Risk — "bạn đã sẵn sàng thi chưa?") |
+| `BAND.ExamReadiness` | Exam Readiness (Overall / per-skill readiness, Confidence, Risk — whether the learner is ready to take the exam) |
 
 ### Review & Revision (REVIEW)
 
@@ -167,7 +167,7 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng ch�
 | `REVIEW.Queue` | Revision Queue |
 | `REVIEW.SmartQueue` | Smart Review Queue (Today's Queue, Priority Queue, Weak Skill Queue, Exam Queue) |
 | `REVIEW.History` | Learning History |
-| `REVIEW.FSRS` | Spaced Repetition engine (chi tiết `06-engines.md`) |
+| `REVIEW.FSRS` | Spaced Repetition engine (see `06-engines.md`) |
 
 ### Assessment History (HISTORY)
 
@@ -188,10 +188,10 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng ch�
 | `PROGRESS.BandProgress` | Band Progress |
 | `PROGRESS.GoalTracking` | Goal Tracking |
 | `PROGRESS.Motivation` | Streak, Milestone, Goal Completion Celebration, Band Improvement Highlight, Progress Recap, Comeback Nudge |
-| `PROGRESS.Achievement` | Achievement (Band X Ready, 100 Reviews, 30-day Streak — milestone nhẹ, không leaderboard/XP/avatar) |
-| `PROGRESS.WeeklyRecap` | Recap tiến bộ theo outcome: điểm mạnh, lỗi giảm, retest gain, tuần tới nên ưu tiên gì |
-| `PROGRESS.Reactivation` | Comeback plan sau thời gian vắng; khôi phục nhịp học mà không dồn backlog hoặc gây guilt |
-| `PROGRESS.Wellbeing` | Theo dõi tải học, dấu hiệu quá tải và đề xuất giảm nhịp/nghỉ hợp lý |
+| `PROGRESS.Achievement` | Achievement (Band X Ready, 100 Reviews, 30-day Streak — lightweight milestones, no leaderboard/XP/avatar) |
+| `PROGRESS.WeeklyRecap` | Outcome-based progress recap: strengths, reduced errors, retest gain, and what to prioritize next week |
+| `PROGRESS.Reactivation` | Comeback plan after absence; restore learning rhythm without dumping backlog or creating guilt |
+| `PROGRESS.Wellbeing` | Track study load and overload signals and recommend an appropriate slowdown or break |
 
 ### Search & Resource Center (SEARCH)
 
@@ -203,34 +203,34 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Tên UI không dùng ch�
 
 ### Study Orchestration (STUDY)
 
-Lớp orchestration giữa Goal (dài hạn) và Practice (câu hỏi) — xương sống Home.
+The orchestration layer between Goal (long-term) and Practice (questions) — the backbone of Home.
 
 | id | Capability |
 |---|---|
 | `STUDY.Session` | Study Session (Start, Resume, Pause, End, Session Goal) |
-| `STUDY.SessionSummary` | Session Summary (thời gian, số câu, từ mới, lỗi) |
+| `STUDY.SessionSummary` | Session Summary (time, number of questions, new words, errors) |
 | `STUDY.DailyPlan` | Daily Plan (Today's Lesson, Today's Practice, Today's Review) |
 | `STUDY.TodayQueue` | Today's Queue (review SRS due, weak skill practice, exam prep) |
 | `STUDY.Continue` | Continue on Another Device (current session handoff) |
-| `STUDY.Resume` | Resume sau interrupt (Mock Test, network loss, session timeout) — Error Recovery nằm ở đây |
-| `STUDY.MicroSession` | Phiên 5–10 phút cho ngày bận, vẫn gắn với mục tiêu và outcome cụ thể |
-| `STUDY.CheckIn` | Check-in năng lượng, thời gian và ý định học để điều chỉnh phiên hôm nay |
+| `STUDY.Resume` | Resume after interruption (Mock Test, network loss, session timeout) — Error Recovery belongs here |
+| `STUDY.MicroSession` | A 5–10 minute session for busy days, still tied to a concrete goal and outcome |
+| `STUDY.CheckIn` | Check in on energy, available time, and study intent to adjust today's session |
 
 ### Notification (NOTIF)
 
 | id | Capability |
 |---|---|
-| `NOTIF.Study`, `NOTIF.Review`, `NOTIF.SRS`, `NOTIF.Result`, `NOTIF.Goal` | Nhắc học / revision / SRS due / kết quả evaluation / mục tiêu tuần |
+| `NOTIF.Study`, `NOTIF.Review`, `NOTIF.SRS`, `NOTIF.Result`, `NOTIF.Goal` | Study / revision / SRS due / evaluation result / weekly-goal reminders |
 | `NOTIF.Preference` | Study Reminder, Review Reminder, Goal Reminder |
 | `NOTIF.QuietHours` | Quiet Hours |
-| `NOTIF.SmartDelivery` | Chọn thời điểm/kênh theo giá trị dự kiến, preference, quiet hours và frequency cap |
-| `NOTIF.Reengagement` | Nhắc quay lại theo comeback plan; không dùng guilt, không phạt mất streak |
+| `NOTIF.SmartDelivery` | Choose timing/channel according to expected value, preference, quiet hours, and frequency cap |
+| `NOTIF.Reengagement` | Return reminder aligned with the comeback plan; no guilt and no streak-loss punishment |
 
 ### Subscription (SUB)
 
 | id | Capability |
 |---|---|
-| `SUB.Plan`, `SUB.Payment`, `SUB.Premium`, `SUB.UsageLimit` | Gói học / thanh toán / premium / usage limit |
+| `SUB.Plan`, `SUB.Payment`, `SUB.Premium`, `SUB.UsageLimit` | Learning plan / payment / premium / usage limit |
 
 ---
 
@@ -240,15 +240,15 @@ Lớp orchestration giữa Goal (dài hạn) và Practice (câu hỏi) — xươ
 
 | id | Capability |
 |---|---|
-| `CONTENT.Lesson`, `CONTENT.Knowledge`, `CONTENT.QuestionBank`, `CONTENT.MockTest`, `CONTENT.Quiz`, `CONTENT.Tag` | Quản lý nội dung |
+| `CONTENT.Lesson`, `CONTENT.Knowledge`, `CONTENT.QuestionBank`, `CONTENT.MockTest`, `CONTENT.Quiz`, `CONTENT.Tag` | Content management |
 | `CONTENT.Publish` | Publish Workflow |
-| `CONTENT.Moderation` | Review nội dung, kiểm lỗi, kiểm tag, unpublish |
-| `CONTENT.BlueprintUpdate` | Cập nhật nội dung khi IELTS blueprint thay đổi |
-| `CONTENT.Feedback` | Xử lý Content Feedback từ learner (Report Content, Suggest Fix, Report Wrong Answer) |
-| `CONTENT.AutoTag` | Đề xuất tag/taxonomy từ content; không tự publish |
-| `CONTENT.TagReview` | Colab review và chấp nhận/từ chối tag đề xuất |
+| `CONTENT.Moderation` | Review content, check errors, check tags, unpublish |
+| `CONTENT.BlueprintUpdate` | Update content when the IELTS blueprint changes |
+| `CONTENT.Feedback` | Handle Content Feedback from learners (Report Content, Suggest Fix, Report Wrong Answer) |
+| `CONTENT.AutoTag` | Suggest taxonomy/tags from content; never auto-publish |
+| `CONTENT.TagReview` | Colab reviews and accepts/rejects suggested tags |
 
-> Colab không bao giờ chấm bài. Chi tiết Knowledge System + taxonomy ở `05-content.md`.
+> Colab never scores learner work. See `05-content.md` for the Knowledge System and taxonomy.
 
 ---
 
@@ -260,33 +260,33 @@ Lớp orchestration giữa Goal (dài hạn) và Practice (câu hỏi) — xươ
 |---|---|
 | `ADMIN.User`, `ADMIN.Role`, `ADMIN.Permission`, `ADMIN.AccountStatus` | User / Role / Permission / Account Status |
 | `ADMIN.SystemSetting`, `ADMIN.Dashboard`, `ADMIN.AuditLog`, `ADMIN.ModerationLog` | System Management |
-| `ADMIN.GovernanceDashboard` | Xem metrics chất lượng chấm (confidence, drift, bias, anti-gaming) — chi tiết `06-engines.md` |
+| `ADMIN.GovernanceDashboard` | View evaluation-quality metrics (confidence, drift, bias, anti-gaming) — see `06-engines.md` |
 | `ADMIN.Billing`, `ADMIN.Revenue`, `ADMIN.Premium` | Billing Management |
 
 ---
 
 ## Quality & Economics Operations (OPS)
 
-Các capability backend/cross-functional này bảo vệ chất lượng và chi phí. Chúng phải có owner, threshold, escalation policy và dashboard; không biến thành UI phức tạp cho learner nếu không tạo thêm outcome.
+These backend/cross-functional capabilities protect quality and cost. They must have an owner, threshold, escalation policy, and dashboard; they should not become complex learner UI unless doing so creates additional learner outcome.
 
 | id | Capability |
 |---|---|
-| `OPS.ContentQuality` | Quality gate cho content: correctness, taxonomy completeness, difficulty calibration, accessibility, licensing |
-| `OPS.EvaluationQuality` | Quality gate cho scorer: rubric alignment, calibration, confidence, drift, bias và reproducibility |
-| `OPS.ReleaseGate` | Gate trước khi publish model/content/feature; kiểm tra quality, safety, accessibility và cost |
-| `OPS.OutcomeMeasurement` | Đo learning outcome, retest gain, error recurrence, helpfulness và long-term skill transfer |
-| `OPS.ModelRouting` | Route request theo risk/value/latency: rules/cache/small model/large model/fallback |
-| `OPS.CostBudget` | Ngân sách theo learner, capability, model, audio phút và batch job |
-| `OPS.Quota` | Rate limit, usage limit, fair use và graceful degradation |
-| `OPS.Observability` | Theo dõi latency, errors, token/audio usage, cache hit, escalation và quality impact |
+| `OPS.ContentQuality` | Content quality gate: correctness, taxonomy completeness, difficulty calibration, accessibility, licensing |
+| `OPS.EvaluationQuality` | Scorer quality gate: rubric alignment, calibration, confidence, drift, bias, reproducibility |
+| `OPS.ReleaseGate` | Gate before publishing a model/content/feature; checks quality, safety, accessibility, and cost |
+| `OPS.OutcomeMeasurement` | Measure learning outcome, retest gain, error recurrence, helpfulness, and long-term skill transfer |
+| `OPS.ModelRouting` | Route requests by risk/value/latency: rules/cache/small model/large model/fallback |
+| `OPS.CostBudget` | Budget by learner, capability, model, audio minutes, and batch job |
+| `OPS.Quota` | Rate limit, usage limit, fair use, and graceful degradation |
+| `OPS.Observability` | Track latency, errors, token/audio usage, cache hit, escalation, and quality impact |
 
 ### Capability contract
 
-Catalog giữ identity và mô tả ngắn. Mỗi capability được đưa vào phase active, build candidate hoặc build-ready phải có **Capability Profile** canonical; capability ở future horizon chưa cần profile riêng. Profile giữ metadata build/governance, có thể được biểu diễn thành Artifact khi capability bước vào build, nhưng các field sau là bắt buộc và không được chỉ tồn tại trong implementation backlog:
+The catalog owns identity and short descriptions. Every capability moved into an active phase, build candidate, or build-ready state must have a canonical **Capability Profile**; capabilities in the future horizon do not yet need their own profile. A profile contains build/governance metadata and may be represented as an Artifact when the capability enters build, but the following fields are mandatory and must not exist only in an implementation backlog:
 
 ```yaml
 capability_id: DOMAIN.Capability
-user_outcome: <outcome có thể quan sát>
+user_outcome: <observable outcome>
 owner: product | engineering | operations | legal
 phase: P0 | P1 | P2 | deferred
 dependencies: []
@@ -294,34 +294,34 @@ inputs: []
 outputs: []
 permission: <role + data scope>
 primary_events: []
-quality_gate: <gate id hoặc điều kiện>
-cost_budget: <budget id hoặc n/a>
+quality_gate: <gate id or condition>
+cost_budget: <budget id or n/a>
 fallback: <user-safe fallback>
 privacy_class: account | learning | assessment | audio | billing | system | derived
 ```
 
-Capability chỉ là `build candidate` khi profile hoàn chỉnh. Capability chỉ là `build ready` khi đã có Vertical Slice Spec/contract liên quan trong `artifacts/`. Phase của toàn catalog được projection trong `artifacts/operations/catalogs/capability-phase-index.md`; capability không có phase active được xem là `deferred`, không phải implicit scope.
+A capability is a `build candidate` only when its profile is complete. It is `build ready` only when the relevant Vertical Slice Spec/contract exists in `artifacts/`. The phase of the entire catalog is projected in `artifacts/operations/catalogs/capability-phase-index.md`; a capability without an active phase is treated as `deferred`, not as implicit scope.
 
 ### P0 Capability Profile Matrix — closed pilot canonical scope
 
-P0 không còn được hiểu là toàn bộ capability có thể tồn tại ở launch. P0 closed pilot là các capability cần thiết để chứng minh một outcome: **người học Writing Task 2 nhận feedback có evidence, sửa một lỗi, ôn và retest được lỗi đó**. Một row là profile chung cho các capability không được phép diverge trong cùng vertical slice; muốn diverge phải tách profile.
+P0 no longer means every capability that might exist at launch. The P0 closed pilot contains only the capabilities required to prove one outcome: **a Writing Task 2 learner receives evidence-backed feedback, fixes one error, reviews it, and successfully retests it**. A row is a shared profile for capabilities that may not diverge within the same vertical slice; if they need to diverge, split the profile.
 
 | Profile | Capability IDs | User outcome | Owner | Dependencies | Primary events | Quality / fallback | Privacy | Cost boundary |
 |---|---|---|---|---|---|---|---|---|
-| `P0-01 Identity` | `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy` | Có tài khoản, consent và dữ liệu thuộc về mình | engineering | managed auth boundary | account_created, consent_recorded | deny-by-default; export/delete recovery | account | managed_auth_pilot |
-| `P0-02 Diagnosis` | `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current` | Có baseline và mục tiêu để tạo plan | product | published placement configuration | placement_started/completed | insufficient data → explain + retry | learning | placement_pilot |
-| `P0-03 Daily action` | `STUDY.DailyPlan`, `STUDY.CheckIn`, `STUDY.MicroSession`, `PERSONAL.NextBestAction` | Biết một việc hữu ích nên làm hôm nay | product | P0-02 + user state | daily_plan_generated, session_started | no confidence → tối đa 3 lựa chọn rõ lý do | learning | rules_first |
-| `P0-04 Writing evaluation` | `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts` | Viết, lưu, nộp và hiểu feedback có evidence | product + engineering | published task, rubric, evaluation contract | evaluation_submitted, evaluation_scored | low confidence/delay/unavailable user-safe states | learning/assessment | writing_eval_pilot |
-| `P0-05 Error-to-review` | `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill` | Chọn một lỗi, sửa, ôn và retest | product | P0-04 + error taxonomy | learning_error_saved, review_completed, retest_completed | missing evidence → no review card; empty queue → alternative action | learning | deterministic_fsrs |
-| `P0-06 Quality & economics` | `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `OPS.ContentQuality`, `OPS.OutcomeMeasurement`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail` | Không hy sinh trust/data safety để lấy feature nhanh | operations | benchmark, content, event/failure contracts | evaluation_failed, evaluation_delayed, retest_completed | release blocked / deterministic fallback | assessment | quality_release_gate |
+| `P0-01 Identity` | `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy` | Has an account, consent, and ownership of their data | engineering | managed auth boundary | account_created, consent_recorded | deny-by-default; export/delete recovery | account | managed_auth_pilot |
+| `P0-02 Diagnosis` | `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current` | Has a baseline and goal from which to generate a plan | product | published placement configuration | placement_started/completed | insufficient data → explain + retry | learning | placement_pilot |
+| `P0-03 Daily action` | `STUDY.DailyPlan`, `STUDY.CheckIn`, `STUDY.MicroSession`, `PERSONAL.NextBestAction` | Knows one useful thing to do today | product | P0-02 + user state | daily_plan_generated, session_started | no confidence → at most 3 choices with clear reasons | learning | rules_first |
+| `P0-04 Writing evaluation` | `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts` | Writes, saves, submits, and understands evidence-backed feedback | product + engineering | published task, rubric, evaluation contract | evaluation_submitted, evaluation_scored | low confidence/delay/unavailable user-safe states | learning/assessment | writing_eval_pilot |
+| `P0-05 Error-to-review` | `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill` | Selects one error, fixes it, reviews it, and retests | product | P0-04 + error taxonomy | learning_error_saved, review_completed, retest_completed | missing evidence → no review card; empty queue → alternative action | learning | deterministic_fsrs |
+| `P0-06 Quality & economics` | `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `OPS.ContentQuality`, `OPS.OutcomeMeasurement`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail` | Does not sacrifice trust/data safety for feature speed | operations | benchmark, content, event/failure contracts | evaluation_failed, evaluation_delayed, retest_completed | release blocked / deterministic fallback | assessment | quality_release_gate |
 
-Các capability ngoài matrix vẫn là Blueprint canonical nhưng không là closed-pilot P0. Chúng chỉ được nâng vào launch scope qua Artifact decision + Build Readiness Matrix, không qua copy/paste vào P0.
+Capabilities outside this matrix remain canonical Blueprint capabilities but are not part of closed-pilot P0. They can enter launch scope only through an Artifact decision plus the Build Readiness Matrix, never by copy/pasting them into P0.
 
 ---
 
 ## Event Contract (analytics/recommendation SSOT)
 
-Mọi analytics, recommendation, dashboard, experiment và notification phải đọc từ cùng một event contract. Event là fact bất biến; không dùng UI click làm proxy cho learning outcome nếu chưa có event outcome tương ứng.
+All analytics, recommendations, dashboards, experiments, and notifications must read from one event contract. Events are immutable facts; a UI click must not be used as a proxy for learning outcome unless a corresponding outcome event exists.
 
 ### Event envelope
 
@@ -345,39 +345,39 @@ Mọi analytics, recommendation, dashboard, experiment và notification phải �
 
 ### Canonical events
 
-| Event | Khi phát sinh | Consumer chính |
+| Event | When emitted | Primary consumer |
 |---|---|---|
-| `account_created` / `consent_recorded` | Account hoặc consent có hiệu lực được tạo | IDENTITY, privacy audit |
-| `privacy_export_requested` / `privacy_deletion_requested` | Learner yêu cầu export/xóa dữ liệu | IDENTITY, privacy operation |
-| `placement_started` / `placement_completed` | Bắt đầu / hoàn tất placement hợp lệ | PLACE, PERSONAL, activation |
-| `goal_set` | Goal hợp lệ được lưu | GOAL, PLACE, STUDY |
-| `daily_plan_generated` | Today tạo hoặc refresh plan có lý do | STUDY, PERSONAL, UX diagnosis |
-| `session_started` | Learner bắt đầu một study session có intent | STUDY, outcome measurement |
-| `session_completed` | Session đạt completion rule | STUDY, outcome measurement |
-| `first_meaningful_session_completed` | Phiên đầu có outcome, không chỉ mở app | PROGRESS, retention |
-| `lesson_completed` | Lesson đạt completion rule | LEARN, REVIEW, recommendation |
-| `practice_finished` | Practice set kết thúc hợp lệ | HISTORY, PROGRESS, PERSONAL |
-| `evaluation_submitted` | Writing/Speaking/Pronunciation được submit | EVAL, quota, cost |
-| `evaluation_scored` | Result hợp lệ được tạo | HISTORY, BAND, PROGRESS |
-| `evaluation_failed` | Không thể tạo result hợp lệ | recovery, observability |
-| `evaluation_delayed` | Evaluation vượt ngưỡng thời gian chờ đã công bố | recovery, quota, observability |
-| `explanation_viewed` | Learner xem evidence/explanation | COACH, helpfulness |
-| `learning_error_saved` | Error có evidence được lưu vào mistake system | REVIEW, outcome measurement |
-| `practice_started` | Learner bắt đầu action từ feedback | PERSONAL, outcome |
-| `retest_completed` | Retest sau feedback hoàn tất | OPS.OutcomeMeasurement |
-| `review_completed` | FSRS review được rating và lưu thành công | REVIEW, retention |
-| `quota_warning_shown` | Learner được thông báo còn ít quota trước costly action | OPS.Quota, UX |
-| `quota_exceeded` | Costly action bị chặn vì quota/reservation không còn slot | OPS.Quota, UX, recovery |
-| `goal_completed` | Goal đạt completion rule | GOAL, PROGRESS |
-| `session_paused` / `session_resumed` | Session có checkpoint / khôi phục | STUDY, recovery |
-| `session_abandoned` | Session kết thúc theo abandonment policy | STUDY, UX diagnosis |
-| `comeback_plan_started` / `comeback_plan_completed` | Learner quay lại và hoàn tất comeback plan | PROGRESS.Reactivation, retention |
-| `returned_after_14_days` | First meaningful return sau 14 ngày | PROGRESS, experiment |
-| `notification_delivered` / `notification_opened` / `notification_opted_out` | Vòng đời notification | NOTIF, fatigue control |
+| `account_created` / `consent_recorded` | An account or effective consent is created | IDENTITY, privacy audit |
+| `privacy_export_requested` / `privacy_deletion_requested` | Learner requests data export/deletion | IDENTITY, privacy operation |
+| `placement_started` / `placement_completed` | A valid placement begins/completes | PLACE, PERSONAL, activation |
+| `goal_set` | A valid goal is stored | GOAL, PLACE, STUDY |
+| `daily_plan_generated` | Today creates or refreshes a plan with a reason | STUDY, PERSONAL, UX diagnosis |
+| `session_started` | Learner begins a study session with intent | STUDY, outcome measurement |
+| `session_completed` | Session satisfies its completion rule | STUDY, outcome measurement |
+| `first_meaningful_session_completed` | The first session produces an outcome rather than merely opening the app | PROGRESS, retention |
+| `lesson_completed` | Lesson satisfies its completion rule | LEARN, REVIEW, recommendation |
+| `practice_finished` | Practice set ends validly | HISTORY, PROGRESS, PERSONAL |
+| `evaluation_submitted` | Writing/Speaking/Pronunciation is submitted | EVAL, quota, cost |
+| `evaluation_scored` | A valid result is created | HISTORY, BAND, PROGRESS |
+| `evaluation_failed` | A valid result cannot be created | recovery, observability |
+| `evaluation_delayed` | Evaluation exceeds the published waiting-time threshold | recovery, quota, observability |
+| `explanation_viewed` | Learner views evidence/explanation | COACH, helpfulness |
+| `learning_error_saved` | An evidence-backed error is stored in the mistake system | REVIEW, outcome measurement |
+| `practice_started` | Learner starts an action from feedback | PERSONAL, outcome |
+| `retest_completed` | Retest after feedback completes | OPS.OutcomeMeasurement |
+| `review_completed` | FSRS review is rated and stored successfully | REVIEW, retention |
+| `quota_warning_shown` | Learner is warned about low quota before a costly action | OPS.Quota, UX |
+| `quota_exceeded` | A costly action is blocked because quota/reservation has no remaining slot | OPS.Quota, UX, recovery |
+| `goal_completed` | Goal satisfies its completion rule | GOAL, PROGRESS |
+| `session_paused` / `session_resumed` | Session checkpoints / recovers | STUDY, recovery |
+| `session_abandoned` | Session ends according to abandonment policy | STUDY, UX diagnosis |
+| `comeback_plan_started` / `comeback_plan_completed` | Learner returns and starts/completes a comeback plan | PROGRESS.Reactivation, retention |
+| `returned_after_14_days` | First meaningful return after 14 days | PROGRESS, experiment |
+| `notification_delivered` / `notification_opened` / `notification_opted_out` | Notification lifecycle | NOTIF, fatigue control |
 
 ### Registered slice/internal extensions
 
-Các event dưới đây vẫn dùng cùng envelope và registry này nhưng là detail/operational extensions; chúng không thay thế outcome event canonical. Producer phải là backend service, không phải SPA trực tiếp.
+The events below use the same envelope and registry but are detail/operational extensions; they do not replace canonical outcome events. Their producer must be a backend service, not the SPA directly.
 
 | Event family | Registered event types |
 |---|---|
@@ -389,35 +389,35 @@ Các event dưới đây vẫn dùng cùng envelope và registry này nhưng là
 
 ### Event rules
 
-- Event type dùng `snake_case`, có owner và consumer; schema/semantics thay đổi phải tăng semver `event_version`.
-- Event producer phải idempotent theo `event_id` + stable `entity_refs` + `occurred_at` window; offline sync phải deduplicate. Raw `actor_id` không nằm trong envelope; identity chỉ dùng `user_id_hash`.
-- Không gửi PII hoặc raw audio/text vào analytics nếu không cần; dùng reference và privacy class.
-- Event outcome phải có quality state; `evaluation_failed`, `low_confidence` và `invalid` không được tính như success.
-- Backfill phải có `source=backfill`, lý do, time range và không kích hoạt notification/recommendation ngoài ý muốn.
-- Xóa dữ liệu phải cascade theo privacy policy và để lại aggregate anonymized nếu consent cho phép.
+- Event types use `snake_case` and have an owner and consumers; schema/semantic changes require a semver increase of `event_version`.
+- Event producers must be idempotent by `event_id` + stable `entity_refs` + `occurred_at` window; offline sync must deduplicate. Raw `actor_id` does not appear in the envelope; identity uses only `user_id_hash`.
+- Do not send PII or raw audio/text into analytics unless required; use references and a privacy class.
+- Outcome events must have a quality state; `evaluation_failed`, `low_confidence`, and `invalid` must not count as success.
+- Backfills must use `source=backfill`, record a reason and time range, and must not trigger unintended notifications/recommendations.
+- Data deletion must cascade according to privacy policy and may leave anonymized aggregates only when consent allows it.
 
 ---
 
 ## Engine Capabilities (reference)
 
-Engine layer (`06-engines.md`) implement các capability sau (không lặp mô tả ở đây, chỉ liệt kê để trace):
+The Engine layer (`06-engines.md`) implements the following capabilities. Their descriptions are not duplicated here; this list exists only for traceability:
 
 - `REVIEW.FSRS` ← FSRS engine
 - `EVAL.Writing`, `EVAL.Speaking`, `EVAL.Pronunciation`, `EVAL.Examiner` ← Evaluation engine
 - `PERSONAL.Recommendation`, `PERSONAL.NextBestAction`, `PERSONAL.Insights` ← Recommendation engine
-- `GOVERNANCE.*` ← AI Governance engine (xem `06-engines.md`)
-- `OPS.*` ← Quality & Cost Control Plane (xem `06-engines.md`)
+- `GOVERNANCE.*` ← AI Governance engine (see `06-engines.md`)
+- `OPS.*` ← Quality & Cost Control Plane (see `06-engines.md`)
 
 ## AI Governance Capabilities (GOVERNANCE)
 
-Backend invisible, là control target cho sole evaluator; chưa phải quality guarantee khi thiếu corpus, threshold và benchmark run thật. Chi tiết implementation ở `06-engines.md`.
+Invisible backend control targets for the sole evaluator; they are not a quality guarantee while real corpus, thresholds, and benchmark runs are missing. Implementation details are in `06-engines.md`.
 
 | id | Capability |
 |---|---|
-| `GOVERNANCE.ConfidenceScore` | Mỗi bài chấm có điểm tự tin; bài low-confidence bị flag |
-| `GOVERNANCE.GoldStandardBenchmark` | Proposal: hàng tuần chấm lại corpus examiner-graded có kích thước do founder approve để đo độ lệch; hiện chưa có corpus/run active |
-| `GOVERNANCE.DriftDetection` | Phát hiện model chấm lệch chuẩn theo thời gian |
-| `GOVERNANCE.BiasMonitoring` | Theo dõi chênh lệch chấm theo nhóm user / dạng bài / band |
-| `GOVERNANCE.AntiGaming` | Phát hiện sample / plagiarism / ChatGPT-generated submission |
-| `GOVERNANCE.AuditTrail` | Log mọi thay đổi calibration, version model |
-| `GOVERNANCE.Dashboard` | Admin xem metrics chất lượng chấm |
+| `GOVERNANCE.ConfidenceScore` | Every evaluation has a confidence score; low-confidence evaluations are flagged |
+| `GOVERNANCE.GoldStandardBenchmark` | Proposal: weekly re-scoring of an examiner-graded corpus whose size is approved by the founder to measure deviation; no active corpus/run currently exists |
+| `GOVERNANCE.DriftDetection` | Detect scoring-model drift over time |
+| `GOVERNANCE.BiasMonitoring` | Monitor scoring differences across user groups / task types / bands |
+| `GOVERNANCE.AntiGaming` | Detect sample / plagiarism / ChatGPT-generated submissions |
+| `GOVERNANCE.AuditTrail` | Log every calibration and model-version change |
+| `GOVERNANCE.Dashboard` | Admin view of evaluation-quality metrics |
