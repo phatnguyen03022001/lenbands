@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-grammar-lesson
 status: review
-version: 0.2.3
+version: 0.2.4
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
@@ -17,13 +17,13 @@ framework_refs:
     version: 1.0.7
     sections: ["Writing — Grammatical Range & Accuracy signals", "Speaking — Grammatical Range & Accuracy signals"]
   - file: error-taxonomy
-    version: 1.0.6
+    version: 1.0.7
     nodes: [W_gra_complex_with_error]
   - file: review-mapping
     version: 1.0.6
     nodes: [W_gra_complex_with_error]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [W_complex_structure_range]
 output_contract: {asset_kind: grammar_lesson, output_root: knowledge-assets/grammar, status: draft}
 hash_scope: full_file_bytes
