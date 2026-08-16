@@ -1,14 +1,14 @@
 # 08 — Roadmap
 
-File này chứa **delivery planning**: Priority (P0/P1/P2), MVP/Version phasing, Release, Deprecation. **Không mô tả feature chi tiết** — chỉ tham chiếu capability id (`03-features.md`).
+This file contains **delivery planning**: Priority (P0/P1/P2), MVP/version phasing, Release, and Deprecation. It **does not define feature details**; it references capability IDs from `03-features.md`.
 
-> **Lưu ý quan trọng:** đây là roadmap cho **delivery**, không phải blueprint. Blueprint đầy đủ ở `README.md` + các spoke. Roadmap này có thể cắt/thay đổi theo thực tế delivery mà không phá blueprint (blueprint là SSOT cho năng lực, roadmap là SSOT cho phasing).
+> **Important:** this is the roadmap for **delivery**, not the product blueprint. The complete Blueprint lives in `README.md` plus its spokes. This roadmap may be cut or changed according to delivery reality without breaking the Blueprint: the Blueprint is the SSOT for capabilities, while the roadmap is the SSOT for phasing.
 
 ## Priority
 
 ### P0 — Closed Pilot (build now)
 
-P0 là scope canonical duy nhất được phép nhận build-ready Artifact. Nó gồm đúng sáu pack ở `03-features.md` § P0 Capability Profile Matrix:
+P0 is the only canonical scope allowed to receive build-ready Artifacts. It contains exactly the six packs in `03-features.md` § P0 Capability Profile Matrix:
 
 - `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy`
 - `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current`
@@ -16,14 +16,14 @@ P0 là scope canonical duy nhất được phép nhận build-ready Artifact. N�
 - `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts`
 - `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill`
 - `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail`
-- `OPS.ContentQuality`, `OPS.OutcomeMeasurement` là shared P0 quality/measurement gates; chúng không mở full Colab/content-management scope.
+- `OPS.ContentQuality`, `OPS.OutcomeMeasurement` are shared P0 quality/measurement gates; they do not open the full Colab/content-management scope.
 
-Một P0 pack chỉ được code khi Build Readiness Matrix báo `ready`; P0 toàn phần chỉ launch khi cả sáu pack `ready`.
+A P0 pack may be coded only when the Build Readiness Matrix reports `ready`; full P0 may launch only when all six packs are `ready`.
 
-### P1 (mở rộng sau evidence từ closed pilot)
+### P1 (expansion after closed-pilot evidence)
 
-- P1 là candidate scope sau P0, không phải phép cộng tự động. `REVIEW.SmartQueue` ở P1 nghĩa là mở rộng queue cross-skill; P0 chỉ dùng queue cho Writing error. `REVIEW.FSRS` ở Expanded MVP chỉ là candidate vocab-only; FSRS grammar/collocation/error mở rộng sau đó cần evidence riêng.
-- `PERSONAL.NextBestAction`, `COACH.ErrorAnalysis` và `GOVERNANCE.ConfidenceScore` xuất hiện lại ở P1 chỉ với qualifier **advanced/full**; P0 deterministic/error-analysis/confidence baseline vẫn là scope canonical trước đó.
+- P1 is candidate scope after P0, not an automatic addition. `REVIEW.SmartQueue` in P1 means cross-skill queue expansion; P0 uses it only for Writing errors. `REVIEW.FSRS` in Expanded MVP is only a candidate for vocabulary; expanding FSRS to grammar/collocation/errors later requires separate evidence.
+- `PERSONAL.NextBestAction`, `COACH.ErrorAnalysis`, and `GOVERNANCE.ConfidenceScore` appear again in P1 only with the **advanced/full** qualifier; their P0 deterministic/error-analysis/confidence baseline remains the earlier canonical scope.
 
 - `STUDY.Session`, `STUDY.SessionSummary`, `STUDY.Continue`, `STUDY.Resume`
 - `BAND.Readiness` (advanced), `BAND.RecommendedNext`, `BAND.ExamReadiness`
@@ -57,14 +57,14 @@ Một P0 pack chỉ được code khi Build Readiness Matrix báo `ready`; P0 to
 - `ADMIN.Revenue`
 - `ADMIN.AuditLog` (deep view)
 - `REVIEW.FSRS` optimization (tuning per learner)
-- `LOC.LocaleFormat` (advanced), thêm ngôn ngữ mới
+- `LOC.LocaleFormat` (advanced), additional languages
 - `GOAL.ExamPlan` (advanced: timeline, anxiety tips)
 
 ## MVP
 
 ### MVP rebaseline — Closed Pilot (canonical launch scope)
 
-Closed pilot không cố chứng minh "Knowledge OS cho bốn kỹ năng". Nó chứng minh một loop có thể đo outcome:
+The closed pilot does not attempt to prove a "four-skill Knowledge OS." It proves one measurable outcome loop:
 
 ```text
 Placement / goal
@@ -77,15 +77,15 @@ Placement / goal
   → retest proof
 ```
 
-Capability scope canonical nằm ở `03-features.md` § P0 Capability Profile Matrix. Chỉ sáu pack `P0-01` đến `P0-06` được phép nhận build-ready Artifact trong closed pilot.
+Canonical capability scope lives in `03-features.md` § P0 Capability Profile Matrix. Only the six packs `P0-01` through `P0-06` may receive build-ready Artifacts in the closed pilot.
 
-**Explicitly deferred:** Listening, Reading, Speaking, Pronunciation, Mock Test, full Content/Colab, subscription/payment launch, advanced analytics, search, notification center, multi-device/offline và full Exam Readiness. Chúng vẫn giữ identity Blueprint và sẽ được reintroduce theo evidence sau pilot.
+**Explicitly deferred:** Listening, Reading, Speaking, Pronunciation, Mock Test, full Content/Colab, subscription/payment launch, advanced analytics, search, notification center, multi-device/offline, and full Exam Readiness. They retain their Blueprint identity and are reintroduced according to evidence after the pilot.
 
-### MVP rộng hơn (candidate sau khi closed pilot chứng minh outcome)
+### Expanded MVP (candidate after the closed pilot proves outcome)
 
-**Mục tiêu:** validate core loop "Placement → Learning → Practice → Evaluation → Review" với 4 kỹ năng, giữ identity "Knowledge OS 4 skill" nhưng gọt bỏ phần nâng cao.
+**Goal:** validate the core loop "Placement → Learning → Practice → Evaluation → Review" across four skills while retaining the "4-skill Knowledge OS" identity and removing advanced scope.
 
-Bao gồm:
+Includes:
 - Guest preview
 - `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Recovery`
 - `LOC.InterfaceLanguage` (vi/en), `LOC.AIResponseLanguage`
@@ -106,11 +106,11 @@ Bao gồm:
 - `CONTENT.*` (basic management)
 - `ADMIN.User`, `ADMIN.Role` (basic)
 
-**Không có trong MVP** (đẩy V1): Interactive Examiner dialogue, Pronunciation phoneme-level, FSRS cho grammar/collocation, Smart Queue, Insights, Exam Readiness, Offline, Import, Achievement, advanced Governance. Tuy nhiên MVP vẫn bắt buộc có baseline `OPS.*`: logging, quota, budget, model routing, release gate và recovery state.
+**Not in MVP** (move to V1): Interactive Examiner dialogue, phoneme-level Pronunciation, FSRS for grammar/collocation, Smart Queue, Insights, Exam Readiness, Offline, Import, Achievement, advanced Governance. MVP still requires baseline `OPS.*`: logging, quota, budget, model routing, release gate, and recovery state.
 
 ## Version 1
 
-Value cao, mở rộng capability nâng cao:
+High-value advanced capability expansion:
 - `STUDY.Session`, `STUDY.SessionSummary`, `STUDY.Resume`
 - `BAND.ExamReadiness`, `BAND.Readiness` (advanced), `BAND.RecommendedNext`
 - `PERSONAL.GapAnalysis`, `PERSONAL.NextBestAction`, `PERSONAL.Insights`
@@ -119,7 +119,7 @@ Value cao, mở rộng capability nâng cao:
 - `LEARN.Speaking` (recording, transcript comparison), Writing rewrite loop
 - `LEARN.Pronunciation`
 - `PRACTICE.Adaptive`, `REVIEW.SmartQueue`
-- `REVIEW.FSRS` (mở rộng grammar, collocation, mistake)
+- `REVIEW.FSRS` (expanded to grammar, collocation, mistakes)
 - `HISTORY.*` (full)
 - `PRACTICE.ExamSimulation`
 - `SEARCH.*`, `SEARCH.Global`
@@ -140,58 +140,58 @@ Polish + advanced:
 - `CONTENT.Moderation` (advanced)
 - `ADMIN.Revenue`, `ADMIN.AuditLog` (deep)
 - `REVIEW.FSRS` optimization (per-learner tuning)
-- `LOC.*` (locale formatting, thêm ngôn ngữ)
+- `LOC.*` (locale formatting, additional languages)
 - `GOAL.ExamPlan` (advanced)
 
 ## Release
 
-- Mỗi Version phát hành theo milestone, không cố định calendar.
-- Release note tham chiếu capability id để trace ngược blueprint.
-- Breaking change ở data model → migration script + version bump.
+- Each Version releases by milestone rather than a fixed calendar date.
+- Release notes reference capability IDs for traceability back to the Blueprint.
+- Breaking data-model changes require a migration script + version bump.
 
 ## Deprecation
 
-- Capability deprecated khi thay thế bằng capability mới hoặc bỏ hoàn toàn.
-- Quy trình: mark `deprecated` → giữ 1 version → `retired`.
-- Tương tự content versioning (`05-content.md`).
+- A capability is deprecated when replaced by a new capability or removed entirely.
+- Process: mark `deprecated` → retain for 1 version → `retired`.
+- This parallels content versioning in `05-content.md`.
 
 ## Roadmap notation and exit criteria
 
-- `*` là shorthand đọc nhanh, không phải capability id để implement; backlog phải expand thành từng id cụ thể.
-- `basic` phải có acceptance criteria, còn `advanced` phải có outcome evidence; không dùng nhãn này để trì hoãn quality/safety.
-- Mỗi milestone phải có: capability IDs, dependency graph, owner, capacity estimate, quality gate, cost budget, analytics events và rollback plan.
+- `*` is shorthand for readability, not an implementable capability ID; backlog entries must expand it into concrete IDs.
+- `basic` requires acceptance criteria, while `advanced` requires outcome evidence; these labels must not be used to postpone quality/safety.
+- Every milestone contains capability IDs, dependency graph, owner, capacity estimate, quality gate, cost budget, analytics events, and rollback plan.
 
 ### Closed-pilot launch gates
 
-Closed pilot chỉ launch khi sáu P0 pack trong `03-features.md` § P0 Capability Profile Matrix đều `ready` trong Build Readiness Matrix, và:
+The closed pilot may launch only when all six P0 packs in `03-features.md` § P0 Capability Profile Matrix are `ready` in the Build Readiness Matrix and:
 
-1. learner hoàn thành Placement/goal, nhận Today action và biết next step trong cùng ngày;
-2. có một loop **Writing Task 2** hoàn chỉnh: submit → evidence-based feedback → một fix → FSRS review → retest proof;
-3. Writing evaluation có rubric/model/prompt version, confidence state, token/cost attribution và recovery khi timeout;
-4. task sử dụng được qua rights/content quality gate; nếu chưa có task hợp lệ thì không sinh task ngẫu nhiên;
-5. cost/evaluation, queue latency, error rate, quota, DLQ/retry và raw-content telemetry có observability theo P0 runtime contract;
-6. Runtime State/Event/Failure contract được test cho onboarding, draft save, duplicate submit, timeout, network loss, quota exhaustion, worker retry và app restart;
-7. consent, export/delete boundary và ownership test end-to-end;
-8. benchmark, prompt/model/rubric route và release gate không còn claim chưa có evidence; khi evidence chưa có, closed pilot vẫn `not ready`.
+1. the learner completes Placement/goal, receives a Today action, and knows the next step on the same day;
+2. a complete **Writing Task 2** loop exists: submit → evidence-based feedback → one fix → FSRS review → retest proof;
+3. Writing evaluation records rubric/model/prompt version, confidence state, token/cost attribution, and timeout recovery;
+4. the task passes rights/content quality gates; if no valid task exists, the system does not generate an arbitrary task;
+5. cost/evaluation, queue latency, error rate, quota, DLQ/retry, and raw-content telemetry have observability under the P0 runtime contract;
+6. Runtime State/Event/Failure contracts are tested for onboarding, draft save, duplicate submit, timeout, network loss, quota exhaustion, worker retry, and app restart;
+7. consent, export/delete boundaries, and ownership are tested end-to-end;
+8. benchmark, prompt/model/rubric route, and release gate contain no unevidenced claims; while evidence is missing, the closed pilot remains `not ready`.
 
 ### Expanded-MVP launch gates
 
-Expanded MVP chỉ được launch sau closed-pilot evidence và khi:
+Expanded MVP may launch only after closed-pilot evidence exists and when:
 
-1. outcome loop `Understand → Practice → Retest → Confirm` có acceptance evidence cho Listening, Reading, Writing và Speaking trong scope công bố;
-2. mỗi skill/question-type/band profile dùng controlled coverage framework, calibration status và rights/content gate phù hợp;
-3. notification/engagement có opt-out, quiet hours, frequency cap và không gây guilt;
-4. multi-skill cost/quality/retention impact được benchmark lại, không suy diễn từ Writing-only pilot.
+1. the outcome loop `Understand → Practice → Retest → Confirm` has acceptance evidence for Listening, Reading, Writing, and Speaking within the announced scope;
+2. every skill/question-type/band profile uses the controlled coverage framework, calibration status, and appropriate rights/content gate;
+3. notification/engagement has opt-out, quiet hours, frequency caps, and no guilt mechanics;
+4. multi-skill cost/quality/retention impact is benchmarked again rather than inferred from the Writing-only pilot.
 
 ### Version 1 gates
 
-V1 chỉ mở rộng personalization/engagement khi expanded MVP chứng minh được retest gain, error recurrence giảm, helpfulness và comeback quality; không dùng retention đơn thuần làm bằng chứng sản phẩm có chất lượng.
+V1 expands personalization/engagement only after Expanded MVP demonstrates retest gain, reduced error recurrence, helpfulness, and comeback quality; retention alone is not evidence of product quality.
 
 ## Phasing principle
 
-- P0 → Closed Pilot (Placement/goal → Today → Writing Task 2 → feedback → fix → review → retest, với baseline quality/cost controls)
-- Expanded MVP → mở rộng có evidence sang 4 skill learning basic và evaluation trong scope công bố
-- P1 → Version 1 (capability cao, governance, full personalization)
+- P0 → Closed Pilot (Placement/goal → Today → Writing Task 2 → feedback → fix → review → retest, with baseline quality/cost controls)
+- Expanded MVP → evidence-backed expansion into basic four-skill learning and evaluation within announced scope
+- P1 → Version 1 (higher-level capabilities, governance, full personalization)
 - P2 → Version 2 (polish, advanced analytics, scale)
 
-Roadmap này **có thể** thay đổi theo thực tế delivery mà không phá blueprint. Blueprint (`README` + spoke) là SSOT năng lực; roadmap là SSOT phasing.
+This roadmap **may** change according to delivery reality without breaking the Blueprint. The Blueprint (`README` + spokes) is the capability SSOT; the roadmap is the phasing SSOT.
