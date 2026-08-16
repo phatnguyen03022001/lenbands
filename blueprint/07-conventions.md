@@ -1,25 +1,25 @@
 # 07 — Conventions
 
-File này chứa các **cross-cutting convention** áp đặt lên mọi file trên (naming, icon, accessibility, localization, privacy). Đây là "luật chơi" thống nhất, không phải feature.
+This file contains **cross-cutting conventions** that apply to all preceding files: naming, icons, accessibility, localization, and privacy. These are shared rules, not features.
 
 ## 1. UI Naming & Icon Convention (No-AI-label)
 
-### Nguyên tắc
+### Principle
 
-Trong docs dùng chữ "AI" ở capability để dev hiểu nguồn gốc (calibration, model, engine). Trong **UI người dùng cuối** không dùng chữ "AI" và không dùng icon AI. User chỉ thấy tên chức năng thuần túy. Việc này nâng cao trải nghiệm: user không cần quan tâm công nghệ bên dưới, chỉ cần kết quả.
+Documentation uses the term "AI" on capabilities so developers understand their technical origin (calibration, model, engine). The **end-user UI** does not use the word "AI" and does not use AI-themed icons. Users see plain functional names and do not need to care about the underlying technology as long as outcomes are clear.
 
-Quy tắc này chỉ áp dụng cho primary product label. Ở Privacy, Help, consent, evaluation detail và error state phải minh bạch rằng kết quả được tạo bởi hệ thống tự động, giới hạn độ tin cậy và cách xử lý dữ liệu.
+This rule applies only to primary product labels. Privacy, Help, consent, evaluation details, and error states must transparently explain that results are produced by an automated system, what confidence limitations exist, and how data is handled.
 
-### Quy tắc
+### Rules
 
-- Không prefix "AI" trong label, nút bấm, menu, tên tab
-- Không icon tượng trưng cho AI (tia sáng ✨, robot 🤖, não 🧠)
-- Dùng icon chức năng (bút, mic, bảng điểm, người hướng dẫn, bóng đèn)
-- Docs giữ "AI Writing Evaluation (sole scorer)" ở capability id; UI hiển thị "Writing Evaluation"
+- Do not prefix labels, buttons, menus, or tab names with "AI"
+- Do not use AI-symbol icons such as sparkle ✨, robot 🤖, or brain 🧠
+- Use functional icons such as pen, microphone, score sheet, tutor, or light bulb
+- Documentation retains "AI Writing Evaluation (sole scorer)" at the capability-definition level; UI displays "Writing Evaluation"
 
 ### Mapping docs capability → UI label
 
-| Capability id | UI hiển thị |
+| Capability id | UI display |
 |---|---|
 | `EVAL.Writing` | Writing Evaluation |
 | `EVAL.Speaking` | Speaking Evaluation |
@@ -37,183 +37,183 @@ Quy tắc này chỉ áp dụng cho primary product label. Ở Privacy, Help, co
 | `EVAL.BandPrediction` | Band Prediction |
 | `EVAL.RewriteSuggestion` | Rewrite Suggestion |
 | `PERSONAL.Insights` | Insights |
-| `PERSONAL.NextBestAction` | Next Step (hoặc "Gợi ý tiếp theo") |
-| `GOVERNANCE.*` | (invisible — không hiển thị với user) |
+| `PERSONAL.NextBestAction` | Next Step (localized equivalent may be used) |
+| `GOVERNANCE.*` | invisible — not shown to the user |
 
-### Ví dụ icon
+### Icon examples
 
 | Capability | Icon |
 |---|---|
-| Writing Evaluation | bút chì / tờ giấy chấm điểm |
-| Speaking Evaluation | mic |
-| Examiner | người hỏi / tai nghe |
-| Tutor | người hướng dẫn / bóng đèn |
-| Band Prediction | biểu đồ / đích |
-| FSRS review | thẻ flashcard / vòng lặp |
+| Writing Evaluation | pencil / graded paper |
+| Speaking Evaluation | microphone |
+| Examiner | interviewer / headset |
+| Tutor | tutor / light bulb |
+| Band Prediction | chart / target |
+| FSRS review | flashcard / loop |
 
 ## 2. Accessibility (a11y)
 
-Áp dụng cross-cutting, không phải feature riêng.
+Accessibility is cross-cutting and is not a separate feature.
 
 ### Listening
 
-- Transcript luôn có
-- Subtitle đồng bộ audio
-- Keyboard navigation đầy đủ
+- Transcript is always available
+- Subtitles synchronized with audio
+- Complete keyboard navigation
 - Playback speed (0.75x–1.5x)
-- Phím tắt play/pause/seek
+- Keyboard shortcuts for play/pause/seek
 
 ### Reading
 
-- Highlight, underline bằng keyboard
+- Keyboard-accessible highlight and underline
 - Dark mode
-- Font size adjustable
-- Contrast đủ (WCAG AA)
+- Adjustable font size
+- Sufficient contrast (WCAG AA)
 
 ### Writing
 
-- Autosave (không mất draft)
-- Word count realtime
+- Autosave so drafts are not lost
+- Real-time word count
 - Keyboard-friendly editor
 
 ### Speaking
 
-- Recording có visual indicator
-- Transcript sau khi record
-- Playback speed điều chỉnh được
+- Recording has a visual indicator
+- Transcript after recording
+- Adjustable playback speed
 
 ### General
 
-- Mọi action có keyboard equivalent
-- Screen reader friendly (semantic HTML / ARIA)
-- Color không là kênh thông tin duy nhất
-- Focus visible
+- Every action has a keyboard equivalent
+- Screen-reader friendly through semantic HTML / ARIA
+- Color is never the only information channel
+- Visible focus
 - Touch target ≥ 44px
-- Reduced motion và pause/stop với animation, audio, notification
-- Không dùng countdown, màu đỏ hoặc âm thanh để tạo áp lực ngoài exam mode
+- Reduced motion and pause/stop controls for animation, audio, and notifications
+- Do not use countdowns, red color, or sound to create pressure outside exam mode
 
 ## 3. Localization
 
-### Phạm vi
+### Scope
 
-- **UI** đa ngôn ngữ (label, menu, nút, thông báo)
-- **AI response** đa ngôn ngữ (giải thích đáp án, feedback Writing/Speaking, giải thích kiến thức)
-- **Nội dung IELTS** luôn tiếng Anh nguyên bản, KHÔNG dịch (audio, passage, question, writing task, speaking prompt)
+- **UI** is multilingual: labels, menus, buttons, messages
+- **AI responses** are multilingual: answer explanations, Writing/Speaking feedback, knowledge explanations
+- **IELTS content** always remains in its original English and is NOT translated: audio, passage, question, writing task, speaking prompt
 
-### Ngôn ngữ
+### Languages
 
-- Mặc định: Tiếng Việt
-- Đầu tiên: Tiếng Việt + English
-- Sau: mở rộng theo demand
+- Default: Vietnamese
+- Initial: Vietnamese + English
+- Later: expand according to demand
 
 ### Locale formatting
 
-- Ngày/tháng/năm theo locale
-- Số thập phân theo locale
-- Giờ 12h/24h theo locale
+- Date formatting follows locale
+- Decimal formatting follows locale
+- 12h/24h time follows locale
 
 ### AI response language
 
-- Tuân theo `user.preferred_language`
-- Không ảnh hưởng kết quả chấm (band score vẫn chuẩn IELTS rubric)
-- Giúp learner hiểu feedback bằng ngôn ngữ quen thuộc
-- Giữ nguyên thuật ngữ IELTS cần thiết; có glossary thay vì dịch sai band/rubric term
-- Fallback ngôn ngữ rõ ràng khi response chưa được bản địa hóa
+- Follows `user.preferred_language`
+- Does not affect scoring; band score remains aligned to the IELTS rubric
+- Helps learners understand feedback in a familiar language
+- Preserves necessary IELTS terminology; use a glossary rather than mistranslating band/rubric terms
+- Provides an explicit language fallback when a response is not localized
 
 ## 4. Data Privacy
 
-### Nguyên tắc
+### Principles
 
-- User sở hữu dữ liệu của mình; có quyền export và delete
-- Minh bạch về AI data usage
-- Consent rõ ràng
+- Users own their data and can export and delete it
+- AI data usage is transparent
+- Consent is explicit
 
 ### Capability
 
-| id | Mô tả |
+| id | Description |
 |---|---|
 | `IDENTITY.Privacy` | Export Data, Delete Data, Consent, AI Data Usage |
-| `IDENTITY.DeleteAccount` | Xóa tài khoản |
-| `PKM.Export` | Export dữ liệu học (notes, word bank, history) |
+| `IDENTITY.DeleteAccount` | Delete account |
+| `PKM.Export` | Export learning data (notes, word bank, history) |
 
 ### AI Data Usage disclosure
 
-- User biết: dữ liệu bài làm có thể dùng để cải thiện model (nếu consent)
-- User có thể opt-out
-- Dữ liệu gold-standard cho benchmark được tách danh tính
+- Users are informed that submission data may be used to improve models when consent exists
+- Users can opt out
+- Gold-standard benchmark data is de-identified
 
 ### Data retention
 
-- Drafts/Recordings: giữ theo user (cho đến khi delete account)
-- Assessment History: giữ vĩnh viễn (cho portfolio/timeline)
-- Review logs (FSRS): giữ vĩnh viễn (cần cho optimization)
-- Account deletion: xóa PII, giữ aggregated anonymous cho benchmark (nếu consent)
+- Drafts/Recordings: retained according to user policy until account deletion
+- Assessment History: retained for portfolio/timeline according to the governing retention policy
+- Review logs (FSRS): retained according to the policy required for optimization
+- Account deletion: delete PII; aggregated anonymous benchmark data may remain only when consent and policy allow it
 
 ### Trust and evaluation disclosure
 
-- Trước lần submit đầu tiên, user biết input nào được xử lý, dùng cho mục đích gì và retention period.
-- Mỗi kết quả có link “How this was assessed”: rubric, evidence, confidence state và model/rubric version ở mức dễ hiểu.
-- Không dùng chữ “official score” nếu không phải kết quả thi thật; dùng “estimated band” hoặc “practice result”.
-- Anti-gaming flag là trạng thái cần xử lý, không mặc định kết luận gian lận.
-- User có thể export/delete dữ liệu theo policy; UI phải hiển thị trạng thái xử lý, không chỉ một nút biến mất.
+- Before the first submission, users are told which inputs are processed, for what purpose, and for what retention period.
+- Every result provides a "How this was assessed" path showing rubric, evidence, confidence state, and model/rubric version in understandable terms.
+- Do not use "official score" for anything other than a real official test result; use "estimated band" or "practice result".
+- An anti-gaming flag is a state requiring handling, not a default conclusion of misconduct.
+- Users can export/delete data according to policy; the UI must display processing state rather than merely making a button disappear.
 
 ## 5. Naming convention (cross-cutting)
 
-- **Capability id**: `{DOMAIN}.{Capability}` (PascalCase) — vd `EVAL.Writing`, `REVIEW.SmartQueue`
-- **File trong docs**: `NN-name.md` (snake hoặc kebab tùy team)
-- **UI label**: clear, verb-first khi là action ("Evaluate Writing"), noun-first khi là entity ("Writing Portfolio")
+- **Capability id**: `{DOMAIN}.{Capability}` (PascalCase) — e.g. `EVAL.Writing`, `REVIEW.SmartQueue`
+- **Docs file**: `NN-name.md` (snake or kebab according to team convention)
+- **UI label**: clear; verb-first for actions ("Evaluate Writing"), noun-first for entities ("Writing Portfolio")
 - **Status value**: snake_case — `published`, `in_review`, `deprecated`
 - **Evaluation state**: the learner aggregate may be `none`, `submitted`, `processing`, `scored`, `low_confidence`, `invalid`, `anti_gaming_review`, or `failed`. The persisted `Evaluation` entity and its HTTP projection start at `submitted` and therefore intentionally omit aggregate-only `none`.
-- **Quality status**: `accepted`, `low_confidence`, `insufficient_evidence`, `invalid`; đây là quality axis, không gộp vào lifecycle state.
-- **Runtime state**: snake_case theo từng trục — `active`, `inactive`, `paused`, `at_risk`, `achieved`; không gộp các trục thành một enum duy nhất
+- **Quality status**: `accepted`, `low_confidence`, `insufficient_evidence`, `invalid`; this is a quality axis and must not be merged into lifecycle state.
+- **Runtime state**: snake_case within each axis — `active`, `inactive`, `paused`, `at_risk`, `achieved`; do not collapse the axes into a single enum
 - **Event name**: past-tense fact, snake_case — `placement_completed`, `retest_completed`, `session_abandoned`
-- **Event envelope SSOT**: `blueprint/03-features.md` § Event Contract; projection phải dùng `event_type`, `event_version` semver, `trace_id`, `user_id_hash`, `schema_version` và `privacy_class`.
+- **Event envelope SSOT**: `blueprint/03-features.md` § Event Contract; projections must use `event_type`, semver `event_version`, `trace_id`, `user_id_hash`, `schema_version`, and `privacy_class`.
 - **Event `privacy_class`**: `account | learning | assessment | audio | billing | system | derived`.
 - **Failure code**: uppercase namespace + reason — `EVAL_TIMEOUT`, `QUOTA_EXCEEDED`, `SYNC_CONFLICT`
-- **Contract version**: tăng `event_version`/`failure_version` khi thay đổi schema hoặc semantics; giữ backward compatibility trong thời gian migration
-- **Experiment/feature flag**: snake_case, có owner, start/end date, cohort và rollback condition
+- **Contract version**: increment `event_version`/`failure_version` when schema or semantics change; preserve backward compatibility during migration
+- **Experiment/feature flag**: snake_case with owner, start/end date, cohort, and rollback condition
 
 ## Notification convention
 
-- Mỗi notification phải có `reason`, `priority`, `channel`, `quiet_hours`, `frequency_cap`, `unsubscribe_action` và `expected_value`.
-- Không gửi notification chỉ để tạo open/click; phải gắn với due item, result, goal hoặc comeback action.
-- Không dùng guilt (“bạn đang tụt lại”, “mất streak”) hoặc giả khan hiếm.
+- Every notification has `reason`, `priority`, `channel`, `quiet_hours`, `frequency_cap`, `unsubscribe_action`, and `expected_value`.
+- Do not send notifications merely to create opens/clicks; each must relate to a due item, result, goal, or comeback action.
+- Do not use guilt ("you're falling behind", "you'll lose your streak") or false scarcity.
 
 ## Performance and cost convention
 
-- Mọi AI-backed interaction phải định nghĩa latency target, timeout, retry limit, fallback và cost budget.
-- Ưu tiên cache, batch, precompute và model nhỏ; model lớn chỉ dùng khi risk/value biện minh.
-- Hiển thị trạng thái chờ và kết quả trễ một cách trung thực; không block toàn bộ journey vì một AI call.
-- Quality regression và cost regression đều là release blocker nếu vượt threshold đã cam kết.
+- Every AI-backed interaction defines a latency target, timeout, retry limit, fallback, and cost budget.
+- Prefer cache, batch, precompute, and smaller models; use larger models only when risk/value justifies them.
+- Display waiting and delayed-result states honestly; do not block an entire journey because of one AI call.
+- Quality regression and cost regression are both release blockers when committed thresholds are exceeded.
 
 ## Runtime contract convention
 
-- P0 job backend dùng Redis Streams consumer groups; đổi queue technology là Decision Artifact + migration/exit exercise, không là refactor âm thầm.
-- Một mutation HTTP cần `Idempotency-Key` trừ read-only request hoặc khi contract nêu rõ lý do loại trừ.
-- API phải trả correlation ID, error envelope versioned và `Retry-After` khi client có thể retry.
-- Cache key/TTL/invalidation/revalidation phải được mô tả trong Cache Contract; không hard-code semantics chỉ trong implementation.
-- Worker/job contract phải mô tả producer, consumer, payload classification, retry/DLQ/replay, concurrency, cancellation và idempotent effect.
-- Request/response và telemetry không được chứa raw essay, recording, provider payload hoặc hidden reasoning ngoài data scope đã phê duyệt.
+- P0 backend jobs use Redis Streams consumer groups; changing queue technology requires a Decision Artifact plus migration/exit exercise and must not be a silent refactor.
+- An HTTP mutation requires `Idempotency-Key` unless it is read-only or the contract explicitly documents an exclusion.
+- APIs return correlation IDs, versioned error envelopes, and `Retry-After` when the client can retry.
+- Cache key/TTL/invalidation/revalidation behavior is defined in a Cache Contract; semantics must not exist only as hard-coded implementation behavior.
+- Worker/job contracts define producer, consumer, payload classification, retry/DLQ/replay, concurrency, cancellation, and idempotent effect.
+- Request/response and telemetry must not contain raw essays, recordings, provider payloads, or hidden reasoning outside the approved data scope.
 
 ## Blueprint change control
 
-| Thay đổi | Nơi ghi nhận | Approval tối thiểu | Tác động bắt buộc |
+| Change | Record in | Minimum approval | Required impact |
 |---|---|---|---|
-| Đổi invariant, scope hoặc role boundary | Blueprint + ADR nếu ảnh hưởng nhiều domain | Founder | Rà soát Artifact/roadmap liên quan |
-| Thêm/đổi Capability ID | `03-features.md` | Founder | Cập nhật dependency, event, quality/cost profile |
-| Đổi runtime state/event/failure semantics | Blueprint + engineering contract | Founder + engineering review | Version/migration/rollback |
-| Đổi UI wording hoặc design representation | Artifact Design | Product review | Không đổi capability identity |
-| Đổi implementation/provider | Artifact Decision/Contract | Engineering review | Quality/cost regression gate |
+| Change invariant, scope, or role boundary | Blueprint + ADR when multiple domains are affected | Founder | Review affected Artifacts/roadmap |
+| Add/change Capability ID | `03-features.md` | Founder | Update dependency, event, quality/cost profile |
+| Change runtime state/event/failure semantics | Blueprint + engineering contract | Founder + engineering review | Version/migration/rollback |
+| Change UI wording or design representation | Artifact Design | Product review | Capability identity remains unchanged |
+| Change implementation/provider | Artifact Decision/Contract | Engineering review | Quality/cost regression gate |
 
-Quy tắc:
+Rules:
 
-- Không sửa Blueprint chỉ để phản ánh implementation tạm thời.
-- Capability ID đã published không đổi nghĩa; cần thay semantics thì tạo capability mới hoặc deprecate có migration.
-- Artifact `approved` bị ảnh hưởng bởi thay đổi Blueprint phải về `review` trước khi dùng tiếp.
-- Mọi change có privacy, quality hoặc legal impact phải reference decision/evidence phù hợp.
+- Do not edit the Blueprint merely to reflect temporary implementation details.
+- A published Capability ID must not change meaning; semantic replacement requires a new capability or a deprecated capability with migration.
+- An `approved` Artifact affected by a Blueprint change returns to `review` before further use.
+- Every change with privacy, quality, or legal impact references the appropriate decision/evidence.
 
 ## Cross-references
 
-- Nguyên tắc sole evaluator: `01-product.md`
-- Capability id đầy đủ: `03-features.md`
+- Sole-evaluator principle: `01-product.md`
+- Complete capability IDs: `03-features.md`
 - Engine (calibration, model): `06-engines.md`
