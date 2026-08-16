@@ -19,11 +19,26 @@ errors << "missing prompt registry metadata: #{registry_meta_path}" unless File.
 exit(errors.length) unless errors.empty?
 
 registry = Lenbands::YamlLoader.load_file(registry_path, mapping: true)
-current_framework = File.read(File.join(root, "blueprint/framework/README.md"))[/framework_version:\s*([0-9]+\.[0-9]+\.[0-9]+)/, 1]
-errors << "cannot resolve current framework version" unless current_framework
+umbrella_body = File.read(File.join(root, "blueprint/framework/README.md"))
+current_framework = umbrella_body[/framework_version:\s*([0-9]+\.[0-9]+\.[0-9]+)/, 1]
+errors << "cannot resolve framework umbrella version" unless current_framework
 errors << "prompt registry must declare source_of_truth: false" unless registry["source_of_truth"] == false
 errors << "prompt registry must declare authority: workflow_contract" unless registry["authority"] == "workflow_contract"
 errors << "prompt registry framework_version is stale" unless registry["framework_version"].to_s == current_framework.to_s
+
+framework_version_for = lambda do |file|
+  path = File.join(root, "blueprint/framework", "#{file}.md")
+  return nil unless File.file?(path)
+  body = File.read(path)
+  match = body.match(/\A---\s*\n(.*?)\n---\s*(?:\n|\z)/m)
+  return nil unless match
+  begin
+    frontmatter = YAML.safe_load(match[1], aliases: false) || {}
+    frontmatter["version"].to_s
+  rescue StandardError
+    nil
+  end
+end
 
 expected_ids = %w[
   spawn-vocab
@@ -66,12 +81,19 @@ templates.each do |entry|
   output_contract = metadata["output_contract"] || {}
   errors << "#{id}: registry/output metadata kind differs" unless entry["output_kind"] == output_contract["asset_kind"]
   errors << "#{id}: registry/output metadata root differs" unless entry["output_root"] == output_contract["output_root"]
+
   refs.each do |ref|
-    errors << "#{id}: stale framework ref #{ref.inspect}" unless ref["version"].to_s == current_framework.to_s
     file = ref["file"].to_s
     framework_path = File.join(root, "blueprint/framework", "#{file}.md")
     errors << "#{id}: framework file missing #{file}" unless File.file?(framework_path)
     next unless File.file?(framework_path)
+
+    file_version = framework_version_for.call(file)
+    errors << "#{id}: cannot resolve framework version for #{file}" if file_version.nil? || file_version.empty?
+    if file_version && !file_version.empty? && ref["version"].to_s != file_version
+      errors << "#{id}: stale framework ref #{file}@#{ref["version"]}; current is #{file_version}"
+    end
+
     framework_body = File.read(framework_path)
     Array(ref["nodes"]).each do |node|
       errors << "#{id}: unresolved framework node #{file}##{node}" unless framework_body.include?(node.to_s)
@@ -80,13 +102,13 @@ templates.each do |entry|
       errors << "#{id}: unresolved framework section #{file}##{section}" unless framework_body.include?(section.to_s)
     end
   end
+
   body = File.read(abs_path)
   errors << "#{id}: missing start marker" unless body.include?("---BẮT ĐẦU---")
   errors << "#{id}: missing output contract section" unless body.include?("## OUTPUT")
   errors << "#{id}: missing unknown_* stop rule" unless body.include?("unknown_")
   errors << "#{id}: missing needs_review honesty rule" unless body.include?("needs_review")
   errors << "#{id}: prompt must not prohibit agent reading" if body.match?(/KHÔNG ĐỌC (?:FOLDER|THƯ MỤC)|DO NOT (?:READ|INDEX) (?:THIS )?(?:FOLDER|DIRECTORY)/i)
-  errors << "#{id}: prompt contains stale framework version 1.0.4" if body.include?("1.0.4")
 end
 
 example_paths = %w[
@@ -100,6 +122,11 @@ example_paths.each do |path|
   next unless File.file?(File.join(root, meta_path))
   meta = Lenbands::YamlLoader.load_file(File.join(root, meta_path), mapping: true)
   errors << "#{meta_path}: example_only must be true" unless meta["example_only"] == true
+  Array(meta["framework_refs"]).each do |ref|
+    file = ref["file"].to_s
+    file_version = framework_version_for.call(file)
+    errors << "#{meta_path}: stale framework ref #{file}@#{ref["version"]}; current is #{file_version}" if file_version && ref["version"].to_s != file_version
+  end
 end
 
 Dir.glob(File.join(spawn_root, "spawn-*.md")).each do |path|
@@ -108,7 +135,7 @@ Dir.glob(File.join(spawn_root, "spawn-*.md")).each do |path|
 end
 
 if errors.empty?
-  puts "spawn prompt validation passed (#{templates.length} templates, framework #{current_framework})"
+  puts "spawn prompt validation passed (#{templates.length} templates, umbrella framework #{current_framework})"
 else
   errors.each { |error| warn error }
   warn "spawn prompt validation failed: #{errors.length} issue(s)"
