@@ -40,40 +40,40 @@ Every skill slice must explicitly choose which modes are in scope. Do not use `p
 
 | Domain | Module | Controlled units | learn | untimed | timed | adaptive | evaluation | review/retest | mock | Current status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Listening | `shared` | 10: `L_form_completion`, `L_note_completion`, `L_table_completion`, `L_sentence_completion`, `L_flow_chart_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer` | lesson/strategy/audio | answer-key practice | section timing | weakness/question type | deterministic answer key + explanation | distractor/paraphrase/spelling/inference errors | 4 sections, 40 items | `spec_candidate` |
-| Reading | `academic` | 16 controlled `R_*` types | passage strategy | answer-key practice | passage/section timing | question type/micro-skill | deterministic answer key + explanation | paraphrase/TFNG/location/completion errors | 3 passages, 40 items | `spec_candidate` |
+| Listening | `shared` | 11: `L_form_completion`, `L_note_completion`, `L_table_completion`, `L_flow_chart_completion`, `L_summary_completion`, `L_sentence_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer` | lesson/strategy/audio | answer-key practice | section timing | weakness/question type | deterministic answer key + explanation | distractor/paraphrase/spelling/inference errors | 4 parts, 40 items | `spec_candidate` |
+| Reading | `academic` | 16 controlled `R_*` types | passage strategy | answer-key practice | passage/section timing | question type/micro-skill | deterministic answer key + explanation | paraphrase/TFNG/location/completion errors | 3 sections, 40 items | `spec_candidate` |
 | Reading | `general_training` | same 16 type IDs, GT passage profile | workplace/everyday strategy | answer-key practice | passage/section timing | question type/micro-skill | deterministic answer key + explanation | same error family with module-aware passage | 3 sections, 40 items | `spec_candidate` |
-| Writing | `academic` | 5 `W_ac_task1_*` + 5 `W_task2_*` | task analysis/structure/language | outline/draft practice | task timing | criterion/question type weakness | rubric TR/CC/LR/GRA | criterion/error review + retest | Task 1 + Task 2 composite | `domain_defined` for Task 1; `build_ready_candidate` only for Task 2 contract, release `not_ready` |
-| Writing | `general_training` | 3 `W_gt_task1_*` + 5 shared `W_task2_*` | letter register + Task 2 | outline/draft practice | task timing | criterion/question type weakness | rubric TR/CC/LR/GRA with module rules | tone/task/criterion error review + retest | GT Task 1 + Task 2 composite | `domain_defined` |
+| Writing | `academic` | 5 `W_ac_task1_*` + 5 `W_task2_*` | task analysis/structure/language | outline/draft practice | task timing | criterion/question type weakness | rubric TA/TR/CC/LR/GRA as task-appropriate | criterion/error review + retest | Task 1 + Task 2 composite | `domain_defined` for Task 1; `build_ready_candidate` only for Task 2 contract, release `not_ready` |
+| Writing | `general_training` | 3 `W_gt_task1_*` + 5 shared `W_task2_*` | letter register + Task 2 | outline/draft practice | task timing | criterion/question type weakness | task-appropriate rubric with module rules | tone/task/criterion error review + retest | GT Task 1 + Task 2 composite | `domain_defined` |
 | Speaking | `shared` | `S_part1_interview`, `S_part2_long_turn`, `S_part3_discussion` | answer structure/fluency strategy | prompt response + self-record | part timing | part/micro-skill weakness | audio/transcript + FC/LR/GRA/PR rubric | fluency/lexical/grammar/pronunciation review + retest | 3-part composite | `spec_candidate` |
 | Pronunciation | `shared` support domain | 5 canonical units: `P_phoneme`, `P_word_stress`, `P_sentence_stress`, `P_intonation`, `P_linking`; drill variants `P_minimal_pair`, `P_chunking_pauses` come from microskill enum | model audio + articulatory lesson | drill/listen-repeat | timed repetition/production | phoneme/stress/intonation weakness | audio features + PR feedback; not a separate IELTS exam score | pronunciation drill + new-word/sentence retest | consumed by Speaking mock; not standalone IELTS section | `spec_candidate` |
 | Mock Test | `academic`/`general_training` | composite of Listening + Reading + Writing + Speaking; module routing required | exam strategy + section instructions | review mode only | exam mode required | post-test routing | section scoring + module conversion + writing/speaking evaluation | wrong-answer/error review after result | full composite | `deferred` |
 
 ## 3. Question/task inventory — no hidden forms
 
-### Listening — 10
+### Listening — 11
 
-`L_form_completion`, `L_note_completion`, `L_table_completion`, `L_sentence_completion`, `L_flow_chart_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer`.
+`L_form_completion`, `L_note_completion`, `L_table_completion`, `L_flow_chart_completion`, `L_summary_completion`, `L_sentence_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer`.
 
-Each type needs audio stimulus, transcript/segment boundary, answer normalization, accepted alternatives, explanation, and rights/provenance. `L_map_plan_labelling`, `L_diagram_labelling`, and `L_flow_chart_completion` must not be collapsed into one generic labelling rule.
+These LenBands IDs cover the public Listening task families, including summary completion. Each type needs an audio stimulus, transcript/segment boundary, answer normalization, accepted alternatives, explanation, and rights/provenance. Internal splits such as map/plan versus diagram are diagnostic/authoring choices; they must not be presented as additional official IELTS task families.
 
 ### Reading — 16
 
 `R_multiple_choice`, `R_multiple_choice_multi`, `R_true_false_not_given`, `R_yes_no_not_given`, `R_matching_headings`, `R_matching_information_paragraph`, `R_matching_information_section`, `R_matching_features`, `R_matching_sentence_endings`, `R_sentence_completion`, `R_summary_completion`, `R_note_completion`, `R_table_completion`, `R_flow_chart_completion`, `R_diagram_labelling`, `R_short_answer`.
 
-Academic and General Training share type IDs but do not share passage profiles, module routing, or default raw-score conversion.
+Academic and General Training share broad task families and LenBands IDs but do not share passage profiles or default score-conversion configurations.
 
 ### Writing — 13
 
 - Academic Task 1: `W_ac_task1_chart`, `W_ac_task1_table`, `W_ac_task1_process`, `W_ac_task1_map`, `W_ac_task1_diagram`.
 - General Training Task 1: `W_gt_task1_formal_letter`, `W_gt_task1_semi_formal_letter`, `W_gt_task1_informal_letter`.
-- Task 2 shared: `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part`.
+- Task 2 shared authoring categories: `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part`.
 
-Task 1 must not be evaluated with a Task 2 prompt/rubric shortcut: Academic requires selection/overview/data language; GT requires tone/register/letter purpose.
+Task 1 and Task 2 require task-appropriate assessment contracts. Task 2 contributes twice as much as Task 1 to the Writing section score; a single-task diagnostic must not be labelled the complete Writing section band.
 
 ### Speaking — 3 parts
 
-`S_part1_interview`, `S_part2_long_turn`, `S_part3_discussion`. Each part has its own prompt rules, duration, interaction behavior, and failure/recovery; Part 3 is not Part 1 with harder questions.
+`S_part1_interview`, `S_part2_long_turn`, `S_part3_discussion`. Part-specific practice/evidence may be stored, but IELTS produces one Speaking band from performance across the test rather than one band per part.
 
 ### Pronunciation — 5 canonical practice units + drill variants
 
@@ -125,4 +125,4 @@ Missing family means `spec_candidate` at most. It cannot be hidden behind `defer
 | Pronunciation drills/evaluation | candidate in multi-skill runtime spec | missing | audio/features missing | `spec_candidate` |
 | Mock Test/Exam Simulation | missing | missing | composite benchmark missing | `deferred` |
 
-Conclusion: the Framework has broad inventory; Artifact/Runtime coverage is not 100%. The existence of an enum must not be used to claim that the learner has the complete practice experience.
+Conclusion: the Framework has broad domain inventory; Artifact/Runtime coverage is not 100%. An enum alone does not prove that the learner experience is complete, calibrated, or release-ready.
