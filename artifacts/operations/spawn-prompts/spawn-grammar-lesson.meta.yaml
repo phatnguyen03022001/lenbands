@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-grammar-lesson
 status: review
-version: 0.2.2
+version: 0.2.3
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
@@ -13,6 +13,9 @@ framework_refs:
   - file: grammar-band-framework
     version: 1.0.7
     nodes: [g_second_conditional]
+  - file: band-descriptor-map
+    version: 1.0.7
+    sections: ["Writing — Grammatical Range & Accuracy signals", "Speaking — Grammatical Range & Accuracy signals"]
   - file: error-taxonomy
     version: 1.0.6
     nodes: [W_gra_complex_with_error]
@@ -24,5 +27,5 @@ framework_refs:
     nodes: [W_complex_structure_range]
 output_contract: {asset_kind: grammar_lesson, output_root: knowledge-assets/grammar, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:14c617b8ff7d78a1d372b69a418f7b3ab61d6d953377e3b852054eccd939782f
+source_sha256: sha256:dc194e26f3bb666538a1b2871e740375b0a319d01b4a6ea006b278af5546487f
 validation_command: ./tools/validate-spawn-prompts.sh
