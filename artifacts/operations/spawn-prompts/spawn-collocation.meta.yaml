@@ -1,14 +1,14 @@
 type: prompt-template
 prompt_template_id: spawn-collocation
 status: review
-version: 0.2.0
+version: 0.2.1
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
 purpose: workflow-for-draft-collocation-knowledge-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-16
 framework_refs:
   - file: vocab-collocation-topic
     version: 1.0.6
@@ -18,5 +18,5 @@ framework_refs:
     nodes: [W_collocation_awareness]
 output_contract: {asset_kind: collocation, output_root: knowledge-assets/collocations, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:1e0ab8cf710c784928632a5a80797f35b3f9b24367d147984603dde488a16180
+source_sha256: sha256:408ddb3961a05a5aa10e3696b958227a56e3e0411f37bade8e79392a3d851ff1
 validation_command: ./tools/validate-spawn-prompts.sh
