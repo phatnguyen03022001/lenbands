@@ -5,7 +5,6 @@ set -euo pipefail
 # Reads: capability-family-map.yaml (hand-maintained mapping) + capability-phase-index.md (phase assignments)
 # Derives: lifecycle from phase (P0→ACTIVE, otherwise→PLANNED, EVAL.AntiGaming→DEPRECATED)
 # Does NOT generate capability-family-map.yaml — that file is hand-maintained canonical.
-# Replaces the old generate-capability-registries.sh which used case statements for family assignment.
 #
 # This generator deliberately owns only the lifecycle projection. Promotion facts and
 # promotion policy are canonical operational inputs, so a generator must never rewrite
@@ -24,8 +23,6 @@ if [[ $# -ne 0 ]]; then
   exit 64
 fi
 
-# Build lifecycle registry from canonical family-map (hand-maintained) + phase index.
-# shellcheck disable=SC2016
 ruby -I"$repo_root/tools/lib" -rlenbands -rlenbands/yaml_loader - "$out" "$repo_root" "$check" <<'RUBY'
 out_dir, repo_root, check = ARGV
 map_path = File.join(repo_root, "artifacts/operations/capability-family-map.yaml")
@@ -101,7 +98,26 @@ rendered = output.to_yaml
 current = File.file?(path) ? File.read(path) : nil
 
 if check == "true"
-  abort("capability-lifecycle-registry.yaml is stale; run tools/generate-lifecycle-registry.sh") unless current == rendered
+  if current != rendered
+    warn "capability-lifecycle-registry.yaml is stale; run tools/generate-lifecycle-registry.sh"
+    current_lines = (current || "").lines
+    rendered_lines = rendered.lines
+    max = [current_lines.length, rendered_lines.length].max
+    shown = 0
+    warn "first lifecycle projection differences (current -> generated):"
+    (0...max).each do |index|
+      old_line = current_lines[index]
+      new_line = rendered_lines[index]
+      next if old_line == new_line
+      warn "line #{index + 1}:"
+      warn "  current:   #{old_line ? old_line.chomp.inspect : '<missing>'}"
+      warn "  generated: #{new_line ? new_line.chomp.inspect : '<missing>'}"
+      shown += 1
+      break if shown >= 40
+    end
+    warn "current lines=#{current_lines.length}; generated lines=#{rendered_lines.length}; capability_count=#{output["capabilities"].length}"
+    exit 1
+  end
   puts "capability lifecycle registry is current (#{output["capabilities"].length} capabilities)"
 elsif current == rendered
   puts "capability lifecycle registry unchanged (#{output["capabilities"].length} capabilities)"
