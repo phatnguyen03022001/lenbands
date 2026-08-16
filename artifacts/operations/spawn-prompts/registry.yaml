@@ -39,7 +39,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-question-item.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-question-item.meta.yaml
     owner: colab
-    source_sha256: sha256:57baca0aaf2aaf41311dd484259cdae0694caee03f3208de0ff8075ecdd3e6c0
+    source_sha256: sha256:dc912a1092f1f1af63bfe72e1199fb8b90a51b6310e7808940092c0c1d1b48a2
     framework_files: [skill-questiontype-band, microskill-enum, error-taxonomy, exam-module-differences]
     output_kind: question_item
     output_root: knowledge-assets/questions
