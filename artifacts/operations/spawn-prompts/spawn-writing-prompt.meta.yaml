@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-writing-prompt
 status: review
-version: 0.2.3
+version: 0.2.4
 owner: colab
 representation: markdown
 derived_from: [LEARN.Writing, CONTENT.Publish]
@@ -22,6 +22,9 @@ framework_refs:
   - file: grammar-band-framework
     version: 1.0.7
     nodes: [g_second_conditional]
+  - file: microskill-enum
+    version: 1.0.6
+    nodes: [W_position_clarity, W_idea_development]
 output_contract: {asset_kind: writing_prompt, output_root: knowledge-assets/writing-prompts, status: draft}
 hash_scope: full_file_bytes
 source_sha256: sha256:23d751a8ea5e76bc9ad29fed97d31be3ab88884b0649ff9377a03f24d8286e16
