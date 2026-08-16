@@ -1,31 +1,31 @@
 # Evaluation Benchmark Intake and Run Contract
 
-Đây là workflow để biến một corpus Writing Task 2 được cấp quyền thành benchmark run bất biến. Nó không chứa essay hoặc audio; payload learner phải ở ngoài repository hoặc trong kho được cấp quyền, còn manifest chỉ giữ opaque reference, label và provenance cần audit.
+This workflow turns an authorized Writing Task 2 corpus into an immutable benchmark run. It contains no essay or audio payloads; learner content must remain outside the repository or inside an authorized store, while the manifest keeps only opaque references, labels, and provenance required for audit.
 
-## Trạng thái hiện tại
+## Current state
 
-`gold-corpus-manifest.yaml` đang `status: missing` với `gold_case_count: 0`. `numeric-threshold-policy.yaml` có candidate numbers nhưng `approval_state: pending_founder` và `armed: false`. Vì vậy chưa có benchmark run hợp lệ và route evaluation vẫn bị block.
+`gold-corpus-manifest.yaml` is `status: missing` with `gold_case_count: 0`. `numeric-threshold-policy.yaml` contains candidate numbers but has `approval_state: pending_founder` and `armed: false`. Therefore no valid benchmark run exists yet and the evaluation route remains blocked.
 
 ## Intake gate
 
-Một corpus chỉ được chuyển `ready` khi mỗi case có:
+A corpus can move to `ready` only when every case has:
 
-- opaque `case_id` và `essay_ref`, không commit raw essay;
-- Task 2 type/version và rubric version resolve về framework;
-- reference labels cho TR/CC/LR/GRA + overall band;
-- label method và qualified reference provenance;
-- rights/permission evidence immutable;
-- dataset version/hash và split không overlap với regression/test set.
+- opaque `case_id` and `essay_ref`; raw essays are never committed;
+- Task 2 type/version and rubric version that resolve to the framework;
+- reference labels for TR/CC/LR/GRA + overall band;
+- label method and qualified-reference provenance;
+- immutable rights/permission evidence;
+- dataset version/hash and a split that does not overlap the regression/test set.
 
 ## Run gate
 
-`tools/run-writing-benchmark.sh` chỉ ghi run record khi corpus đã `ready`, result file có đủ case IDs, threshold policy đã `armed`, cost ceiling không rỗng và caller cung cấp `--reviewed-by`. Tool không overwrite output; run record mới luôn là snapshot mới.
+`tools/run-writing-benchmark.sh` writes a run record only when the corpus is `ready`, the result file contains all case IDs, the threshold policy is `armed`, the cost ceiling is non-empty, and the caller supplies `--reviewed-by`. The tool never overwrites output; every new run record is a new snapshot.
 
-Run pass không tự cấp quyền publish. Release vẫn cần `OPS.ReleaseGate`, acceptance runtime và review theo owner.
+A passing run does not itself authorize publication. Release still requires `OPS.ReleaseGate`, runtime acceptance, and owner review.
 
 ## Input/result shape
 
-Corpus manifest giữ reference labels, không giữ raw learner content:
+The corpus manifest stores reference labels, not raw learner content:
 
 ```yaml
 cases:
@@ -38,4 +38,4 @@ cases:
       overall_band: 6.0
 ```
 
-Evaluator results use the same `case_id` and contain only structured output metrics. Raw essay, prompt, chain-of-thought and provider payload are forbidden.
+Evaluator results use the same `case_id` and contain only structured output metrics. Raw essays, prompts, chain-of-thought, and provider payloads are forbidden.
