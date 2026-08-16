@@ -1,6 +1,6 @@
 type: prompt-template-registry
 status: review
-version: 1.0.2
+version: 1.0.3
 owner: colab + operations
 updated_at: 2026-08-17
 
@@ -29,12 +29,12 @@ prompts:
     path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.meta.yaml
     owner: colab
-    framework_refs: [grammar-band-framework, error-taxonomy, review-mapping, microskill-enum]
+    framework_refs: [grammar-band-framework, band-descriptor-map, error-taxonomy, review-mapping, microskill-enum]
     output_root: knowledge-assets/grammar
     asset_kind: grammar_lesson
     output_contract: payload_plus_meta_yaml
     validator: ./tools/validate-spawn-prompts.sh
-    prompt_sha256: sha256:14c617b8ff7d78a1d372b69a418f7b3ab61d6d953377e3b852054eccd939782f
+    prompt_sha256: sha256:dc194e26f3bb666538a1b2871e740375b0a319d01b4a6ea006b278af5546487f
   - prompt_template_id: spawn-question-item
     path: artifacts/operations/spawn-prompts/spawn-question-item.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-question-item.meta.yaml
@@ -69,9 +69,9 @@ prompts:
     path: artifacts/operations/spawn-prompts/spawn-writing-prompt.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-writing-prompt.meta.yaml
     owner: colab
-    framework_refs: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework]
+    framework_refs: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework, microskill-enum]
     output_root: knowledge-assets/writing-prompts
     asset_kind: writing_prompt
     output_contract: payload_plus_meta_yaml
     validator: ./tools/validate-spawn-prompts.sh
-    prompt_sha256: sha256:401d72e25b36ce47bb0b2fa45b9c363ccb94667a20222a5665a3a93bf7eab6e8
+    prompt_sha256: sha256:23d751a8ea5e76bc9ad29fed97d31be3ab88884b0649ff9377a03f24d8286e16
