@@ -1,73 +1,77 @@
-schema_version: 1.0.0
+type: prompt-template-registry
 status: review
-authority: workflow_contract
-source_of_truth: false
-framework_version: 1.0.6
-description: >
-  Registry of agent workflow artifacts. Prompt bodies are canonical for their workflow steps;
-  IELTS domain semantics remain canonical in blueprint/framework and output content remains canonical in knowledge-assets.
-validation_command: ./tools/validate-spawn-prompts.sh
-prompt_templates:
+version: 1.0.1
+owner: colab + operations
+updated_at: 2026-08-16
+
+prompts:
   - prompt_template_id: spawn-vocab
     path: artifacts/operations/spawn-prompts/spawn-vocab.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-vocab.meta.yaml
     owner: colab
-    source_sha256: sha256:239616de11d3567057ee2aa776a9dbf9f4e6b73242fd12ab8e6bb1fb8cf1fa25
-    framework_files: [vocab-collocation-topic, microskill-enum, band-descriptor-map]
-    output_kind: vocabulary
+    framework_refs: [vocab-collocation-topic, microskill-enum, band-descriptor-map]
     output_root: knowledge-assets/vocabulary
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: vocabulary
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:9edcdf3b3b298dcbd667fe64de6e076d707fb6fc6aba716937a09d488ee61824
   - prompt_template_id: spawn-collocation
     path: artifacts/operations/spawn-prompts/spawn-collocation.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-collocation.meta.yaml
     owner: colab
-    source_sha256: sha256:1e0ab8cf710c784928632a5a80797f35b3f9b24367d147984603dde488a16180
-    framework_files: [vocab-collocation-topic, microskill-enum]
-    output_kind: collocation
+    framework_refs: [vocab-collocation-topic, microskill-enum, error-taxonomy]
     output_root: knowledge-assets/collocations
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: collocation
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:408ddb3961a05a5aa10e3696b958227a56e3e0411f37bade8e79392a3d851ff1
   - prompt_template_id: spawn-grammar-lesson
     path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.meta.yaml
     owner: colab
-    source_sha256: sha256:a0fbfcd134e45a6ccf8237763a7fa200b456a718b0311f1bf77df7fc84eabbf0
-    framework_files: [grammar-band-framework, error-taxonomy, review-mapping, microskill-enum]
-    output_kind: grammar_lesson
+    framework_refs: [grammar-band-framework, error-taxonomy, review-mapping, microskill-enum]
     output_root: knowledge-assets/grammar
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: grammar_lesson
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:14c617b8ff7d78a1d372b69a418f7b3ab61d6d953377e3b852054eccd939782f
   - prompt_template_id: spawn-question-item
     path: artifacts/operations/spawn-prompts/spawn-question-item.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-question-item.meta.yaml
     owner: colab
-    source_sha256: sha256:c736795e0e4fbbb51750882d55a1c16adc9cd6d3b8fc2a2e44e7817ca67699ff
-    framework_files: [skill-questiontype-band, microskill-enum, error-taxonomy, exam-module-differences]
-    output_kind: question_item
-    output_root: knowledge-assets/questions
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    framework_refs: [skill-questiontype-band, microskill-enum, error-taxonomy, exam-module-differences]
+    output_root: knowledge-assets/question-bank
+    asset_kind: question_item
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:57baca0aaf2aaf41311dd484259cdae0694caee03f3208de0ff8075ecdd3e6c0
   - prompt_template_id: spawn-error-example
     path: artifacts/operations/spawn-prompts/spawn-error-example.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-error-example.meta.yaml
     owner: colab
-    source_sha256: sha256:f76805910b9c01f90b9fab9792c733183638364b61375d2aa0b47641bd7c5c3f
-    framework_files: [error-taxonomy, review-mapping, microskill-enum]
-    output_kind: error_example
+    framework_refs: [error-taxonomy, review-mapping, microskill-enum]
     output_root: knowledge-assets/error-examples
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: error_example
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:521e541a82e3e4f97e4c7638bcd2b23c995aa5facf1931ad8e73342924b0ff40
   - prompt_template_id: spawn-speaking-cue-card
     path: artifacts/operations/spawn-prompts/spawn-speaking-cue-card.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-speaking-cue-card.meta.yaml
     owner: colab
-    source_sha256: sha256:4aeded66881252116e6e0a67d9457e1606d93805485cdbfc8a28b5fe6ca15a01
-    framework_files: [speaking-parts-framework, band-descriptor-map, microskill-enum, vocab-collocation-topic]
-    output_kind: speaking_cue_card
+    framework_refs: [speaking-parts-framework, band-descriptor-map, microskill-enum, vocab-collocation-topic]
     output_root: knowledge-assets/speaking-cue-cards
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: speaking_cue_card
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:76905382931e24e234f9914642d44f6a7bda6ddf0178500468d1f2c4a18d0973
   - prompt_template_id: spawn-writing-prompt
     path: artifacts/operations/spawn-prompts/spawn-writing-prompt.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-writing-prompt.meta.yaml
     owner: colab
-    source_sha256: sha256:05c2605ac469007558bc392218e2740242c968696cdd5488a95c6d75f57a332d
-    framework_files: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework]
-    output_kind: writing_prompt
+    framework_refs: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework]
     output_root: knowledge-assets/writing-prompts
-    required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
+    asset_kind: writing_prompt
+    output_contract: payload_plus_meta_yaml
+    validator: ./tools/validate-spawn-prompts.sh
+    prompt_sha256: sha256:401d72e25b36ce47bb0b2fa45b9c363ccb94667a20222a5665a3a93bf7eab6e8
