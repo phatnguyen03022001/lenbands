@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-speaking-cue-card
 status: review
-version: 0.2.3
+version: 0.2.4
 owner: colab
 representation: markdown
 derived_from: [LEARN.Speaking, CONTENT.Publish]
@@ -24,5 +24,5 @@ framework_refs:
     nodes: [t_society_culture]
 output_contract: {asset_kind: speaking_cue_card, output_root: knowledge-assets/speaking-cue-cards, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:76905382931e24e234f9914642d44f6a7bda6ddf0178500468d1f2c4a18d0973
+source_sha256: sha256:b1f1f1b40fa7612472eb786a2780253a605c75076a61e56660a9bc4a23aa324d
 validation_command: ./tools/validate-spawn-prompts.sh
