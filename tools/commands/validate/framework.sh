@@ -119,8 +119,9 @@ errors << "writing task enum mismatch: #{writing_ids.to_a.sort.inspect}" unless 
 errors << "writing framework contains wildcard task ID" if writing.match?(/`W_(?:ac_task1|gt_task1|task2)_\*`/)
 
 question_types = File.read(File.join(framework_root, "skill-questiontype-band.md"))
-errors << "Listening question-type count label is stale" unless question_types.include?("## Listening — 10 question types")
-errors << "Reading question-type count label is stale" unless question_types.include?("## Reading — 16 question types")
+errors << "Listening question-type count label is stale" unless question_types.include?("## Listening — 11 question types")
+errors << "Listening summary-completion type is missing" unless question_types.include?("`L_summary_completion`")
+errors << "Reading question-type count label is stale" unless question_types.include?("## Reading — 16 LenBands question types")
 
 features = File.read(File.join(root, "blueprint", "03-features.md"))
 event_pack = File.read(File.join(root, "artifacts", "engineering", "contracts", "events", "event-schema-pack.md"))
