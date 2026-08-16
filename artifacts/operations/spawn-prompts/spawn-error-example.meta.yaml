@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-error-example
 status: review
-version: 0.2.2
+version: 0.2.3
 owner: colab
 representation: markdown
 derived_from: [COACH.ErrorAnalysis, REVIEW.MistakeNotebook]
@@ -21,5 +21,5 @@ framework_refs:
     nodes: [W_collocation_awareness]
 output_contract: {asset_kind: error_example, output_root: knowledge-assets/error-examples, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:521e541a82e3e4f97e4c7638bcd2b23c995aa5facf1931ad8e73342924b0ff40
+source_sha256: sha256:f96d0ebd1ed621293fcb3668ad96fb3acae731681a9209b15b26c09683564175
 validation_command: ./tools/validate-spawn-prompts.sh
