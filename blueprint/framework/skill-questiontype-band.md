@@ -5,140 +5,139 @@ scope: framework
 
 # Skill × Question Type × Band Matrix
 
-Status: `framework` — invariant vocabulary. Liệt kê đầy đủ question type/task type theo skill + band range phổ biến. Controlled vocabulary cho `05-content.md` và `BAND.Map`.
+Status: `framework` — invariant vocabulary. Complete question/task-type inventory by skill plus common band ranges. Controlled vocabulary for `05-content.md` and `BAND.Map`.
 
-## Node schema (mỗi question type)
+## Node schema (each question type)
 
-Mỗi question type đầy đủ là node sở hữu `requires` và `done_when` inline. Các bảng inventory chỉ khóa ID; khi thiếu node schema chi tiết, asset phải giữ `needs_review` và không được claim calibrated.
+A complete question type is a node that owns `requires` and `done_when` inline. Inventory tables only lock IDs; when detailed node schema is missing, assets must remain `needs_review` and must not claim calibrated status.
 
 ```yaml
 question_type_id: R_matching_headings
 name: Matching Headings
 skill: reading
 band_difficulty: high
-requires:                              # micro-skill cần có để làm dạng này (từ microskill-enum.md)
-  - R_skim_main_idea                   # hard mặc định nếu không ghi strength
+requires:                              # micro-skills required for this type (from microskill-enum.md)
+  - R_skim_main_idea                   # hard by default unless strength is declared
   - id: R_paraphrase_recognition
     strength: hard_prerequisite
   - id: R_discourse_marker_tracking
     strength: recommended
 done_when:
-  accuracy_pct: 75                     # question type completion threshold
-  recent_mock_pass: true               # ≥1 mock test gần nhất pass dạng này
+  accuracy_pct: 75                     # question-type completion threshold
+  recent_mock_pass: true               # ≥1 recent mock test passes this type
 ```
 
-Quy ước: `requires` tham chiếu micro-skill id từ `microskill-enum.md`. Question type không depend trực tiếp vào question type khác (độ độc lập cao), chỉ depend qua micro-skill chung.
+Convention: `requires` references micro-skill IDs from `microskill-enum.md`. A question type does not directly depend on another question type; dependencies flow through shared micro-skills because question types are highly independent.
 
 ## Listening — 10 question types
 
-| id | Question type | Mô tả | Band range phổ biến |
+| id | Question type | Description | Common band range |
 |---|---|---|---|
-| `L_form_completion` | Form Completion | Điền form (tên, số, địa chỉ) | 3.0–6.0 (Section 1) |
-| `L_note_completion` | Note Completion | Điền note gap | 4.0–7.5 |
-| `L_table_completion` | Table Completion | Điền bảng | 4.5–7.0 |
-| `L_sentence_completion` | Sentence Completion | Điền cuối câu | 4.5–7.0 |
-| `L_flow_chart_completion` | Flow-chart Completion | Điền flow-chart (process steps) | 4.5–7.0 |
-| `L_map_plan_labelling` | Map / Plan Labelling | Nhãn bản đồ/mặt bằng (spatial) | 4.5–7.0 |
-| `L_diagram_labelling` | Diagram Labelling | Nhãn sơ đồ (object/process) | 5.0–7.0 |
-| `L_multiple_choice` | Multiple Choice (1 from 3, multi-select) | Chọn 1 hoặc nhiều | 4.5–8.5 |
-| `L_matching` | Matching | Khớp item | 5.5–8.5 |
-| `L_short_answer` | Short Answer | Trả lời ngắn | 4.5–7.5 |
+| `L_form_completion` | Form Completion | Complete a form (name, number, address) | 3.0–6.0 (Section 1) |
+| `L_note_completion` | Note Completion | Complete gaps in notes | 4.0–7.5 |
+| `L_table_completion` | Table Completion | Complete a table | 4.5–7.0 |
+| `L_sentence_completion` | Sentence Completion | Complete the end of a sentence | 4.5–7.0 |
+| `L_flow_chart_completion` | Flow-chart Completion | Complete a flow chart (process steps) | 4.5–7.0 |
+| `L_map_plan_labelling` | Map / Plan Labelling | Label a map/plan (spatial) | 4.5–7.0 |
+| `L_diagram_labelling` | Diagram Labelling | Label a diagram (object/process) | 5.0–7.0 |
+| `L_multiple_choice` | Multiple Choice (1 from 3, multi-select) | Select one or multiple answers | 4.5–8.5 |
+| `L_matching` | Matching | Match items | 5.5–8.5 |
+| `L_short_answer` | Short Answer | Give a short answer | 4.5–7.5 |
 
-Listening có 10 dạng controlled vocabulary (tách diagram/flow-chart/map vì cơ chế differ: map cần spatial follow, diagram cần part label, flow-chart cần process tracking). Đây là SSOT; `05-content.md` đồng bộ với enum này.
+Listening has 10 controlled question types. Diagram, flow-chart, and map are separated because their mechanisms differ: maps require spatial following, diagrams require part labelling, and flow charts require process tracking. This is the SSOT; `05-content.md` is synchronized to this enum.
 
-Section khó tăng dần: S1 (easiest, social) → S4 (hardest, academic). Band difficulty signal qua section.
+Sections increase in difficulty from S1 (easiest, social) to S4 (hardest, academic). Section contributes a band-difficulty signal.
 
 ## Reading — 16 question types (Academic + General Training shared vocabulary)
 
-| id | Question type | Mô tả | Band difficulty |
+| id | Question type | Description | Band difficulty |
 |---|---|---|---|
-| `R_multiple_choice` | Multiple Choice (1 from 4) | Chọn đáp án | medium |
-| `R_multiple_choice_multi` | Multiple Choice (multi-select, choose 2+) | Chọn nhiều từ list | high |
-| `R_true_false_not_given` | True/False/Not Given | Phát biểu có đúng/sai/không có trong bài | medium |
-| `R_yes_no_not_given` | Yes/No/Not Given | Tác giả đồng ý/không/không rõ | medium-high (yếu paraphrase) |
-| `R_matching_headings` | Matching Headings | Tiêu đề cho đoạn | high (paraphrase + main idea) |
-| `R_matching_information_paragraph` | Matching Information (which paragraph) | Thông tin ở **đoạn nào** (paragraph-level) | high (scan + paraphrase, local) |
-| `R_matching_information_section` | Matching Information (which section) | Thông tin ở **phần nào** (section-level, nhóm đoạn) | high (global grouping, khó hơn paragraph) |
-| `R_matching_features` | Matching Features | Khớp đặc điểm (người/tên/lý thuyết) | high |
-| `R_matching_sentence_endings` | Matching Sentence Endings | Nối nửa câu | medium |
-| `R_sentence_completion` | Sentence Completion | Điền cuối câu | medium |
-| `R_summary_completion` | Summary Completion (with/without box) | Điền tóm tắt | medium-high |
-| `R_note_completion` | Note Completion | Điền note | medium |
-| `R_table_completion` | Table Completion | Điền bảng | medium |
-| `R_flow_chart_completion` | Flow-chart Completion | Điền flow-chart | medium |
-| `R_diagram_labelling` | Diagram Labelling | Nhãn sơ đồ | medium |
-| `R_short_answer` | Short Answer | Trả lời ngắn | medium |
+| `R_multiple_choice` | Multiple Choice (1 from 4) | Select an answer | medium |
+| `R_multiple_choice_multi` | Multiple Choice (multi-select, choose 2+) | Select multiple answers from a list | high |
+| `R_true_false_not_given` | True/False/Not Given | Determine whether a statement is true, false, or absent from the passage | medium |
+| `R_yes_no_not_given` | Yes/No/Not Given | Determine whether the writer agrees, disagrees, or gives no clear position | medium-high (paraphrase-sensitive) |
+| `R_matching_headings` | Matching Headings | Choose a heading for a paragraph | high (paraphrase + main idea) |
+| `R_matching_information_paragraph` | Matching Information (which paragraph) | Locate information in a **paragraph** | high (scan + paraphrase, local) |
+| `R_matching_information_section` | Matching Information (which section) | Locate information in a **section** (group of paragraphs) | high (global grouping; harder than paragraph-level) |
+| `R_matching_features` | Matching Features | Match features to people/names/theories | high |
+| `R_matching_sentence_endings` | Matching Sentence Endings | Match sentence halves | medium |
+| `R_sentence_completion` | Sentence Completion | Complete the end of a sentence | medium |
+| `R_summary_completion` | Summary Completion (with/without box) | Complete a summary | medium-high |
+| `R_note_completion` | Note Completion | Complete notes | medium |
+| `R_table_completion` | Table Completion | Complete a table | medium |
+| `R_flow_chart_completion` | Flow-chart Completion | Complete a flow chart | medium |
+| `R_diagram_labelling` | Diagram Labelling | Label a diagram | medium |
+| `R_short_answer` | Short Answer | Give a short answer | medium |
 
-**Ghi chú Academic vs General Training:** vocabulary giống nhau, khác passage (Academic: scholarly; GT: everyday/workplace). Xem `exam-module-differences.md`.
+**Academic vs General Training note:** the controlled vocabulary is shared; passages differ (Academic: scholarly; GT: everyday/workplace). See `exam-module-differences.md`.
 
 ## Writing — task types
 
 ### Academic
 
-| id | Task type | Band range | Mô tả |
+| id | Task type | Band range | Description |
 |---|---|---|---|
-| `W_ac_task1_chart` | Task 1 Academic — Chart/Graph | 5.0–9.0 | Mô tả biểu đồ (line/bar/pie) |
-| `W_ac_task1_table` | Task 1 Academic — Table | 5.0–9.0 | Mô tả bảng số liệu |
-| `W_ac_task1_process` | Task 1 Academic — Process | 5.5–9.0 | Mô tả quy trình |
-| `W_ac_task1_map` | Task 1 Academic — Map | 5.5–9.0 | So sánh bản đồ |
-| `W_ac_task1_diagram` | Task 1 Academic — Diagram/Object | 5.5–9.0 | Mô tả sơ đồ vật thể |
+| `W_ac_task1_chart` | Task 1 Academic — Chart/Graph | 5.0–9.0 | Describe a chart (line/bar/pie) |
+| `W_ac_task1_table` | Task 1 Academic — Table | 5.0–9.0 | Describe a data table |
+| `W_ac_task1_process` | Task 1 Academic — Process | 5.5–9.0 | Describe a process |
+| `W_ac_task1_map` | Task 1 Academic — Map | 5.5–9.0 | Compare maps |
+| `W_ac_task1_diagram` | Task 1 Academic — Diagram/Object | 5.5–9.0 | Describe an object diagram |
 | `W_task2_opinion` | Task 2 — Opinion | 5.0–9.0 | "Do you agree/disagree" |
 | `W_task2_discussion` | Task 2 — Discussion | 5.0–9.0 | "Discuss both views" |
-| `W_task2_advantages_disadvantages` | Task 2 — Advantages/Disadvantages | 5.0–9.0 | Outweigh / pros cons |
-| `W_task2_problem_solution` | Task 2 — Problem/Solution | 5.0–9.0 | Causes+solutions |
-| `W_task2_two_part` | Task 2 — Two-part question | 5.5–9.0 | 2 sub-questions |
+| `W_task2_advantages_disadvantages` | Task 2 — Advantages/Disadvantages | 5.0–9.0 | Outweigh / pros and cons |
+| `W_task2_problem_solution` | Task 2 — Problem/Solution | 5.0–9.0 | Causes + solutions |
+| `W_task2_two_part` | Task 2 — Two-part question | 5.5–9.0 | Two sub-questions |
 
 ### General Training
 
-| id | Task type | Band range | Mô tả |
+| id | Task type | Band range | Description |
 |---|---|---|---|
 | `W_gt_task1_formal_letter` | Task 1 GT — Formal Letter | 5.0–9.0 | Formal complaint/request |
-| `W_gt_task1_semi_formal_letter` | Task 1 GT — Semi-formal Letter | 5.0–9.0 | Người quen, context formal |
-| `W_gt_task1_informal_letter` | Task 1 GT — Informal Letter | 5.0–9.0 | Bạn bè |
-| `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part` | Task 2 GT — (giống Academic Task 2) | 5.0–9.0 | (xem Academic) |
+| `W_gt_task1_semi_formal_letter` | Task 1 GT — Semi-formal Letter | 5.0–9.0 | Known recipient in a formal context |
+| `W_gt_task1_informal_letter` | Task 1 GT — Informal Letter | 5.0–9.0 | Friends/personal context |
+| `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part` | Task 2 GT — same as Academic Task 2 | 5.0–9.0 | See Academic |
 
 ## Speaking — parts
 
-| id | Part | Band range | Mô tả | Duration |
+| id | Part | Band range | Description | Duration |
 |---|---|---|---|---|
-| `S_part1_interview` | Part 1 — Interview | 4.0–9.0 | Q&A cá nhân + topic quen (home/work/study, family) | 4-5 min |
-| `S_part2_long_turn` | Part 2 — Long Turn (Cue Card) | 4.5–9.0 | Monologue 1-2 min theo cue card | 3-4 min (1 prep + 2 nói) |
-| `S_part3_discussion` | Part 3 — Discussion | 5.5–9.0 | Q&A trừu tượng liên quan Part 2 | 4-5 min |
+| `S_part1_interview` | Part 1 — Interview | 4.0–9.0 | Personal Q&A + familiar topics (home/work/study, family) | 4-5 min |
+| `S_part2_long_turn` | Part 2 — Long Turn (Cue Card) | 4.5–9.0 | 1–2 minute monologue from a cue card | 3-4 min (1 prep + 2 speaking) |
+| `S_part3_discussion` | Part 3 — Discussion | 5.5–9.0 | Abstract Q&A related to Part 2 | 4-5 min |
 
-Part 3 khó nhất — yêu cầu abstract reasoning, paraphrase sâu.
+Part 3 is the most demanding and requires abstract reasoning and deeper paraphrasing.
 
-## Pronunciation — không có "question type" riêng
+## Pronunciation — no separate "question type"
 
-Pronunciation là criterion của Speaking (PR) nhưng được tách thành domain `EVAL.Pronunciation` vì cơ chế feedback khác. Đơn vị đánh giá:
+Pronunciation is a Speaking criterion (PR) but is separated into domain `EVAL.Pronunciation` because its feedback mechanism differs. Evaluation units:
 
-| id | Đơn vị | Mô tả |
+| id | Unit | Description |
 |---|---|---|
-| `P_phoneme` | Phoneme | Âm vị (vd /θ/, /ð/) |
-| `P_word_stress` | Word Stress | Trọng âm từ (vd phoTOgrapher) |
-| `P_sentence_stress` | Sentence Stress | Trọng âm câu (content vs function words) |
-| `P_intonation` | Intonation | Ngữ điệu (rising/falling) |
+| `P_phoneme` | Phoneme | Individual sound, e.g. /θ/, /ð/ |
+| `P_word_stress` | Word Stress | Word stress, e.g. phoTOgrapher |
+| `P_sentence_stress` | Sentence Stress | Sentence stress (content vs function words) |
+| `P_intonation` | Intonation | Rising/falling intonation |
 | `P_linking` | Connected speech | Linking, elision, assimilation |
 
-## Band difficulty (chung cho L/R)
+## Band difficulty (shared for L/R)
 
-IELTS không gắn band vào từng question type — difficulty đến từ **paraphrase depth**, **abstract reasoning**, **synonym density**. Nguyên tắc:
+IELTS does not assign a band to an individual question type. Difficulty comes from **paraphrase depth**, **abstract reasoning**, and **synonym density**. Principle:
 
-| Difficulty signal | Tăng band target cần |
+| Difficulty signal | Typical target band increase |
 |---|---|
-| Keyword match (trùng từ) | 3.0–5.0 |
-| Synonym paraphrase (1 bước) | 5.0–6.0 |
-| Complex paraphrase (2+ bước, cả câu) | 6.5–7.5 |
-| Abstract/inference (ý ngụ ý, không nói thẳng) | 7.5–9.0 |
+| Keyword match (same words) | 3.0–5.0 |
+| Synonym paraphrase (1 step) | 5.0–6.0 |
+| Complex paraphrase (2+ steps, sentence-level) | 6.5–7.5 |
+| Abstract/inference (implied rather than explicit) | 7.5–9.0 |
 
-Difficulty signal này là `difficulty_signals` trong `learning_design_profile` (05-content.md) và feed `PRACTICE.Adaptive`.
+This difficulty signal is `difficulty_signals` in `learning_design_profile` (`05-content.md`) and feeds `PRACTICE.Adaptive`.
 
 ## Versioning
 
 - Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-
 - `version: 1.0.3` — corrected Listening/Reading inventory counts to match the enumerated nodes.
 - `version: 1.0.6` — normalized the per-file release record; question-type enums are unchanged.
 
-## Không tự suy luận
+## Do not infer
 
-Nếu một question type không nằm ở bảng trên, agent phải báo `unknown_question_type` chứ không tự đặt tên. Thêm dạng mới (rare) phải qua Colab review + cập nhật version file này.
+If a question type is not listed above, the agent must report `unknown_question_type` rather than inventing a name. Adding a new rare type requires Colab review and a version update to this file.
