@@ -1,14 +1,14 @@
 type: prompt-template
 prompt_template_id: spawn-vocab
 status: review
-version: 0.2.0
+version: 0.2.1
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
 purpose: workflow-for-draft-vocabulary-knowledge-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-16
 framework_refs:
   - file: vocab-collocation-topic
     version: 1.0.6
@@ -21,5 +21,5 @@ framework_refs:
     sections: ["Writing — Lexical Resource (LR)"]
 output_contract: {asset_kind: vocabulary, output_root: knowledge-assets/vocabulary, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:239616de11d3567057ee2aa776a9dbf9f4e6b73242fd12ab8e6bb1fb8cf1fa25
+source_sha256: sha256:9edcdf3b3b298dcbd667fe64de6e076d707fb6fc6aba716937a09d488ee61824
 validation_command: ./tools/validate-spawn-prompts.sh
