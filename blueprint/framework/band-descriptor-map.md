@@ -1,167 +1,195 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Band Descriptor Map
 
-Status: `framework` — invariant IELTS knowledge. This is a machine-readable restructuring of public IELTS band descriptors. **Do not add interpretation; if this file conflicts with an official source, the official source wins.**
+Status: `framework` — official-derived **operational summaries** of public IELTS Writing and Speaking band descriptors. The current public IELTS descriptor/scoring material is external normative authority. These paraphrases are useful for indexing and diagnostics but must not replace the official descriptor version used by a calibrated evaluator.
 
-Source: public IELTS band descriptors for Writing Task 1, Writing Task 2, and Speaking, used as the rubric for `EVAL.Writing`, `EVAL.Speaking`, and `BAND.Requirement`. Listening and Reading do not use criterion descriptors; they are scored by answer key and mapped from raw score to band through conversion tables.
+Authority rules:
+- Official IELTS.org descriptors and scoring guidance win on conflict.
+- Tables below are concise paraphrases, not verbatim complete scales.
+- An evaluator must record the descriptor/rubric version it used.
+- Internal error tags or curriculum completion cannot override criterion evidence.
+
+Official references:
+- Writing/scoring overview: `https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail`
+- Academic Writing format/marking: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-writing`
+- Writing descriptor release: `https://ielts.org/news-and-insights/ielts-writing-band-descriptors-and-key-assessment-criteria`
+- Speaking format: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-speaking`
 
 ## Conventions
 
-- Four Writing criteria: **TR** (Task Response), **CC** (Coherence & Cohesion), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy).
-- Four Speaking criteria: **FC** (Fluency & Coherence), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy), **PR** (Pronunciation).
-- Each cell records **discriminating characteristics** at that band rather than reproducing the entire descriptor; each band focuses on what distinguishes it from the band below.
-- Bands 1–3 are modeled shallowly because the Learner App targets band 3.0+.
-- Listening/Reading raw-score conversion lives in `exam-module-differences.md` and is not duplicated here.
+- Writing criteria: **TA/TR** (Task Achievement for Task 1 / Task Response for Task 2), **CC** (Coherence & Cohesion), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy).
+- Speaking criteria: **FC** (Fluency & Coherence), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy), **PR** (Pronunciation).
+- Each cell records a compact distinguishing signal. It is not the full descriptor and must not be treated as a substitute for the official scale.
+- Listening/Reading are objectively marked; score conversion is governed by `exam-module-differences.md`.
 
-## Writing — Task Response (TR)
+## Writing — Task Response / Task Achievement signals
 
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Fully developed, fully addresses all parts, well-supported, no irrelevance |
-| 8 | Sufficiently addresses all parts, well-developed, relevant |
-| 7 | Addresses all parts, presents clear position throughout, main ideas extended + supported, with some possible inconsistency |
-| 6 | Addresses all parts, though some parts may be covered more fully than others; presents relevant main ideas, some insufficiently developed or unclear |
-| 5 | Addresses the task only generally, expresses a position but not clearly, limited main-idea development — **5/6 boundary: whether genuine development exists** |
-| 4 | Responds in the correct general form but inadequately; position is difficult to identify; ideas are limited |
-| 3 | Misunderstands the task, ideas are limited/irrelevant, may be off-topic |
-| 2 | Barely responds, no position, barely relevant |
-| 1 | No position, totally irrelevant |
+| 9 | Task is fully satisfied; position/features and support are complete, precise, and relevant. |
+| 8 | Task is sufficiently and appropriately addressed with well-developed, relevant support/features. |
+| 7 | Task requirements are addressed; position/key features are clear; main ideas/features are extended and supported with some possible limitation. |
+| 6 | Main requirements are addressed, but coverage/development may be uneven or some support may be insufficient. |
+| 5 | Task is addressed incompletely or generally; development/key-feature coverage is limited. |
+| 4 | Response is only partly relevant/adequate and key requirements are insufficiently handled. |
+| 3 | Task is seriously misunderstood or insufficiently addressed. |
+| 2 | Barely responds to the task. |
+| 1 | Minimal relevant response. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 maintains a clear position throughout and extends main ideas with support; 6.0 has a position but development is uneven.
+Use the task-specific official descriptor (Task 1 or Task 2); do not apply Task 2 position language mechanically to Task 1.
 
-## Writing — Coherence & Cohesion (CC)
+## Writing — Coherence & Cohesion signals
 
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Skilful paragraphing, cohesive devices used with complete flexibility, fully logical progression |
-| 8 | Logical organization, all cohesive devices appropriate, clear central topic in each paragraph |
-| 7 | Logically organized, clear progression, range of cohesive devices with some possible over-/under-use, clear central topic |
-| 6 | Arranges information coherently with overall progression; cohesive devices can be **mechanical** or repetitive; referencing is generally clear but not always successful |
-| 5 | Organization exists but is **not clear**; cohesive devices are inadequate/repeated; overall progression is weak; paragraphing may be illogical |
-| 4 | Information is present but difficult to follow; few/repetitive cohesive devices; paragraphing absent or incorrect |
-| 3 | No logical organization, cohesive devices absent or incorrect, no progression |
-| 2 | Little organization, very little cohesive language |
-| 1 | Incoherent |
+| 9 | Organisation and cohesion are fully controlled and progression is effortless. |
+| 8 | Information/ideas are logically sequenced; cohesion and paragraphing are managed very well. |
+| 7 | Clear logical organisation/progression with a range of cohesive resources; minor over-/under-use may occur. |
+| 6 | Overall progression is present; cohesion works but can be mechanical, repetitive, or imperfect. |
+| 5 | Organisation is present but progression/cohesion is limited or inconsistent. |
+| 4 | Organisation and cohesion are weak enough to make the response difficult to follow. |
+| 3 | Little effective organisation or progression. |
+| 2 | Very little organisation/cohesive control. |
+| 1 | No meaningful coherent organisation. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 uses a range of cohesive devices more naturally; 6.0 use is more mechanical/repetitive and referencing can be unclear.
+## Writing — Lexical Resource signals
 
-## Writing — Lexical Resource (LR)
-
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Wide range used naturally, full flexibility and accuracy, rare errors only as slips |
-| 8 | Wide vocabulary used fluently and flexibly, rare errors, sophisticated control |
-| 7 | Sufficient range for clarity and style, less common items, awareness of style/collocation with occasional selection errors |
-| 6 | Adequate range for the task, attempts less common vocabulary with some errors; spelling/word-formation errors do not impede communication |
-| 5 | Limited range adequate for basic task needs, repetitive, clear spelling/word-form errors, **meaning can be difficult in places** |
-| 4 | Limited basic vocabulary, repetitive, errors impede meaning |
-| 3 | Very limited range, potentially highly repetitive |
-| 2 | Extremely limited, mainly simple words |
-| 1 | Only a few isolated words |
+| 9 | Very wide, natural, precise lexical control; errors are rare slips. |
+| 8 | Wide, flexible vocabulary with strong precision and very few errors. |
+| 7 | Sufficient range for precision/flexibility, including some less-common language and generally appropriate collocation/style. |
+| 6 | Adequate range for the task; attempts at less-common language may be inaccurate but communication is generally clear. |
+| 5 | Limited/repetitive range with noticeable lexical/spelling/word-formation limitations. |
+| 4 | Basic, restricted vocabulary with errors that can impede meaning. |
+| 3 | Very limited lexical resource. |
+| 2 | Extremely limited simple vocabulary. |
+| 1 | Isolated words only. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 uses less common items and collocations with awareness; 6.0 is mainly adequate and less-common attempts still contain errors.
+## Writing — Grammatical Range & Accuracy signals
 
-## Writing — Grammatical Range & Accuracy (GRA)
-
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexible range, accurate, only slips |
-| 8 | Wide range of structures, majority error-free, occasional non-systematic errors |
-| 7 | Various complex structures, frequent error-free sentences, good control of grammar/punctuation with some errors |
-| 6 | Mix of simple + complex forms, some flexibility but grammar/punctuation errors remain; errors rarely impede communication |
-| 5 | Limited range, attempts complex forms with **limited accuracy**, frequent errors and punctuation problems |
-| 4 | Mainly basic forms; some complex attempts contain errors; frequent errors impede communication |
-| 3 | Attempts basic forms but is error-heavy |
-| 2 | Only simple structures, mostly incorrect |
-| 1 | No intelligible structure |
+| 9 | Very wide, flexible, accurate structural control; errors are rare slips. |
+| 8 | Wide structural range with most sentences error-free and only occasional non-systematic errors. |
+| 7 | Variety of complex structures with frequent error-free sentences and generally good control. |
+| 6 | Mix of simple and complex forms; errors remain but generally do not impede communication. |
+| 5 | Limited range; complex attempts have limited accuracy and errors are frequent. |
+| 4 | Predominantly basic forms with frequent errors that can impede meaning. |
+| 3 | Attempts basic forms with heavy error load. |
+| 2 | Very limited simple structures, mostly inaccurate. |
+| 1 | No meaningful grammatical control. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 uses various complex structures with frequent error-free sentences; 6.0 mixes simple/complex structures but still has errors that usually do not impede communication.
+The descriptor evaluates **range and accuracy in the actual response**. IELTS does not require a checklist of named structures such as a particular conditional, inversion, or cleft sentence for a specific band.
 
-## Speaking — Fluency & Coherence (FC)
+## Speaking — Fluency & Coherence signals
 
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Speaks fluently, only occasional repetition/self-correction, develops topics fully + coherently, appropriate length |
-| 8 | Develops topics coherently and appropriately; any fluency limitation relates to language content rather than accent |
-| 7 | Speaks at length without noticeable effort/loss of coherence; may show **language-related hesitation** while searching for words/grammar; some repetition; uses a range of connectives + discourse markers with possible over-/under-use |
-| 6 | Willing to speak at length but **sometimes loses fluency**; uses connectives + discourse markers in a limited/repetitive way; repetition, self-correction, and word-search hesitation occur |
-| 5 | Usually maintains flow but shows **repetition, self-correction, slow speech, and hesitation**; links ideas simply and may overuse certain connectives/discourse markers |
-| 4 | Cannot respond without hesitation, speech is slow, repetition/self-correction frequent, simple links may be illogical |
-| 3 | Very long hesitation, no clear message, simple speech |
-| 2 | Long pauses, ideas barely linked |
-| 1 | No communication possible |
+| 9 | Fluent, coherent, fully developed speech with only very occasional repetition/self-correction. |
+| 8 | Very fluent, coherent development with only occasional language-related hesitation. |
+| 7 | Can speak at length without noticeable loss of coherence; some hesitation/repetition may occur; discourse resources are reasonably flexible. |
+| 6 | Can speak at length but fluency/coherence is sometimes lost; hesitation, repetition, or limited connective use is more noticeable. |
+| 5 | Flow is maintained only with noticeable repetition, self-correction, hesitation, or simple linking. |
+| 4 | Frequent pauses/repetition and weak linking substantially limit sustained speech. |
+| 3 | Long pauses and limited connected speech make the message difficult to sustain. |
+| 2 | Speech consists largely of isolated or memorised fragments separated by long pauses. |
+| 1 | No meaningful communication. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 sustains speech without noticeable effort and hesitation is primarily language-related; 6.0 loses fluency more noticeably and has more word-search hesitation and limited connectives.
+## Speaking — Lexical Resource signals
 
-## Speaking — Lexical Resource (LR)
-
-(Compared with Writing LR, this also covers idiomatic language and live paraphrasing.)
-
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexibility, precise meaning, idiomatic use, wide range including rare items |
-| 8 | Wide vocabulary, idiomatic, flexible + fluent |
-| 7 | Flexible use including less common + idiomatic items, some awareness of style/collocation, effective paraphrase, occasional inaccuracies |
-| 6 | Vocabulary wide enough to discuss at length, generally successful paraphrase, less common vocabulary with some inaccuracies |
-| 5 | Manages to speak with limited flexibility; general meaning is clear despite **limited paraphrase attempts** and noticeable errors |
-| 4 | Limited range, adequate for familiar topics, paraphrase rarely successful |
-| 3 | Simple vocabulary for personal information, insufficient for complex topics |
-| 2 | Isolated words/memorized phrases |
-| 1 | Nothing |
+| 9 | Very wide, precise, flexible, natural lexical control. |
+| 8 | Wide, flexible lexical resource with effective idiomatic use and precise meaning. |
+| 7 | Flexible vocabulary, including some less-common/idiomatic language; effective paraphrase with occasional inaccuracies. |
+| 6 | Vocabulary is wide enough to discuss topics at length; paraphrase is generally successful despite some inaccuracies. |
+| 5 | Vocabulary handles familiar/general meaning with limited flexibility and paraphrase. |
+| 4 | Limited range, strongest on familiar topics; paraphrase has limited success. |
+| 3 | Simple vocabulary supports mainly personal/basic information. |
+| 2 | Isolated words or memorised phrases. |
+| 1 | No meaningful lexical evidence. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 paraphrases effectively and uses idiomatic language; 6.0 paraphrases generally successfully but less-common language still has inaccuracies.
+Idiomatic language is assessed holistically as part of lexical flexibility. Absence of a fixed number of idioms is not itself an IELTS error.
 
-## Speaking — Grammatical Range & Accuracy (GRA)
+## Speaking — Grammatical Range & Accuracy signals
 
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexible accurate control; complex forms used freely + accurately |
-| 8 | Wide range of structures used flexibly, frequent error-free sentences, some basic errors |
-| 7 | Various complex structures used flexibly, frequent error-free sentences, some persistent but non-systematic grammatical errors |
-| 6 | Various simple + complex forms with limited flexibility; mistakes do not generally impede communication |
-| 5 | Limited range, attempts complex forms with limited accuracy, frequent errors |
-| 4 | Basic forms used with limited accuracy; complex forms are error-heavy |
-| 3 | Attempts simple forms, errors are heavy |
-| 2 | Simple isolated words, error-heavy |
-| 1 | Nothing |
+| 9 | Very wide, flexible, accurate structural control. |
+| 8 | Wide structural range used flexibly with frequent error-free speech. |
+| 7 | A range of complex structures is used with flexibility; many sentences are error-free although some errors remain. |
+| 6 | Mix of simple and complex structures with limited flexibility; errors generally do not prevent communication. |
+| 5 | Limited range; complex attempts show limited accuracy and errors are frequent. |
+| 4 | Basic forms dominate and accuracy is limited. |
+| 3 | Simple structures are attempted with heavy error load. |
+| 2 | Very limited simple forms. |
+| 1 | No meaningful grammatical evidence. |
 
-**Key 6.0 vs 7.0 distinction:** as in Writing GRA, 7.0 uses various complex structures flexibly; 6.0 uses a mix with errors that generally do not impede communication.
+## Speaking — Pronunciation signals
 
-## Speaking — Pronunciation (PR)
-
-| Band | Discriminating characteristics |
+| Band | Operational summary |
 |---|---|
-| 9 | Effortless to understand, full flexible use of features such as rhythm, intonation, and individual sounds |
-| 8 | Easy to understand throughout, variety of features, occasional individual-sound mispronunciation does not affect meaning |
-| 7 | Shows all positive band-6 features **and** some band-8 features; easy to understand throughout, occasional individual-sound errors do not affect meaning |
-| 6 | Uses a **range of pronunciation features** with mixed control; **some effective use** is present but not sustained; generally clear throughout despite occasional mispronunciation |
-| 5 | Shows band-6 positive features but with problems, or some band-6 features without sustained control; generally understandable but listener effort is required |
-| 4 | Limited use of features, frequent mispronunciation, **listener effort is needed** |
-| 3 | Limited features, many mispronunciations, difficult to follow |
-| 2 | Very hard to understand, almost no controlled features |
-| 1 | Unintelligible |
+| 9 | Effortless intelligibility with highly flexible control of pronunciation features. |
+| 8 | Easy to understand throughout with a wide range of effectively controlled features. |
+| 7 | Easy to understand throughout; positive pronunciation features are sustained, with some higher-band control. |
+| 6 | Generally clear; a range of features is used but control is mixed or not sustained. |
+| 5 | Generally understandable but listener effort may be required; higher-band features are limited or inconsistent. |
+| 4 | Limited feature control and frequent pronunciation problems require listener effort. |
+| 3 | Pronunciation limitations make speech difficult to follow. |
+| 2 | Very difficult to understand. |
+| 1 | Unintelligible. |
 
-**Key 6.0 vs 7.0 distinction:** 7.0 is easy to understand throughout with more sustained positive features; 6.0 has a range of features but mixed, unsustained control and occasional mispronunciation.
+Accent identity is not the target; intelligibility and control of relevant phonological features are.
 
-## Usage (engine + agent)
+## Scoring contract
 
-- `EVAL.Writing`/`EVAL.Speaking` score all four criteria and output a band per criterion. Overall skill band = average of the four criteria, **rounded to the nearest IELTS half/whole band according to IELTS rules: .25→.5, .75→next whole** (e.g. avg 6.25 → 6.5, avg 6.75 → 7.0). See `exam-module-differences.md` for conversion details.
-- `BAND.Requirement`/`BAND.Map` uses descriptors to create a checklist of what is required for band X, e.g. band 7.0 GRA: "various complex structures, frequent error-free".
-- `COACH.ErrorAnalysis` maps an error to affected criterion + relevant band signal.
-- Important calibration boundaries: **5.0 vs 6.0** (genuine development; mix of complex forms) and **6.0 vs 7.0** (range/flexibility versus adequacy).
-- Listening/Reading bands are calculated from raw score through conversion tables rather than descriptors; see `exam-module-differences.md`.
+### Writing
+
+Each Writing **task** is assessed on four equally weighted criteria. The task-level analytic result may record the four criterion bands and their average for diagnostics.
+
+The **Writing section score is not simply the four-criterion average of one response**. IELTS assesses Task 1 and Task 2 separately, and **Task 2 contributes twice as much as Task 1** to the Writing section score. Any `EVAL.Writing` section-level score must therefore preserve both task results and apply the reviewed Writing aggregation contract.
+
+Required audit fields:
+
+```yaml
+writing_score:
+  task1: {criteria: {...}, task_score: <diagnostic-average>}
+  task2: {criteria: {...}, task_score: <diagnostic-average>}
+  aggregation: task2_weighted_twice
+  rubric_version: <official-derived-rubric-version>
+  section_band: <result>
+```
+
+Do not invent a section band when one task is missing unless a separate diagnostic mode explicitly labels the result as incomplete/non-official.
+
+### Speaking
+
+Speaking uses four equally weighted criteria: FC, LR, GRA, and PR. The criterion evidence and the rubric version must be retained with the resulting Speaking band.
+
+### Listening / Reading
+
+Use objective answer-key evidence plus an approved versioned raw-score conversion source as defined in `exam-module-differences.md`.
+
+## Usage
+
+- `EVAL.Writing` and `EVAL.Speaking` use the current reviewed rubric, not this summary in isolation.
+- `BAND.Requirement` may paraphrase descriptor expectations but must not turn internal grammar/vocabulary counts into official IELTS requirements.
+- `COACH.ErrorAnalysis` can map observed issues to criteria; an individual error tag does not mechanically determine a band.
+- `BAND.Map` must distinguish curriculum progress from criterion-based band evidence.
 
 ## Do not infer
 
-If the descriptors here are insufficient for an edge case, the engine must return `insufficient_evidence` rather than guessing a band. Adding a rare descriptor requires Colab review and a file-version update.
+If evidence or an authoritative rubric is insufficient, return `insufficient_evidence`. Never manufacture a band from a checklist, a single error, vocabulary count, grammar-node count, or unvalidated heuristic.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-- `version: 1.0.1` — standardized criterion and band descriptor boundaries.
-- `version: 1.0.6` — added the missing per-file version record; descriptor semantics and calibration claims are unchanged.
-- Adding a descriptor or changing semantics: minor; metadata/prose correction without semantic change: patch; removal: `deprecated_in` rather than deletion.
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
+- `version: 1.0.1` — standardized criterion/band summary structure.
+- `version: 1.0.6` — normalized per-file version records without establishing calibration evidence.
+- `version: 1.0.7` — clarified that descriptor text is an operational paraphrase, corrected Writing task-vs-section aggregation, and prohibited checklist-based band inference.
+- A factual/semantic correction requires a patch bump and source review; a structural descriptor-schema change requires a minor bump.
