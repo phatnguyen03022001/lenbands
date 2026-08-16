@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-speaking-cue-card
 status: review
-version: 0.2.4
+version: 0.2.5
 owner: colab
 representation: markdown
 derived_from: [LEARN.Speaking, CONTENT.Publish]
@@ -17,10 +17,10 @@ framework_refs:
     version: 1.0.7
     sections: ["Speaking — Fluency & Coherence signals", "Speaking — Lexical Resource signals", "Speaking — Grammatical Range & Accuracy signals", "Speaking — Pronunciation signals"]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [S_cue_card_structure, S_long_turn_sustain]
   - file: vocab-collocation-topic
-    version: 1.0.6
+    version: 1.0.7
     nodes: [t_society_culture]
 output_contract: {asset_kind: speaking_cue_card, output_root: knowledge-assets/speaking-cue-cards, status: draft}
 hash_scope: full_file_bytes
