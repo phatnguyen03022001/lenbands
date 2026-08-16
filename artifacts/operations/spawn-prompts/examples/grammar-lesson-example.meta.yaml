@@ -1,16 +1,19 @@
 type: prompt-golden-example
 status: review
-version: 0.1.1
+version: 0.1.2
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
 purpose: golden-example-for-spawn-grammar-lesson-output-shape
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 framework_refs:
   - file: grammar-band-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [g_second_conditional]
+  - file: band-descriptor-map
+    version: 1.0.7
+    sections: ["Writing — Grammatical Range & Accuracy signals", "Speaking — Grammatical Range & Accuracy signals"]
 example_only: true
 prompt_template_id: spawn-grammar-lesson
