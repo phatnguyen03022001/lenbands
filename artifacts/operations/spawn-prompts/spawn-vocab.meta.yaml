@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-vocab
 status: review
-version: 0.2.3
+version: 0.2.4
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
@@ -21,5 +21,5 @@ framework_refs:
     sections: ["Writing — Lexical Resource signals"]
 output_contract: {asset_kind: vocabulary, output_root: knowledge-assets/vocabulary, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:9edcdf3b3b298dcbd667fe64de6e076d707fb6fc6aba716937a09d488ee61824
+source_sha256: sha256:8b86f67acb7db098c889c7bdd64815586ecf15cdf3339a6af668832dc0c7a5be
 validation_command: ./tools/validate-spawn-prompts.sh
