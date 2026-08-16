@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-writing-prompt
 status: review
-version: 0.2.4
+version: 0.2.5
 owner: colab
 representation: markdown
 derived_from: [LEARN.Writing, CONTENT.Publish]
@@ -17,13 +17,13 @@ framework_refs:
     version: 1.0.7
     sections: ["Writing — Task Response / Task Achievement signals", "Writing — Coherence & Cohesion signals", "Writing — Lexical Resource signals", "Writing — Grammatical Range & Accuracy signals"]
   - file: vocab-collocation-topic
-    version: 1.0.6
+    version: 1.0.7
     nodes: [t_education]
   - file: grammar-band-framework
     version: 1.0.7
     nodes: [g_second_conditional]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [W_position_clarity, W_idea_development]
 output_contract: {asset_kind: writing_prompt, output_root: knowledge-assets/writing-prompts, status: draft}
 hash_scope: full_file_bytes
