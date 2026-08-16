@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-question-item
 status: review
-version: 0.2.2
+version: 0.2.3
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, PRACTICE.Drill]
@@ -14,11 +14,11 @@ framework_refs:
     version: 1.0.6
     nodes: [R_matching_headings]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [R_skim_main_idea, R_paraphrase_recognition]
   - file: error-taxonomy
-    version: 1.0.6
-    nodes: [R_ans_paraphrase_missed, R_distractor]
+    version: 1.0.7
+    nodes: [R_ans_paraphrase_missed, R_ans_distractor_lexical]
   - file: exam-module-differences
     version: 1.0.7
     sections: ["Academic vs General Training", "Listening/Reading — raw score → band authority"]
