@@ -1,8 +1,8 @@
 # 02 — Architecture
 
-File này mô tả **kiến trúc hệ thống**: domain, capability layer, system boundary, skill modeling. **Không mô tả feature chi tiết** (feature chi tiết ở `03-features.md`). Đây là bản đồ để AI hiểu cấu trúc tổng thể trước khi đi sâu.
+This file describes the **system architecture**: domains, capability layers, system boundaries, and skill modeling. It **does not describe detailed features** (feature details are in `03-features.md`). It is the map agents read to understand the overall structure before going deeper.
 
-## Domain Map (23 domain)
+## Domain Map (23 domains)
 
 ### 1. Identity
 Authentication, User Profile, Role-based Access, Account Status, Account Recovery, Data Privacy, Delete Account
@@ -17,7 +17,7 @@ Target Band/Date, Weekly/Daily Goal, Study Plan, Exam Plan (Countdown, Checklist
 Placement Test, Skill Diagnosis, Band Estimation, Gap Detection, Initial Learning Path
 
 ### 5. Learning
-Skill Management (Listening/Reading/Writing/Speaking/Pronunciation), Learning Path, Question Types, và feature learning của từng skill. Mỗi skill có 4 layer: Learning / Practice / Evaluation / Review.
+Skill Management (Listening/Reading/Writing/Speaking/Pronunciation), Learning Path, Question Types, and learning features for each skill. Every skill has four layers: Learning / Practice / Evaluation / Review.
 
 ### 6. Knowledge Assets
 Lesson, Grammar, Vocabulary, Collocation, Template, Strategy, Example, Exercise
@@ -29,7 +29,7 @@ Notes, Collections, Word Bank, Saved Items, Drafts, Recordings, Import, Export, 
 Exercise, Practice Set, Skill Drill, Question Type Drill, Timed Practice, Adaptive Practice, Mock Test, Exam Simulation
 
 ### 9. Evaluation
-AI sole scorer cho Writing/Speaking/Pronunciation, Examiner, Band Prediction, Rewrite Suggestion, Calibration, Consistency Monitoring, Anti-Gaming Detection. (Chất lượng đảm bảo bởi domain #22.)
+AI is the sole scorer for Writing/Speaking/Pronunciation, Examiner, Band Prediction, Rewrite Suggestion, Calibration, Consistency Monitoring, and Anti-Gaming Detection. Quality is controlled by domain #22.
 
 ### 10. Coaching
 Answer/Vocabulary/Distractor Explanation, Listening/Reading Coach, Feedback, Error Analysis, Recommendation, IELTS Q&A Tutor (context-aware)
@@ -47,7 +47,7 @@ Bookmark, Mistake Notebook, Wrong Answer/Question Review, Question Review, Revie
 All Attempts, Score Timeline, Band Timeline, Skill Timeline, Learning Timeline (events), Writing Portfolio, Speaking Portfolio, Compare Attempts
 
 ### 15. Progress & Analytics
-Dashboard, Learning/Skill Analytics, Band Progress, Goal Tracking, Motivation (Streak, Milestone, Comeback), Achievement (milestone nhẹ)
+Dashboard, Learning/Skill Analytics, Band Progress, Goal Tracking, Motivation (Streak, Milestone, Comeback), Achievement (lightweight milestones)
 
 ### 16. Search & Resource Center
 Global Search, Knowledge Search, Question Search, Formula, Cheatsheet, Band Descriptor, Writing Sample, Speaking Sample
@@ -62,31 +62,31 @@ Lesson/Knowledge/Question Bank/Mock Test/Quiz Management, Tag Management, Publis
 User/Role/Permission Management, System Setting, Dashboard, Audit Log, Moderation Log, Billing Management, Revenue Reporting, Governance Dashboard
 
 ### 20. Study Orchestration
-Lớp orchestration giữa Goal (dài hạn) và Practice (câu hỏi), biến toàn bộ hệ thống thành hành động mỗi ngày — xương sống màn Home. Study Session, Session Summary, Daily Plan, Today's Queue, Continue on Another Device.
+The orchestration layer between Goal (long-term) and Practice (questions), turning the system into concrete daily actions — the backbone of Home. Study Session, Session Summary, Daily Plan, Today's Queue, Continue on Another Device.
 
 ### 21. Notification
-Study Reminder, Review Reminder, SRS Due, Result, Goal, Smart Delivery, Quiet Hours, Re-engagement và frequency cap.
+Study Reminder, Review Reminder, SRS Due, Result, Goal, Smart Delivery, Quiet Hours, Re-engagement, and frequency caps.
 
 ### 22. AI Governance
-Backend invisible kiểm soát chất lượng sole evaluator. Confidence Score, Gold-Standard Eval Benchmark, Drift/Bias Monitoring, Anti-Gaming Detection, Evaluation Audit Trail, Governance Dashboard.
+Invisible backend controls for sole-evaluator quality. Confidence Score, Gold-Standard Eval Benchmark, Drift/Bias Monitoring, Anti-Gaming Detection, Evaluation Audit Trail, Governance Dashboard.
 
 ### 23. Quality & Economics Operations
-Cross-cutting layer bảo vệ outcome và ngân sách: Content Quality Gate, Evaluation Quality Gate, Release Gate, Outcome Measurement, Model Routing, Cost Budget, Quota, Observability.
+A cross-cutting layer that protects outcomes and budget: Content Quality Gate, Evaluation Quality Gate, Release Gate, Outcome Measurement, Model Routing, Cost Budget, Quota, Observability.
 
 ## Technology Stack
 
-Stack công nghệ cố định cho toàn bộ hệ thống. Mọi artifact sinh ra từ blueprint phải dùng stack này.
+The technology stack is fixed for the entire system. Every artifact generated from the Blueprint must use this stack.
 
-| Tầng | Công nghệ | Ghi chú |
+| Layer | Technology | Notes |
 |---|---|---|
 | **Backend (BE)** | Go | API service, business logic, orchestration |
 | **Engine / AI / Data** | Python | FSRS optimization, evaluation model, recommendation, governance pipeline, analytics |
-| **Frontend (FE)** | Next.js | Web UI, SSR/SSG, học + admin + colab |
-| **Mobile** | (định hướng) Next.js + PWA hoặc React Native | sync với FE; quyết định sau theo demand |
+| **Frontend (FE)** | Next.js | Web UI, SSR/SSG, learner + admin + colab |
+| **Mobile** | Future direction: Next.js + PWA or React Native | Sync with FE; decide later based on demand |
 
-### Ranh giới giữa Go và Python
+### Boundary between Go and Python
 
-Go và Python có vai trò khác nhau — không thay thế nhau:
+Go and Python serve different roles and do not replace one another:
 
 ```text
 ┌─────────────────────────────────────┐
@@ -102,7 +102,7 @@ Go và Python có vai trò khác nhau — không thay thế nhau:
 │  - FSRS runtime (Go binding)         │
 │  - Quota, cache, rate limit          │
 └──────────────┬──────────────────────┘
-               │ gọi async / job / inference
+               │ async / job / inference calls
                ▼
 ┌─────────────────────────────────────┐
 │  Python (Engine / AI / Data)         │
@@ -116,50 +116,50 @@ Go và Python có vai trò khác nhau — không thay thế nhau:
 └─────────────────────────────────────┘
 ```
 
-**Quy tắc:**
-- Go là **synchronous request path** (user-facing, low latency, high throughput).
-- Python là **async/heavy inference path** (model chấm, calibration batch, analytics).
-- Go gọi Python qua job queue bất đồng bộ; không gọi heavy inference đồng bộ trong request người dùng. HTTP/gRPC inference chỉ được dùng phía worker sau job boundary, không nằm trên learner request path.
-- FSRS: runtime scoring có thể ở Go (binding) để low-latency; **optimization** (tune 19 tham số) ở Python.
-- Database, cache, object storage là shared infra, không phụ thuộc ngôn ngữ.
+**Rules:**
+- Go owns the **synchronous request path** (user-facing, low latency, high throughput).
+- Python owns the **async/heavy inference path** (model scoring, calibration batches, analytics).
+- Go calls Python through an asynchronous job queue; heavy inference must not execute synchronously inside a learner request. HTTP/gRPC inference is allowed only behind the worker/job boundary, never on the learner request path.
+- FSRS runtime scoring may use a Go binding for low latency; **optimization** (tuning 19 parameters) runs in Python.
+- Database, cache, and object storage are shared infrastructure and are language-independent.
 
 ### Build / Buy boundary
 
-Blueprint chỉ khóa nguyên tắc ownership: LenBands tự sở hữu capability semantics, Error Graph, rubric/quality gate, recommendation policy, consent/retention và canonical event/failure semantics. Commodity infrastructure hoặc foundation capability có thể dùng managed/buy khi không làm mất các ownership trên.
+The Blueprint fixes ownership principles only: LenBands owns capability semantics, the Error Graph, rubric/quality gates, recommendation policy, consent/retention, and canonical event/failure semantics. Commodity infrastructure or foundation capabilities may be managed/bought when doing so does not surrender that ownership.
 
-Baseline decision, exit strategy và review trigger nằm ở `artifacts/business/decisions/build-buy-register.md`. Vendor cụ thể không phải Blueprint invariant.
+The baseline decision, exit strategy, and review triggers live in `artifacts/business/decisions/build-buy-register.md`. Specific vendors are not Blueprint invariants.
 
-### Ngữ cảnh triển khai Capability Layer
+### Capability Layer implementation context
 
-Ánh xạ Capability Layer (trên) sang tech stack:
+Map the Capability Layers below onto the technology stack as follows:
 
 - **Experience Layer (5)** → Next.js (FE).
 - **Orchestration Layer (4)** → Go (BE).
-- **Capability Layer (3)** → Go (BE), gọi Engine khi cần.
-- **Engine Layer (2)** → Python; FSRS runtime + scoring có thể Go binding.
-- **Knowledge & Content Layer (1)** → Go (BE) + DB; content authoring UI (Colab) là Next.js.
+- **Capability Layer (3)** → Go (BE), calling an Engine when required.
+- **Engine Layer (2)** → Python; FSRS runtime + scoring may use Go bindings.
+- **Knowledge & Content Layer (1)** → Go (BE) + DB; content-authoring UI (Colab) is Next.js.
 
-### Cross-cutting infra (không phụ thuộc ngôn ngữ)
+### Cross-cutting infrastructure
 
 - **Database**: Postgres (primary), Redis (cache + queue + rate limit).
 - **Object storage**: S3-compatible (audio, image, export file).
-- **Queue / job P0**: Redis Streams consumer groups (Go → Python jobs). Kafka chỉ là phương án future khi throughput, retention hoặc nhiều consumer độc lập vượt ngưỡng đã đo; không phải lựa chọn ngang hàng ở P0.
-- **Search**: Postgres FTS ở MVP, Elasticsearch/Meilisearch khi scale.
+- **Queue / job P0**: Redis Streams consumer groups (Go → Python jobs). Kafka is a future option only when measured throughput, retention, or independent-consumer requirements exceed the threshold; it is not a peer choice in P0.
+- **Search**: Postgres FTS at MVP, Elasticsearch/Meilisearch when scale requires it.
 - **Observability**: OpenTelemetry → Grafana/Datadog.
 - **CI/CD**: GitHub Actions, container registry, IaC (Terraform).
 
 ### Runtime reliability invariants (P0)
 
-- Delivery có thể **at-least-once**; mọi side effect learner-visible phải idempotent. Không hứa "exactly once" qua queue.
-- Một write domain + yêu cầu enqueue phải đi qua transactional outbox hoặc reconciliation tương đương; không được commit submission rồi âm thầm mất evaluation job.
-- Worker chỉ ack job sau khi durable state/effect đã được ghi. Job timeout/worker chết phải reclaim được mà không tạo evaluation, review card hoặc charge trùng.
-- Cache không là source of truth, không được chia sẻ private learner data qua user boundary và không được làm mất behavior khi cache unavailable.
-- API public/internal phải versioned, authenticated, có correlation ID, idempotency ở mutation và error envelope user-safe.
-- Mọi retry có max attempts, backoff, deadline, cost attribution và đường DLQ/replay; không có retry vô hạn.
+- Delivery may be **at-least-once**; every learner-visible side effect must be idempotent. Do not promise "exactly once" across the queue.
+- A domain write plus an enqueue requirement must use a transactional outbox or equivalent reconciliation; never commit a submission and silently lose its evaluation job.
+- A worker acknowledges a job only after durable state/effect has been written. Job timeout or worker death must be reclaimable without duplicate evaluations, review cards, or charges.
+- Cache is never a source of truth, must never share private learner data across user boundaries, and cache unavailability must not destroy system behavior.
+- Public/internal APIs must be versioned and authenticated, include correlation IDs and mutation idempotency, and return user-safe error envelopes.
+- Every retry has max attempts, backoff, deadline, cost attribution, and a DLQ/replay path; infinite retry is prohibited.
 
 ## Capability Layer
 
-Hệ thống chia thành 5 layer capability, từ dưới lên trên:
+The system has five capability layers, from foundation to experience:
 
 ```text
 ┌─────────────────────────────────────────────┐
@@ -184,28 +184,28 @@ Hệ thống chia thành 5 layer capability, từ dưới lên trên:
 └─────────────────────────────────────────────┘
 ```
 
-- Layer dưới cung cấp nền cho layer trên.
-- Experience Layer (cùng) chỉ orchestrate các capability, không chứa capability mới.
-- Engine Layer là implementation của capability (FSRS implement Review, Evaluation model implement EVAL.*).
-- Quality & Economics Operations là guardrail chạy ngang qua content, engines, experience và roadmap; không tạo thêm learner-facing feature nếu không cần.
+- Lower layers provide foundations for upper layers.
+- The Experience Layer only orchestrates existing capabilities; it does not invent new capabilities.
+- The Engine Layer implements capabilities (FSRS implements Review; the Evaluation model implements `EVAL.*`).
+- Quality & Economics Operations is a guardrail across content, engines, experience, and roadmap; it does not create extra learner-facing features unless they add an outcome.
 
 ## IELTS Skill Modeling
 
-Mỗi skill (Listening / Reading / Writing / Speaking / Pronunciation) được mô hình hóa theo **4 layer bên trong skill**:
+Each skill (Listening / Reading / Writing / Speaking / Pronunciation) is modeled with **four internal layers**:
 
 ```text
-Skill (vd: Reading)
-  ├── Learning   — công cụ học (passage reader, highlight, annotation...)
-  ├── Practice   — dạng bài (Matching Headings, T/F/NG, Multiple Choice...)
-  ├── Evaluation — chấm và feedback (Reading Coach, Answer Explanation)
-  └── Review     — xử lý sai và ôn lại (Wrong Question Review, add to Mistake Notebook)
+Skill (e.g. Reading)
+  ├── Learning   — learning tools (passage reader, highlight, annotation...)
+  ├── Practice   — question types (Matching Headings, T/F/NG, Multiple Choice...)
+  ├── Evaluation — scoring and feedback (Reading Coach, Answer Explanation)
+  └── Review     — error correction and review (Wrong Question Review, add to Mistake Notebook)
 ```
 
-Pronunciation là skill phụ trợ của Speaking nhưng tách riêng vì có cơ chế feedback riêng (phoneme, stress, intonation).
+Pronunciation supports Speaking but is separated because it has its own feedback mechanisms (phoneme, stress, intonation).
 
 ## Runtime State Model
 
-Learner state là **state vector đa trục**, không phải một state machine tuyến tính. Một learner có thể vừa `learning`, vừa `inactive`, hoặc đã `exam_ready` nhưng đang ở một session bị pause.
+Learner state is a **multidimensional state vector**, not a linear state machine. A learner can be `learning` while also `inactive`, or be `exam_ready` while the current session is paused.
 
 ```text
 Learner State
@@ -218,62 +218,62 @@ Learner State
 
 ### State definitions
 
-| Trục | State | Ý nghĩa / tác động |
+| Axis | State | Meaning / effect |
 |---|---|---|
-| Lifecycle | `new` | Chưa có placement hoặc meaningful session; Home ưu tiên activation |
-| Lifecycle | `diagnosed` | Có baseline band/gap; hệ thống có thể tạo path |
-| Lifecycle | `active` | Có meaningful activity trong cửa sổ retention hiện tại |
-| Lifecycle | `inactive` | Không có meaningful activity sau threshold; không đồng nghĩa thất bại |
-| Lifecycle | `reactivated` | Quay lại sau inactive; dùng comeback plan ngắn |
-| Learning | `not_started`, `learning`, `practicing`, `reviewing`, `ready` | Mức độ tiến triển theo skill/goal; có thể tồn tại đồng thời cho nhiều skill |
-| Session | `none`, `active`, `paused`, `completed`, `abandoned` | Trạng thái phiên hiện tại và recovery path |
-| Evaluation | `none`, `submitted`, `processing`, `scored`, `low_confidence`, `invalid`, `anti_gaming_review`, `failed` | Quyết định UI, history, readiness và retry |
-| Goal | `no_goal`, `goal_set`, `on_track`, `at_risk`, `achieved`, `expired` | Điều chỉnh plan và notification, không dùng để gây guilt |
+| Lifecycle | `new` | No placement or meaningful session yet; Home prioritizes activation |
+| Lifecycle | `diagnosed` | Baseline band/gap exists; the system can create a path |
+| Lifecycle | `active` | Meaningful activity exists in the current retention window |
+| Lifecycle | `inactive` | No meaningful activity after the threshold; this does not mean failure |
+| Lifecycle | `reactivated` | Returned after inactivity; use a short comeback plan |
+| Learning | `not_started`, `learning`, `practicing`, `reviewing`, `ready` | Progress state by skill/goal; multiple skills can have different states simultaneously |
+| Session | `none`, `active`, `paused`, `completed`, `abandoned` | Current session state and recovery path |
+| Evaluation | `none`, `submitted`, `processing`, `scored`, `low_confidence`, `invalid`, `anti_gaming_review`, `failed` | Drives UI, history, readiness, and retry behavior |
+| Goal | `no_goal`, `goal_set`, `on_track`, `at_risk`, `achieved`, `expired` | Adjusts plan and notification behavior without guilt mechanics |
 
 ### State invariants
 
-- `scored` chỉ được feed vào readiness/recommendation khi result không có `invalid` hoặc `anti_gaming_review` flag.
-- `inactive` không xóa progress, không reset streak bắt buộc và không tạo backlog mới.
-- `paused` phải có checkpoint; `abandoned` chỉ được ghi sau timeout/recovery policy rõ ràng.
-- `reactivated` phải đi qua một `comeback_plan_started` event trước khi gửi re-engagement tiếp theo.
-- State transition phải idempotent, có timestamp, actor/source và audit trail.
+- `scored` feeds readiness/recommendation only when the result does not carry an `invalid` or `anti_gaming_review` flag.
+- `inactive` does not erase progress, forcibly reset streaks, or create a new backlog.
+- `paused` requires a checkpoint; `abandoned` is recorded only after an explicit timeout/recovery policy.
+- `reactivated` must pass through a `comeback_plan_started` event before further re-engagement messages are sent.
+- State transitions must be idempotent and include timestamp, actor/source, and audit trail.
 
 ### State-driven surfaces
 
-Home, Today's Queue, recommendation, notification và progressive disclosure đọc state vector này; role không được dùng thay cho learner state. Mỗi transition phải map tới event contract ở `03-features.md` và failure contract ở `06-engines.md`.
+Home, Today's Queue, recommendations, notifications, and progressive disclosure read this state vector; role must not substitute for learner state. Every transition maps to the event contract in `03-features.md` and the failure contract in `06-engines.md`.
 
 ## Runtime Entity Ownership
 
-Runtime entity có đúng một canonical owner, privacy class và lifecycle. Đây là ranh giới bắt buộc trước khi tạo Data Contract trong Artifact.
+Every runtime entity has exactly one canonical owner, privacy class, and lifecycle. This boundary is mandatory before creating an Artifact Data Contract.
 
-| Entity family | Canonical owner | Writer chính | Reader scope | Privacy class | Lifecycle |
+| Entity family | Canonical owner | Primary writer | Reader scope | Privacy class | Lifecycle |
 |---|---|---|---|---|---|
-| Account, goal, preference | Learner | Learner / Identity service | Chủ sở hữu | account | account lifetime / deletion policy |
-| Draft, essay, recording | Learner | Learner / session service | Chủ sở hữu | learning / audio | draft → submitted → retained/deleted |
-| Attempt, evaluation, feedback | System cho learner | Evaluation engine | Chủ sở hữu + aggregate governance | assessment | submitted → scored/failed → retention policy |
-| Learning error, notebook, review card | Learner | Review/Evaluation engine + learner action | Chủ sở hữu | learning | open → review → improved/dismissed |
+| Account, goal, preference | Learner | Learner / Identity service | Owner | account | account lifetime / deletion policy |
+| Draft, essay, recording | Learner | Learner / session service | Owner | learning / audio | draft → submitted → retained/deleted |
+| Attempt, evaluation, feedback | System for learner | Evaluation engine | Owner + aggregate governance | assessment | submitted → scored/failed → retention policy |
+| Learning error, notebook, review card | Learner | Review/Evaluation engine + learner action | Owner | learning | open → review → improved/dismissed |
 | Published taxonomy/configuration | System | Content workflow | Learner read-only | system | versioned publish lifecycle |
-| Billing/quota | System | Billing service | Chủ sở hữu + finance aggregate | billing | legal/financial retention policy |
+| Billing/quota | System | Billing service | Owner + finance aggregate | billing | legal/financial retention policy |
 | Event/audit record | System | Producer service | Authorized operations only | derived privacy class | immutable + retention policy |
 
-Quy tắc:
+Rules:
 
-- Owner không đồng nghĩa với writer duy nhất; writer phải có permission rõ.
-- Learner runtime data không được biến thành Artifact hoặc Knowledge Asset.
-- Aggregate governance chỉ đọc dữ liệu tối thiểu cần thiết; raw essay/audio không vào analytics mặc định.
-- Artifact Data Contract phải reference entity family, privacy class, retention policy và migration strategy.
+- Owner does not mean sole writer; every writer must have explicit permission.
+- Learner runtime data must never become an Artifact or Knowledge Asset.
+- Aggregate governance reads only the minimum data required; raw essays/audio do not enter analytics by default.
+- Artifact Data Contracts must reference entity family, privacy class, retention policy, and migration strategy.
 
 ## Permission Boundary
 
 | Role | Learner data | Published knowledge/config | Evaluation result | Governance/audit |
 |---|---|---|---|---|
-| Guest | Không có personal data | Preview theo policy | Không có | Không có |
-| Learner | Đọc/ghi dữ liệu của mình | Read | Đọc kết quả của mình, gửi feedback | Không có |
-| Collaborator | Không truy cập mặc định | Draft/create theo scope | Không xem dữ liệu learner | Không có |
-| Admin | Không đọc raw learner data mặc định | Quản trị theo permission | Chỉ aggregate/exception theo policy | Read aggregate/audit scope |
-| System service | Least privilege | Theo service scope | Theo service scope | Theo service scope |
+| Guest | No personal data | Preview according to policy | None | None |
+| Learner | Read/write own data | Read | Read own results, submit feedback | None |
+| Collaborator | No access by default | Draft/create within scope | Cannot view learner data | None |
+| Admin | Does not read raw learner data by default | Administer according to permission | Aggregate/exception only according to policy | Read aggregate/audit scope |
+| System service | Least privilege | According to service scope | According to service scope | According to service scope |
 
-Mỗi API/Data Contract phải khai báo role, resource owner và data scope; không dùng role name đơn lẻ thay cho permission.
+Every API/Data Contract must declare role, resource owner, and data scope; a role name alone must never substitute for permission.
 
 ## System Boundary
 
@@ -296,17 +296,17 @@ Mỗi API/Data Contract phải khai báo role, resource owner và data scope; kh
         Colab (content)     AI Governance         Admin (system)
         - Publish           - invisible           - User/Billing
         - Moderation        - Calibration         - Audit
-        - Không chấm        - Anti-gaming         - Không override
+        - No scoring        - Anti-gaming         - No override
 ```
 
-**Ranh giới cứng:**
-- Colab → chỉ content, không evaluation
-- Admin → chỉ system, không evaluation, không override AI result
-- Human → không tồn tại trong evaluation flow
+**Hard boundaries:**
+- Colab → content only, no evaluation
+- Admin → system only, no evaluation, no AI-result override
+- Human → does not exist in the evaluation flow
 
 ## Dependency
 
-Sự phụ thuộc giữa các domain chính (rút gọn, dependency đầy đủ ở `03-features.md`):
+High-level domain dependencies (abbreviated; complete dependency definitions are in `03-features.md`):
 
 ```text
 Identity ──► Goal ──► Placement ──► Learning ──┐
@@ -327,15 +327,15 @@ Knowledge Assets ◄─── Colab ──► Content ───────┤
                                      (Insights/NextBestAction)
 ```
 
-- Personalization đọc từ Assessment History + Review để sinh Insights/NextBestAction.
-- Engines cung cấp thuật toán cho Evaluation, Review (FSRS), Coaching.
-- Colab publish → Knowledge Assets → Learning/Practice tiêu thụ.
-- Quality gate → chỉ release content/model khi đạt chuẩn outcome, safety, accessibility và cost.
-- Cost budget → route request theo value/risk, cache hoặc batch khi có thể; không dùng chi phí làm lý do âm thầm hạ chất lượng.
+- Personalization reads Assessment History + Review to generate Insights/NextBestAction.
+- Engines provide algorithms for Evaluation, Review (FSRS), and Coaching.
+- Colab publishes → Knowledge Assets → Learning/Practice consumes them.
+- Quality gates release content/models only when outcome, safety, accessibility, and cost requirements are met.
+- Cost budgets route requests by value/risk and use cache or batching where appropriate; cost must never become a reason to silently lower quality.
 
-## Reading order gợi ý
+## Suggested reading order
 
-1. Đọc Domain Map (trên) để thấy toàn cảnh.
-2. Đọc Capability Layer để hiểu phân tầng.
-3. Sang `03-features.md` để xem capability id chi tiết.
-4. Sang `06-engines.md` để xem implementation của FSRS/Evaluation/Governance.
+1. Read the Domain Map above for the system overview.
+2. Read the Capability Layer to understand layering.
+3. Continue to `03-features.md` for detailed capability IDs.
+4. Continue to `06-engines.md` for FSRS/Evaluation/Governance implementation contracts.
