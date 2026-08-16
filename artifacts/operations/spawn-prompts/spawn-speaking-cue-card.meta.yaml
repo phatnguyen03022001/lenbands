@@ -1,7 +1,7 @@
 type: prompt-template
 prompt_template_id: spawn-speaking-cue-card
 status: review
-version: 0.2.2
+version: 0.2.3
 owner: colab
 representation: markdown
 derived_from: [LEARN.Speaking, CONTENT.Publish]
@@ -11,7 +11,7 @@ created_at: 2026-08-07
 updated_at: 2026-08-17
 framework_refs:
   - file: speaking-parts-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [S_fc_long_pause, S_long_turn_sustain]
   - file: band-descriptor-map
     version: 1.0.7
