@@ -1,6 +1,6 @@
 # 06 — Engines (Learning Engine Layer)
 
-File này mô tả **implementation** của các engine cung cấp thuật toán cho Capability Layer (`03-features.md`). Đều thuộc cùng một lớp "Learning Engine". FSRS không tách riêng — nó là một implementation của engine.
+This file describes the **implementation contracts** of engines that provide algorithms to the Capability Layer (`03-features.md`). They all belong to one "Learning Engine" layer. FSRS is not a separate architectural layer; it is one engine implementation.
 
 ```text
 Learning Engine
@@ -15,29 +15,29 @@ Learning Engine
 
 ## 1. FSRS Engine (implement `REVIEW.FSRS`)
 
-FSRS (Free Spaced Repetition Scheduler) là thuật toán spaced repetition chính, dùng cho mọi review card (vocabulary, grammar, collocation, mẫu câu, câu hỏi sai).
+FSRS (Free Spaced Repetition Scheduler) is the primary spaced-repetition algorithm for every review card: vocabulary, grammar, collocation, sentence patterns, and incorrect questions.
 
-### Tại sao FSRS
+### Why FSRS
 
-- Tự tối ưu interval theo lịch sử review từng learner, ít yêu cầu tự đánh giá lại so với SM-2
-- Review forecast chính xác hơn
-- Personalization qua optimization (tune 19 tham số per learner)
-- Open source, có benchmark tốt (spec FSRS-5.x: https://github.com/open-spaced-repetition/fsrs4anki)
+- Optimizes intervals from each learner's review history with less repeated self-assessment than SM-2
+- More accurate review forecasting
+- Personalization through optimization (tuning 19 parameters per learner)
+- Open source with established benchmarking (FSRS-5.x spec: https://github.com/open-spaced-repetition/fsrs4anki)
 
 ### Card model
 
-| Trường | Mô tả |
+| Field | Description |
 |---|---|
 | `card_id`, `user_id` | id |
-| `content_ref` | link tới vocab/grammar/collocation/question |
+| `content_ref` | link to vocab/grammar/collocation/question |
 | `content_type` | vocab/grammar/collocation/template/question |
-| `due` | timestamp review tiếp theo |
-| `stability` | số ngày nhớ với xác suất cao |
-| `difficulty` | độ khó cảm nhận (1-10) |
-| `elapsed_days` | ngày kể từ review cuối |
-| `scheduled_days` | interval lên lịch |
-| `reps` | số lần đã review |
-| `lapses` | số lần quên |
+| `due` | next review timestamp |
+| `stability` | number of days remembered with high probability |
+| `difficulty` | perceived difficulty (1-10) |
+| `elapsed_days` | days since last review |
+| `scheduled_days` | scheduled interval |
+| `reps` | number of reviews |
+| `lapses` | number of forgetting events |
 | `state` | New / Learning / Review / Relearning |
 | `last_review` | timestamp |
 
@@ -57,80 +57,80 @@ Review
 
 ### Rating
 
-- **Again (1)** — hoàn toàn quên → Relearning
-- **Hard (2)** — nhớ nhưng khó → tăng difficulty
-- **Good (3)** — nhớ bình thường → interval theo FSRS
-- **Easy (4)** — nhớ rất dễ → tăng interval mạnh, giảm difficulty
+- **Again (1)** — completely forgotten → Relearning
+- **Hard (2)** — remembered with difficulty → increase difficulty
+- **Good (3)** — normal recall → interval calculated by FSRS
+- **Easy (4)** — very easy recall → increase interval substantially and reduce difficulty
 
 ### Core parameters
 
-19 tham số optimize per learner:
-- `w0-w17` — weights cho stability/difficulty init
-- `request_retention` — tỷ lệ ghi nhớ mong muốn (default 0.9, config per user)
-- `maximum_interval` — interval tối đa (default 36500 ngày)
+19 parameters are optimized per learner:
+- `w0-w17` — weights for initial stability/difficulty
+- `request_retention` — desired retention rate (default 0.9, configurable per user)
+- `maximum_interval` — maximum interval (default 36500 days)
 
 ### Stability formula (concept)
 
 ```text
-Stability mới = f(stability cũ, difficulty, rating, retrievability)
+New stability = f(previous stability, difficulty, rating, retrievability)
 ```
 
-- Again → stability giảm mạnh / reset
-- Hard → tăng nhẹ
-- Good → tăng theo factor
-- Easy → tăng mạnh
+- Again → stability decreases substantially / resets
+- Hard → small increase
+- Good → increases by factor
+- Easy → large increase
 
 ### Review flow
 
 ```text
 Card due
   ↓
-Learner xem mặt trước → tự recall → xem mặt sau
+Learner sees front → recalls → sees back
   ↓
 Rating (Again/Hard/Good/Easy)
   ↓
-FSRS tính stability, difficulty, due mới
+FSRS calculates new stability, difficulty, and due
   ↓
-Cập nhật card → ra khỏi queue đến due mới
+Update card → remove from queue until next due
 ```
 
 ### Card sources
 
-- Vocabulary từ Knowledge Assets (`KA.Vocabulary`)
+- Vocabulary from Knowledge Assets (`KA.Vocabulary`)
 - Collocation (`KA.Collocation`)
 - Grammar rule (`KA.Grammar`)
-- Wrong question từ Mistake Notebook (`REVIEW.MistakeNotebook`)
+- Wrong question from Mistake Notebook (`REVIEW.MistakeNotebook`)
 - Speaking template phrase
 - Writing template phrase
 - Pronunciation drill item
 
 ### FSRS Optimization
 
-- MVP: dùng bộ tham số global/cohort đã kiểm định; không optimize per learner khi dữ liệu chưa đủ.
-- Khi đạt tối thiểu `1000` review hợp lệ và đủ đa dạng rating, chạy optimization offline.
-- V1: tune theo cohort hoặc skill; chỉ áp dụng nếu validation set không giảm retention/recall.
-- V2: per-learner optimization, có minimum sample, rollback và model/version audit.
-- Re-optimize định kỳ nhưng chỉ promote tham số mới qua `OPS.ReleaseGate`.
+- MVP: use a validated global/cohort parameter set; do not optimize per learner while data is insufficient.
+- After at least `1000` valid reviews with sufficiently diverse ratings, run optimization offline.
+- V1: tune by cohort or skill; apply only when the validation set does not reduce retention/recall.
+- V2: per-learner optimization with minimum sample, rollback, and model/version audit.
+- Re-optimize periodically, but promote new parameters only through `OPS.ReleaseGate`.
 
 ### Review Forecast
 
-- Dự báo card due 7/30 ngày tới
-- Cảnh báo retention overload (forecast quá cao)
-- Gợi ý điều chỉnh `request_retention`
+- Forecast cards due over the next 7/30 days
+- Warn about retention overload when forecast volume is too high
+- Suggest adjustments to `request_retention`
 
 ### Integration points
 
-- Vocabulary lesson hoàn thành → auto tạo card
-- Wrong question → option add vào SRS
-- Vocabulary Explanation (`COACH.VocabularyExplanation`) → nút add to SRS
-- Daily notification nhắc review due (`NOTIF.SRS`)
-- Weekly goal có thể bao gồm SRS review target
+- Completed vocabulary lesson → automatically create a card
+- Wrong question → option to add to SRS
+- Vocabulary Explanation (`COACH.VocabularyExplanation`) → add-to-SRS action
+- Daily notification for due reviews (`NOTIF.SRS`)
+- Weekly goals may include an SRS review target
 
 ---
 
 ## 2. Evaluation Engine (implement `EVAL.*`)
 
-AI sole scorer, chấm 100%, không human-in-the-loop. Governance Engine là control design (mục 5 dưới), không phải bằng chứng quality đang active.
+AI is the sole scorer and performs 100% of scoring without a human in the loop. The Governance Engine is a control design (section 5 below), not evidence that quality controls are already active.
 
 ### Sub-engines
 
@@ -145,7 +145,7 @@ AI sole scorer, chấm 100%, không human-in-the-loop. Governance Engine là con
 
 ### Context injection
 
-`COACH.Tutor` và Coach khác nhận **context hiện tại của user**:
+`COACH.Tutor` and other Coaches receive the **user's current context**:
 
 ```text
 context = {
@@ -153,39 +153,39 @@ context = {
   current_passage_id,
   current_question_id,
   current_question_type,
-  user_history (sai dạng này bao nhiêu lần),
+  user_history (how often this type was answered incorrectly),
   user_band
 }
-→ inject vào prompt
-→ trả lời trong ngữ cảnh
+→ inject into prompt
+→ respond in context
 ```
 
 ### Scoring rubric
 
-- Tuân thủ IELTS public band descriptors (TR/CC/LR/GRA cho Writing; FC/LR/GRA/PR cho Speaking).
-- Output có **Confidence Score** (`GOVERNANCE.ConfidenceScore`) cho mỗi bài.
-- Low-confidence → flag backend (invisible với user).
+- Follow public IELTS band descriptors (TR/CC/LR/GRA for Writing; FC/LR/GRA/PR for Speaking).
+- Output a **Confidence Score** (`GOVERNANCE.ConfidenceScore`) for every evaluation.
+- Low confidence → backend flag, invisible to the user.
 
 ### Evaluation result contract
 
-Mọi evaluation result phải lưu cùng:
+Every evaluation result is stored with:
 
-| Field | Mục đích |
+| Field | Purpose |
 |---|---|
-| `rubric_version` | biết rubric nào tạo ra score |
-| `model_version` | tái lập và audit kết quả |
+| `rubric_version` | identify the rubric that produced the score |
+| `model_version` | reproduce and audit the result |
 | `quality_status` | `accepted`, `low_confidence`, `insufficient_evidence`, `invalid` |
 | `evaluation_state` | `none`, `submitted`, `processing`, `scored`, `low_confidence`, `invalid`, `anti_gaming_review`, `failed` |
-| `evidence` | câu/audio segment/feature làm căn cứ |
-| `feedback_actions` | lesson/drill/rewrite được đề xuất |
+| `evidence` | sentence/audio segment/feature supporting the result |
+| `feedback_actions` | proposed lesson/drill/rewrite |
 | `quality_flags` | anti-gaming, audio quality, off-topic, missing input |
 | `cost_metadata` | model tier, token/audio usage, cache hit, latency |
 
-Score chỉ feed vào readiness, history và recommendation khi state hợp lệ. Low-confidence phải có recovery hoặc resubmission path; không âm thầm biến thành band bình thường.
+A score feeds readiness, history, and recommendations only when its state is valid. Low-confidence results require a recovery or resubmission path and must never silently become ordinary band results.
 
 ### Failure Contract
 
-Failure là một phần của product behavior, không chỉ là log kỹ thuật. Mọi service/engine phải trả cùng một failure envelope:
+Failure is part of product behavior, not merely a technical log. Every service/engine returns the same failure envelope:
 
 ```json
 {
@@ -206,30 +206,30 @@ Failure là một phần của product behavior, không chỉ là log kỹ thu�
 
 ### Failure taxonomy
 
-Concrete P0 failure codes và mapping sang user-safe HTTP error nằm trong `artifacts/engineering/contracts/runtime/failure-taxonomy-contract.md`. Artifact đó là registry duy nhất; service không tự tạo code mới trong implementation.
+Concrete P0 failure codes and their mapping to user-safe HTTP errors live in `artifacts/engineering/contracts/runtime/failure-taxonomy-contract.md`. That Artifact is the sole registry; services must not invent new codes during implementation.
 
 ### Failure rules
 
-- `retryable=true` luôn đi kèm retry limit, backoff, idempotency key và `retry_after`.
-- Không retry vô hạn hoặc charge learner nhiều lần vì một failure nội bộ.
-- Preserve user-created data trước khi xử lý fallback; chỉ discard dữ liệu được đánh dấu invalid.
-- UI dùng user state dễ hiểu; error code, trace ID và provider detail chỉ nằm trong support/admin view.
-- Mọi failure phát event tương ứng; không dùng exception text làm analytics contract.
-- Failure policy phải được test cho timeout, duplicate submit, network loss, quota exhaustion, model rollback và app restart.
+- `retryable=true` always includes a retry limit, backoff, idempotency key, and `retry_after`.
+- Never retry indefinitely or charge a learner multiple times for one internal failure.
+- Preserve user-created data before fallback processing; discard only data explicitly marked invalid.
+- UI uses understandable user states; error codes, trace IDs, and provider details belong only in support/admin views.
+- Every failure emits the corresponding event; exception text is not an analytics contract.
+- Failure policies must be tested for timeout, duplicate submit, network loss, quota exhaustion, model rollback, and app restart.
 
 ### Anti-gaming
 
-- `GOVERNANCE.AntiGaming` phát hiện: sample essay có sẵn, plagiarism, generated-submission signal.
-- Implementation: similarity search vs corpus + AI-generated detector.
-- Khi flag: thông báo nhẹ cho user + không ghi band vào history (hoặc ghi với flag).
+- `GOVERNANCE.AntiGaming` detects pre-existing sample essays, plagiarism, and generated-submission signals.
+- Implementation: similarity search against a corpus + AI-generated detector.
+- When flagged: show a restrained user message and do not write the band into normal history, or write it only with an explicit flag according to policy.
 
-Anti-gaming là tín hiệu rủi ro, không phải bằng chứng tuyệt đối. Hệ thống phải có false-positive monitoring, giải thích trung tính, quyền submit lại và policy rõ ràng cho việc ghi/không ghi kết quả.
+Anti-gaming is a risk signal, not absolute proof. The system requires false-positive monitoring, neutral explanation, a right to resubmit, and explicit policy for whether flagged results enter history.
 
 ---
 
 ## 3. Recommendation Engine (implement `PERSONAL.*`)
 
-Biến kết quả học thành next best action, insights, adaptive plan.
+Turns learning results into next best actions, insights, and adaptive plans.
 
 ### Inputs
 
@@ -238,43 +238,43 @@ Biến kết quả học thành next best action, insights, adaptive plan.
 - Goal (`GOAL.*`)
 - Band Framework (`BAND.*`)
 - Content taxonomy (`05-content.md`)
-- Current energy/time, modality và notification preferences (`STUDY.CheckIn`, `PROGRESS.Wellbeing`)
+- Current energy/time, modality, and notification preferences (`STUDY.CheckIn`, `PROGRESS.Wellbeing`)
 
 ### Outputs
 
 | Capability | Logic |
 |---|---|
-| `PERSONAL.NextBestAction` | "hôm nay nên làm X" — dựa trên due queue + weakness + goal |
-| `PERSONAL.Insights` | "bạn sai Matching Headings vì thiếu paraphrase" — aggregate theo `question_type` + `micro_skill` + `paraphrase_pattern` |
-| `PERSONAL.AdaptivePlan` | điều chỉnh Learning Path theo progress |
-| `PERSONAL.WeaknessPractice` | chọn câu theo weakness tag |
-| `PERSONAL.GapAnalysis` | gap giữa current band và target band theo descriptor |
+| `PERSONAL.NextBestAction` | "do X today" — based on due queue + weakness + goal |
+| `PERSONAL.Insights` | "Matching Headings errors stem from weak paraphrase recognition" — aggregate by `question_type` + `micro_skill` + `paraphrase_pattern` |
+| `PERSONAL.AdaptivePlan` | adjust Learning Path according to progress |
+| `PERSONAL.WeaknessPractice` | select questions by weakness tags |
+| `PERSONAL.GapAnalysis` | gap between current band and target band according to descriptors |
 
 ### Insights generation
 
 ```text
 Aggregate wrong answers by (question_type, micro_skill, paraphrase_pattern)
    ↓
-Tìm pattern yếu nhất (frequency + recency)
+Find weakest pattern (frequency + recency)
    ↓
-Map sang natural language insight
+Map to natural-language insight
    ↓
-Recommend action (học lesson nào, luyện dạng nào)
+Recommend action (which lesson to study, which type to practice)
 ```
 
-Yêu cầu taxonomy depth (`05-content.md`) — thiếu tag = không sinh được insight.
+This depends on taxonomy depth (`05-content.md`); missing tags mean no reliable insight can be generated.
 
-### Cold start và safety
+### Cold start and safety
 
-- Cold start dùng self-report + placement + curated baseline, không giả vờ cá nhân hóa khi chưa có evidence.
-- Mỗi recommendation phải có lý do, confidence và alternative nhẹ hơn.
-- Không recommend thêm workload khi learner có tín hiệu quá tải hoặc backlog vượt capacity.
+- Cold start uses self-report + placement + curated baseline; do not pretend personalization exists before evidence exists.
+- Every recommendation includes a reason, confidence, and a lighter alternative.
+- Do not recommend additional workload when overload signals exist or backlog exceeds capacity.
 
 ---
 
 ## 4. Quality & Cost Control Plane (implement `OPS.*`)
 
-Đây là lớp chạy ngang qua FSRS, Evaluation, Recommendation, Content và Experience.
+This layer operates across FSRS, Evaluation, Recommendation, Content, and Experience.
 
 ### Model routing ladder
 
@@ -285,105 +285,105 @@ Rule / deterministic lookup
   ↓ miss
 Cache / precomputed result
   ↓ miss
-Small model hoặc batch model
+Small model or batch model
   ↓ low confidence / high-risk task
 Large model / specialist scorer
   ↓ failure
-Safe fallback + retry queue + trạng thái rõ cho user
+Safe fallback + retry queue + clear user state
 ```
 
 ### Quality gates
 
 - **Content**: correctness, taxonomy completeness, calibration, accessibility, rights.
 - **Evaluation**: rubric agreement, calibration error, confidence coverage, drift/bias, reproducibility.
-- **Recommendation**: actionability, completion, retest lift, error recurrence và overload rate.
+- **Recommendation**: actionability, completion, retest lift, error recurrence, and overload rate.
 - **Experience**: first meaningful action, recovery success, notification fatigue, accessibility.
 
-Không promote model/content chỉ vì accuracy offline tốt; phải có outcome và cost impact trên cohort holdout.
+Do not promote a model/content item merely because offline accuracy is strong; require outcome and cost impact on a holdout cohort.
 
 ### Cost controls
 
 | Control | Policy |
 |---|---|
-| Cache | cache theo normalized input + version; invalidate khi content/rubric/model đổi |
-| Batch | auto-tag, embeddings, weekly recap và analytics chạy batch |
-| Routing | rule/small model cho classification; large model cho high-value/high-risk |
-| Quota | token, audio phút, retries và concurrent jobs theo plan/capability |
-| Budget | hard/soft budget theo learner, feature và cohort; alert trước khi vượt |
+| Cache | cache by normalized input + version; invalidate when content/rubric/model changes |
+| Batch | auto-tag, embeddings, weekly recap, and analytics run in batch |
+| Routing | rules/small model for classification; large model for high-value/high-risk tasks |
+| Quota | token, audio minutes, retries, and concurrent jobs by plan/capability |
+| Budget | hard/soft budget by learner, feature, and cohort; alert before exceeding |
 | Fallback | degraded but useful: save draft, basic explanation, delayed result, retry queue |
-| Observability | đo cost cùng quality để phát hiện “rẻ hơn nhưng học kém hơn” |
+| Observability | measure cost together with quality to detect “cheaper but worse learning” |
 
 ### Cost-quality SLOs
 
-- Không tăng cost/active learner nếu không tạo tăng outcome có ý nghĩa.
-- Không hạ model tier cho evaluation high-risk chỉ để đạt budget.
-- Request quá budget phải fail gracefully, không retry vô hạn.
-- Mọi thay đổi routing phải được canary, rollback và ghi vào `GOVERNANCE.AuditTrail`.
+- Do not increase cost/active learner without a meaningful outcome increase.
+- Do not lower the model tier for high-risk evaluation merely to meet budget.
+- Over-budget requests fail gracefully and do not retry indefinitely.
+- Every routing change uses canary, rollback, and is recorded in `GOVERNANCE.AuditTrail`.
 
-### Cache, worker và API reliability
+### Cache, worker, and API reliability
 
-Đây là invariant product/runtime, không phải lựa chọn library:
+These are product/runtime invariants, not library choices:
 
-- Cache chỉ tăng tốc; canonical state vẫn ở runtime store. Cache miss hoặc cache outage không được thay đổi entitlement, score, review schedule hay làm mất draft.
-- Cache key của dữ liệu learner phải contain subject scope + contract/version; tuyệt đối không cache raw essay/audio vào shared key.
-- Evaluation, sync và batch chạy at-least-once. Idempotency key + durable state quyết định side effect đúng một lần ở domain layer; queue không tự đảm bảo điều đó.
-- Mọi job phải có deadline, max attempts, backoff, DLQ/replay path, trace/correlation ID, quota/cost attribution và owner.
-- API mutation phải idempotent, return semantic user-safe failure và hỗ trợ migration backward-compatible. OpenAPI chỉ là representation của HTTP contract; không thay thế data/event/failure contract.
+- Cache only accelerates access; canonical state remains in the runtime store. Cache miss/outage must not change entitlement, scores, review schedules, or lose drafts.
+- Learner-data cache keys must contain subject scope + contract/version; raw essay/audio must never be stored under a shared key.
+- Evaluation, sync, and batch processing are at-least-once. Idempotency key + durable state determine exactly-once side effects at the domain layer; the queue itself does not guarantee them.
+- Every job has deadline, max attempts, backoff, DLQ/replay path, trace/correlation ID, quota/cost attribution, and owner.
+- API mutations must be idempotent, return semantic user-safe failures, and support backward-compatible migration. OpenAPI is a representation of the HTTP contract; it does not replace data/event/failure contracts.
 
 ---
 
 ## 5. Governance Engine (implement `GOVERNANCE.*`)
 
-Backend invisible, thiết kế để kiểm soát chất lượng của sole evaluator mà không mở luồng human-in-the-loop; chưa phải quality guarantee khi thiếu corpus, threshold và benchmark run thật.
+Invisible backend controls designed to govern the quality of the sole evaluator without opening a human-in-the-loop runtime path; they are not a quality guarantee while real corpus, threshold, and benchmark-run evidence is missing.
 
 ### Sub-engines
 
-| Engine | Implement | Mô tả |
+| Engine | Implement | Description |
 |---|---|---|
-| Confidence Scorer | `GOVERNANCE.ConfidenceScore` | mỗi bài chấm có confidence; low → flag |
-| Gold-Standard Benchmark | `GOVERNANCE.GoldStandardBenchmark` | proposal: chấm lại corpus examiner-graded theo cadence/kích thước do founder approve, đo độ lệch (variance/bias) |
-| Drift Detector | `GOVERNANCE.DriftDetection` | phát hiện model chấm lệch chuẩn theo thời gian |
-| Bias Monitor | `GOVERNANCE.BiasMonitoring` | chênh lệch chấm theo nhóm user/dạng bài/band |
-| Anti-Gaming | `GOVERNANCE.AntiGaming` | canonical owner; `EVAL.AntiGaming` chỉ là deprecated alias |
-| Audit Trail | `GOVERNANCE.AuditTrail` | log calibration, model version, mọi thay đổi |
+| Confidence Scorer | `GOVERNANCE.ConfidenceScore` | every evaluation has confidence; low confidence → flag |
+| Gold-Standard Benchmark | `GOVERNANCE.GoldStandardBenchmark` | proposal: re-score an examiner-graded corpus at a cadence/size approved by the founder and measure variance/bias |
+| Drift Detector | `GOVERNANCE.DriftDetection` | detect scoring-model drift over time |
+| Bias Monitor | `GOVERNANCE.BiasMonitoring` | scoring differences by user group/task type/band |
+| Anti-Gaming | `GOVERNANCE.AntiGaming` | canonical owner; `EVAL.AntiGaming` is only a deprecated alias |
+| Audit Trail | `GOVERNANCE.AuditTrail` | log calibration, model version, and every change |
 
 ### Workflow
 
 ```text
-Mỗi bài chấm (EVAL.*), khi route đã qua release gate
+Every evaluation (EVAL.*), after routing passes the release gate
    ↓
-Gắn Confidence Score
+Attach Confidence Score
    ↓
-[Low confidence] → Flag → chạy qua pipeline calibration lại (invisible)
+[Low confidence] → Flag → run through recalibration pipeline (invisible)
    ↓
-Cadence benchmark theo corpus/threshold đã founder approve
+Benchmark according to founder-approved corpus/threshold cadence
    ↓
-Đo drift/bias → nếu vượt threshold → re-tune model
+Measure drift/bias → if threshold exceeded → re-tune model
    ↓
-Audit Trail ghi lại
+Record in Audit Trail
    ↓
-Governance Dashboard hiển thị cho Admin (ADMIN.GovernanceDashboard)
+Governance Dashboard displays metrics to Admin (ADMIN.GovernanceDashboard)
 ```
 
-### Tại sao không phải human review
+### Why this is not human review
 
-- Triết lý sole evaluator (`01-product.md`): user thấy "100% AI".
-- Mục tiêu kiểm soát chất lượng là **data-driven governance**, không mở human review runtime; cơ chế này chỉ có hiệu lực sau khi có corpus, threshold và run thật.
-- Calibration dùng gold-standard dataset nếu founder có rights/provenance và run thật — đây là "human in the dataset", không phải "human in the loop".
+- Sole-evaluator philosophy (`01-product.md`): the user sees a 100% AI evaluation flow.
+- The quality-control goal is **data-driven governance**, not runtime human review; this mechanism becomes effective only after real corpus, thresholds, and runs exist.
+- Calibration may use a gold-standard dataset only when the founder has rights/provenance and a real run exists — this is "human in the dataset", not "human in the loop".
 
 ### Key metrics
 
-| Metric | Ý nghĩa | Threshold gợi ý |
+| Metric | Meaning | Suggested threshold |
 |---|---|---|
-| Mean Absolute Error vs gold | độ lệch trung bình | candidate `< 0.5 band`; chưa approve |
-| Low-confidence rate | % bài flag | candidate `< 5%`; chưa approve |
-| Drift (month over month) | độ lệch theo thời gian | candidate alert threshold; chưa active cho tới khi founder approve benchmark baseline |
-| Bias (group diff) | chênh lệch theo nhóm | candidate alert; chưa approve |
-| Anti-gaming catch rate | % sample/AI-detected | track (không có threshold cố định) |
+| Mean Absolute Error vs gold | average deviation | candidate `< 0.5 band`; not approved |
+| Low-confidence rate | % evaluations flagged | candidate `< 5%`; not approved |
+| Drift (month over month) | change over time | candidate alert threshold; inactive until founder approves benchmark baseline |
+| Bias (group diff) | difference across groups | candidate alert; not approved |
+| Anti-gaming catch rate | % sample/AI-detected | track; no fixed threshold |
 
 ## Cross-references
 
-- Capability id: `03-features.md`
+- Capability IDs: `03-features.md`
 - Taxonomy feed: `05-content.md`
-- UX recovery khi AI fail: `04-experience.md` § Error Recovery
+- UX recovery when AI fails: `04-experience.md` § Error Recovery
 - Conventions (no AI label): `07-conventions.md`
