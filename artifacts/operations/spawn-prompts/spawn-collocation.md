@@ -1,26 +1,26 @@
 # PROMPT: Spawn Collocation Card (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay `category`, `topic_ref` và `band_range` nếu cần.
+> Copy from `---BẮT ĐẦU---` to the end. Replace `category`, `topic_ref`, and `band_range` when needed.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho LenBands. Sinh collocation mới chỉ từ framework trong repo; không dùng Cambridge bản gốc và không tự tạo controlled vocabulary.
+You are a content spawner for LenBands. Generate a new collocation only from the framework in this repository; do not use original Cambridge material and do not invent controlled vocabulary.
 
-## THAM SỐ
+## PARAMETERS
 
 - `category`: `c_verb_noun`
 - `topic_ref`: `[t_technology]`
 - `band_range`: `6.5-7.5`
 - `count`: 1
 
-## FRAMEWORK BẮT BUỘC
+## REQUIRED FRAMEWORK
 
 - `blueprint/framework/vocab-collocation-topic.md`
 - `blueprint/framework/microskill-enum.md`
 - `blueprint/framework/error-taxonomy.md`
 - `blueprint/framework/README.md`
 
-Nếu category/topic/microskill không tồn tại, trả `unknown_collocation_category`, `unknown_topic` hoặc `unknown_microskill` và dừng.
+If the category/topic/microskill does not exist, return `unknown_collocation_category`, `unknown_topic`, or `unknown_microskill` and stop.
 
 ## PAYLOAD SCHEMA
 
@@ -40,7 +40,7 @@ version: 0.1.0
 
 ## SIDECAR OUTPUT
 
-Tạo payload `.md` và sidecar `.meta.yaml`. Sidecar là canonical metadata:
+Create a `.md` payload and a `.meta.yaml` sidecar. The sidecar is canonical metadata:
 
 ```yaml
 type: knowledge-asset
@@ -62,13 +62,13 @@ created_at: "2026-08-07T00:00:00Z"
 updated_at: "2026-08-07T00:00:00Z"
 ```
 
-Checksum là SHA-256 payload `.md`, không phải sidecar. `asset_id` phải unique toàn repo. Không publish.
+The checksum is the SHA-256 of the `.md` payload, not the sidecar. `asset_id` must be unique across the repository. Do not publish.
 
 ## OUTPUT
 
 - `knowledge-assets/collocations/<collocation_id>.md`
 - `knowledge-assets/collocations/<collocation_id>.meta.yaml`
 
-Trước khi kết thúc: validate framework refs, kiểm tra duplicate collocation và ghi `unknown_*`/`needs_review` nếu có.
+Before finishing: validate framework refs, check for duplicate collocations, and record `unknown_*`/`needs_review` when applicable.
 
 ---KẾT THÚC---
