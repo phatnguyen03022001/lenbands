@@ -1,24 +1,24 @@
 # PROMPT: Spawn Speaking Cue Card (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay 2 tham số.
+> Copy from `---BẮT ĐẦU---` to the end. Replace the two parameters.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho app IELTS LenBands. Nhiệm vụ: sinh Speaking Part 2 cue card từ framework. KHÔNG dùng kiến thức training — chỉ dùng framework trong repo.
+You are a content spawner for the LenBands IELTS app. Your task is to generate Speaking Part 2 cue cards from the framework. DO NOT rely on training knowledge; use only the framework in this repository.
 
-## THAM SỐ
-- part: `part2`  (chỉ Part 2 có cue card; Part 1/3 là question set, prompt khác)
-- count: 5 cue card
+## PARAMETERS
+- part: `part2`  (only Part 2 uses cue cards; Part 1/3 use question sets and a different prompt)
+- count: 5 cue cards
 
-## BƯỚC 1 — ĐỌC FRAMEWORK
-- `blueprint/framework/speaking-parts-framework.md`  ← Part 2 structure, cue card anatomy, genre taxonomy (person/place/object/experience/event/activity)
-- `blueprint/framework/band-descriptor-map.md`  ← Speaking FC/LR/GRA/PR descriptor
-- `blueprint/framework/microskill-enum.md`  ← Speaking micro-skill (S_cue_card_structure, S_long_turn_sustain...)
+## STEP 1 — READ FRAMEWORK
+- `blueprint/framework/speaking-parts-framework.md`  ← Part 2 structure, cue-card anatomy, genre taxonomy (person/place/object/experience/event/activity)
+- `blueprint/framework/band-descriptor-map.md`  ← Speaking FC/LR/GRA/PR descriptors
+- `blueprint/framework/microskill-enum.md`  ← Speaking micro-skills (S_cue_card_structure, S_long_turn_sustain...)
 - `blueprint/framework/vocab-collocation-topic.md`  ← topic enum
 - `blueprint/framework/README.md`
 
-## BƯỚC 2 — SINH 5 CUE CARD
-Mỗi cue card theo anatomy chuẩn (framework):
+## STEP 2 — GENERATE 5 CUE CARDS
+Each cue card follows the framework anatomy:
 ```text
 Describe [a person/place/object/experience/event/activity].
 
@@ -29,9 +29,9 @@ You should say:
 - and explain why [opinion/feeling].
 ```
 
-5 cue card phải đa dạng genre: 1 person, 1 place, 1 object, 1 experience, 1 event/activity. KHÔNG lặp genre.
+The 5 cue cards must vary by genre: 1 person, 1 place, 1 object, 1 experience, and 1 event/activity. Do not repeat a genre within the set.
 
-## BƯỚC 3 — SCHEMA CUE CARD
+## STEP 3 — CUE CARD SCHEMA
 
 ```yaml
 cue_card_id: S_cc_001
@@ -48,7 +48,7 @@ prompt_text: |
   - what they did to influence you
   and explain why their influence has been so important to you.
 microskill_ref: [S_cue_card_structure, S_long_turn_sustain]
-follow_up_part3:             # 3-4 câu Part 3 follow-up gắn cue card
+follow_up_part3:             # 3-4 Part 3 follow-up questions linked to the cue card
   - "How do role models influence young people today?"
   - "Do you think family influence is stronger than peer influence?"
   - "Has the nature of role models changed in your country?"
@@ -59,18 +59,18 @@ status: draft
 version: 0.1.0
 ```
 
-## LUẬT CỨNG
-1. `genre` phải thuộc 6 loại (person/place/object/experience/event/activity).
-2. `topic_ref` phải thuộc 10 topic enum.
-3. `microskill_ref` phải có trong `microskill-enum.md` (Speaking skill).
-4. Cue card phải đúng anatomy: 4 bullet, bullet cuối "and explain why".
-5. `follow_up_part3` phải abstract (Part 3 = abstract reasoning), gắn cue card topic.
-6. 5 card phải đa dạng genre (không lặp).
-7. KHÔNG copy Cambridge cue card thật.
+## HARD RULES
+1. `genre` must be one of the 6 values (person/place/object/experience/event/activity).
+2. `topic_ref` must belong to the 10-topic enum.
+3. `microskill_ref` must exist in `microskill-enum.md` for Speaking.
+4. The cue card must follow the required anatomy: 4 bullets, with the final bullet using "and explain why".
+5. `follow_up_part3` must be abstract and appropriate to Part 3, while remaining linked to the cue-card topic.
+6. The 5 cards must use varied genres without repetition.
+7. DO NOT copy a real Cambridge cue card.
 
-## ĐIỀU KIỆN DỪNG
-- genre/topic ngoài enum → `unknown_*`, DỪNG.
-- Không chắc follow-up Part 3 quality → ghi `needs_review`.
+## STOP CONDITIONS
+- Genre/topic outside the enum → `unknown_*`, STOP.
+- Unsure about Part 3 follow-up quality → write `needs_review`.
 
 ## SIDECAR META.YAML SCHEMA (canonical)
 ```yaml
@@ -93,15 +93,15 @@ created_at: "2026-08-07T00:00:00Z"
 updated_at: "2026-08-07T00:00:00Z"
 ```
 
-Sidecar là metadata canonical; `rights.origin` trong payload chỉ là authoring-side classification nếu cần, không thay thế sidecar `origin`.
+The sidecar is canonical metadata; `rights.origin` in the payload is only an authoring-side classification when needed and does not replace sidecar `origin`.
 
 ## OUTPUT
-2 file mỗi cue card:
+2 files per cue card:
 - `knowledge-assets/speaking-cue-cards/S_cc_001.md`
 - `knowledge-assets/speaking-cue-cards/S_cc_001.meta.yaml`
 
-Output sidecar phải theo schema canonical ở trên và checksum đúng payload `.md`.
+The output sidecar must follow the canonical schema above and contain the correct checksum for the `.md` payload.
 
-Bắt đầu: đọc framework, sinh 5 cue card đa dạng genre.
+Begin by reading the framework and generating 5 cue cards with varied genres.
 
 ---KẾT THÚC---
