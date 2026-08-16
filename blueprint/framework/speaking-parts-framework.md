@@ -5,57 +5,57 @@ scope: framework
 
 # Speaking Parts Framework (Part 1/2/3 + Pronunciation depth)
 
-Status: `framework` — định nghĩa behavior từng part, depth pronunciation feedback, và examiner interaction rule. Feed `EVAL.Speaking`, `EVAL.Examiner`, `EVAL.Pronunciation`, `LEARN.Speaking`, `BAND.Map` speaking row.
+Status: `framework` — defines behavior for each Speaking part, pronunciation-feedback depth, and examiner interaction rules. Feeds `EVAL.Speaking`, `EVAL.Examiner`, `EVAL.Pronunciation`, `LEARN.Speaking`, and the `BAND.Map` speaking row.
 
 ## Part 1 — Interview (4-5 min)
 
-### Cấu trúc
+### Structure
 
-- Examiner hỏi **introductory questions** (ID check, hometown, work/study).
-- Sau đó **3 topic** từ list quen (mỗi topic ~4 sub-questions, tổng 12 câu Part 1).
-- Topic pool (rotated, AI examiner chọn tránh lặp gần đây của learner):
+- Examiner asks **introductory questions** such as identity check, hometown, work/study.
+- Then covers **3 familiar topics**, each with roughly four sub-questions, for about 12 Part 1 questions total.
+- Topic pool is rotated; the AI examiner should avoid recently repeated topics for the learner:
   `home, family, food, hobbies, weather, music, reading, sport, internet, daily routine, travel, animals, colours, flowers, noise, patience, concentration, memory, time management, punctuality`
 
 ### Examiner topic rotation rule (`EVAL.Examiner`)
 
-AI examiner phải tuân:
-- Chọn **3 topic** ngẫu nhiên từ pool mỗi session Part 1, **không trùng** topic đã hỏi trong 3 session gần nhất của learner (anti-repeat).
-- ID check + work/study question luôn đầu (fixed, không rotate).
-- Không hỏi 2 topic quá giống nhau trong 1 session (vd "music" + "reading" OK; "travel" + "holidays" overlap → tránh).
-- Pool có thể mở rộng qua Colab review (thêm topic mới), nhưng không thu hẹp.
+The AI examiner must:
+- Select **3 topics** from the pool for each Part 1 session and **not repeat** topics used in the learner's previous 3 sessions.
+- Always begin with identity check + work/study questions; these are fixed and not rotated.
+- Avoid two strongly overlapping topics in the same session.
+- Allow the pool to expand through Colab review; do not silently shrink it.
 
-### Behavior kỳ vọng
+### Expected behavior
 
 | Band | Behavior |
 |---|---|
-| 5.0 | Câu ngắn, có extend nhẹ |
-| 6.0 | Extend answer (Why? How?), một số discourse marker |
-| 7.0 | Extend tự nhiên, paraphrase, less common vocab, complex grammar |
+| 5.0 | Short answers with limited extension |
+| 6.0 | Extends answers with Why?/How? and some discourse markers |
+| 7.0 | Extends naturally, paraphrases, uses less common vocabulary and complex grammar |
 | 8.0+ | Spontaneous, idiomatic, fully coherent |
 
-### Examiner (EVAL.Examiner) rules
+### Examiner (`EVAL.Examiner`) rules
 
-- Không hỏi follow-up phức tạp (Part 1 giữ social).
-- Nếu learner trả lời < 5s → follow-up nhẹ "Can you tell me more about...?"
-- Nếu learner lạc đề → examiner kéo về nhẹ "I mean...".
-- Examiner **không** sửa learner — chỉ evaluate.
+- Do not ask deeply complex follow-ups; Part 1 remains social/familiar.
+- If the learner answers for <5 seconds, use a light follow-up such as "Can you tell me more about...?"
+- If the learner goes off-topic, gently clarify with "I mean...".
+- Examiner **does not correct** the learner; it only evaluates.
 
-### Error thường gặp
+### Common errors
 
 | error_id | Mapping |
 |---|---|
-| `S_fc_short_answer` | luyện extend (`S_extend_answer`) |
-| `S_fc_long_pause` | luyện sustain |
-| `S_lr_repetitive` | paraphrase spontaneous |
+| `S_fc_short_answer` | practice extension (`S_extend_answer`) |
+| `S_fc_long_pause` | practice sustained speech |
+| `S_lr_repetitive` | spontaneous paraphrase |
 | `S_gra_tense` | tense drill |
 
 ## Part 2 — Long Turn / Cue Card (3-4 min)
 
-### Cấu trúc
+### Structure
 
-- Cue card: topic + 3-4 bullet points gợi ý + "and explain why...".
-- 1 min prep (ghi note允许), 1-2 min nói liên tục.
-- Examiner không interrupt (trừ khi dừng sớm → follow-up).
+- Cue card contains a topic + 3–4 guiding bullet points + "and explain why...".
+- 1 minute preparation with note-taking allowed, followed by 1–2 minutes of continuous speech.
+- Examiner does not interrupt unless the learner stops early and needs a brief follow-up.
 
 ### Cue card anatomy
 
@@ -69,151 +69,150 @@ You should say:
 - and explain why [opinion/feeling].
 ```
 
-4 sub-prompts theo genre: person / place / object / experience / event / activity.
+Sub-prompts vary by genre: person / place / object / experience / event / activity.
 
-### Behavior kỳ vọng
+### Expected behavior
 
 | Band | Behavior |
 |---|---|
-| 5.0 | Cover 1-2 bullet, dừng sớm, repetition |
-| 6.0 | Cover most bullets, sustain 1+ min, một số structure |
-| 7.0 | Cover all, coherent narrative, range vocab+grammar, **monologue sustained** |
-| 8.0+ | Engaging narrative, idiomatic, sophisticated |
+| 5.0 | Covers 1–2 bullets, may stop early, repetition common |
+| 6.0 | Covers most bullets, sustains 1+ minute, some structure |
+| 7.0 | Covers all points, coherent narrative, range of vocabulary + grammar, **sustained monologue** |
+| 8.0+ | Engaging narrative, idiomatic, sophisticated control |
 
 ### Examiner rules
 
-- 1 min prep → prompt "You have one minute... you can make notes."
-- Learner dừng trước 1 min → examiner "Is there anything else you'd like to add?" hoặc follow-up 1 câu.
-- Learner nói quá 2 min → examiner cắt nhẹ "Thank you."
-- Examiner không hỏi follow-up dài (Part 2 là monologue).
+- 1 minute prep → prompt "You have one minute... you can make notes."
+- If the learner stops before 1 minute → ask "Is there anything else you'd like to add?" or one brief follow-up.
+- If the learner exceeds 2 minutes → close gently with "Thank you."
+- Do not conduct a long follow-up in Part 2; it is a monologue task.
 
-### Error thường gặp
+### Common errors
 
 | error_id | Mapping |
 |---|---|
-| `S_fc_long_pause` | luyện sustain (`S_long_turn_sustain`) |
-| `S_fc_part2_under_time` | luyện cue card structure |
+| `S_fc_long_pause` | practice sustained speech (`S_long_turn_sustain`) |
+| `S_fc_part2_under_time` | practice cue-card structure |
 | `S_fc_repetition` | paraphrase + structure |
 
 ## Part 3 — Discussion (4-5 min)
 
-### Cấu trúc
+### Structure
 
-- Abstract discussion liên quan Part 2 topic.
-- Examiner hỏi **abstract question** (why, how, future prediction, comparison, evaluation).
-- ~4-6 questions, có follow-up đào sâu.
+- Abstract discussion related to the Part 2 topic.
+- Examiner asks **abstract questions** involving why/how, future prediction, comparison, and evaluation.
+- Roughly 4–6 questions with deeper follow-ups.
 
-### Behavior kỳ vọng
+### Expected behavior
 
 | Band | Behavior |
 |---|---|
-| 5.0 | Câu ngắn, khó với abstract |
-| 6.0 | Cố defend, một số reasoning |
-| 7.0 | Abstract reasoning, defend với evidence, hypothetical |
+| 5.0 | Short answers; abstract discussion is difficult |
+| 6.0 | Attempts to defend views with some reasoning |
+| 7.0 | Abstract reasoning, defends views with evidence, uses hypotheticals |
 | 8.0+ | Sophisticated argument, speculation, nuance |
 
 ### Examiner rules (interaction depth)
 
-- Đây là **phần interaction sâu nhất** — examiner có follow-up:
+- This is the **deepest interaction section**. Follow-ups may include:
   - "Why do you think that is?"
   - "Can you give an example?"
   - "Do you think this will change in the future?"
   - "How does this compare to...?"
-- Examiner có thể **challenge** nhẹ ("Some people would argue X...") để ép learner defend.
-- Examiner không reveal opinion.
+- Examiner may **challenge** lightly, e.g. "Some people would argue X...", to require the learner to defend a view.
+- Examiner does not reveal its own opinion.
 
-### Error thường gặp
+### Common errors
 
 | error_id | Mapping |
 |---|---|
-| `S_fc_part3_no_develop` | luyện abstract reasoning (`S_abstract_reasoning`) |
-| `S_gra_only_simple` | luyện complex grammar nói |
+| `S_fc_part3_no_develop` | practice abstract reasoning (`S_abstract_reasoning`) |
+| `S_gra_only_simple` | practice complex spoken grammar |
 | `S_lr_no_idiom` | idiomatic use |
 
 ## Pronunciation feedback depth
 
-Pronunciation là criterion PR của Speaking nhưng được tách thành `EVAL.Pronunciation` vì depth feedback khác.
+Pronunciation is the Speaking PR criterion but is separated into `EVAL.Pronunciation` because the feedback depth and mechanics differ.
 
-### Unit đánh giá (per utterance)
+### Evaluation units (per utterance)
 
-`EVAL.Pronunciation` output có 5 layer:
+`EVAL.Pronunciation` output has these layers:
 
-| Layer | Đơn vị | Output |
+| Layer | Unit | Output |
 |---|---|---|
-| Phoneme | từng âm vị | per-phoneme score (0-1) + error list |
-| Word stress | từng từ content | correct/incorrect + rule violated |
-| Sentence stress | mỗi câu | pattern analysis (content vs function words) |
-| Rhythm | mỗi utterance | stress-timed pattern (English là stress-timed, không phải syllable-timed) — đo variation giữa stressed/unstressed syllables, phân biệt với sentence stress (rhythm = luồng, stress = vị trí) |
-| Intonation | mỗi utterance | rising/falling/flat + appropriateness |
-| Connected speech | mỗi phrase | linking/elision/assimilation identified |
+| Phoneme | individual phoneme | per-phoneme score (0-1) + error list |
+| Word stress | each content word | correct/incorrect + violated rule |
+| Sentence stress | each sentence | pattern analysis (content vs function words) |
+| Rhythm | each utterance | stress-timed pattern: variation between stressed/unstressed syllables; rhythm is flow, stress is location |
+| Intonation | each utterance | rising/falling/flat + appropriateness |
+| Connected speech | each phrase | linking/elision/assimilation identified |
 
-**Phân biệt Rhythm vs Sentence Stress (quan trọng):** Sentence stress chỉ *vị trí* từ được nhấn; Rhythm đo *luồng* (flow) — khoảng cách giữa các stressed syllables có đều không, có tự nhiên không. Learner Việt Nam thường dồn đều (syllable-timed L1 transfer) → rhythm phẳng. Rhythm là yếu tố band 7+ PR phân biệt với 6.0.
+**Rhythm vs Sentence Stress:** sentence stress identifies *which words* receive stress; rhythm evaluates the *flow* between stressed syllables and whether timing sounds natural. Vietnamese learners may transfer a more syllable-timed rhythm and distribute stress too evenly. Rhythm becomes a stronger distinguishing signal around higher PR performance.
 
-### Feedback priority (cho `COACH.ErrorAnalysis`)
+### Feedback priority (`COACH.ErrorAnalysis`)
 
-Không dump tất cả lỗi — prioritize theo impact:
+Do not dump every detected issue. Prioritize by communicative impact:
 
 | Priority | Issue | Action |
 |---|---|---|
-| High | Phoneme error làm thay meaning (ship/sheep) | drill targeted |
-| High | Word stress sai → unintelligible | drill targeted |
-| Medium | Sentence stress phẳng (no content emphasis) | drill pattern |
-| Medium | Intonation flat → khó hiểu attitude | shadowing drill |
-| Low | Connected speech (linking) thiếu | reference, không bắt buộc band <7 |
+| High | Phoneme error changes meaning (ship/sheep) | targeted drill |
+| High | Incorrect word stress harms intelligibility | targeted drill |
+| Medium | Flat sentence stress with no content emphasis | pattern drill |
+| Medium | Flat intonation obscures attitude/meaning | shadowing drill |
+| Low | Missing connected-speech linking | reference; not mandatory below higher bands |
 
 ### Band correlation (PR criterion)
 
-| Band PR | Pronunciation đặc trưng |
+| Band PR | Pronunciation characteristics |
 |---|---|
-| 5.0 | Limited features, frequent mispronunciation, listener effort |
-| 6.0 | Range features mixed control, occasional mispronunciation, generally clear |
-| 7.0 | Easy throughout, sustained features, rare errors不影响 meaning |
-| 8.0+ | Variety features, natural, effortless |
+| 5.0 | Limited features, frequent mispronunciation, listener effort required |
+| 6.0 | Range of features with mixed control, occasional mispronunciation, generally clear |
+| 7.0 | Easy to understand throughout, more sustained features, rare errors that do not affect meaning |
+| 8.0+ | Variety of features, natural, effortless to understand |
 
-### Drill kinds (cho `REVIEW.FSRS` card pronunciation)
+### Drill kinds (`REVIEW.FSRS` pronunciation cards)
 
-| kind | Mô tả | Source |
+| kind | Description | Source |
 |---|---|---|
-| `phoneme_minimal_pair` | Phân biệt ship/sheep | audio mẫu + record |
-| `word_stress_rule` | Trọng âm theo rule (phoTOgrapher) | word list |
-| `sentence_stress_pattern` | Content vs function stress | sentence + record |
-| `intonation_shadowing` | Ngữ điệu shadowing | audio mẫu + record |
-| `linking_drill` | Linking phrase | phrase + record |
+| `phoneme_minimal_pair` | Distinguish ship/sheep | model audio + recording |
+| `word_stress_rule` | Apply stress rule (phoTOgrapher) | word list |
+| `sentence_stress_pattern` | Content vs function-word stress | sentence + recording |
+| `intonation_shadowing` | Shadow intonation | model audio + recording |
+| `linking_drill` | Practice phrase linking | phrase + recording |
 
-Mỗi drill có audio mẫu + learner record lại (chấm so với mẫu).
+Every drill has model audio + learner recording for comparison/scoring.
 
-## Examiner (EVAL.Examiner) — interaction rules tổng
+## Examiner (`EVAL.Examiner`) — overall interaction rules
 
-| Rule | Mô tả |
+| Rule | Description |
 |---|---|
-| Adaptive follow-up | Follow-up dựa trên câu trả lời learner (không script cứng) |
-| Skill-appropriate | Part 1 social, Part 3 abstract — examiner điều chỉnh depth |
-| No correction | Examiner không sửa learner |
-| No opinion reveal | Examiner neutral |
+| Adaptive follow-up | Follow-up depends on the learner's answer rather than a rigid script |
+| Skill-appropriate | Part 1 social, Part 3 abstract; depth changes by Part |
+| No correction | Examiner does not correct the learner |
+| No opinion reveal | Examiner remains neutral |
 | Time-bounded | Part 1 4-5min, Part 2 3-4min, Part 3 4-5min |
-| Recovery | Learner kẹt → examiner support nhẹ ("Take your time", "Could you rephrase?") |
+| Recovery | If the learner gets stuck, examiner offers light support such as "Take your time" or "Could you rephrase?" |
 
-Examiner là `EVAL.Examiner` capability, implement LLM với context = Part hiện tại + lịch sử câu hỏi/trả lời.
+Examiner is the `EVAL.Examiner` capability, implemented by an LLM with context = current Part + question/answer history.
 
-## Cách dùng
+## Usage
 
-- `LEARN.Speaking` practice: learner chọn Part → Examiner interaction.
-- `EVAL.Speaking` chấm 4 criterion (FC/LR/GRA/PR).
-- `EVAL.Pronunciation` chấm 5 layer pronunciation (tách để depth).
-- `BAND.Map` speaking row: per-part readiness, pronunciation sub-items.
-- `REVIEW.SmartQueue` pronunciation queue: card từ drill kinds trên.
+- `LEARN.Speaking` practice: learner selects a Part and enters Examiner interaction.
+- `EVAL.Speaking` scores four criteria (FC/LR/GRA/PR).
+- `EVAL.Pronunciation` scores pronunciation layers separately for deeper feedback.
+- `BAND.Map` speaking row: per-Part readiness plus pronunciation sub-items.
+- `REVIEW.SmartQueue` pronunciation queue: cards from the drill kinds above.
 
 ## Versioning
 
 - Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-
 - `version: 1.0.1` — reconciled speaking error references.
 - `version: 1.0.6` — normalized the per-file release record; speaking semantics are unchanged.
-- Thêm Part behavior detail: minor.
-- Sửa pronunciation depth: patch + research note.
+- Adding Part-behavior detail: minor.
+- Changing pronunciation depth: patch + research note.
 
-## Không tự suy luận
+## Do not infer
 
-- Examiner không tự hỏi ngoài pattern Part (vd Part 1 hỏi abstract = bug).
-- Pronunciation drill không sinh từ nguồn ngoài `error_id` pronunciation.
-- Band PR correlation dựa trên `band-descriptor-map.md`, không tự đặt.
+- Examiner must not ask outside the expected Part pattern, e.g. an abstract Part-3-style question in Part 1 is a bug.
+- Pronunciation drills must not be generated from sources outside pronunciation `error_id` mappings.
+- PR band correlation comes from `band-descriptor-map.md`; do not invent it.
