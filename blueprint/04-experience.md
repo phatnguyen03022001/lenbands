@@ -1,24 +1,24 @@
 # 04 — Experience Blueprint
 
-File này mô tả **trải nghiệm và hành trình** của người học — "người học cảm thấy thế nào". **Không mô tả feature** (feature ở `03-features.md`); chỉ tham chiếu capability bằng id dạng `DOMAIN.Capability` để AI trace được.
+This file describes the learner's **experience and journeys** — how the learner should feel. It **does not define features** (features are in `03-features.md`); it references capabilities only through IDs in the form `DOMAIN.Capability` so agents can trace them.
 
-> **Scope guard:** file này là experience horizon cho toàn sản phẩm. Closed-pilot P0 chỉ dùng `identity-consent`, `placement-and-plan`, `daily-action`, `writing-task-2`, `error-to-review` và `governance-ops-dashboard` khi Build Readiness Matrix cho phép. Mock Test, Exam Readiness, Exam Day, After Exam và capability deferred khác không phải build input P0.
+> **Scope guard:** this file describes the experience horizon for the full product. Closed-pilot P0 uses only `identity-consent`, `placement-and-plan`, `daily-action`, `writing-task-2`, `error-to-review`, and `governance-ops-dashboard` when permitted by the Build Readiness Matrix. Mock Test, Exam Readiness, Exam Day, After Exam, and other deferred capabilities are not P0 build inputs.
 
-## Nguyên tắc UX
+## UX principles
 
-1. **Experience-centric, không feature-centric** — người dùng nghĩ theo hành trình ("tôi muốn đạt Band 7 → hôm nay học gì"), không theo feature ("tôi muốn dùng Practice").
-2. **Progressive Disclosure** — band thấp thấy ít, band cao thấy nhiều; không đổ toàn bộ Advanced Analytics/Rubric/Calibration lên đầu. UI mở dần theo readiness.
-3. **Always know the next step** — mọi màn kết thúc bằng 1 câu hỏi: "bước tiếp theo là gì?" (`PERSONAL.NextBestAction`).
-4. **Delight ở moment tiến bộ, không ở gamification** — celebration khi Band Readiness tăng, không phải XP/leaderboard.
-5. **Recovery trước panic** — khi AI chấm lỗi / mạng mất / session timeout, hệ thống recover êm, user không mất dữ liệu.
-6. **Context-aware** — AI luôn biết user đang ở đâu (passage/question/skill) để trả lời trong ngữ cảnh (`COACH.Tutor`).
-7. **Energy-aware** — hệ thống hỏi thời gian/năng lượng hôm nay và đưa ra phiên phù hợp, thay vì luôn đẩy cùng một workload.
-8. **Trust before persuasion** — trạng thái chấm, giới hạn, dữ liệu được dùng thế nào và vì sao có recommendation phải dễ hiểu; retention không được đánh đổi bằng dark pattern.
-9. **One clear next step** — mỗi màn có một primary action; các lựa chọn phụ nằm sau progressive disclosure để giảm cognitive load.
+1. **Experience-centric, not feature-centric** — users think in journeys ("I want Band 7 → what should I study today?"), not features ("I want to use Practice").
+2. **Progressive Disclosure** — lower-band learners see less and higher-band learners see more; do not expose Advanced Analytics/Rubric/Calibration all at once. UI depth expands with readiness.
+3. **Always know the next step** — every surface ends by answering one question: "what is the next step?" (`PERSONAL.NextBestAction`).
+4. **Delight at moments of progress, not through gamification** — celebrate when Band Readiness improves, not through XP/leaderboards.
+5. **Recovery before panic** — when evaluation fails, the network drops, or a session times out, the system recovers gracefully and the user does not lose data.
+6. **Context-aware** — AI always knows the user's current context (passage/question/skill) so it can respond in context (`COACH.Tutor`).
+7. **Energy-aware** — the system asks about available time and energy today and proposes an appropriate session instead of always pushing the same workload.
+8. **Trust before persuasion** — scoring status, limitations, data use, and recommendation rationale must be understandable; retention must never be purchased with dark patterns.
+9. **One clear next step** — each surface has one primary action; secondary choices sit behind progressive disclosure to reduce cognitive load.
 
-## Home (mở nhiều nhất)
+## Home (most frequently opened)
 
-Home là orchestration của `STUDY.*`, không phải feature mới.
+Home orchestrates `STUDY.*`; it is not a new feature.
 
 ```text
 ┌───────────────────────────────────┐
@@ -34,311 +34,311 @@ Home là orchestration của `STUDY.*`, không phải feature mới.
 │    • Today's Lesson               │     LEARN.Path
 ├───────────────────────────────────┤
 │  Insight of the day               │  ← PERSONAL.Insights
-│  ("Bạn đang yếu Matching Heading")│
+│  ("Matching Headings is weak")   │
 ├───────────────────────────────────┤
 │  Next Best Action                 │  ← PERSONAL.NextBestAction
 └───────────────────────────────────┘
 ```
 
-Empty state (người mới): Home hiển thị "Bắt đầu Placement Test" (`PLACE.Test`) thay vì Today's Plan.
+Empty state for a new learner: Home shows "Start Placement Test" (`PLACE.Test`) instead of Today's Plan.
 
 ## 8 User Journeys
 
 ### 01. First Day (Onboarding)
 
-Trải nghiệm đầu tiên — phải trả lời "hệ thống này có hiểu mình không?".
+The first experience must answer: "does this system understand me?"
 
 ```text
-Bạn là ai? (profile cơ bản)
+Who are you? (basic profile)
    ↓
-Band hiện tại? (self-report hoặc quick test)
+Current band? (self-report or quick test)
    ↓
-Band mục tiêu?            ┐
-   ↓                      │
-Bao lâu nữa thi?          │ → GOAL.Target, GOAL.ExamPlan (horizon; không active P0)
-   ↓                      │
-Mỗi ngày học bao lâu?     │ → GOAL.Daily (horizon; P0 dùng daily budget trong placement contract)
-   ↓                      │
-Placement Test            │ → PLACE.Test (nếu chưa có band chuẩn)
-   ↓                      │
-Gap Detection             │ → PLACE.GapDetection
-   ↓                      │
-Tạo kế hoạch cá nhân      │ → PLACE.InitialPath + STUDY.DailyPlan
+Target band?             ┐
+   ↓                     │
+How long until the exam? │ → GOAL.Target, GOAL.ExamPlan (horizon; not active in P0)
+   ↓                     │
+Daily study time?        │ → GOAL.Daily (horizon; P0 uses daily budget in the placement contract)
+   ↓                     │
+Placement Test           │ → PLACE.Test (if there is no reliable band yet)
+   ↓                     │
+Gap Detection            │ → PLACE.GapDetection
+   ↓                     │
+Create personal plan     │ → PLACE.InitialPath + STUDY.DailyPlan
    ↓
-First Home (Today's Plan xuất hiện)
+First Home (Today's Plan appears)
 ```
 
-**Emotional goal:** cảm giác "hệ thống hiểu mình, có lộ trình rõ ràng, không bị overwhelmed".
+**Emotional goal:** "the system understands me, gives me a clear path, and does not overwhelm me."
 
 ### 02. Daily Study
 
-Loop lặp mỗi ngày — phải trả lời "hôm nay bắt đầu từ đâu, học xong biết mình tiến bộ".
+The daily loop must answer: "where do I start today, and how do I know I improved after studying?"
 
 ```text
-Mở app → Home (Today's Plan)     ← STUDY.DailyPlan
+Open app → Home (Today's Plan)     ← STUDY.DailyPlan
    ↓
-Chọn "Continue" hoặc item trong Today
+Choose "Continue" or an item in Today
    ↓
-Study Session (timer, goal)      ← STUDY.Session
+Study Session (timer, goal)        ← STUDY.Session
    ↓
-Học / Luyện / Review (theo plan)
+Learn / Practice / Review (according to plan)
    ↓
-Session Summary                  ← STUDY.SessionSummary
-   ("42 phút, 18 câu Reading, 6 từ mới, 3 lỗi Grammar")
+Session Summary                    ← STUDY.SessionSummary
+   ("42 minutes, 18 Reading questions, 6 new words, 3 Grammar errors")
    ↓
-Streak / Goal cập nhật           ← PROGRESS.Motivation, PROGRESS.GoalTracking
+Streak / Goal updated              ← PROGRESS.Motivation, PROGRESS.GoalTracking
    ↓
-Next Best Action cho ngày mai    ← PERSONAL.NextBestAction
+Next Best Action for tomorrow      ← PERSONAL.NextBestAction
 ```
 
-**Emotional goal:** cảm giác "hoàn thành, có thành tựu nhỏ, biết ngày mai làm gì".
+**Emotional goal:** "I completed something, achieved a small win, and know what to do tomorrow."
 
 ### 03. Mock Test
 
-Trải nghiệm thi thử — phải giống thi thật nhưng an toàn (được sai, được hiểu vì sao).
+The mock-test experience should resemble the real exam while remaining safe: mistakes are allowed and can be understood afterward.
 
 ```text
-Chọn Mock Test                  ← PRACTICE.MockTest
+Choose Mock Test                  ← PRACTICE.MockTest
    ↓
-Exam Mode (timed, không gợi ý)  ← PRACTICE.ExamSimulation
+Exam Mode (timed, no hints)       ← PRACTICE.ExamSimulation
    ↓
-[Interrupt: cuộc gọi đến]       ← STUDY.Resume (khôi phục timer, state)
+[Interrupt: incoming call]        ← STUDY.Resume (restore timer and state)
    ↓
-Resume từ đúng chỗ
+Resume at the exact position
    ↓
-Nộp bài
+Submit
    ↓
-Band Score + Result Analysis    ← PRACTICE.MockTest, EVAL.*
+Band Score + Result Analysis      ← PRACTICE.MockTest, EVAL.*
    ↓
-Compare với lần trước           ← HISTORY.Compare
+Compare with previous attempt     ← HISTORY.Compare
    ↓
-Exam Readiness cập nhật         ← BAND.ExamReadiness
+Exam Readiness updated            ← BAND.ExamReadiness
 ```
 
-**Emotional goal:** căng thẳng (đúng vibe thi) nhưng không hoảng; sau khi chấm thấy "tôi đang ở đâu, còn thiếu gì".
+**Emotional goal:** appropriate exam-like tension without panic; after scoring, the learner understands where they are and what remains missing.
 
 ### 04. Wrong Answer
 
-Moment dễ nản nhất — phải biến thất bại thành học.
+This is one of the easiest moments for a learner to become discouraged; the experience must convert failure into learning.
 
 ```text
-Làm sai câu (Reading/Listening)
+Get a Reading/Listening question wrong
    ↓
-Giải thích đáp án                ← COACH.AnswerExplanation
+Answer explanation                 ← COACH.AnswerExplanation
    ↓
-Giải thích bẫy distractor        ← COACH.DistractorExplanation
+Distractor explanation             ← COACH.DistractorExplanation
    ↓
-[Optional] hỏi thêm trong ngữ cảnh ← COACH.Tutor (context-aware)
+[Optional] ask a contextual question ← COACH.Tutor (context-aware)
    ↓
-Save to Mistake Notebook         ← REVIEW.MistakeNotebook
+Save to Mistake Notebook           ← REVIEW.MistakeNotebook
    ↓
-Auto-add vào FSRS queue          ← REVIEW.FSRS
+Auto-add to FSRS queue              ← REVIEW.FSRS
    ↓
-Sẽ gặp lại trong Smart Queue     ← REVIEW.SmartQueue
+Reappear in Smart Queue             ← REVIEW.SmartQueue
    ↓
-Retest khi due                   ← REVIEW.SmartQueue (Exam/Priority Queue)
+Retest when due                     ← REVIEW.SmartQueue (Exam/Priority Queue)
 ```
 
-**Emotional goal:** từ "tôi dở" → "tôi hiểu vì sao sai, và sẽ nhớ lần sau".
+**Emotional goal:** move from "I'm bad at this" to "I understand why I was wrong, and I will remember next time."
 
 ### 05. Review (Spaced Repetition)
 
-Loop ôn tập — phải nhẹ, nhanh, có tiến độ rõ.
+The review loop should be light, fast, and visibly progressive.
 
 ```text
-Notification "X bài cần ôn hôm nay"  ← NOTIF.SRS
+Notification "X items are due today" ← NOTIF.SRS
    ↓
-Mở Today's Queue                ← REVIEW.SmartQueue
+Open Today's Queue                 ← REVIEW.SmartQueue
    ↓
-Review card (FSRS)              ← REVIEW.FSRS
+Review card (FSRS)                 ← REVIEW.FSRS
    Rating: Again/Hard/Good/Easy
    ↓
-FSRS cập nhật stability/difficulty/due
+FSRS updates stability/difficulty/due
    ↓
-Forecast 7 ngày                 ← REVIEW.FSRS
+7-day forecast                     ← REVIEW.FSRS
    ↓
-Retention rate                  ← REVIEW.FSRS
+Retention rate                     ← REVIEW.FSRS
 ```
 
-**Emotional goal:** "ôn nhanh, nhớ lâu, không bị quá tải".
+**Emotional goal:** "review quickly, remember for longer, and avoid overload."
 
 ### 06. Before Exam
 
-Giai đoạn nước rút — phải trả lời "tôi sẵn sàng chưa, còn thiếu gì, ưu tiên gì".
+The final preparation stage must answer: "am I ready, what is missing, and what should I prioritize?"
 
 ```text
-Countdown hiển thị              ← GOAL.ExamPlan
+Countdown displayed               ← GOAL.ExamPlan
    ↓
-Exam Readiness check            ← BAND.ExamReadiness
+Exam Readiness check              ← BAND.ExamReadiness
    (Overall + per-skill + Confidence + Risk)
    ↓
-Insight: "chỉ còn thiếu Task Response" ← PERSONAL.Insights
+Insight: "Task Response is the remaining gap" ← PERSONAL.Insights
    ↓
-Ưu tiên ôn weak skill           ← REVIEW.SmartQueue (Weak Skill/Exam Queue)
+Prioritize weak-skill review      ← REVIEW.SmartQueue (Weak Skill/Exam Queue)
    ↓
-Last-minute Review Plan         ← GOAL.ExamPlan
+Last-minute Review Plan           ← GOAL.ExamPlan
    ↓
-Mock Test Readiness Check       ← PRACTICE.MockTest
+Mock Test Readiness Check         ← PRACTICE.MockTest
 ```
 
-**Emotional goal:** tự tin (vì biết mình ở đâu), tập trung (vì biết ưu tiên gì).
+**Emotional goal:** confidence from knowing current readiness and focus from knowing what deserves priority.
 
 ### 07. Exam Day
 
-Ngày thi — app lui xuống nền, chỉ hỗ trợ nhẹ.
+On exam day, the app recedes into the background and provides only light support.
 
 ```text
-Timeline ngày thi               ← GOAL.ExamPlan
+Exam-day timeline                 ← GOAL.ExamPlan
    ↓
-Pre-exam Checklist              ← GOAL.ExamPlan
+Pre-exam Checklist                ← GOAL.ExamPlan
    ↓
-Time Management Strategy        ← GOAL.ExamPlan
+Time Management Strategy          ← GOAL.ExamPlan
    ↓
-Test Day Anxiety Tips           ← GOAL.ExamPlan
+Test Day Anxiety Tips             ← GOAL.ExamPlan
    ↓
-[Không push notification nặng]
+[No heavy push notifications]
 ```
 
-**Emotional goal:** bình tĩnh, không bị phân tâm bởi app.
+**Emotional goal:** stay calm and avoid distraction from the app.
 
 ### 08. After Exam
 
-Sau thi thật — cập nhật target, điều chỉnh lộ trình, celebrate.
+After the real exam, update targets, adjust the path, and celebrate appropriately.
 
 ```text
-Nhập kết quả thi thật           ← IDENTITY.Profile (optional)
+Enter real exam result            ← IDENTITY.Profile (optional)
    ↓
-Compare kết quả thật vs dự đoán ← HISTORY.Compare (vs EVAL.BandPrediction)
+Compare actual vs predicted       ← HISTORY.Compare (vs EVAL.BandPrediction)
    ↓
-Calibrate lại (feed vào Governance) ← GOVERNANCE.GoldStandardBenchmark
+Recalibrate (feed Governance)     ← GOVERNANCE.GoldStandardBenchmark
    ↓
-Đặt target mới (nếu cần)        ← GOAL.Target
+Set a new target (if needed)      ← GOAL.Target
    ↓
-Celebration nếu đạt             ← PROGRESS.Motivation
+Celebrate if achieved             ← PROGRESS.Motivation
    ↓
-Adjust Learning Path            ← LEARN.Path + PERSONAL.NextBestAction
+Adjust Learning Path              ← LEARN.Path + PERSONAL.NextBestAction
 ```
 
-**Emotional goal:** khép vòng, nhìn lại tiến bộ, có hướng đi tiếp.
+**Emotional goal:** close the loop, reflect on progress, and have a clear next direction.
 
 ## Delight Moments
 
-Không phải gamification (no XP/leaderboard). Là celebration tại moment tiến bộ:
+These are not gamification mechanics (no XP/leaderboard). They are celebrations at moments of genuine progress:
 
 | Moment | Trigger | Delight |
 |---|---|---|
-| Band Readiness tăng | `BAND.Readiness` tăng 0.5+ | "Bạn vừa đạt Band Readiness 6.5 — chỉ còn thiếu Task Response" (`PERSONAL.Insights`) |
-| Gần hoàn thành daily goal | Còn <15 phút | "Hôm nay chỉ còn 12 phút nữa là hoàn thành mục tiêu" |
-| Streak milestone | 7/30/100 ngày | Celebration nhẹ + recap |
-| 100 Reviews | `REVIEW.FSRS` đạt 100 | Achievement badge nhẹ (`PROGRESS.Achievement`) |
-| Band improvement | `HISTORY.BandTimeline` tăng | "Bạn đã từ 6.0 → 6.5 trong Reading sau 3 tuần" |
-| Comeback | Quay lại sau vắng | "Chào mừng trở lại — bạn đã nhớ 85% từ vựng" (`PROGRESS.Motivation` comeback nudge) |
+| Band Readiness increases | `BAND.Readiness` rises by 0.5+ | "You reached Band Readiness 6.5 — Task Response is the remaining gap" (`PERSONAL.Insights`) |
+| Daily goal almost complete | <15 minutes remain | "Only 12 minutes remain to complete today's goal" |
+| Streak milestone | 7/30/100 days | Lightweight celebration + recap |
+| 100 Reviews | `REVIEW.FSRS` reaches 100 | Lightweight achievement badge (`PROGRESS.Achievement`) |
+| Band improvement | `HISTORY.BandTimeline` increases | "Reading improved from 6.0 → 6.5 in 3 weeks" |
+| Comeback | Return after absence | "Welcome back — you retained 85% of your vocabulary" (`PROGRESS.Motivation` comeback nudge) |
 
 ## Error Recovery
 
-Khi sự cố xảy ra, user không được để trống — phải có recovery path rõ.
+When something goes wrong, the user must never be left at a dead end; every failure needs a clear recovery path.
 
-| Sự cố | Recovery | Capability |
+| Failure | Recovery | Capability |
 |---|---|---|
-| AI chấm lỗi / timeout | Thông báo "đang chấm lại", kết quả có sau; không mất bài | `EVAL.*` + `GOVERNANCE.ConfidenceScore` flag |
-| Upload Writing/Speaking fail | Auto-retry + lưu local; "sẽ nộp khi có mạng" | `PKM.Drafts` + `PKM.Offline` |
-| Network loss giữa session | Auto-save state; resume đúng chỗ khi có mạng | `STUDY.Resume` + `PKM.Sync` |
-| Session timeout (Mock Test) | Timer khôi phục; không mất câu đã làm | `STUDY.Resume` |
-| Low-confidence score | Flag backend (invisible), có thể yêu cầu chấm lại qua pipeline calibration | `GOVERNANCE.ConfidenceScore` |
-| Anti-gaming flag | Nếu bài nộp bị nghi sample/AI-generated, thông báo nhẹ + hướng dẫn | `GOVERNANCE.AntiGaming` |
+| Evaluation error / timeout | Show "scoring again" and deliver the result later; never lose the submission | `EVAL.*` + `GOVERNANCE.ConfidenceScore` flag |
+| Writing/Speaking upload fails | Auto-retry + save locally; "will submit when connection returns" | `PKM.Drafts` + `PKM.Offline` |
+| Network loss during session | Auto-save state; resume at the exact position when connected | `STUDY.Resume` + `PKM.Sync` |
+| Session timeout (Mock Test) | Restore timer; preserve answered questions | `STUDY.Resume` |
+| Low-confidence score | Flag in backend (invisible); pipeline may request another scoring pass through calibration flow | `GOVERNANCE.ConfidenceScore` |
+| Anti-gaming flag | If a submission is suspected to be a sample/AI-generated answer, provide a restrained notice and guidance | `GOVERNANCE.AntiGaming` |
 
-Các recovery trên phải map vào Failure Contract trong `06-engines.md`: user-facing state chỉ dùng `processing`, `delayed`, `unavailable` hoặc `action_required`; failure code kỹ thuật không được hiển thị thay cho hướng dẫn hành động.
+These recovery paths must map to the Failure Contract in `06-engines.md`: user-facing states use only `processing`, `delayed`, `unavailable`, or `action_required`; technical failure codes must never replace actionable guidance.
 
 ## Empty States
 
-Mỗi màn rỗng (người mới) phải có onboarding inline, không để trống.
+Every empty surface for a new learner must include inline onboarding rather than remaining blank.
 
-| Màn | Empty state | Neo capability |
+| Surface | Empty state | Capability anchor |
 |---|---|---|
-| Home | "Bắt đầu Placement Test để tạo kế hoạch" | `PLACE.Test` |
-| Dashboard | "Làm bài đầu tiên để xem tiến độ" | `PRACTICE.MockTest` |
-| Mistake Notebook | "Chưa có lỗi — sai câu nào sẽ xuất hiện ở đây" | `REVIEW.MistakeNotebook` |
-| Word Bank | "Thêm từ khi học Vocabulary hoặc từ bài Reading" | `PKM.WordBank` |
-| Assessment History | "Chưa có bài làm — kết quả sẽ hiển thị ở đây" | `HISTORY.Attempts` |
+| Home | "Start the Placement Test to create your plan" | `PLACE.Test` |
+| Dashboard | "Complete your first test to see progress" | `PRACTICE.MockTest` |
+| Mistake Notebook | "No errors yet — incorrect answers will appear here" | `REVIEW.MistakeNotebook` |
+| Word Bank | "Add words while studying Vocabulary or from Reading passages" | `PKM.WordBank` |
+| Assessment History | "No attempts yet — results will appear here" | `HISTORY.Attempts` |
 
-## Progressive Disclosure theo Band
+## Progressive Disclosure by Band
 
-UI không đổ hết thông tin; mở dần theo readiness của learner.
+The UI does not expose all information at once; depth expands according to learner readiness.
 
-| Band | Hiển thị | Ẩn |
+| Band | Show | Hide |
 |---|---|---|
-| 3.0–4.5 | Learning cơ bản, Practice, Mistake Notebook, Dashboard đơn giản | Advanced Analytics, Band Rubric chi tiết, Calibration metrics, Exam Readiness risk |
+| 3.0–4.5 | Core Learning, Practice, Mistake Notebook, simple Dashboard | Advanced Analytics, detailed Band Rubric, Calibration metrics, Exam Readiness risk |
 | 5.0–6.5 | + Band Framework, Insights, Exam Readiness, Smart Queue | Governance dashboard, Raw calibration data |
-| 7.0+ | + Advanced Analytics, full Rubric, Compare attempts sâu | (gần như đầy đủ) |
+| 7.0+ | + Advanced Analytics, full Rubric, deeper Compare attempts | Almost nothing |
 
-Nguyên tắc: band thấp cần "học gì tiếp", band cao cần "tại sao chưa tới band kế tiếp".
+Principle: lower-band learners primarily need to know "what should I learn next?"; higher-band learners need to know "why have I not reached the next band yet?"
 
 ## Context Awareness
 
-`COACH.Tutor` và các Coach khác luôn biết context hiện tại của user để trả lời đúng:
+`COACH.Tutor` and other Coaches always know the user's current context so they can respond correctly:
 
-| User đang ở | AI biết context | Câu trả lời ví dụ |
+| User context | AI context available | Example response |
 |---|---|---|
-| Reading Passage 2, Q18, Matching Heading | passage, question, type, history sai dạng này | "Ở câu Matching Heading này, bạn chọn nhánh B vì keyword trùng, nhưng đáp án là D vì paraphrase..." |
-| Writing Task 2, draft đang viết | nội dung draft, task | "Đoạn 2 của bạn thiếu topic sentence rõ" |
-| Speaking Part 2, vừa record xong | transcript, cue card | "Bạn dùng được 'I suppose' nhưng phát âm /θ/ chưa chuẩn" |
+| Reading Passage 2, Q18, Matching Heading | passage, question, type, prior errors on this type | "For this Matching Heading question, you chose B because the keyword matched, but D is correct because of the paraphrase..." |
+| Writing Task 2, active draft | draft content, task | "Paragraph 2 needs a clearer topic sentence" |
+| Speaking Part 2, recording just completed | transcript, cue card | "You used 'I suppose' appropriately, but /θ/ pronunciation needs work" |
 
-Implementation ở `06-engines.md` (context injection vào prompt).
+Implementation is defined in `06-engines.md` through context injection into the prompt.
 
-## Retention loop lành mạnh
+## Healthy retention loop
 
-Retention được thiết kế như một vòng giá trị, không phải vòng ép mở app:
+Retention is designed as a value loop, not a loop that pressures users to reopen the app:
 
 ```text
-Mở app
+Open app
   ↓
-Check-in thời gian + năng lượng          ← STUDY.CheckIn
+Check available time + energy             ← STUDY.CheckIn
   ↓
-Chọn Micro / Standard / Deep Session     ← STUDY.MicroSession / STUDY.Session
+Choose Micro / Standard / Deep Session    ← STUDY.MicroSession / STUDY.Session
   ↓
-Làm một outcome loop                      ← Understand → Practice → Retest → Confirm
+Complete one outcome loop                 ← Understand → Practice → Retest → Confirm
   ↓
-Thấy bằng chứng tiến bộ                   ← PROGRESS.WeeklyRecap / PROGRESS.Motivation
+See evidence of progress                  ← PROGRESS.WeeklyRecap / PROGRESS.Motivation
   ↓
-Chọn lịch quay lại phù hợp                ← NOTIF.Preference / NOTIF.SmartDelivery
+Choose an appropriate return schedule     ← NOTIF.Preference / NOTIF.SmartDelivery
 ```
 
-### Quy tắc giữ chân
+### Retention rules
 
-- Không reset tiến bộ khi learner nghỉ; chuyển sang `comeback plan` ngắn (`PROGRESS.Reactivation`).
-- Không hiển thị backlog khổng lồ ngay khi quay lại; ưu tiên một việc có tác động cao.
-- Streak là thông tin tùy chọn, không là điều kiện mở khóa, không dùng thông báo “mất streak”.
-- Mọi notification có frequency cap, quiet hours, unsubscribe rõ ràng và lý do gửi.
-- Đo `meaningful study days`, retest gain và error recurrence; không tối ưu retention bằng minutes, clicks hoặc số notification.
+- Never reset progress when the learner takes a break; move them to a short `comeback plan` (`PROGRESS.Reactivation`).
+- Never show a huge backlog immediately after return; prioritize one high-impact action.
+- Streak is optional information, never an unlock condition, and notifications must not threaten streak loss.
+- Every notification has a frequency cap, quiet hours, a clear unsubscribe path, and a reason for being sent.
+- Measure `meaningful study days`, retest gain, and error recurrence; do not optimize retention around minutes, clicks, or notification count.
 
-## Quality loop trong trải nghiệm
+## Quality loop in the experience
 
-Mỗi feedback phải có bốn phần:
+Every feedback item must contain four parts:
 
-1. **Evidence** — hệ thống dựa vào câu, audio, đáp án hoặc hành vi nào.
-2. **Meaning** — điều đó ảnh hưởng rubric/skill nào.
-3. **Action** — một bài học, drill hoặc rewrite cụ thể.
-4. **Verification** — retest hoặc compare attempt để learner thấy đã cải thiện.
+1. **Evidence** — which sentence, audio segment, answer, or behavior supports the feedback.
+2. **Meaning** — which rubric criterion or skill is affected.
+3. **Action** — one specific lesson, drill, or rewrite.
+4. **Verification** — a retest or attempt comparison that lets the learner see improvement.
 
-Nếu chấm không hoàn tất, UI phải hiển thị trạng thái `processing`, `delayed`, `low_confidence` hoặc `unavailable`; không giả vờ đã có kết quả và không tạo insight từ dữ liệu chưa hợp lệ.
+If evaluation is not complete, the UI must show `processing`, `delayed`, `low_confidence`, or `unavailable`; it must not pretend a result exists and must not generate insights from invalid data.
 
 ## Cost-aware experience
 
-- Cho phép learner chọn độ sâu feedback: `Quick`, `Standard`, `Deep`; mặc định dùng mức đủ để hành động.
-- Hiển thị transcript, explanation và insight đã cache ngay khi có; phần phân tích sâu chạy nền.
-- Với mạng yếu hoặc quota thấp, ưu tiên save draft, basic scoring/status và queue retry; không mất dữ liệu.
-- Không expose model/provider trong UI, nhưng expose rõ giới hạn sử dụng, thời gian chờ dự kiến và trạng thái kết quả.
+- Allow the learner to choose feedback depth: `Quick`, `Standard`, `Deep`; default to the minimum depth that is still actionable.
+- Surface cached transcript, explanation, and insight immediately when available; deeper analysis may run in the background.
+- On weak networks or low quota, prioritize saving the draft, basic scoring/status, and queued retry; never lose learner data.
+- Do not expose model/provider identity in the UI, but clearly expose usage limits, expected waiting time, and result state.
 
 ## Experience measurement
 
-| Moment | Event cần đo | Outcome |
+| Moment | Event to measure | Outcome |
 |---|---|---|
-| First day | `placement_completed`, `first_meaningful_session_completed` | activation và time-to-first-value |
-| Wrong answer | `explanation_viewed`, `practice_started`, `retest_completed` | error recurrence giảm |
-| Evaluation | `writing_feedback_viewed`, `practice_started`, `evaluation_submitted`, `retest_completed` | feedback helpfulness và score improvement |
-| Comeback | `comeback_plan_started`, `comeback_plan_completed` | return quality, không chỉ login |
-| Notification | delivered/opened/dismissed/opted_out | incremental value và notification fatigue |
+| First day | `placement_completed`, `first_meaningful_session_completed` | activation and time-to-first-value |
+| Wrong answer | `explanation_viewed`, `practice_started`, `retest_completed` | lower error recurrence |
+| Evaluation | `writing_feedback_viewed`, `practice_started`, `evaluation_submitted`, `retest_completed` | feedback helpfulness and score improvement |
+| Comeback | `comeback_plan_started`, `comeback_plan_completed` | return quality, not merely login |
+| Notification | delivered/opened/dismissed/opted_out | incremental value and notification fatigue |
 
 ## UX quality gates
 
-Trước khi release journey mới, phải kiểm tra: first meaningful action ≤ 3 bước, primary action rõ, keyboard/screen reader dùng được, offline/retry path có thật, copy không gây guilt, event tracking đầy đủ và cost budget không vượt ngưỡng.
+Before releasing a new journey, verify that the first meaningful action takes ≤ 3 steps, the primary action is clear, keyboard/screen-reader use works, offline/retry paths are real, copy is guilt-free, event tracking is complete, and the cost budget stays within threshold.
