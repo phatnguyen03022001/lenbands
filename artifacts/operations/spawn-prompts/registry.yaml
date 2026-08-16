@@ -1,8 +1,8 @@
 type: prompt-template-registry
 status: review
-version: 1.0.1
+version: 1.0.2
 owner: colab + operations
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 
 prompts:
   - prompt_template_id: spawn-vocab
@@ -64,7 +64,7 @@ prompts:
     asset_kind: speaking_cue_card
     output_contract: payload_plus_meta_yaml
     validator: ./tools/validate-spawn-prompts.sh
-    prompt_sha256: sha256:76905382931e24e234f9914642d44f6a7bda6ddf0178500468d1f2c4a18d0973
+    prompt_sha256: sha256:b1f1f1b40fa7612472eb786a2780253a605c75076a61e56660a9bc4a23aa324d
   - prompt_template_id: spawn-writing-prompt
     path: artifacts/operations/spawn-prompts/spawn-writing-prompt.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-writing-prompt.meta.yaml
