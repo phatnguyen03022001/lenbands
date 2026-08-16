@@ -1,17 +1,17 @@
 type: prompt-template
 prompt_template_id: spawn-grammar-lesson
 status: review
-version: 0.2.1
+version: 0.2.2
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, OPS.ContentQuality]
 purpose: workflow-for-draft-grammar-lesson-knowledge-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-16
+updated_at: 2026-08-17
 framework_refs:
   - file: grammar-band-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [g_second_conditional]
   - file: error-taxonomy
     version: 1.0.6
