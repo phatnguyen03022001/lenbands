@@ -1,11 +1,12 @@
 # 03 — Features (Capability Catalog)
 
-This is the **Capability Catalog** — the list of system capabilities, each with a unique capability ID. Each capability describes **what exists**, not the emotional experience (defined in `04-experience.md`) or the algorithm (defined in `06-engines.md`). Architecture and context are defined in `02-architecture.md`.
+This is the **Capability Catalog** — the list of system capabilities, each with a unique capability ID. Each capability describes **what exists**, not the emotional experience (defined in `04-experience.md`) or the algorithm/compute mode (defined in `06-engines.md` and projected by the non-authoritative execution policy). Architecture and context are defined in `02-architecture.md`.
 
 ## Conventions
 
 - Every capability has a unique `id` in the form `{DOMAIN}.{Capability}`.
 - `04-experience.md` and `06-engines.md` reference capabilities by ID rather than duplicating descriptions.
+- Capability meaning does not select an implementation technology, provider, model or compute mode.
 - UI labels follow `07-conventions.md` (no AI wording, no AI icon).
 
 ---
@@ -103,16 +104,16 @@ Each skill has four layers: Learning / Practice / Evaluation / Review. The Evalu
 
 ### Evaluation (EVAL)
 
-AI is the sole scorer and performs 100% of scoring without a human in the loop. UI names do not use AI wording (`07-conventions.md`). Quality is **designed to be controlled** by `GOVERNANCE.*`; no calibrated-quality claim is made before the evidence gate passes.
+LenBands has no runtime human scorer in the learner flow. Capability semantics remain domain-owned: objective scoring and aggregation are deterministic; free-form semantic assessment may use governed probabilistic inference only at boundaries defined by `06-engines.md` and the evaluation contracts. No calibrated-quality claim is made before the evidence gate passes.
 
 | id | Capability | Notes |
 |---|---|---|
-| `EVAL.Writing` | Writing Evaluation | sole scorer |
-| `EVAL.Speaking` | Speaking Evaluation | sole scorer |
-| `EVAL.Pronunciation` | Pronunciation Evaluation (phoneme, stress, intonation, mispronunciation) | sole scorer |
-| `EVAL.Examiner` | Examiner — interactive dialogue Part 1/2/3, follow-up generation | sole scorer |
-| `EVAL.BandPrediction` | Band Prediction | |
-| `EVAL.RewriteSuggestion` | Rewrite Suggestion (sentence-level feedback, scorecard) | |
+| `EVAL.Writing` | Writing Evaluation | Evidence-linked semantic assessment with deterministic validation/aggregation |
+| `EVAL.Speaking` | Speaking Evaluation | Composite speech/semantic assessment; implementation mode is not implied by the capability ID |
+| `EVAL.Pronunciation` | Pronunciation Evaluation (phoneme, stress, intonation, mispronunciation) | Evidence-backed pronunciation assessment |
+| `EVAL.Examiner` | Examiner — interactive dialogue Part 1/2/3, follow-up generation | Contextual dialogue capability |
+| `EVAL.BandPrediction` | Band Prediction | Predictive capability; no generative-model ownership implied |
+| `EVAL.RewriteSuggestion` | Rewrite Suggestion (sentence-level feedback, scorecard) | Suggestion has no score authority |
 | `EVAL.AntiGaming` | Deprecated alias; identity is retained for compatibility, while canonical implementation is `GOVERNANCE.AntiGaming` | |
 
 ### Coaching (COACH)
@@ -133,13 +134,13 @@ AI is the sole scorer and performs 100% of scoring without a human in the loop. 
 
 | id | Capability |
 |---|---|
-| `PERSONAL.Recommendation` | Recommendation Engine |
+| `PERSONAL.Recommendation` | Evidence-backed recommendation policy |
 | `PERSONAL.NextBestAction` | Next Best Action |
 | `PERSONAL.AdaptivePlan` | Adaptive Learning Plan |
 | `PERSONAL.WeaknessPractice` | Weakness-based Practice |
 | `PERSONAL.GoalRecommendation` | Goal-based Recommendation |
 | `PERSONAL.GapAnalysis` | Gap Analysis |
-| `PERSONAL.Insights` | Learning Insights — AI explains why the learner is weak (for example, consistently missing Matching Headings because of paraphrase weakness, or losing Task Response points rather than Grammar points) |
+| `PERSONAL.Insights` | Evidence-backed explanation of recurring learning patterns and their supporting reasons |
 
 ### Band Framework & Progression (BAND)
 
@@ -275,7 +276,7 @@ These backend/cross-functional capabilities protect quality and cost. They must 
 | `OPS.EvaluationQuality` | Scorer quality gate: rubric alignment, calibration, confidence, drift, bias, reproducibility |
 | `OPS.ReleaseGate` | Gate before publishing a model/content/feature; checks quality, safety, accessibility, and cost |
 | `OPS.OutcomeMeasurement` | Measure learning outcome, retest gain, error recurrence, helpfulness, and long-term skill transfer |
-| `OPS.ModelRouting` | Route requests by risk/value/latency: rules/cache/small model/large model/fallback |
+| `OPS.ModelRouting` | Select the lowest-sufficient approved compute route under quality, risk, latency, privacy and cost policy |
 | `OPS.CostBudget` | Budget by learner, capability, model, audio minutes, and batch job |
 | `OPS.Quota` | Rate limit, usage limit, fair use, and graceful degradation |
 | `OPS.Observability` | Track latency, errors, token/audio usage, cache hit, escalation, and quality impact |
@@ -398,26 +399,26 @@ The events below use the same envelope and registry but are detail/operational e
 
 ---
 
-## Engine Capabilities (reference)
+## Learning Compute Capabilities (reference)
 
-The Engine layer (`06-engines.md`) implements the following capabilities. Their descriptions are not duplicated here; this list exists only for traceability:
+`06-engines.md` defines compute boundaries without changing capability meaning. Traceability only:
 
-- `REVIEW.FSRS` ← FSRS engine
-- `EVAL.Writing`, `EVAL.Speaking`, `EVAL.Pronunciation`, `EVAL.Examiner` ← Evaluation engine
-- `PERSONAL.Recommendation`, `PERSONAL.NextBestAction`, `PERSONAL.Insights` ← Recommendation engine
-- `GOVERNANCE.*` ← AI Governance engine (see `06-engines.md`)
-- `OPS.*` ← Quality & Cost Control Plane (see `06-engines.md`)
+- `REVIEW.FSRS` ← deterministic review scheduling in the Algorithmic Core
+- `EVAL.Writing`, `EVAL.Speaking`, `EVAL.Pronunciation` ← assessment/semantic inference decomposed by decision unit
+- `EVAL.Examiner`, `EVAL.RewriteSuggestion` ← generative assistance where the product outcome requires language generation
+- `PERSONAL.Recommendation`, `PERSONAL.NextBestAction`, `PERSONAL.Insights` ← deterministic-first recommendation/insight policy with optional non-authoritative presentation
+- `GOVERNANCE.*`, `OPS.*` ← evaluation governance, quality, evidence, routing and economics controls
 
-## AI Governance Capabilities (GOVERNANCE)
+## Evaluation Governance Capabilities (GOVERNANCE)
 
-Invisible backend control targets for the sole evaluator; they are not a quality guarantee while real corpus, thresholds, and benchmark runs are missing. Implementation details are in `06-engines.md`.
+Invisible backend control targets for evaluation quality; they are not a quality guarantee while real corpus, thresholds and benchmark runs are missing. Implementation details and compute boundaries are in `06-engines.md`.
 
 | id | Capability |
 |---|---|
-| `GOVERNANCE.ConfidenceScore` | Every evaluation has a confidence score; low-confidence evaluations are flagged |
-| `GOVERNANCE.GoldStandardBenchmark` | Proposal: weekly re-scoring of an examiner-graded corpus whose size is approved by the founder to measure deviation; no active corpus/run currently exists |
+| `GOVERNANCE.ConfidenceScore` | Governed confidence state for evaluation evidence; raw model confidence is not automatically calibrated probability |
+| `GOVERNANCE.GoldStandardBenchmark` | Re-score an approved examiner-graded corpus under governed cadence/size and measure deviation; no active corpus/run currently exists |
 | `GOVERNANCE.DriftDetection` | Detect scoring-model drift over time |
 | `GOVERNANCE.BiasMonitoring` | Monitor scoring differences across user groups / task types / bands |
-| `GOVERNANCE.AntiGaming` | Detect sample / plagiarism / ChatGPT-generated submissions |
-| `GOVERNANCE.AuditTrail` | Log every calibration and model-version change |
+| `GOVERNANCE.AntiGaming` | Combine governed risk signals for sample/plagiarism/generated-submission concerns; a signal is not proof |
+| `GOVERNANCE.AuditTrail` | Log calibration, route/model version and governed decision changes |
 | `GOVERNANCE.Dashboard` | Admin view of evaluation-quality metrics |
