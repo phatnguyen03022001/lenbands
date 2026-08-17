@@ -27,10 +27,13 @@ end
 
 docs = load_yaml.call("DOCS.yaml")
 openapi = load_yaml.call("artifacts/engineering/api/openapi.yaml")
+schema_contract = load_yaml.call("artifacts/engineering/api/schema-contract.yaml")
 bops = load_yaml.call("artifacts/operations/bops/contract.yaml")
 
 canonical_path = docs.dig("authority", "web_api", "path")
+schema_path = docs.dig("authority", "web_api_schemas", "path")
 errors << "DOCS.yaml web_api must resolve to canonical OpenAPI" unless canonical_path == "artifacts/engineering/api/openapi.yaml"
+errors << "DOCS.yaml web_api_schemas must resolve to canonical schema contract" unless schema_path == "artifacts/engineering/api/schema-contract.yaml"
 
 legacy = docs["legacy_aliases"]
 unless legacy.is_a?(Hash)
@@ -139,6 +142,52 @@ missing_personas = allowed_personas - seen_personas
 errors << "canonical OpenAPI does not cover personas: #{missing_personas.to_a.sort.join(', ')}" unless missing_personas.empty?
 errors << "canonical OpenAPI must contain a meaningful full-web surface" if operation_count < 40
 
+# Payload schema contract must be complete for exactly the canonical operations.
+operation_contracts = schema_contract["operation_contracts"]
+schemas = schema_contract["schemas"]
+unless operation_contracts.is_a?(Hash)
+  errors << "schema-contract operation_contracts must be a mapping"
+  operation_contracts = {}
+end
+unless schemas.is_a?(Hash)
+  errors << "schema-contract schemas must be a mapping"
+  schemas = {}
+end
+
+openapi_ids = operation_ids.compact.to_set
+schema_ids = operation_contracts.keys.to_set
+missing_schema_ops = openapi_ids - schema_ids
+extra_schema_ops = schema_ids - openapi_ids
+errors << "schema-contract missing operationIds: #{missing_schema_ops.to_a.sort.join(', ')}" unless missing_schema_ops.empty?
+errors << "schema-contract contains unknown operationIds: #{extra_schema_ops.to_a.sort.join(', ')}" unless extra_schema_ops.empty?
+
+operation_contracts.each do |op_id, contract|
+  unless contract.is_a?(Hash)
+    errors << "#{op_id}: operation schema contract must be a mapping"
+    next
+  end
+  request_schema = contract["request"]
+  response_schema = contract["response"]
+  errors << "#{op_id}: request schema missing" if request_schema.to_s.empty?
+  errors << "#{op_id}: response schema missing" if response_schema.to_s.empty?
+  unless request_schema.to_s == "none" || schemas.key?(request_schema)
+    errors << "#{op_id}: request schema #{request_schema.inspect} is undefined"
+  end
+  errors << "#{op_id}: response schema #{response_schema.inspect} is undefined" unless schemas.key?(response_schema)
+end
+
+# Reject ambiguous/unsafe schema-level score and identity shortcuts.
+%w[PlacementResult EvaluationResult AttemptSummary].each do |name|
+  errors << "schema-contract missing critical score schema #{name}" unless schemas.key?(name)
+end
+placement_props = schemas.dig("PlacementResult", "properties") || {}
+eval_props = schemas.dig("EvaluationResult", "properties") || {}
+errors << "PlacementResult must preserve score_label" unless placement_props.key?("score_label")
+errors << "PlacementResult must preserve score_scope" unless placement_props.key?("score_scope")
+errors << "EvaluationResult must preserve score_label" unless eval_props.key?("score_label")
+errors << "EvaluationResult must preserve score_scope" unless eval_props.key?("score_scope")
+errors << "EvaluationResult must preserve scorer_route_version" unless eval_props.key?("scorer_route_version")
+
 bops_personas = Set.new(Array(bops.dig("scope", "web_personas")))
 bops_roles = Set.new(Array(bops.dig("scope", "authorization_roles")))
 errors << "BOPS persona set differs from canonical API" unless bops_personas == allowed_personas
@@ -148,7 +197,7 @@ problem = openapi.dig("components", "schemas", "Problem")
 errors << "RFC9457 Problem schema missing" unless problem.is_a?(Hash) && Array(problem["required"]).to_set.superset?(Set.new(%w[type title status]))
 
 if errors.empty?
-  puts "canonical web API validation passed (operations=#{operation_count}, personas=#{seen_personas.to_a.sort.join(',')})"
+  puts "canonical web API validation passed (operations=#{operation_count}, typed_contracts=#{operation_contracts.length}, personas=#{seen_personas.to_a.sort.join(',')})"
 else
   warn errors.join("\n")
   warn "canonical web API validation failed: #{errors.length} issue(s)"
