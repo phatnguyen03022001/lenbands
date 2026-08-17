@@ -1,6 +1,6 @@
 type: web-api-schema-contract
 status: review
-version: 0.1.0
+version: 0.1.1
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
