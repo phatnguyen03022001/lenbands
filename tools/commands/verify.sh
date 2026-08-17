@@ -14,9 +14,12 @@ tools/commands/validate/knowledge-assets.sh
 tools/commands/validate/evidence-lineage.rb
 tools/commands/validate/platform-boundary.rb
 tools/commands/validate/domain-automation.rb
-# validate-documents orchestrates framework, OpenAPI, semantic, spawn-prompt, and
-# benchmark-contract validation. Keep that dependency graph in one place.
+# validate-documents orchestrates framework, legacy OpenAPI migration inputs,
+# semantic, spawn-prompt, and benchmark-contract validation.
 tools/commands/validate/documents.rb
+# Canonical full-web API authority is validated independently while legacy
+# capability-pack OpenAPI files remain migration-only inputs.
+tools/commands/validate/canonical-web-api.rb
 tools/commands/validate/contract-ownership.rb
 tools/commands/validate/implementation-catalog.sh
 
