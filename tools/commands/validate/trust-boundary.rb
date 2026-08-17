@@ -31,6 +31,17 @@ errors = []
 
 errors << "agent trust policy schema_version must be 1.0.0" unless policy["schema_version"] == "1.0.0"
 errors << "agent trust policy must be source_of_truth within its scope" unless policy["source_of_truth"] == true
+errors << "agent trust policy must not retain legacy in-tree attestation authority" if policy.key?("attestation")
+errors << "agent trust policy must not claim GitHub external enforcement; use observed hosting state" if policy.key?("external_enforcement")
+
+phase_gate = policy.dig("application_builder", "phase_gate") || {}
+errors << "compatibility source gate must be explicitly non-authoritative" unless phase_gate["compatibility_mode"] == true && phase_gate["authority"] == "non_authoritative_fail_closed_compatibility"
+errors << "family/exact-SHA authorization contract missing" unless phase_gate["canonical_authorization_contract"] == "artifacts/operations/implementation-eligibility.yaml"
+
+host_controls = policy["host_controls"] || {}
+errors << "agent trust policy host controls must resolve observed state externally" unless host_controls["observed_state_source"] == "artifacts/operations/hosting-control-state.yaml"
+errors << "agent trust policy must require live evidence before host-enforcement claims" unless host_controls["enforcement_claim_requires_live_host_evidence"] == true
+
 errors << "change governance must be source_of_truth" unless change_governance["source_of_truth"] == true
 errors << "change governance must require external authorization outside the candidate tree" unless change_governance.dig("external_authorization", "location") == "outside_candidate_tree"
 errors << "change governance must invalidate authorization after candidate mutation" unless change_governance.dig("external_authorization", "candidate_mutation_invalidates_authorization") == true
@@ -128,7 +139,7 @@ end
 
 if errors.empty?
   suffix = diff_path ? ", diff_checked=true" : ""
-  puts "agent trust-boundary validation passed (protected=#{Array(policy["protected_paths"]).length}, self_authorization=false#{suffix})"
+  puts "agent trust-boundary validation passed (protected=#{Array(policy["protected_paths"]).length}, self_authorization=false, host_claims=observed#{suffix})"
 else
   warn errors.join("\n")
   warn "agent trust-boundary validation failed: #{errors.length} issue(s)"
