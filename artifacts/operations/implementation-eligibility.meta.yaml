@@ -1,10 +1,15 @@
 type: implementation-eligibility-contract
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: engineering + operations
 representation: yaml
-derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
+derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail, OPS.ModelRouting]
 purpose: separate-scope-eligibility-authorization-and-release-readiness
 consumed_by: [engineering, operations, agents, tooling]
 created_at: 2026-08-17
 updated_at: 2026-08-17
+change_log:
+  - version: 1.1.0
+    date: 2026-08-17
+    changes:
+      - Added exact decision-unit, compute-policy, sufficiency-evidence and anti-substitution requirements before family implementation eligibility.
