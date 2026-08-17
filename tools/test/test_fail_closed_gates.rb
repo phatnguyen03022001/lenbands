@@ -49,10 +49,10 @@ end
 
 Tempfile.create("lenbands-attested-diff") do |file|
   file.write("M\ttools/toolchain.yaml\n")
-  file.write("A\tartifacts/operations/attestations/toolchain-trust-hardening-20260807.yaml\n")
+  file.write("A\tartifacts/operations/attestations/godlevel-convergence-20260817-candidate.yaml\n")
   file.flush
   stdout, stderr, status = run.call("tools/bin/lenbands", "validate", "trust-boundary", "--diff", file.path)
-  errors << "valid protected-change attestation rejected: #{stdout}#{stderr}" unless status.success?
+  errors << "valid candidate declaration rejected: #{stdout}#{stderr}" unless status.success?
 end
 
 abort(errors.join("\n")) unless errors.empty?
