@@ -17,7 +17,10 @@ aliases:
   semver: {type: string, pattern: '^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$'}
   half_band_0_9: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
   integer_5_480: {type: integer, minimum: 5, maximum: 480}
+  official_ielts_score: {type: string, const: official_ielts_score}
+  exam_simulation_estimate: {type: string, const: exam_simulation_estimate}
   diagnostic_estimate: {type: string, const: diagnostic_estimate}
+  learning_mastery: {type: string, const: learning_mastery}
   placement: {type: string, const: placement}
   scalar_or_structured_answer:
     oneOf: [{type: string}, {type: number}, {type: boolean}, {type: array, items: {type: string}}, {type: object, additionalProperties: true}]
@@ -61,6 +64,7 @@ compiler_rules:
   - pipe_union_of_literals_becomes_enum
   - null_in_a_union_becomes_json_schema_null
   - every_single_token_type_must_be_a_primitive_alias_or_declared_schema
+  - score_identity_singletons_are_closed_const_aliases
   - semantic_singletons_must_be_explicit_const_aliases
   - unknown_type_tokens_fail_ci
   - object_schemas_reject_unknown_properties_unless_the_alias_explicitly_allows_them
