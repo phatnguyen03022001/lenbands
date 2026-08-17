@@ -1,6 +1,6 @@
 type: execution-policy-projection
 status: review
-version: 1.1.0
+version: 1.2.0
 owner: engineering + product + operations
 representation: yaml
 derived_from:
@@ -29,6 +29,12 @@ artifact_id: execution-policy-projection
 created_at: 2026-08-17
 updated_at: 2026-08-17
 change_log:
+  - version: 1.2.0
+    date: 2026-08-17
+    changes:
+      - Bound latency, cost, privacy and reliability constraints to every Tier-A decision through explicit sufficiency profiles.
+      - Required exact rejection of every lower compute mode before a higher probabilistic mode may be selected.
+      - Reduced P0 feedback presentation to deterministic templates because a second generative presentation decision is not necessary for the P0 product outcome.
   - version: 1.1.0
     date: 2026-08-17
     changes:
