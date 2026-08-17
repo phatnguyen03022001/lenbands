@@ -1,0 +1,79 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: candidate-change-governance
+owner: founder + engineering + operations
+purpose: govern protected candidate construction verification authorization and main-ref update without self-attestation
+
+change_model:
+  target_ref: refs/heads/main
+  temporary_candidate_ref:
+    allowed_for_verification_only: true
+    authoritative: false
+    must_be_deleted_after_disposition: true
+  main_update:
+    mode: fast_forward_only
+    force_update: forbidden
+    requires_exact_authorized_candidate: true
+  rule: direct_main_does_not_mean_direct_write
+
+candidate_declaration:
+  path_pattern: artifacts/operations/attestations/*.yaml
+  required_for_protected_change: true
+  purpose: declare_change_properties_only
+  required_fields:
+    - change_id
+    - change_scope
+    - protected_changes_reviewed
+    - authority_boundaries_changed
+    - validators_weakened
+    - evidence_modified
+    - readiness_claimed
+    - external_review_required
+  invariants:
+    protected_changes_reviewed: true
+    validators_weakened: false
+    evidence_modified: false
+    readiness_claimed: false
+    external_review_required: true
+  prohibited_self_claims:
+    - approval_ref
+    - founder_authorized
+    - ci_passed
+    - commands_run
+    - external_review_completed
+  rule: candidate_tree_may_describe_itself_but_may_not_authorize_or_verify_itself
+
+pre_ref_proof:
+  exact_candidate_checkout_required: true
+  exact_candidate_sha_assertion_required: true
+  repository_verify_required: true
+  toolchain_gate_required: true
+  protected_diff_validation_required: true
+  role_separated_veto_gates: [authority, governance_security, implementation_drift]
+  rule: all_proof_runs_bind_the_exact_candidate_sha
+
+external_authorization:
+  location: outside_candidate_tree
+  required_before_main_ref_update: true
+  required_bindings:
+    - base_main_sha
+    - candidate_commit_sha
+    - candidate_tree_sha
+    - change_manifest_hash
+    - pre_ref_ci_run
+    - authority_gate_result
+    - governance_security_gate_result
+    - implementation_drift_gate_result
+  candidate_mutation_invalidates_authorization: true
+  repository_file_must_not_claim_authorization: true
+
+post_ref_verification:
+  required: true
+  exact_main_sha_must_equal_authorized_candidate_sha: true
+  same_head_ci_required: true
+  failure_response: fix_forward_without_force_push
+
+readiness_separation:
+  repository_convergence_pass_does_not_imply_p0_readiness: true
+  repository_convergence_pass_does_not_imply_production_readiness: true
