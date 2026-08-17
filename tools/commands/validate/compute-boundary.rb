@@ -30,7 +30,7 @@ features_path = File.join(root, "blueprint/03-features.md")
 features = File.file?(features_path) ? File.read(features_path) : ""
 capability_ids = features.scan(/`([A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*)`/).flatten.to_set
 
-errors << "execution policy schema_version must be 1.1.0" unless policy["schema_version"] == "1.1.0"
+errors << "execution policy schema_version must be 1.2.0" unless policy["schema_version"] == "1.2.0"
 errors << "execution policy must be a non-authoritative projection" unless policy["source_of_truth"] == false && policy["authority_class"] == "projection"
 errors << "execution policy projection_id drifted" unless policy["projection_id"] == "compute-execution-policy"
 
@@ -51,7 +51,12 @@ principles = Array(policy["architecture_principles"]).to_set
 
 sufficiency_model = policy["sufficiency_evaluation"] || {}
 required_dimensions = %w[product_outcome quality latency cost privacy reliability]
+unit_dimensions = %w[product_outcome quality]
+profile_dimensions = %w[latency cost privacy reliability]
 errors << "sufficiency dimensions drifted" unless Array(sufficiency_model["required_dimensions"]) == required_dimensions
+errors << "unit-specific sufficiency dimensions drifted" unless Array(sufficiency_model["unit_specific_dimensions"]) == unit_dimensions
+errors << "profile-bound sufficiency dimensions drifted" unless Array(sufficiency_model["profile_bound_dimensions"]) == profile_dimensions
+errors << "sufficiency profile binding rule missing" if sufficiency_model["profile_binding_rule"].to_s.empty?
 errors << "design sufficiency must not claim product outcome validation" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_product_outcome_validation") == false
 errors << "design sufficiency must not claim calibration" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_calibration") == false
 errors << "design sufficiency must not claim readiness" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_readiness") == false
@@ -63,12 +68,41 @@ empirical_required_for = Array(sufficiency_model["empirical_evidence_required_fo
 %w[product_outcome_claim calibration_claim readiness_promotion release_approval].each do |claim|
   errors << "empirical sufficiency scope omits #{claim}" unless empirical_required_for.include?(claim)
 end
-constraint_authorities = sufficiency_model["constraint_authorities"] || {}
-required_dimensions.each do |dimension|
-  value = constraint_authorities[dimension].to_s
-  errors << "sufficiency constraint authority missing for #{dimension}" if value.empty?
-  if value.include?("/") && !value.include?("canonical_domain_owner")
-    errors << "sufficiency constraint authority path missing: #{value}" unless File.file?(File.join(root, value))
+
+profiles = policy["sufficiency_profiles"]
+unless profiles.is_a?(Hash) && !profiles.empty?
+  errors << "execution policy requires named sufficiency_profiles"
+  profiles = {}
+end
+forbidden_profile_keys = %w[capability_id unit_id canonical_compute_mode rubric semantic_authority domain_owner decision_aggregator state_mutation_authority]
+profiles.each do |profile_id, profile|
+  unless profile.is_a?(Hash)
+    errors << "sufficiency profile #{profile_id} must be a mapping"
+    next
+  end
+  forbidden_profile_keys.each do |key|
+    errors << "sufficiency profile #{profile_id} may not define semantic/decision key #{key}" if profile.key?(key)
+  end
+  errors << "sufficiency profile #{profile_id} must be design evidence in this candidate" unless profile["evidence_level"] == "design"
+  modes = Array(profile["applies_to_modes"])
+  errors << "sufficiency profile #{profile_id} has invalid applies_to_modes" if modes.empty? || (modes - expected_modes).any?
+  dimensions = profile["dimensions"]
+  unless dimensions.is_a?(Hash)
+    errors << "sufficiency profile #{profile_id} dimensions must be a mapping"
+    next
+  end
+  errors << "sufficiency profile #{profile_id} cross-cutting dimensions drifted" unless dimensions.keys == profile_dimensions
+  profile_dimensions.each do |dimension|
+    evidence = dimensions[dimension]
+    unless evidence.is_a?(Hash)
+      errors << "sufficiency profile #{profile_id} missing #{dimension} evidence"
+      next
+    end
+    authority_ref = evidence["authority_ref"].to_s
+    disposition = evidence["disposition"].to_s
+    errors << "sufficiency profile #{profile_id} #{dimension} authority_ref missing" if authority_ref.empty?
+    errors << "sufficiency profile #{profile_id} #{dimension} disposition missing" if disposition.empty?
+    errors << "sufficiency profile #{profile_id} #{dimension} authority missing: #{authority_ref}" unless authority_ref.empty? || File.file?(File.join(root, authority_ref))
   end
 end
 
@@ -81,9 +115,10 @@ projection_rules = policy["projection_rules"] || {}
   "canonical_semantics_remain_in_domain_owner" => true,
   "model_output_is_candidate_inference_only" => true,
   "canonical_state_mutation_requires_deterministic_domain_decision" => true,
-  "higher_compute_mode_requires_lower_mode_insufficiency_evidence" => true,
+  "higher_compute_mode_requires_exact_lower_mode_insufficiency_evidence" => true,
   "future_defaults_do_not_authorize_implementation" => true,
-  "design_sufficiency_may_not_claim_empirical_validity" => true
+  "design_sufficiency_may_not_claim_empirical_validity" => true,
+  "presentation_uses_deterministic_compute_in_p0" => true
 }.each do |key, value|
   errors << "execution projection rule #{key} drifted" unless projection_rules[key] == value
 end
@@ -95,10 +130,14 @@ else
   errors << "DOCS execution-policy projection path drifted" unless projection_entry["path"] == "artifacts/operations/execution-policy.yaml"
   errors << "DOCS execution-policy projection may not claim semantic ownership" unless Array(projection_entry["owns"]).empty?
   errors << "DOCS execution-policy projection must be non-authoritative" unless projection_entry["authority_state"] == "projection"
+  errors << "DOCS execution-policy must remain referenced-only" unless projection_entry["retrieval_state"] == "referenced_only" && projection_entry["default_context_visibility"] == false
 end
 if docs.fetch("authority", {}).values.any? { |entry| entry.is_a?(Hash) && entry["path"] == "artifacts/operations/execution-policy.yaml" }
   errors << "execution-policy must not be registered as canonical authority"
 end
+learning_compute_owns = Array(docs.dig("authority", "learning_engines", "owns"))
+expected_learning_compute_owns = %w[decision_compute_boundaries probabilistic_inference_pipeline algorithmic_vs_inference_grouping compute_mode_change_gate]
+errors << "learning_engines authority must own compute boundaries only, not evaluation/recommendation/review semantics" unless learning_compute_owns == expected_learning_compute_owns
 
 unit_by_id = {}
 Array(policy["canonical_unit_sources"]).each do |source|
@@ -163,6 +202,12 @@ Array(policy["decision_policies"]).each do |entry|
   errors << "decision unit #{unit_id} missing/invalid sufficiency evidence_level" unless %w[design empirical].include?(evidence_level)
   errors << "decision unit #{unit_id} missing outcome_contract" if sufficiency["outcome_contract"].to_s.empty?
   errors << "decision unit #{unit_id} missing quality_requirement" if sufficiency["quality_requirement"].to_s.empty?
+  profile_id = sufficiency["constraint_profile"].to_s
+  profile = profiles[profile_id]
+  errors << "decision unit #{unit_id} missing/unknown constraint_profile #{profile_id.inspect}" unless profile.is_a?(Hash)
+  if profile.is_a?(Hash) && !Array(profile["applies_to_modes"]).include?(mode)
+    errors << "decision unit #{unit_id} compute mode #{mode} is incompatible with sufficiency profile #{profile_id}"
+  end
   evidence_refs = Array(sufficiency["evidence_refs"])
   errors << "decision unit #{unit_id} missing sufficiency evidence_refs" if evidence_refs.empty?
   evidence_refs.each do |evidence_ref|
@@ -172,11 +217,10 @@ Array(policy["decision_policies"]).each do |entry|
   errors << "decision unit #{unit_id} missing sufficiency verdict" if verdict.empty?
   if evidence_level == "design"
     errors << "decision unit #{unit_id} design evidence may not claim empirical validity: #{verdict}" unless verdict.start_with?("design_")
-    forbidden_claim_tokens = %w[empirically_validated calibrated ready release_approved outcome_validated]
-    forbidden_claim_tokens.each do |token|
+    %w[empirically_validated calibrated ready release_approved outcome_validated].each do |token|
       errors << "decision unit #{unit_id} design evidence contains empirical claim token #{token}" if verdict.include?(token)
     end
-  elsif evidence_level == "empirical"
+  else
     empirical_refs = Array(sufficiency["empirical_evidence_refs"])
     errors << "decision unit #{unit_id} empirical sufficiency requires bound empirical_evidence_refs" if empirical_refs.empty?
     empirical_refs.each do |evidence_ref|
@@ -184,9 +228,13 @@ Array(policy["decision_policies"]).each do |entry|
     end
   end
 
+  mode_index = expected_modes.index(mode)
+  lower_modes = mode_index ? expected_modes.take(mode_index) : []
+  lower_rejections = sufficiency["lower_mode_rejections"]
   if mode == "deterministic"
     errors << "deterministic unit #{unit_id} cannot allow a probabilistic executor" unless entry["probabilistic_executor_allowed"] == false
     errors << "deterministic unit #{unit_id} must have inference_executor=none" unless entry["inference_executor"] == "none"
+    errors << "deterministic unit #{unit_id} must not carry lower_mode_rejections" if lower_rejections.is_a?(Hash) && !lower_rejections.empty?
   else
     errors << "probabilistic unit #{unit_id} must explicitly allow its executor" unless entry["probabilistic_executor_allowed"] == true
     constraints = entry["probabilistic_constraints"] || {}
@@ -194,13 +242,24 @@ Array(policy["decision_policies"]).each do |entry|
     errors << "probabilistic unit #{unit_id} may not mutate canonical state" unless constraints["may_mutate_canonical_state"] == false
     errors << "probabilistic unit #{unit_id} must not own canonical state mutation" unless entry["state_mutation_authority"] == "none"
     errors << "probabilistic unit #{unit_id} missing provenance requirements" if Array(entry["provenance_required"]).empty?
-    errors << "probabilistic unit #{unit_id} lacks lower-mode insufficiency evidence" if sufficiency["lower_mode_rejection"].to_s.empty?
+    unless lower_rejections.is_a?(Hash)
+      errors << "probabilistic unit #{unit_id} requires exact lower_mode_rejections mapping"
+      lower_rejections = {}
+    end
+    errors << "probabilistic unit #{unit_id} lower-mode rejection set drifted; expected #{lower_modes.join(', ')}" unless lower_rejections.keys == lower_modes
+    lower_modes.each do |lower_mode|
+      errors << "probabilistic unit #{unit_id} lower-mode rejection missing reason for #{lower_mode}" if lower_rejections[lower_mode].to_s.strip.empty?
+    end
     errors << "probabilistic unit #{unit_id} must require empirical validation before promotion" unless sufficiency["empirical_validation_required"] == true
   end
 
   if entry["presentation_only"] == true
     errors << "presentation-only unit #{unit_id} cannot mutate canonical state" unless entry["state_mutation_authority"] == "none"
     errors << "presentation-only unit #{unit_id} cannot aggregate a domain decision" unless [nil, "none"].include?(entry["decision_aggregator"])
+    if projection_rules["presentation_uses_deterministic_compute_in_p0"] == true
+      errors << "Tier-A presentation-only unit #{unit_id} must use deterministic compute" unless mode == "deterministic"
+      errors << "Tier-A presentation-only unit #{unit_id} must not call a probabilistic executor" unless entry["probabilistic_executor_allowed"] == false
+    end
   end
 end
 
@@ -235,9 +294,7 @@ errors << "learning engines still use Recommendation Engine as the primary compu
   "lowest sufficient computation",
   "Probabilistic components are inference executors",
   "Generated presentation is non-authoritative"
-].each do |marker|
-  errors << "learning engines missing compute-boundary marker #{marker}" unless engines.include?(marker)
-end
+].each { |marker| errors << "learning engines missing compute-boundary marker #{marker}" unless engines.include?(marker) }
 
 errors << "capability catalog still claims AI is the sole scorer" if features.include?("AI is the sole scorer")
 errors << "capability catalog still assigns PERSONAL.Insights meaning to AI wording" if features.include?("AI explains why the learner is weak")
@@ -246,11 +303,13 @@ routing_path = File.join(root, "artifacts/engineering/contracts/runtime/llm-rout
 routing = File.file?(routing_path) ? File.read(routing_path) : ""
 errors << "probabilistic routing still selects Go as a deterministic domain architecture" if routing.include?("deterministic Go domain rule")
 errors << "probabilistic routing still delegates retry semantics to a Worker Contract" if routing.include?("Worker Contract")
+errors << "P0 routing must prohibit a second presentation model call" unless routing.include?("no second P0 model call")
 
 if errors.empty?
   design_units = Array(policy["decision_policies"]).count { |entry| entry.dig("sufficiency", "evidence_level") == "design" }
   empirical_units = Array(policy["decision_policies"]).count { |entry| entry.dig("sufficiency", "evidence_level") == "empirical" }
-  puts "compute boundary validation passed (units=#{unit_by_id.length}, design=#{design_units}, empirical=#{empirical_units}, future_defaults=#{future_seen.length}, projection_only=true)"
+  probabilistic_units = Array(policy["decision_policies"]).count { |entry| entry["canonical_compute_mode"] != "deterministic" }
+  puts "compute boundary validation passed (units=#{unit_by_id.length}, design=#{design_units}, empirical=#{empirical_units}, probabilistic=#{probabilistic_units}, profiles=#{profiles.length}, future_defaults=#{future_seen.length}, projection_only=true)"
 else
   warn errors.join("\n")
   warn "compute boundary validation failed: #{errors.length} issue(s)"
