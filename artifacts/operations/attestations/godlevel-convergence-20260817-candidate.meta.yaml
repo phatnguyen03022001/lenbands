@@ -1,0 +1,10 @@
+type: candidate-change-declaration
+status: review
+version: 1.0.0
+owner: engineering + operations
+representation: yaml
+derived_from: [GOVERNANCE.AuditTrail, OPS.ReleaseGate]
+purpose: non-self-authorizing-declaration-of-protected-candidate-properties
+consumed_by: [validators, operations, founder]
+created_at: 2026-08-17
+updated_at: 2026-08-17
