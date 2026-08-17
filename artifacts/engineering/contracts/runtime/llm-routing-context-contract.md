@@ -4,7 +4,7 @@ The filename is retained for compatibility, but this contract governs the P0 **p
 
 ## Scope and authority
 
-P0 uses a generative model only for the semantic-inference/presentation portions of `EVAL.Writing` in the outcome loop. Autosave, authentication/authorization, entitlement, idempotency, FSRS, retry eligibility, Daily Plan/NextBestAction, quota, route selection, feedback priority, score aggregation and quality-state decisions are deterministic.
+P0 uses a generative model only for the semantic-inference portion of `EVAL.Writing` in the outcome loop. Autosave, authentication/authorization, entitlement, idempotency, FSRS, retry eligibility, Daily Plan/NextBestAction, quota, route selection, feedback priority, score aggregation, quality-state decisions and learner-facing presentation are deterministic.
 
 The canonical compute-mode projection is `artifacts/operations/execution-policy.yaml`. It cannot create semantics or decision units; this routing contract may only operationalize an already-declared compute boundary.
 
@@ -20,7 +20,7 @@ Provider/model names are not in the domain contract. `evaluation_primary` or `ev
 | Evidence-reference/taxonomy/criterion validation | deterministic | no provider context | accepted candidate only | invalid/insufficient_evidence |
 | Score aggregation + quality-state decision | deterministic | no provider context | canonical result | low_confidence/insufficient_evidence/invalid |
 | Feedback priority/Error Graph | deterministic ranking over accepted evaluation facts | no second model call | accepted result | show structured evidence/result state |
-| Learner-facing explanation wording | may share the accepted inference route output; no additional P0 model call | bounded by the evaluation output envelope | accepted result | deterministic structured wording |
+| Learner-facing explanation wording | deterministic templates over accepted facts | no provider context and no second P0 model call | accepted result | structured facts remain usable |
 | Daily action P0 | deterministic rules | n/a | deterministic cache only | at most 3 reason-coded alternatives |
 | Benchmark/dual-run | isolated governed inference route | controlled corpus budget | no learner-result cache | benchmark failure blocks promotion |
 
@@ -60,7 +60,7 @@ provider response
 
 The candidate must carry the provenance required by `evaluation-contract.md`, including rubric version, task version, prompt-template hash, scorer/model route version, assessment mode, evidence refs and confidence state. Missing or invalid provenance is `invalid`/`insufficient_evidence`; it is not repaired by best-effort scoring.
 
-Generated explanation text is presentation only. It cannot change criterion findings, error IDs, scores, evidence, action priority or readiness state.
+P0 learner-facing explanation text is rendered deterministically from accepted structured facts. Future generative wording is an optional presentation enhancement only and requires an explicit governed compute-mode change; it cannot change criterion findings, error IDs, scores, evidence, action priority or readiness state.
 
 ## Preflight and route-selection guard
 
@@ -79,7 +79,7 @@ If a guard fails, preserve the submission and return `action_required`, `delayed
 - One accepted P0 Writing evaluation has a bounded provider-attempt policy; durable workflow retry follows the canonical runtime contract and remains idempotent.
 - An internal retry does not create another learner submission or learner charge.
 - Provider fallback is allowed only among benchmark-approved combinations inside the same scorer-route version.
-- A provider outage never opens a model route for deterministic workloads such as Daily Action, quota, FSRS or feedback ranking.
+- A provider outage never opens a model route for deterministic workloads such as Daily Action, quota, FSRS, feedback ranking or presentation.
 - Prompt/model/rubric/context changes require benchmark regression and release-gate review.
 - Large-model escalation is prohibited unless the candidate route is benchmarked and satisfies the founder-approved cost policy.
 
@@ -89,6 +89,6 @@ If a guard fails, preserve the submission and return `action_required`, `delayed
 - One accepted Writing submission creates no unbounded inference retry.
 - Every candidate inference is traceable to rubric/task/prompt/route/model/evidence provenance.
 - No candidate inference can directly mutate canonical score, error, readiness, entitlement or quota state.
-- Feedback priority performs no second model inference.
+- Feedback priority and learner-facing presentation perform no second model inference.
 - Presentation failure leaves canonical structured facts usable.
 - Route disable/circuit open produces retained submission + useful delayed/unavailable UX, never a fake score.
