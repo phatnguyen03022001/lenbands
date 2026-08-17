@@ -68,7 +68,9 @@ end
 
 errors << "execution policy must remain a non-authoritative projection" unless execution_policy["source_of_truth"] == false && execution_policy["authority_class"] == "projection"
 errors << "execution policy must forbid policy-created decision units" unless execution_policy.dig("projection_rules", "policy_may_not_create_decision_units") == true
-errors << "execution policy must require lower-mode insufficiency evidence" unless execution_policy.dig("projection_rules", "higher_compute_mode_requires_lower_mode_insufficiency_evidence") == true
+errors << "execution policy must require exact lower-mode insufficiency evidence" unless execution_policy.dig("projection_rules", "higher_compute_mode_requires_exact_lower_mode_insufficiency_evidence") == true
+errors << "execution policy must bind cross-cutting sufficiency profiles" unless execution_policy.dig("sufficiency_evaluation", "profile_binding_rule").to_s.length.positive?
+errors << "execution policy must keep P0 presentation deterministic" unless execution_policy.dig("projection_rules", "presentation_uses_deterministic_compute_in_p0") == true
 
 policy = promotion["promotion_policy"]
 unless policy.is_a?(Hash)
@@ -91,7 +93,7 @@ transition = eligibility["current_transition"] || {}
 errors << "eligibility migration must keep source mutation locked until trust-policy migration completes" unless transition["source_mutation_state"] == "locked"
 
 if errors.empty?
-  puts "implementation eligibility validation passed (axes=4, compute_boundary=required, source_mutation=locked)"
+  puts "implementation eligibility validation passed (axes=4, exact_compute_sufficiency=required, source_mutation=locked)"
 else
   warn errors.join("\n")
   warn "implementation eligibility validation failed: #{errors.length} issue(s)"
