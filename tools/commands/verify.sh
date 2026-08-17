@@ -21,6 +21,7 @@ tools/commands/validate/domain-automation.rb
 tools/commands/validate/documents.rb
 ruby tools/commands/validate/framework-remediation.rb
 tools/commands/validate/contract-ownership.rb
+ruby tools/commands/validate/implementation-eligibility.rb
 tools/commands/validate/implementation-catalog.sh
 ruby tools/commands/validate/compute-boundary.rb
 
