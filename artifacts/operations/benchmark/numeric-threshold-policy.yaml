@@ -11,6 +11,7 @@ quality:
   criterion_mae_max_band: 0.50
   overall_mae_max_band: 0.50
   within_half_band_min: 0.80
+  invalid_or_low_confidence_withheld_min: 0.95
   false_acceptance_max: 0.0
   p95_latency_ms_max: 10000
 human_quality_review:
