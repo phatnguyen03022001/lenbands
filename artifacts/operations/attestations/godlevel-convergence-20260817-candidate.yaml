@@ -1,0 +1,12 @@
+change_id: godlevel-convergence-20260817-candidate
+change_scope: authority runtime API evidence governance framework and agent-tooling convergence
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+external_review_required: true
+notes:
+  - This record declares candidate properties only; it is not founder authorization or CI evidence.
+  - Exact candidate verification, veto-gate results and founder authorization remain external to the candidate tree.
+  - P0 and production readiness remain fail-closed.
