@@ -1,0 +1,10 @@
+type: candidate-change-governance
+status: review
+version: 1.0.0
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
+purpose: exact-candidate-proof-and-external-authorization-contract
+consumed_by: [engineering, operations, validators, founder]
+created_at: 2026-08-17
+updated_at: 2026-08-17
