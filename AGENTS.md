@@ -1,77 +1,61 @@
-# AGENTS.md — Hướng dẫn cho AI Agent
+# AGENTS.md — LenBands agent entry point
 
-Đây là entry point cho mọi AI agent (Claude Code, ZCode, subagent, cheap spawn agent) làm việc trong repo LenBands.
+This file is the smallest safe entry point for any repository agent.
 
-## Reading order (đọc theo thứ tự)
+## Read order
 
-1. `README.md` — layout repo + linking
-2. `blueprint/README.md` — hub blueprint, nguyên tắc xuyên suốt, document map
-3. `blueprint/01-product.md` → `08-roadmap.md` — spoke blueprint theo thứ tự
-4. `blueprint/framework/README.md` — IELTS Knowledge Framework (bộ gen domain)
-5. `artifacts/README.md` + `artifacts/CONVENTION.md` — artifact rule
-6. `artifacts/operations/spawn-prompts/README.md` + `registry.yaml` — chỉ khi task tạo Knowledge Asset
+1. `DOCS.yaml` — machine-readable authority and alias registry.
+2. The one canonical document that owns the requested concern.
+3. Only the contracts explicitly referenced by that document.
+4. `artifacts/operations/agent-trust-policy.yaml` before a protected change.
 
-Repository-wide freeze: đọc `artifacts/operations/architecture-frozen.md` trước khi thay đổi capability, family, runtime contract hoặc validator.
+Do **not** scan the repository before reading `DOCS.yaml`. Do **not** resolve authority by filename recency, folder depth, or prose confidence.
 
-Trước mọi task code, chạy `tools/bin/lenbands context` để lấy authority map, P0 blockers,
-protected paths và handoff commands hiện hành. Output của command là context projection;
-file authority bên dưới vẫn là nguồn sự thật.
+## Core rules
 
-Không đọc toàn bộ repo cùng lúc. Đọc theo need.
+1. **One owner per semantic field.** If two canonical documents appear to own the same fact, report `authority_collision`.
+2. **Stable IDs over paths.** Capability IDs, framework node IDs, document IDs, operationIds, event IDs, and evidence IDs are durable. File paths are replaceable.
+3. **IELTS authority classes stay explicit.** Official/public IELTS rules, LenBands-controlled policy, and experimental heuristics must not be blended.
+4. **No invention.** Missing enum/node/contract → `unknown_*` or a documented gap; never create a plausible value silently.
+5. **Evidence over claims.** `approved`, `calibrated`, `ready`, or quality claims require the evidence specified by their gate.
+6. **Premium is not a security role.** The five web personas are `guest`, `learner`, `premium_learner`, `colab`, `admin`; authorization roles are `learner`, `colab`, `admin`, with Premium represented by entitlement.
+7. **Provider-neutral domain.** Vendor names may appear only in sourcing/BOPS/adapter boundaries, never in capability identity, learner score semantics, canonical events, or learner-facing product terminology.
+8. **Buy commodity infrastructure.** Build only LenBands differentiation: IELTS semantics, learning evidence, learner model/adaptive policy, content/publishing semantics, evaluation/rubric governance, thin orchestration, and product experience.
+9. **Privacy.** Raw learner essays, audio, transcripts, answers, private notes, secrets, and provider payloads never enter analytics events or general logs.
+10. **Scoring isolation.** A learner-visible evaluator may use only a benchmark-approved route/model/provider combination. General AI fallback must never silently change scoring semantics.
+11. **No tooling bypass.** Never weaken validators, evidence requirements, protected-path checks, mutation tests, or immutable-history rules to make a change pass.
+12. **No speculative infrastructure.** Do not introduce a service, queue, cache, custom auth layer, model server, search cluster, or new language runtime without an evidence-backed blocker.
 
-## Prompt workflow artifacts
+## Canonical web/API sources
 
-`artifacts/operations/spawn-prompts/` là thư viện workflow artifact cho agent spawn. Agent được phép đọc/index khi workflow cần; prompt không phải SSOT domain và không được dùng để thay thế `blueprint/framework/`.
+- API contract: `artifacts/engineering/api/openapi.yaml`
+- Access model: `artifacts/engineering/api/access-control.md`
+- BOPS controls: `artifacts/operations/bops/contract.yaml`
+- Threat model: `artifacts/operations/bops/threat-model.md`
+- Sourcing/build-vs-buy: `artifacts/business/decisions/platform-sourcing.md`
 
-Đọc `artifacts/operations/spawn-prompts/README.md` và `registry.yaml` trước khi dùng prompt. Mọi prompt phải qua `tools/validate-spawn-prompts.sh`; output đi `knowledge-assets/`, không đi vào thư mục prompt.
+Legacy OpenAPI/BOPS/build-buy documents exist only for migration and traceability. Their status is declared in `DOCS.yaml`; they must not become a second authority.
 
-## Nguyên tắc cứng (cho mọi agent)
+## Protected change workflow
 
-1. **Controlled vocabulary**: id ngoài framework enum → báo `unknown_*`, không tự đặt tên.
-2. **Không tự suy luận**: framework thiếu → báo + flag, không bịa.
-3. **SSOT**: mỗi năng lực 1 capability id, mỗi dữ liệu 1 owner. Catalog/index = projection, không phải nguồn.
-4. **Sole evaluator**: AI chấm 100%, không human-in-the-loop.
-5. **No-AI-label UI**: UI không dùng chữ "AI" hay icon AI.
-6. **Privacy**: không emit learner content (essay/audio/error text) vào event/log.
-7. **Evidence over prose**: `approved` cần evidence thật, không phải claim.
-8. **Không bypass tooling**: không được xóa validator khỏi `verify`, đổi gate fail-closed
-   thành warning/success, giảm evidence requirement, sửa/xóa immutable evidence, hoặc sửa
-   test để hợp thức hóa validator yếu hơn.
-9. **Protected change**: thay đổi validator, gate, framework, freeze/domain/trust policy,
-   manifest/toolchain hoặc CI trust config phải kèm change attestation theo
-   `artifacts/operations/agent-trust-policy.yaml` và cần external CODEOWNERS review.
-10. **Stable command surface**: agent/human gọi `tools/bin/lenbands`; direct
-    `tools/commands/**` chỉ dành cho internal composition và tests.
-
-## Scope hiện tại
-
-- P0 = closed pilot = Writing Task 2 loop. Listening/Reading/Speaking/Pronunciation/Mock Test/full Colab/Admin = deferred.
-- Blueprint là design SSOT; P0 artifact chỉ build-ready khi Build Readiness Matrix và evidence gate xác nhận, không suy ra từ prose.
-- Framework IELTS v1.0.6 — versioned controlled vocabulary; coverage gap phải được báo bằng `unknown_*`.
-- Build readiness: `artifacts/operations/build-readiness-matrix.md` (P0-01..06).
-
-## Khi sửa artifact/blueprint
-
-- Bump version (minor: thêm, patch: sửa, deprecated: không xóa).
-- Cập nhật `build-readiness-matrix.md` nếu động P0 pack.
-- Traceability: `derived_from` phải ghi capability id thật.
-- File dưới `artifacts/operations/evidence/` là append-only: chỉ thêm record mới, không
-  sửa/xóa record cũ. Reconciliation phải tạo record versioned mới.
-
-## Handoff bắt buộc
+For a protected change:
 
 ```bash
+tools/bin/lenbands context
 tools/bin/lenbands doctor
 tools/bin/lenbands verify
 tools/bin/lenbands gate toolchain
 tools/bin/lenbands gate p0
 ```
 
-`gate p0` exit `3` là blocked state hợp lệ khi evidence còn thiếu; không được đổi thành
-success. Protected diff phải pass `tools/bin/lenbands validate trust-boundary --diff ...`.
+`gate p0` may correctly remain blocked while real P0 evidence is missing. A protected diff also needs the repository trust-boundary attestation and the required independent review.
 
-## Khi spawn asset (cho cheap agent)
+## Knowledge Asset workflow
 
-- Đọc `artifacts/operations/spawn-prompts/README.md` + `registry.yaml` → chọn prompt theo loại asset.
-- Asset output đi `knowledge-assets/`, KHÔNG đi `artifacts/operations/spawn-prompts/`.
-- Framework là SSOT cho mọi domain enum; Knowledge Asset sidecar là SSOT cho metadata của từng asset.
+Only when creating learner-serving content, read:
+
+- `artifacts/operations/spawn-prompts/README.md`
+- its registry
+- the exact Framework nodes named by the workflow
+
+Prompts are workflow artifacts, never IELTS/domain authority.
