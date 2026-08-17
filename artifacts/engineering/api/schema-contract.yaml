@@ -1,0 +1,368 @@
+type: web-api-schema-contract
+status: review
+version: 0.1.0
+owner: engineering + security
+representation: yaml
+derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
+purpose: typed request-response contract for every canonical web operation
+created_at: 2026-08-17
+updated_at: 2026-08-17
+
+rules:
+  - every canonical OpenAPI operationId appears exactly once in operation_contracts
+  - none means the operation has no JSON request body
+  - response schema describes the successful domain payload; RFC9457 Problem remains the canonical failure body
+  - unknown client properties are rejected unless a named schema explicitly allows metadata
+  - identifiers are opaque strings and never convey authorization
+  - assessment payloads preserve task/content/version and assessment_mode provenance
+  - score payloads preserve score_label and score_scope
+  - learner-facing score responses never use raw provider confidence as correctness probability
+
+operation_contracts:
+  getPublicConfig: {request: none, response: PublicConfig}
+  getPublicCatalog: {request: none, response: PublicCatalog}
+  getPublicPricing: {request: none, response: PricingView}
+  getMe: {request: none, response: Profile}
+  updateMe: {request: ProfilePatch, response: Profile}
+  getMyEntitlements: {request: none, response: EntitlementSet}
+  recordConsent: {request: ConsentDecision, response: ConsentRecord}
+  requestMyExport: {request: none, response: AsyncRequest}
+  requestMyDeletion: {request: none, response: AsyncRequest}
+  getMyGoal: {request: none, response: LearnerGoal}
+  putMyGoal: {request: LearnerGoalInput, response: LearnerGoal}
+  startPlacement: {request: PlacementStart, response: PlacementAttempt}
+  submitPlacementResponse: {request: PlacementResponseInput, response: PlacementResponseReceipt}
+  submitPlacement: {request: none, response: PlacementAttempt}
+  getPlacementAttempt: {request: none, response: PlacementAttempt}
+  getTodayPlan: {request: none, response: DailyPlan}
+  recordTodayCheckIn: {request: CheckInInput, response: DailyPlan}
+  startStudySession: {request: StudySessionStart, response: StudySession}
+  updateStudySession: {request: StudySessionUpdate, response: StudySession}
+  getLearningPath: {request: none, response: LearningPath}
+  listPracticeSets: {request: none, response: PracticeSetList}
+  createPracticeAttempt: {request: PracticeAttemptStart, response: PracticeAttempt}
+  submitPracticeAnswer: {request: PracticeAnswerInput, response: PracticeAnswerReceipt}
+  submitPracticeAttempt: {request: none, response: PracticeAttempt}
+  getPracticeAttempt: {request: none, response: PracticeAttempt}
+  getReviewQueue: {request: none, response: ReviewQueue}
+  rateReviewItem: {request: ReviewRatingInput, response: ReviewItem}
+  listMyAttempts: {request: none, response: AssessmentHistory}
+  getProgressSummary: {request: none, response: ProgressSummary}
+  searchLearningResources: {request: none, response: SearchResultList}
+  getWritingTask: {request: none, response: WritingTask}
+  saveWritingDraft: {request: WritingDraftInput, response: WritingDraft}
+  createWritingSubmission: {request: WritingSubmissionInput, response: WritingSubmission}
+  getWritingSubmission: {request: none, response: WritingSubmission}
+  getWritingEvaluation: {request: none, response: EvaluationResult}
+  submitWritingFeedback: {request: EvaluationFeedbackInput, response: EvaluationFeedbackReceipt}
+  getPremiumInsights: {request: none, response: InsightList}
+  createDeepFeedback: {request: DeepFeedbackInput, response: AsyncRequest}
+  listMockTests: {request: none, response: MockTestList}
+  startMockTestAttempt: {request: MockAttemptStart, response: PracticeAttempt}
+  listContentItems: {request: none, response: ContentItemList}
+  createContentItem: {request: ContentItemInput, response: ContentItem}
+  getContentItem: {request: none, response: ContentItem}
+  updateContentItem: {request: ContentItemPatch, response: ContentItem}
+  submitContentForReview: {request: LifecycleTransitionInput, response: ContentItem}
+  publishContentItem: {request: LifecycleTransitionInput, response: ContentItem}
+  retireContentItem: {request: LifecycleTransitionInput, response: ContentItem}
+  listContentReports: {request: none, response: ContentReportList}
+  updateContentReport: {request: ContentReportPatch, response: ContentReport}
+  suggestContentTags: {request: TagSuggestionInput, response: AsyncRequest}
+  listAdminUsers: {request: none, response: AdminUserList}
+  setUserStatus: {request: UserStatusInput, response: AdminUser}
+  getSystemConfig: {request: none, response: SystemConfig}
+  putSystemConfig: {request: SystemConfigInput, response: SystemConfig}
+  listAuditRecords: {request: none, response: AuditRecordList}
+  getEvaluationGovernance: {request: none, response: EvaluationGovernanceView}
+  getUsageOverview: {request: none, response: UsageOverview}
+  evaluateReleaseGate: {request: ReleaseGateInput, response: ReleaseGateDecision}
+  getBillingOverview: {request: none, response: BillingOverview}
+  receivePaddleWebhook: {request: BillingWebhookEnvelope, response: WebhookReceipt}
+
+schemas:
+  PublicConfig:
+    required: [locale_default, supported_locales, product_status, api_version]
+    properties:
+      locale_default: string
+      supported_locales: string[]
+      product_status: string
+      api_version: string
+
+  PublicCatalog:
+    required: [exam_modules, skills, capability_refs]
+    properties:
+      exam_modules: [academic, general_training]
+      skills: [listening, reading, writing, speaking]
+      capability_refs: string[]
+
+  PricingView:
+    required: [plans, currency, display_source]
+    properties:
+      plans: PricingPlan[]
+      currency: string
+      display_source: provider_or_config
+  PricingPlan:
+    required: [plan_id, entitlement, display_price]
+    properties: {plan_id: string, entitlement: string, display_price: string}
+
+  Profile:
+    required: [subject_id, role, locale, account_status, version]
+    properties:
+      subject_id: string
+      role: learner|colab|admin
+      locale: string
+      account_status: active|suspended|deletion_pending
+      display_name: string|null
+      version: integer
+  ProfilePatch:
+    required: [version]
+    properties: {display_name: string|null, locale: string|null, version: integer}
+
+  EntitlementSet:
+    required: [subject_id, active_entitlements, source_version, evaluated_at]
+    properties:
+      subject_id: string
+      active_entitlements: string[]
+      source_version: string
+      evaluated_at: timestamp
+
+  ConsentDecision:
+    required: [policy_id, policy_version, decision]
+    properties: {policy_id: string, policy_version: string, decision: consented|declined}
+  ConsentRecord:
+    required: [consent_id, policy_id, policy_version, decision, recorded_at]
+    properties: {consent_id: string, policy_id: string, policy_version: string, decision: consented|declined, recorded_at: timestamp}
+
+  AsyncRequest:
+    required: [request_id, state, created_at]
+    properties: {request_id: string, state: queued|processing|completed|failed, created_at: timestamp}
+
+  LearnerGoalInput:
+    required: [target_band, exam_module, daily_minutes]
+    properties:
+      target_band: half_band_0_9
+      exam_module: academic|general_training
+      exam_date: date|null
+      daily_minutes: integer_5_480
+  LearnerGoal:
+    required: [goal_id, target_band, exam_module, daily_minutes, version]
+    properties:
+      goal_id: string
+      target_band: half_band_0_9
+      exam_module: academic|general_training
+      exam_date: date|null
+      daily_minutes: integer_5_480
+      version: integer
+
+  PlacementStart:
+    required: [configuration_ref, configuration_version]
+    properties: {configuration_ref: string, configuration_version: semver, goal_ref: string|null}
+  PlacementResponseInput:
+    required: [item_ref, item_version, response]
+    properties: {item_ref: string, item_version: string, response: scalar_or_structured_answer, response_time_ms: integer|null}
+  PlacementResponseReceipt:
+    required: [response_id, attempt_id, item_ref, accepted]
+    properties: {response_id: string, attempt_id: string, item_ref: string, accepted: boolean}
+  PlacementAttempt:
+    required: [attempt_id, configuration_ref, configuration_version, state, version]
+    properties:
+      attempt_id: string
+      configuration_ref: string
+      configuration_version: string
+      state: new|in_progress|paused|submitted|diagnosed|insufficient_data
+      result: PlacementResult|null
+      version: integer
+  PlacementResult:
+    required: [score_label, score_scope, calibration_status, confidence_state, termination_reason, evidence_coverage]
+    properties:
+      score_label: diagnostic_estimate
+      score_scope: placement
+      current_band: half_band_0_9|null
+      skill_estimates: SkillEstimateMap
+      calibration_status: provisional|calibrated|unavailable
+      confidence_state: unknown|provisional|stronger_evidence
+      termination_reason: precision_and_coverage_met|max_burden_reached|learner_stopped|insufficient_evidence|invalid_configuration
+      evidence_coverage: EvidenceCoverage
+  SkillEstimateMap:
+    properties: {listening: half_band_0_9|null, reading: half_band_0_9|null, writing: half_band_0_9|null, speaking: half_band_0_9|null}
+  EvidenceCoverage:
+    required: [required_constructs, observed_constructs, missing_constructs, independent_evidence_count]
+    properties: {required_constructs: string[], observed_constructs: string[], missing_constructs: string[], independent_evidence_count: integer}
+
+  CheckInInput:
+    properties: {minutes_available: integer|null, energy: low|normal|high|skipped}
+  DailyPlan:
+    required: [plan_id, plan_version, plan_state, actions, generated_at, expires_at]
+    properties:
+      plan_id: string
+      plan_version: string
+      plan_state: ready|fallback_offered|no_plan|plan_stale|plan_unavailable|plan_replaced
+      actions: DailyAction[]
+      generated_at: timestamp
+      expires_at: timestamp
+  DailyAction:
+    required: [action_id, capability_id, reason_code, estimated_minutes]
+    properties: {action_id: string, capability_id: string, reason_code: string, estimated_minutes: integer}
+  StudySessionStart:
+    required: [plan_id, action_id]
+    properties: {plan_id: string, action_id: string}
+  StudySessionUpdate:
+    required: [state, version]
+    properties: {state: started|paused|completed|abandoned, version: integer}
+  StudySession:
+    required: [session_id, action_id, state, version]
+    properties: {session_id: string, action_id: string, state: started|paused|completed|abandoned, started_at: timestamp, completed_at: timestamp|null, version: integer}
+  LearningPath:
+    required: [path_id, path_version, nodes, evidence_state_version]
+    properties: {path_id: string, path_version: string, nodes: LearningPathNode[], evidence_state_version: string}
+  LearningPathNode:
+    required: [node_id, capability_id, status, reason]
+    properties: {node_id: string, capability_id: string, status: recommended|available|completed, reason: string}
+
+  PracticeSetList: {properties: {items: PracticeSetSummary[], next_cursor: string|null}}
+  PracticeSetSummary:
+    required: [set_id, skill, assessment_modes]
+    properties: {set_id: string, skill: listening|reading|writing|speaking, assessment_modes: string[]}
+  PracticeAttemptStart:
+    required: [set_ref, set_version, assessment_mode]
+    properties: {set_ref: string, set_version: string, assessment_mode: learn|practice|retest|exam_simulation}
+  MockAttemptStart:
+    required: [test_version]
+    properties: {test_version: string}
+  PracticeAnswerInput:
+    required: [item_ref, item_version, answer]
+    properties: {item_ref: string, item_version: string, answer: scalar_or_structured_answer}
+  PracticeAnswerReceipt:
+    required: [answer_id, attempt_id, item_ref, accepted]
+    properties: {answer_id: string, attempt_id: string, item_ref: string, accepted: boolean}
+  PracticeAttempt:
+    required: [attempt_id, assessment_mode, state, exposure_refs, version]
+    properties:
+      attempt_id: string
+      assessment_mode: learn|practice|retest|exam_simulation
+      state: in_progress|submitted|scored|insufficient_evidence|invalid
+      exposure_refs: string[]
+      score_label: exam_simulation_estimate|diagnostic_estimate|null
+      score_scope: string|null
+      version: integer
+
+  ReviewQueue: {properties: {items: ReviewItem[], generated_at: timestamp}}
+  ReviewRatingInput:
+    required: [rating, card_version]
+    properties: {rating: again|hard|good|easy, card_version: integer}
+  ReviewItem:
+    required: [item_id, content_ref, source_evidence_ref, due_at, state]
+    properties: {item_id: string, content_ref: string, source_evidence_ref: string, due_at: timestamp, state: new|learning|review|relearning}
+
+  AssessmentHistory: {properties: {attempts: AttemptSummary[], next_cursor: string|null}}
+  AttemptSummary:
+    required: [attempt_id, score_label, score_scope, assessment_mode, created_at]
+    properties: {attempt_id: string, score_label: official_ielts_score|exam_simulation_estimate|diagnostic_estimate, score_scope: string, assessment_mode: string, band: half_band_0_9|null, created_at: timestamp}
+  ProgressSummary:
+    required: [evidence_updated_at, outcomes]
+    properties: {evidence_updated_at: timestamp, outcomes: ProgressOutcome[]}
+  ProgressOutcome:
+    required: [type, state]
+    properties: {type: error_recurrence|retest|transfer|maintenance|estimate_uncertainty|exam_simulation_stability, state: string, evidence_ref: string|null}
+  SearchResultList: {properties: {items: SearchResult[], next_cursor: string|null}}
+  SearchResult:
+    required: [result_id, type, title]
+    properties: {result_id: string, type: content|question|framework|personal, title: string}
+
+  WritingTask:
+    required: [task_id, task_version, task_type, prompt, lifecycle_state]
+    properties: {task_id: string, task_version: string, task_type: string, prompt: string, lifecycle_state: published|retired}
+  WritingDraftInput:
+    required: [task_ref, task_version, text, version]
+    properties: {task_ref: string, task_version: string, text: string, version: integer}
+  WritingDraft:
+    required: [draft_id, task_ref, task_version, text, version, saved_at]
+    properties: {draft_id: string, task_ref: string, task_version: string, text: string, version: integer, saved_at: timestamp}
+  WritingSubmissionInput:
+    required: [draft_ref, draft_version, task_ref, task_version, assessment_mode]
+    properties: {draft_ref: string, draft_version: integer, task_ref: string, task_version: string, assessment_mode: learn|practice|retest|exam_simulation}
+  WritingSubmission:
+    required: [submission_id, immutable_snapshot_ref, task_ref, task_version, assessment_mode, state, created_at]
+    properties: {submission_id: string, immutable_snapshot_ref: string, task_ref: string, task_version: string, assessment_mode: string, state: submitted|processing|scored|low_confidence|insufficient_evidence|invalid|failed, created_at: timestamp}
+  EvaluationResult:
+    required: [evaluation_id, submission_id, score_label, score_scope, assessment_mode, rubric_version, scorer_route_version, quality_status, criteria, created_at]
+    properties:
+      evaluation_id: string
+      submission_id: string
+      score_label: diagnostic_estimate|exam_simulation_estimate
+      score_scope: string
+      assessment_mode: learn|practice|retest|exam_simulation
+      rubric_version: string
+      scorer_route_version: string
+      model_id: string
+      provider_id: string
+      quality_status: accepted|low_confidence|insufficient_evidence|invalid
+      confidence_state: unknown|provisional|stronger_evidence
+      overall_band: half_band_0_9|null
+      criteria: CriterionResultMap
+      created_at: timestamp
+  CriterionResultMap:
+    properties:
+      task_response: CriterionResult
+      coherence_cohesion: CriterionResult
+      lexical_resource: CriterionResult
+      grammar: CriterionResult
+  CriterionResult:
+    required: [band, evidence_refs]
+    properties: {band: half_band_0_9|null, evidence_refs: string[], issue_refs: string[]}
+  EvaluationFeedbackInput:
+    required: [feedback_type]
+    properties: {feedback_type: helpful|not_helpful|incorrect|unclear, note: string|null}
+  EvaluationFeedbackReceipt: {required: [feedback_id, recorded_at], properties: {feedback_id: string, recorded_at: timestamp}}
+  DeepFeedbackInput: {properties: {focus_criterion: task_response|coherence_cohesion|lexical_resource|grammar|null}}
+  InsightList: {properties: {items: Insight[], generated_from_evidence_version: string}}
+  Insight: {required: [insight_id, reason, action], properties: {insight_id: string, reason: string, action: string}}
+  MockTestList: {properties: {items: MockTestSummary[]}}
+  MockTestSummary: {required: [test_id, test_version, module, skills], properties: {test_id: string, test_version: string, module: academic|general_training, skills: string[]}}
+
+  ContentItemInput:
+    required: [content_type, body, taxonomy_refs]
+    properties: {content_type: string, body: structured_content, taxonomy_refs: string[], provenance_ref: string|null}
+  ContentItemPatch:
+    required: [version]
+    properties: {body: structured_content|null, taxonomy_refs: string[]|null, provenance_ref: string|null, version: integer}
+  ContentItem:
+    required: [item_id, content_type, lifecycle_state, version, taxonomy_refs]
+    properties: {item_id: string, content_type: string, lifecycle_state: draft|in_review|approved|published|retired, version: integer, taxonomy_refs: string[]}
+  ContentItemList: {properties: {items: ContentItem[], next_cursor: string|null}}
+  LifecycleTransitionInput: {required: [expected_version], properties: {expected_version: integer, reason: string|null}}
+  ContentReport:
+    required: [report_id, item_ref, category, state]
+    properties: {report_id: string, item_ref: string, category: wrong_answer|content_error|rights|other, state: open|triaged|resolved|rejected}
+  ContentReportList: {properties: {items: ContentReport[], next_cursor: string|null}}
+  ContentReportPatch: {required: [state], properties: {state: triaged|resolved|rejected, resolution_note: string|null}}
+  TagSuggestionInput: {required: [item_ref, item_version], properties: {item_ref: string, item_version: integer}}
+
+  AdminUser:
+    required: [subject_id, role, account_status]
+    properties: {subject_id: string, role: learner|colab|admin, account_status: active|suspended|deletion_pending, entitlement_summary: string[]}
+  AdminUserList: {properties: {items: AdminUser[], next_cursor: string|null}}
+  UserStatusInput: {required: [status, reason], properties: {status: active|suspended, reason: string}}
+  SystemConfig:
+    required: [config_version, values, updated_at]
+    properties: {config_version: integer, values: governed_config_map, updated_at: timestamp}
+  SystemConfigInput:
+    required: [expected_version, changes]
+    properties: {expected_version: integer, changes: governed_config_map}
+  AuditRecordList: {properties: {items: AuditRecord[], next_cursor: string|null}}
+  AuditRecord:
+    required: [audit_id, action, principal_ref, target_ref, created_at]
+    properties: {audit_id: string, action: string, principal_ref: string, target_ref: string|null, created_at: timestamp}
+  EvaluationGovernanceView:
+    required: [scorer_routes, benchmark_state, quality_slices]
+    properties: {scorer_routes: ScorerRouteState[], benchmark_state: string, quality_slices: governed_aggregate_map}
+  ScorerRouteState: {required: [route_version, state], properties: {route_version: string, state: candidate|approved|retired}}
+  UsageOverview: {required: [window, metrics], properties: {window: string, metrics: provider_neutral_usage_map}}
+  ReleaseGateInput: {required: [candidate_ref, evidence_refs], properties: {candidate_ref: string, evidence_refs: string[]}}
+  ReleaseGateDecision: {required: [decision_id, state, reasons], properties: {decision_id: string, state: pass|block, reasons: string[]}}
+  BillingOverview: {required: [subscription_counts, entitlement_reconciliation_state], properties: {subscription_counts: aggregate_map, entitlement_reconciliation_state: healthy|degraded|unknown}}
+  BillingWebhookEnvelope:
+    required: [event_id, occurred_at, event_type, data]
+    properties: {event_id: string, occurred_at: timestamp, event_type: string, data: provider_payload_normalized_after_signature_verification}
+  WebhookReceipt: {required: [event_id, disposition], properties: {event_id: string, disposition: applied|duplicate|ignored_stale|reconcile_required}}
