@@ -17,6 +17,8 @@ aliases:
   semver: {type: string, pattern: '^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$'}
   half_band_0_9: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
   integer_5_480: {type: integer, minimum: 5, maximum: 480}
+  diagnostic_estimate: {type: string, const: diagnostic_estimate}
+  placement: {type: string, const: placement}
   scalar_or_structured_answer:
     oneOf: [{type: string}, {type: number}, {type: boolean}, {type: array, items: {type: string}}, {type: object, additionalProperties: true}]
   structured_content:
@@ -59,6 +61,8 @@ compiler_rules:
   - pipe_union_of_literals_becomes_enum
   - null_in_a_union_becomes_json_schema_null
   - every_single_token_type_must_be_a_primitive_alias_or_declared_schema
+  - semantic_singletons_must_be_explicit_const_aliases
   - unknown_type_tokens_fail_ci
   - object_schemas_reject_unknown_properties_unless_the_alias_explicitly_allows_them
+  - every_non_204_success_response_is_bound_to_the_operation_response_schema
   - resolved_openapi_is_the_only_codegen_input
