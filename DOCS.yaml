@@ -134,36 +134,71 @@ legacy_aliases:
   artifacts/engineering/contracts/openapi.yaml:
     canonical: artifacts/engineering/api/openapi.yaml
     status: migration_only
+    authority_state: historical
+    retrieval_state: referenced_only
+    default_context_visibility: false
+    removal_condition: zero_authoritative_and_executable_consumers_after_legacy_traceability_review
   artifacts/engineering/contracts/writing-task-2/openapi.yaml:
     canonical: artifacts/engineering/api/openapi.yaml
     status: migration_only
+    authority_state: historical
+    retrieval_state: referenced_only
+    default_context_visibility: false
+    removal_condition: zero_authoritative_and_executable_consumers_after_legacy_traceability_review
   artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md:
     canonical: artifacts/engineering/api/README.md
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/engineering/contracts/runtime/async-job-worker-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/engineering/contracts/runtime/cache-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/engineering/contracts/runtime/cloud-topology-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/operations/bops-contract-pack.md:
     canonical: artifacts/operations/bops/contract.yaml
     status: migration_only
+    authority_state: historical
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/business/decisions/build-buy-register.md:
     canonical: artifacts/business/decisions/platform-sourcing.md
     status: historical_input
+    authority_state: historical
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/business/decisions/managed-platform-baseline-decision.md:
     canonical: artifacts/business/decisions/platform-sourcing.md
     status: superseded_candidate_baseline
+    authority_state: historical
+    retrieval_state: referenced_only
+    default_context_visibility: false
   artifacts/engineering/technology-stack-recommendations.md:
     canonical: artifacts/business/decisions/platform-sourcing.md
     status: compatibility_pointer
+    authority_state: transitional
+    retrieval_state: referenced_only
+    default_context_visibility: false
 
 agent_rules:
   - Never resolve authority by newest-looking filename.
