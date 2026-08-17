@@ -1,6 +1,6 @@
 type: daily-action-contract
 status: review
-version: 0.2.0
+version: 0.3.0
 owner: engineering
 representation: markdown
 derived_from:
@@ -12,7 +12,31 @@ derived_from:
 purpose: p0-daily-action-runtime-contract
 created_at: 2026-08-07
 updated_at: 2026-08-17
+decision_units:
+  - unit_id: daily_action.evidence_assembly
+    capability_ids: [STUDY.DailyPlan, PERSONAL.NextBestAction]
+    purpose: assemble versioned learner-owned facts eligible for plan computation
+  - unit_id: daily_action.weakness_eligibility
+    capability_ids: [PERSONAL.NextBestAction]
+    purpose: determine whether independent evidence supports weakness routing
+  - unit_id: daily_action.priority_ranking
+    capability_ids: [STUDY.DailyPlan, PERSONAL.NextBestAction]
+    purpose: rank eligible actions under coverage overload continuity and goal constraints
+  - unit_id: daily_action.action_selection
+    capability_ids: [STUDY.DailyPlan, PERSONAL.NextBestAction]
+    purpose: choose the bounded next action set from ranked eligible actions
+  - unit_id: daily_action.reason_fact
+    capability_ids: [STUDY.DailyPlan, PERSONAL.NextBestAction]
+    purpose: produce controlled reason codes and supporting references for the selected action
+  - unit_id: daily_action.presentation_wording
+    capability_ids: [STUDY.DailyPlan]
+    purpose: render learner-facing wording without changing selected action facts or reason codes
 change_log:
+  - version: 0.3.0
+    date: 2026-08-17
+    changes:
+      - Added stable decision-unit identities so compute policy can project exact bindings without owning Daily Action semantics.
+      - Preserved P0 deterministic routing and separated authoritative reason facts from presentation wording.
   - version: 0.2.0
     date: 2026-08-17
     changes:
