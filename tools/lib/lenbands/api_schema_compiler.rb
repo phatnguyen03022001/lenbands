@@ -114,6 +114,7 @@ module Lenbands
       resolved["components"] ||= {}
       resolved["components"]["schemas"] ||= {}
       resolved["components"]["schemas"].merge!(compiled)
+
       idempotency_schema = transport["idempotency_key"]
       if idempotency_schema.is_a?(Hash)
         resolved["components"]["parameters"] ||= {}
@@ -149,7 +150,10 @@ module Lenbands
           if request_name == "none"
             operation.delete("requestBody")
           elsif compiled.key?(request_name)
-            operation["requestBody"] = {"required" => true, "content" => {"application/json" => {"schema" => {"$ref" => "#/components/schemas/#{request_name}"}}}}
+            operation["requestBody"] = {
+              "required" => true,
+              "content" => {"application/json" => {"schema" => {"$ref" => "#/components/schemas/#{request_name}"}}}
+            }
           else
             errors << "#{op_id}: request schema #{request_name.inspect} is not compiled"
           end
@@ -159,8 +163,8 @@ module Lenbands
             errors << "#{op_id}: responses must be a mapping"
             next
           end
-          success_code = responses.keys.find { |code| code.to_s.match?(/\A2\d\d\z/) }
-          unless success_code
+          success_codes = responses.keys.select { |code| code.to_s.match?(/\A2\d\d\z/) }
+          if success_codes.empty?
             errors << "#{op_id}: no success response"
             next
           end
@@ -168,7 +172,17 @@ module Lenbands
             errors << "#{op_id}: response schema #{response_name.inspect} is not compiled"
             next
           end
-          responses[success_code] = {"description" => "Success", "content" => {"application/json" => {"schema" => {"$ref" => "#/components/schemas/#{response_name}"}}}}
+          success_codes.each do |success_code|
+            if success_code.to_s == "204"
+              responses[success_code] = {"description" => "Success with no response body"}
+            else
+              responses[success_code] = {
+                "description" => "Success",
+                "content" => {"application/json" => {"schema" => {"$ref" => "#/components/schemas/#{response_name}"}}}
+              }
+            end
+          end
+
           operation["x-lenbands-schema-contract"] = {"request" => request_name, "response" => response_name}
           if path.start_with?("/v1/webhooks/")
             operation["x-signature-input"] = transport["webhook_signature_input"]
@@ -207,16 +221,26 @@ module Lenbands
             expected = "#/components/schemas/#{contract['request']}"
             errors << "#{op_id}: resolved request ref #{ref.inspect} != #{expected}" unless ref == expected
           end
+
           responses = operation["responses"] || {}
-          success_code = responses.keys.find { |code| code.to_s.match?(/\A2\d\d\z/) }
-          ref = responses.dig(success_code, "content", "application/json", "schema", "$ref") if success_code
+          success_codes = responses.keys.select { |code| code.to_s.match?(/\A2\d\d\z/) }
+          errors << "#{op_id}: resolved operation has no success response" if success_codes.empty?
           expected = "#/components/schemas/#{contract['response']}"
-          errors << "#{op_id}: resolved response ref #{ref.inspect} != #{expected}" unless ref == expected
+          success_codes.each do |success_code|
+            if success_code.to_s == "204"
+              errors << "#{op_id}: 204 response must not carry content" if responses.dig(success_code, "content")
+              next
+            end
+            ref = responses.dig(success_code, "content", "application/json", "schema", "$ref")
+            errors << "#{op_id}: resolved response #{success_code} ref #{ref.inspect} != #{expected}" unless ref == expected
+          end
+
           if path.start_with?("/v1/webhooks/")
             errors << "#{op_id}: webhook signature must bind raw request body" unless operation["x-signature-input"] == "raw_request_body"
           end
         end
       end
+
       serialized = openapi.to_s
       errors << "resolved OpenAPI still references generic JsonObject" if serialized.include?("#/components/schemas/JsonObject") || serialized.include?("#/components/requestBodies/JsonObject")
       GENERIC_RESPONSES.each { |name| errors << "resolved OpenAPI still references generic response #{name}" if serialized.include?("#/components/responses/#{name}") }
