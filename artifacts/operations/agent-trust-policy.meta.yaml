@@ -1,10 +1,10 @@
 type: agent-trust-policy
 status: review
-version: 0.7.1
+version: 0.8.0
 owner: founder + engineering + operations
 representation: yaml
-derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
-purpose: prevent-silent-agent-bypass-of-authority-validators-gates-evidence-and-claude-project-controls
+derived_from: [OPS.ReleaseGate, OPS.Observability, OPS.ModelRouting, GOVERNANCE.AuditTrail]
+purpose: prevent-silent-agent-bypass-of-authority-validators-gates-evidence-compute-boundaries-and-claude-project-controls
 consumed_by: [all-agents, engineering, operations, ci]
 created_at: 2026-08-07
 updated_at: 2026-08-17
@@ -28,3 +28,9 @@ change_log:
       - Delegated candidate declaration and external authorization semantics to change-governance.yaml.
       - Delegated observed host-control truth to hosting-control-state.yaml; desired controls are not evidence of enforcement.
       - Marked the historical all-application source lock explicitly as non-authoritative fail-closed compatibility while family/exact-SHA authorization remains canonical.
+  - version: 0.8.0
+    date: 2026-08-17
+    changes:
+      - Protected the non-authoritative execution-policy projection and its validator.
+      - Added fail-closed anti-substitution, evidence-provenance and deterministic-domain-acceptance invariants for probabilistic execution.
+      - Required compute-boundary and implementation-eligibility validators in repository verification.
