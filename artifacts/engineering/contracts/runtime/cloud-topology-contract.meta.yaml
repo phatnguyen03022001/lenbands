@@ -1,0 +1,14 @@
+type: runtime-topology-compatibility-projection
+status: review
+version: 1.0.0
+owner: engineering + security
+representation: markdown
+derived_from: [OPS.RuntimeContract, OPS.PlatformSourcing]
+purpose: compatibility-projection-of-runtime-trust-zones-without-owning-provider-or-service-topology
+consumed_by: [engineering, validators]
+created_at: 2026-08-17
+updated_at: 2026-08-17
+authority_state: transitional
+retrieval_state: referenced_only
+default_context_visibility: false
+canonical_document: artifacts/engineering/runtime-contract.yaml
