@@ -2,16 +2,17 @@
 
 Canonical metadata is in the sibling `placement-diagnosis-contract.meta.yaml`.
 
-Minimum contract for P0-02: goal, placement attempt, provisional diagnosis, and initial path. This is a contract candidate in `review`; no calibration run exists, so it must not be understood as an official IELTS score or build-ready.
+Minimum contract for P0-02: goal, placement attempt, provisional diagnosis, and initial path. This artifact is in `review`; no calibration run exists, so it must not be understood as an official IELTS score or production-ready measurement system.
 
 ## Boundary and ownership
 
-- `LearnerGoal` is owned by the authenticated learner; placement service reads only that learner's goal.
-- `PlacementAttempt` is written by placement service; retry uses an idempotency key and does not create a duplicate attempt.
-- `PlacementResult` is written by diagnosis service; the result always has `configuration_version`, `calibration_status`, `confidence`, `provisional`, evidence coverage, and termination reason.
-- `InitialPath` is created by plan service from the persisted goal + gap; do not infer it when data is missing.
-- Consent must be `consented` before processing responses; the auth/consent boundary references `auth-identity-contract.md`.
-- Placement output is a **diagnostic estimate**. It is not an official IELTS result, and it must remain distinguishable from a complete exam-simulation estimate and from learner-model mastery.
+- `LearnerGoal` is owned by the authenticated learner; Placement reads only that learner's goal.
+- `PlacementAttempt` is canonical placement state; retries are idempotent and do not create duplicate attempts.
+- `PlacementResult` records configuration version, calibration status, confidence state, evidence coverage, scope and termination reason.
+- `InitialPath` is derived from persisted goal + valid gap facts; do not infer it when required data is missing.
+- Consent must permit processing before responses are evaluated.
+- Placement output is a **diagnostic estimate**, distinct from an official IELTS result, complete exam-simulation estimate, or learner-model mastery.
+- Stable compute decision units are declared in `placement-diagnosis-contract.meta.yaml`; the execution-policy projection cannot create Placement semantics.
 
 ## Data contract
 
@@ -57,9 +58,9 @@ placement_result:
   created_at: timestamp
 ```
 
-`answer_refs` is only a reference to learner-owned storage; do not put response text into analytics events. `current_band: null` when evidence is insufficient, the configuration is invalid, or the configured policy does not permit a defensible aggregate estimate.
+`answer_refs` points to learner-owned assessment storage; raw response text does not enter general analytics events. `current_band` is `null` when evidence is insufficient, the configuration is invalid, or the configured policy cannot support the declared estimate scope.
 
-`confidence` is an internal model/policy output. It must not be displayed as a probability that the band is correct unless that interpretation has been empirically calibrated. Learner-facing language uses the governed confidence state and evidence scope.
+`confidence` is an internal measurement/policy signal. It must not be presented as the probability that a band is correct unless an explicit calibration study validates that interpretation.
 
 ## Placement measurement policy
 
@@ -67,68 +68,71 @@ placement_result:
 
 Every published placement configuration has a versioned blueprint declaring the constructs/content families it intends to sample. A placement may not claim whole-test diagnostic coverage from a narrow subset without an explicit scope label.
 
-For each result:
-
 - required constructs come from the published configuration;
-- observed constructs are derived only from valid learner responses;
+- observed constructs derive only from valid learner responses;
 - repeated exposure to the same item does not create independent evidence;
-- an item recently shown with its answer/explanation cannot be counted as fresh transfer evidence;
+- an item recently shown with its answer/explanation does not count as fresh transfer evidence;
 - missing required constructs remain visible in `evidence_coverage`.
 
 ### Termination
 
-Placement termination is explicit rather than implied by item count.
+1. `precision_and_coverage_met` — only when the versioned coverage policy and founder-approved evidence/precision policy are satisfied.
+2. `max_burden_reached` — burden limit reached before sufficient evidence; this never forces a numeric band.
+3. `learner_stopped` — preserve progress and explain that the result may be unavailable or narrower in scope.
+4. `insufficient_evidence` — return `current_band: null` when available evidence cannot support the configured estimate.
+5. `invalid_configuration` — fail closed.
 
-1. `precision_and_coverage_met` — only when the versioned coverage policy and founder-approved precision/evidence policy are both satisfied.
-2. `max_burden_reached` — configured item/time burden reached before sufficient evidence; this does **not** automatically justify a numeric band.
-3. `learner_stopped` — preserve progress and explain that the estimate may be unavailable or narrower in scope.
-4. `insufficient_evidence` — return `current_band: null` when the available evidence cannot support the configured estimate.
-5. `invalid_configuration` — fail closed; do not diagnose from an invalid or unpublished configuration.
+No numeric precision threshold is active until calibration evidence and an approved policy exist.
 
-No numeric precision threshold is active until calibration evidence and a founder-approved policy exist.
+### P0 compute boundary
 
-### Adaptive selection boundary
+P0 uses deterministic item selection, response-fact scoring where objective keys/rules exist, stopping logic, bounded provisional mapping, gap derivation and initial-path selection.
 
-Computer-adaptive placement requires more than choosing an easier/harder next item. A future calibrated adaptive policy must define:
+```text
+published configuration + canonical response facts
+  -> deterministic item/scoring/coverage rules
+  -> deterministic stopping decision
+  -> bounded provisional diagnostic mapping
+  -> deterministic gap derivation
+  -> deterministic initial-path policy
+```
 
-- construct/content balancing;
-- item-selection or information criterion;
-- item exposure control;
-- stopping/precision rule;
-- maximum learner burden;
-- calibration/version provenance.
+A future computer-adaptive/statistical placement mode must define construct balancing, item-information/selection criterion, exposure control, stopping/precision rule, maximum burden, parameter calibration and validation provenance. It is a governed compute-mode change, not an implementation optimization. Until such evidence exists, P0 does not claim CAT-level precision.
 
-Until calibrated item parameters and validation evidence exist, P0 uses an auditable fixed or deterministic rule-based blueprint. It must not claim CAT-level measurement precision.
+## Canonical API surface
 
-## Selected logical API surface (OpenAPI candidate)
+HTTP transport is owned solely by `artifacts/engineering/api/openapi.yaml`; this contract does not define a competing endpoint design.
 
-Per the API ownership contract (`api-ownership-bff-contract.md:18-23`), `writing-task-2/openapi.yaml` (v0.5.0, review) is the selected logical candidate surface for the P0 loop; the root `contracts/openapi.yaml` is the selected logical identity surface. One unified canonical OpenAPI authority does not yet exist, and neither live spec alone is a complete build input. The three OpenAPI endpoints below are the candidate P0-02 paths:
-- `POST /v1/placement` (operationId `startPlacement`) — creates a placement attempt with optional `goal_ref`; captures GOAL.Target + PLACE.Test
-- `POST /v1/placement/{attemptId}/responses` (operationId `submitPlacementResponse`) — submits one item response
-- `GET /v1/placement/{attemptId}` (operationId `getPlacementAttempt`) — returns `PlacementAttempt` (state, module, `result_ref`). PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, and BAND.Current are internal-command/event-projection capabilities surfaced via this endpoint per `transport-classification.yaml`
+Current Placement operations are:
 
-The API table in this contract (§ API and idempotency) uses a different path/method design (`/v1/placement/attempts`, `PUT .../{attemptId}`, `POST .../submit`, `GET /v1/placement/results/{attemptId}`) that does not match the OpenAPI. This is an identified/triaged, unresolved, implementation-blocked conflict; it does not create a second canonical authority. The smallest safe resolution aligns this contract's API table to the OpenAPI candidate paths — the OpenAPI is the selected logical candidate surface per the ownership contract. Until reconciled, both document sets are live; neither may be treated as the sole build input. See `artifacts/engineering/decisions/openapi-unification-review-packet.md` for the complete P0-02 conflict matrix.
-
-## API and idempotency
-
-| Operation | Owner | Rule |
+| Operation | operationId | Domain rule |
 |---|---|---|
-| `POST /v1/placement/attempts` | placement service | `Idempotency-Key` required; configuration must be `published` |
-| `PUT /v1/placement/attempts/{attemptId}` | placement service | optimistic `version`; owner read/write only |
-| `POST /v1/placement/attempts/{attemptId}/submit` | placement service | submit once; retry returns the same result/job |
-| `GET /v1/placement/results/{attemptId}` | diagnosis service | return only the learner's result; scope/provisional/confidence state must be displayed |
+| `POST /v1/placement` | `startPlacement` | idempotently create a versioned placement attempt from a published configuration |
+| `POST /v1/placement/{attemptId}/responses` | `submitPlacementResponse` | submit one response to the learner-owned attempt |
+| `POST /v1/placement/{attemptId}/submit` | `submitPlacement` | finish diagnosis or return an explicit insufficient-evidence state |
+| `GET /v1/placement/{attemptId}` | `getPlacementAttempt` | return the learner's placement attempt and diagnostic state |
+
+All operations are owned by `PLACEMENT.Diagnosis` in the canonical operation-ownership registry. `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis` and `BAND.Current` remain domain decision/projection capabilities and do not require duplicate HTTP endpoints merely to exist.
+
+Any transport change must start at the canonical API authority; this contract follows that owner.
 
 ## Events and failure
 
-Canonical owned events: `placement_started`, `placement_completed`, `goal_set`. Placement emits `placement_completed`; the P0-03 plan service consumes that event and owns `daily_plan_generated`. Do not allow the SPA to emit analytics directly. Events contain only refs, status, coverage/confidence class, and termination reason; no raw answers.
+Canonical owned events: `placement_started`, `placement_completed`, `goal_set`. Placement emits `placement_completed`; Daily Action consumes canonical placement/goal facts to compute a plan. Events contain only refs, status, coverage/confidence class and termination reason; no raw answers.
 
 | Failure | Persisted state | Learner behavior |
 |---|---|---|
-| No published configuration | `placement_ready` | retry/contact; do not generate a random task |
-| Insufficient response signal | `insufficient_data` | explain missing evidence/section and allow retry |
-| Required coverage missing at max burden | `insufficient_data` | do not fabricate an aggregate band; offer a targeted continuation |
-| Stale version/conflict | unchanged | reload latest attempt, do not overwrite |
-| Consent/auth unavailable | unchanged | deny-by-default; return to consent/auth |
+| No published configuration | unchanged/not-started | retry/contact; do not generate a random task |
+| Insufficient response signal | `insufficient_data` | explain missing evidence/section and allow continuation/retry |
+| Required coverage missing at max burden | `insufficient_data` | do not fabricate an aggregate band |
+| Stale version/conflict | unchanged | reload latest attempt; do not overwrite |
+| Consent/auth unavailable | unchanged | deny-by-default |
+
+## Sufficiency and future mode changes
+
+The current deterministic P0 mode is sufficient only for its declared **provisional diagnostic scope**. It is not evidence that deterministic rules can support future high-precision adaptive measurement.
+
+A compute-mode promotion from deterministic to statistical/optimization requires evidence that the current mode fails a declared measurement/outcome contract and that the proposed estimator satisfies quality, burden, latency, privacy and calibration requirements. A generative model is not a default replacement for a calibrated statistical estimator.
 
 ## Acceptance and evidence gap
 
@@ -136,12 +140,16 @@ Canonical owned events: `placement_started`, `placement_completed`, `goal_set`. 
 - [ ] Result always records configuration/calibration version.
 - [ ] Result records scope, termination reason, evidence coverage, and confidence state.
 - [ ] Repeated/revealed items do not increase independent-evidence count.
-- [ ] Missing required coverage can terminate as `insufficient_data`; max burden alone never forces a numeric estimate.
-- [ ] No real placement calibration run exists; the founder must provide evidence before moving the artifact to `approved`/`ready`.
+- [ ] Missing coverage can terminate as `insufficient_data`; max burden alone never forces a numeric estimate.
+- [ ] No real placement calibration run exists; evidence is required before the artifact becomes approved/ready.
 
 ## References
 
-- `blueprint/03-features.md` — P0-02 Diagnosis.
-- `blueprint/08-roadmap.md` — P0 closed pilot.
+- `blueprint/03-features.md` — capability meaning.
+- `blueprint/06-engines.md` — compute boundary.
+- `artifacts/operations/execution-policy.yaml` — non-authoritative compute projection.
+- `artifacts/engineering/api/openapi.yaml` — canonical HTTP transport.
+- `artifacts/engineering/api/operation-ownership.yaml` — operation family ownership.
+- `blueprint/08-roadmap.md` — P0 scope.
 - `artifacts/engineering/contracts/runtime/auth-identity-contract.md`.
-- `artifacts/experience/research/learning-assessment-experience-audit.md` — evidence-informed placement/measurement constraints; not scoring authority.
+- `artifacts/experience/research/learning-assessment-experience-audit.md` — research input, not scoring authority.
