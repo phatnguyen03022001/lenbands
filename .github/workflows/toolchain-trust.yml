@@ -12,12 +12,17 @@ jobs:
   verify-trust-boundary:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       # actions/checkout v7.0.1; pin full verified commit to prevent tag movement.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
+          ref: ${{ env.CANDIDATE_SHA }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Verify exact candidate checkout
+        run: test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
       - name: Install declared toolchain prerequisites
         run: sudo apt-get update && sudo apt-get install -y ruby-full ripgrep
       - name: Doctor
@@ -33,6 +38,6 @@ jobs:
           if ! git cat-file -e "${BASE_SHA}^{commit}"; then
             BASE_SHA="$(git rev-list --max-parents=0 HEAD)"
           fi
-          git diff --name-status "$BASE_SHA" "$GITHUB_SHA" > /tmp/lenbands-change-set.txt
+          git diff --name-status "$BASE_SHA" "$CANDIDATE_SHA" > /tmp/lenbands-change-set.txt
       - name: Enforce protected paths, append-only evidence and attestation
         run: tools/bin/lenbands validate trust-boundary --diff /tmp/lenbands-change-set.txt
