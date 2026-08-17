@@ -3,7 +3,7 @@ status: review
 version: 1.0.0
 owner: engineering + security
 representation: markdown
-derived_from: [OPS.RuntimeContract, OPS.PlatformSourcing]
+derived_from: [OPS.Observability, OPS.ReleaseGate, EVAL.Writing]
 purpose: compatibility-projection-of-runtime-trust-zones-without-owning-provider-or-service-topology
 consumed_by: [engineering, validators]
 created_at: 2026-08-17
