@@ -36,6 +36,12 @@ Do **not** scan the repository before reading `DOCS.yaml`. Do **not** resolve au
 
 Legacy OpenAPI/BOPS/build-buy documents exist only for migration and traceability. Their status is declared in `DOCS.yaml`; they must not become a second authority.
 
+## Framework compatibility projection
+
+Current compatibility projection: **Framework IELTS v1.0.6**.
+
+This line exists only because the bounded-contributor validator still checks the agent entrypoint during migration. The authoritative Framework version remains `blueprint/framework/README.md`; agents must not use this projection to resolve a conflict. The projection is removed when that validator is migrated to `DOCS.yaml`/Framework metadata.
+
 ## Protected change workflow
 
 For a protected change:
