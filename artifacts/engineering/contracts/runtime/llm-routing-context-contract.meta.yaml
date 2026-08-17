@@ -1,6 +1,6 @@
 type: probabilistic-inference-routing-contract
 status: review
-version: 0.2.0
+version: 0.2.1
 owner: engineering + governance
 representation: markdown
 derived_from: [EVAL.Writing, COACH.Feedback, GOVERNANCE.ConfidenceScore, OPS.ModelRouting, OPS.CostBudget]
@@ -8,6 +8,11 @@ purpose: p0-writing-probabilistic-inference-context-provenance-and-fallback-sema
 created_at: 2026-08-06
 updated_at: 2026-08-17
 change_log:
+  - version: 0.2.1
+    date: 2026-08-17
+    changes:
+      - Made P0 learner-facing explanation rendering deterministic because structured accepted facts satisfy the P0 presentation outcome without another probabilistic decision.
+      - Kept future generative wording as an optional governed compute-mode change rather than implicit reuse of scorer wording.
   - version: 0.2.0
     date: 2026-08-17
     changes:
