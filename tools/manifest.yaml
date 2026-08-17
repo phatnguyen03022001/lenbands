@@ -3,10 +3,7 @@ tools:
   doctor:
     type: utility
     entrypoint: tools/commands/doctor.rb
-    consumes:
-      - tools/toolchain.yaml
-      - tools/manifest.yaml
-      - artifacts/operations/domain-automation-contract.yaml
+    consumes: [tools/toolchain.yaml, tools/manifest.yaml, artifacts/operations/domain-automation-contract.yaml]
     produces: []
     invalidates: []
     depends_on: []
@@ -14,11 +11,7 @@ tools:
   context:
     type: utility
     entrypoint: tools/commands/context.rb
-    consumes:
-      - blueprint/framework/README.md
-      - artifacts/operations/capability-manifest.yaml
-      - artifacts/operations/domain-automation-contract.yaml
-      - artifacts/operations/agent-trust-policy.yaml
+    consumes: [DOCS.yaml, artifacts/operations/capability-manifest.yaml, artifacts/operations/domain-automation-contract.yaml, artifacts/operations/agent-trust-policy.yaml]
     produces: []
     invalidates: []
     depends_on: []
@@ -44,203 +37,173 @@ tools:
 
   generate-capability-index:
     type: generator
-    consumes:
-      - blueprint/03-features.md
-    produces:
-      - artifacts/operations/catalogs/capability-index.md
-    invalidates:
-      - artifacts/operations/catalogs/capability-index.md
+    consumes: [blueprint/03-features.md]
+    produces: [artifacts/operations/catalogs/capability-index.md]
+    invalidates: [artifacts/operations/catalogs/capability-index.md]
     depends_on: []
 
   generate-lifecycle-registry:
     type: generator
-    consumes:
-      - artifacts/operations/capability-family-map.yaml
-      - artifacts/operations/catalogs/capability-phase-index.md
-    produces:
-      - artifacts/operations/capability-lifecycle-registry.yaml
-    invalidates:
-      - artifacts/operations/capability-lifecycle-registry.yaml
-    depends_on:
-      - generate-capability-index
+    consumes: [artifacts/operations/capability-family-map.yaml, artifacts/operations/catalogs/capability-phase-index.md]
+    produces: [artifacts/operations/capability-lifecycle-registry.yaml]
+    invalidates: [artifacts/operations/capability-lifecycle-registry.yaml]
+    depends_on: [generate-capability-index]
 
   generate-operational-coverage:
     type: generator
-    consumes:
-      - artifacts/operations/capability-family-map.yaml
-      - artifacts/operations/capability-family-registry.yaml
-    produces:
-      - artifacts/operations/generated/operationalization-matrix.md
-      - artifacts/operations/generated/runtime-coverage.md
-    invalidates:
-      - artifacts/operations/generated/operationalization-matrix.md
-      - artifacts/operations/generated/runtime-coverage.md
-    depends_on:
-      - generate-lifecycle-registry
+    consumes: [artifacts/operations/capability-family-map.yaml, artifacts/operations/capability-family-registry.yaml]
+    produces: [artifacts/operations/generated/operationalization-matrix.md, artifacts/operations/generated/runtime-coverage.md]
+    invalidates: [artifacts/operations/generated/operationalization-matrix.md, artifacts/operations/generated/runtime-coverage.md]
+    depends_on: [generate-lifecycle-registry]
 
   generate-repository-baseline:
     type: generator
-    consumes:
-      - artifacts/operations/capability-family-map.yaml
-      - artifacts/operations/catalogs/capability-index.md
-      - artifacts/operations/catalogs/capability-phase-index.md
-    produces:
-      - artifacts/operations/baseline/capability-baseline.md
-      - artifacts/operations/baseline/artifact-coverage-baseline.md
-    invalidates:
-      - artifacts/operations/baseline/
-    depends_on:
-      - generate-lifecycle-registry
+    consumes: [artifacts/operations/capability-family-map.yaml, artifacts/operations/catalogs/capability-index.md, artifacts/operations/catalogs/capability-phase-index.md]
+    produces: [artifacts/operations/baseline/capability-baseline.md, artifacts/operations/baseline/artifact-coverage-baseline.md]
+    invalidates: [artifacts/operations/baseline/]
+    depends_on: [generate-lifecycle-registry]
+
+  generate-canonical-web-api:
+    type: generator
+    entrypoint: tools/commands/generate/canonical-web-api.rb
+    consumes: [artifacts/engineering/api/openapi.yaml, artifacts/engineering/api/schema-contract.yaml, artifacts/engineering/api/type-system.yaml]
+    produces: []
+    invalidates: []
+    depends_on: []
 
   validate-implementation-catalog:
     type: validator
-    consumes:
-      - artifacts/operations/capability-family-map.yaml
-      - artifacts/operations/capability-family-registry.yaml
-      - artifacts/operations/catalogs/capability-index.md
-      - artifacts/operations/generated/operationalization-matrix.md
+    consumes: [artifacts/operations/capability-family-map.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/operations/catalogs/capability-index.md, artifacts/operations/generated/operationalization-matrix.md, artifacts/operations/implementation-eligibility.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - generate-operational-coverage
-      - generate-repository-baseline
+    depends_on: [generate-operational-coverage, generate-repository-baseline, validate-implementation-eligibility]
 
   validate-documents:
     type: validator
     entrypoint: tools/commands/validate/documents.rb
-    consumes:
-      - blueprint/03-features.md
-      - artifacts/**/*.md
-      - artifacts/**/*.meta.yaml
+    consumes: [DOCS.yaml, blueprint/03-features.md, artifacts/**/*.md, artifacts/**/*.meta.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-openapi
-      - validate-framework
-      - validate-semantic-contracts
+    depends_on: [validate-openapi, validate-framework, validate-semantic-contracts]
 
   validate-openapi:
     type: validator
-    consumes:
-      - artifacts/engineering/contracts/**/openapi.yaml
+    entrypoint: tools/commands/validate/openapi.sh
+    consumes: [DOCS.yaml, artifacts/engineering/api/openapi.yaml, artifacts/engineering/api/schema-contract.yaml, artifacts/engineering/api/type-system.yaml, artifacts/engineering/api/operation-ownership.yaml]
     produces: []
     invalidates: []
-    depends_on: []
+    depends_on: [generate-canonical-web-api]
 
   validate-framework:
     type: validator
-    consumes:
-      - blueprint/framework/*.md
-      - blueprint/03-features.md
-      - blueprint/07-conventions.md
+    consumes: [blueprint/framework/*.md, blueprint/03-features.md, blueprint/07-conventions.md]
     produces: []
     invalidates: []
     depends_on: []
 
+  validate-framework-remediation:
+    type: validator
+    entrypoint: tools/commands/validate/framework-remediation.rb
+    consumes: [blueprint/framework/error-taxonomy.md, blueprint/framework/microskill-enum.md, blueprint/framework/review-mapping.md, artifacts/operations/review-remediation-dispositions.yaml]
+    produces: []
+    invalidates: []
+    depends_on: [validate-framework]
+
   validate-knowledge-assets:
     type: validator
-    consumes:
-      - knowledge-assets/**/*.md
-      - knowledge-assets/**/*.meta.yaml
-      - blueprint/framework/*.md
+    consumes: [knowledge-assets/**/*.md, knowledge-assets/**/*.meta.yaml, blueprint/framework/*.md]
     produces: []
     invalidates: []
     depends_on: []
 
   validate-benchmark-contracts:
     type: validator
-    consumes:
-      - artifacts/operations/benchmark/*.yaml
-      - artifacts/operations/acceptance/*.yaml
+    consumes: [artifacts/operations/benchmark/*.yaml, artifacts/operations/acceptance/*.yaml, artifacts/operations/evidence-integrity.yaml]
+    produces: []
+    invalidates: []
+    depends_on: []
+
+  validate-evidence-integrity:
+    type: validator
+    entrypoint: tools/commands/validate/evidence-integrity.rb
+    consumes: [artifacts/operations/evidence-integrity.yaml, artifacts/operations/acceptance/p0-acceptance-manifest.yaml, artifacts/operations/benchmark/gold-corpus-manifest.yaml, artifacts/operations/benchmark/numeric-threshold-policy.yaml, tools/commands/run/p0-acceptance.rb, tools/commands/run/writing-benchmark.rb]
+    produces: []
+    invalidates: []
+    depends_on: [validate-benchmark-contracts]
+
+  validate-data-governance:
+    type: validator
+    entrypoint: tools/commands/validate/data-governance.rb
+    consumes: [artifacts/operations/data-retention-registry.yaml, artifacts/operations/bops/contract.yaml, artifacts/engineering/api/schema-contract.yaml, artifacts/engineering/contracts/events/event-schema-pack.md]
+    produces: []
+    invalidates: []
+    depends_on: []
+
+  validate-failure-registry:
+    type: validator
+    entrypoint: tools/commands/validate/failure-registry.rb
+    consumes: [artifacts/engineering/contracts/runtime/failure-taxonomy-contract.md, artifacts/engineering/api/type-system.yaml, artifacts/engineering/api/openapi.yaml]
+    produces: []
+    invalidates: []
+    depends_on: [validate-openapi]
+
+  validate-implementation-eligibility:
+    type: validator
+    entrypoint: tools/commands/validate/implementation-eligibility.rb
+    consumes: [artifacts/operations/implementation-eligibility.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/operations/promotion-policy.yaml]
     produces: []
     invalidates: []
     depends_on: []
 
   validate-semantic-contracts:
     type: validator
-    consumes:
-      - blueprint/03-features.md
-      - artifacts/engineering/contracts/**/*
-      - artifacts/operations/capability-manifest.yaml
-      - artifacts/operations/ssot-registry.md
+    consumes: [DOCS.yaml, blueprint/03-features.md, artifacts/engineering/contracts/**/*, artifacts/engineering/api/schema-contract.yaml, artifacts/operations/capability-manifest.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-spawn-prompts
-      - validate-benchmark-contracts
+    depends_on: [validate-spawn-prompts, validate-benchmark-contracts, validate-data-governance, validate-failure-registry]
 
   validate-contract-ownership:
     type: validator
     entrypoint: tools/commands/validate/contract-ownership.rb
-    consumes:
-      - artifacts/operations/capability-manifest.yaml
-      - artifacts/operations/capability-family-map.yaml
-      - artifacts/operations/capability-family-registry.yaml
-      - artifacts/engineering/contracts/events/event-ownership-registry.yaml
-      - artifacts/engineering/contracts/evaluation/evaluation-contract.md
-      - artifacts/engineering/contracts/writing-task-2/openapi.yaml
-      - blueprint/framework/error-taxonomy.md
+    consumes: [artifacts/operations/capability-manifest.yaml, artifacts/operations/capability-family-map.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/engineering/api/openapi.yaml, artifacts/engineering/api/operation-ownership.yaml, artifacts/engineering/contracts/events/event-ownership-registry.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-openapi
+    depends_on: [validate-openapi]
 
   validate-domain-automation:
     type: validator
     entrypoint: tools/commands/validate/domain-automation.rb
-    consumes:
-      - artifacts/operations/domain-automation-contract.yaml
-      - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md
-      - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.meta.yaml
-      - tools/toolchain.yaml
+    consumes: [artifacts/operations/domain-automation-contract.yaml, artifacts/engineering/runtime-contract.yaml, artifacts/business/decisions/platform-sourcing.md, tools/toolchain.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-tools
-      - validate-platform-boundary
+    depends_on: [validate-tools, validate-platform-boundary]
 
   validate-evidence-lineage:
     type: validator
     entrypoint: tools/commands/validate/evidence-lineage.rb
-    consumes:
-      - artifacts/operations/evidence/spawn-validation-snapshot-*.yaml
-      - knowledge-assets/**/*.meta.yaml
-      - blueprint/framework/README.md
+    consumes: [artifacts/operations/evidence/spawn-validation-snapshot-*.yaml, knowledge-assets/**/*.meta.yaml, blueprint/framework/README.md]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-framework
-      - validate-knowledge-assets
+    depends_on: [validate-framework, validate-knowledge-assets]
 
   validate-platform-boundary:
     type: validator
     entrypoint: tools/commands/validate/platform-boundary.rb
-    consumes:
-      - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md
-      - artifacts/business/decisions/build-buy-register.md
-      - apps/**/*
-      - services/**/*
-      - engines/**/*
+    consumes: [artifacts/engineering/runtime-contract.yaml, artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md, artifacts/business/decisions/platform-sourcing.md, apps/**/*, services/**/*, engines/**/*]
     produces: []
     invalidates: []
     depends_on: []
 
   validate-spawn-prompts:
     type: validator
-    consumes:
-      - artifacts/operations/spawn-prompts/**/*
-      - blueprint/framework/README.md
+    consumes: [artifacts/operations/spawn-prompts/**/*, blueprint/framework/README.md]
     produces: []
     invalidates: []
     depends_on: []
 
   validate-tools:
     type: validator
-    consumes:
-      - tools/manifest.yaml
-      - tools/toolchain.yaml
-      - tools/**/*.sh
-      - tools/**/*.rb
+    consumes: [tools/manifest.yaml, tools/toolchain.yaml, tools/**/*.sh, tools/**/*.rb]
     produces: []
     invalidates: []
     depends_on: []
@@ -248,116 +211,72 @@ tools:
   validate-trust-boundary:
     type: validator
     entrypoint: tools/commands/validate/trust-boundary.rb
-    consumes:
-      - artifacts/operations/agent-trust-policy.yaml
-      - tools/toolchain.yaml
-      - tools/commands/verify.sh
-      - tools/commands/gate/toolchain-freeze.sh
-      - .github/CODEOWNERS
-      - .github/workflows/toolchain-trust.yml
+    consumes: [DOCS.yaml, artifacts/operations/agent-trust-policy.yaml, artifacts/operations/change-governance.yaml, artifacts/operations/hosting-control-state.yaml, tools/toolchain.yaml, tools/commands/verify.sh, tools/commands/gate/toolchain-freeze.sh, .github/CODEOWNERS, .github/workflows/toolchain-trust.yml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-tools
-      - validate-claude-code
+    depends_on: [validate-tools, validate-claude-code]
 
   validate-capability-phase-index:
     type: validator
-    consumes:
-      - blueprint/03-features.md
-      - artifacts/operations/catalogs/capability-phase-index.md
+    consumes: [blueprint/03-features.md, artifacts/operations/catalogs/capability-phase-index.md]
     produces: []
     invalidates: []
     depends_on: []
 
   generate-all:
     type: utility
-    consumes:
-      - tools/manifest.yaml
+    consumes: [tools/manifest.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - generate-capability-index
-      - generate-lifecycle-registry
-      - generate-operational-coverage
-      - generate-repository-baseline
+    depends_on: [generate-capability-index, generate-lifecycle-registry, generate-operational-coverage, generate-repository-baseline, generate-canonical-web-api]
 
   verify:
     type: utility
-    consumes:
-      - tools/manifest.yaml
+    consumes: [tools/manifest.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - validate-tools
-      - validate-claude-code
-      - validate-trust-boundary
-      - validate-capability-phase-index
-      - validate-documents
-      - validate-contract-ownership
-      - validate-domain-automation
-      - validate-evidence-lineage
-      - validate-platform-boundary
-      - validate-implementation-catalog
+    depends_on: [validate-tools, validate-claude-code, validate-trust-boundary, validate-capability-phase-index, validate-documents, validate-contract-ownership, validate-domain-automation, validate-evidence-lineage, validate-evidence-integrity, validate-data-governance, validate-failure-registry, validate-platform-boundary, validate-framework-remediation, validate-implementation-eligibility, validate-implementation-catalog]
 
   gate-toolchain-freeze:
     type: utility
     entrypoint: tools/commands/gate/toolchain-freeze.sh
-    consumes:
-      - tools/manifest.yaml
-      - tools/toolchain.yaml
+    consumes: [tools/manifest.yaml, tools/toolchain.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - verify
+    depends_on: [verify]
 
   gate-readiness:
     type: validator
     entrypoint: tools/commands/gate/readiness.rb
-    consumes:
-      - artifacts/operations/capability-manifest.yaml
-      - artifacts/operations/acceptance/p0-acceptance-manifest.yaml
-      - artifacts/operations/benchmark/gold-corpus-manifest.yaml
-      - artifacts/operations/benchmark/numeric-threshold-policy.yaml
+    consumes: [artifacts/operations/capability-manifest.yaml, artifacts/operations/acceptance/p0-acceptance-manifest.yaml, artifacts/operations/benchmark/gold-corpus-manifest.yaml, artifacts/operations/benchmark/numeric-threshold-policy.yaml, artifacts/operations/evidence-integrity.yaml, artifacts/operations/implementation-eligibility.yaml]
     produces: []
     invalidates: []
-    depends_on:
-      - verify
+    depends_on: [verify]
 
   compile-capability:
     type: utility
-    consumes:
-      - artifacts/operations/capability-manifest.yaml
-      - artifacts/operations/capability-family-map.yaml
+    consumes: [artifacts/operations/capability-manifest.yaml, artifacts/operations/capability-family-map.yaml, artifacts/operations/implementation-eligibility.yaml]
     produces: []
     invalidates: []
     depends_on: []
 
   add-capability:
     type: utility
-    consumes:
-      - artifacts/operations/capability-family-map.yaml
+    consumes: [artifacts/operations/capability-family-map.yaml]
     produces: []
     invalidates: []
     depends_on: []
 
   run-p0-acceptance:
     type: runner
-    consumes:
-      - artifacts/operations/acceptance/p0-acceptance-manifest.yaml
-    produces:
-      - artifacts/operations/evidence/p0-acceptance-run.yaml
-      - artifacts/operations/evidence/p0-acceptance-run.yaml.meta.yaml
+    consumes: [artifacts/operations/acceptance/p0-acceptance-manifest.yaml, artifacts/operations/evidence-integrity.yaml]
+    produces: [artifacts/operations/evidence/p0-acceptance-run.yaml, artifacts/operations/evidence/p0-acceptance-run.yaml.meta.yaml]
     invalidates: []
-    depends_on: []
+    depends_on: [validate-evidence-integrity]
 
   run-writing-benchmark:
     type: runner
-    consumes:
-      - artifacts/operations/benchmark/gold-corpus-manifest.yaml
-      - artifacts/operations/benchmark/numeric-threshold-policy.yaml
-    produces:
-      - artifacts/operations/evidence/benchmark-run.yaml
-      - artifacts/operations/evidence/benchmark-run.yaml.meta.yaml
+    consumes: [artifacts/operations/benchmark/gold-corpus-manifest.yaml, artifacts/operations/benchmark/numeric-threshold-policy.yaml, artifacts/operations/evidence-integrity.yaml]
+    produces: [artifacts/operations/evidence/benchmark-run.yaml, artifacts/operations/evidence/benchmark-run.yaml.meta.yaml]
     invalidates: []
-    depends_on: []
+    depends_on: [validate-evidence-integrity]
