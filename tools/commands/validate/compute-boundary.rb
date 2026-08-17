@@ -30,6 +30,7 @@ features_path = File.join(root, "blueprint/03-features.md")
 features = File.file?(features_path) ? File.read(features_path) : ""
 capability_ids = features.scan(/`([A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*)`/).flatten.to_set
 
+errors << "execution policy schema_version must be 1.1.0" unless policy["schema_version"] == "1.1.0"
 errors << "execution policy must be a non-authoritative projection" unless policy["source_of_truth"] == false && policy["authority_class"] == "projection"
 errors << "execution policy projection_id drifted" unless policy["projection_id"] == "compute-execution-policy"
 
@@ -45,7 +46,31 @@ principles = Array(policy["architecture_principles"]).to_set
   generated_presentation_is_non_authoritative_and_cannot_mutate_facts_or_decisions
   compute_mode_change_is_a_governed_architectural_change_not_an_implementation_optimization
   probabilistic_output_must_bind_evidence_and_provenance_before_domain_acceptance
+  compute_selection_requires_explicit_sufficiency_evidence_not_architectural_preference
 ].each { |item| errors << "execution policy missing principle #{item}" unless principles.include?(item) }
+
+sufficiency_model = policy["sufficiency_evaluation"] || {}
+required_dimensions = %w[product_outcome quality latency cost privacy reliability]
+errors << "sufficiency dimensions drifted" unless Array(sufficiency_model["required_dimensions"]) == required_dimensions
+errors << "design sufficiency must not claim product outcome validation" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_product_outcome_validation") == false
+errors << "design sufficiency must not claim calibration" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_calibration") == false
+errors << "design sufficiency must not claim readiness" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_readiness") == false
+errors << "design sufficiency must not claim release approval" unless sufficiency_model.dig("evidence_levels", "design", "may_claim_release_approval") == false
+errors << "empirical sufficiency must require evidence integrity" unless sufficiency_model.dig("evidence_levels", "empirical", "requires_evidence_integrity") == true
+errors << "empirical sufficiency must require bound run/measurement refs" unless sufficiency_model.dig("evidence_levels", "empirical", "requires_bound_run_or_measurement_refs") == true
+errors << "design evidence scope drifted" unless sufficiency_model["design_evidence_authorizes"] == "compute_boundary_for_candidate_implementation_only"
+empirical_required_for = Array(sufficiency_model["empirical_evidence_required_for"]).to_set
+%w[product_outcome_claim calibration_claim readiness_promotion release_approval].each do |claim|
+  errors << "empirical sufficiency scope omits #{claim}" unless empirical_required_for.include?(claim)
+end
+constraint_authorities = sufficiency_model["constraint_authorities"] || {}
+required_dimensions.each do |dimension|
+  value = constraint_authorities[dimension].to_s
+  errors << "sufficiency constraint authority missing for #{dimension}" if value.empty?
+  if value.include?("/") && !value.include?("canonical_domain_owner")
+    errors << "sufficiency constraint authority path missing: #{value}" unless File.file?(File.join(root, value))
+  end
+end
 
 projection_rules = policy["projection_rules"] || {}
 {
@@ -57,7 +82,8 @@ projection_rules = policy["projection_rules"] || {}
   "model_output_is_candidate_inference_only" => true,
   "canonical_state_mutation_requires_deterministic_domain_decision" => true,
   "higher_compute_mode_requires_lower_mode_insufficiency_evidence" => true,
-  "future_defaults_do_not_authorize_implementation" => true
+  "future_defaults_do_not_authorize_implementation" => true,
+  "design_sufficiency_may_not_claim_empirical_validity" => true
 }.each do |key, value|
   errors << "execution projection rule #{key} drifted" unless projection_rules[key] == value
 end
@@ -74,7 +100,6 @@ if docs.fetch("authority", {}).values.any? { |entry| entry.is_a?(Hash) && entry[
   errors << "execution-policy must not be registered as canonical authority"
 end
 
-source_by_ref = {}
 unit_by_id = {}
 Array(policy["canonical_unit_sources"]).each do |source|
   ref = source["meta_ref"].to_s
@@ -90,7 +115,6 @@ Array(policy["canonical_unit_sources"]).each do |source|
   end
   meta = load_yaml.call(path)
   errors << "decision-unit source version mismatch #{ref}: policy=#{version} owner=#{meta["version"]}" unless meta["version"].to_s == version
-  source_by_ref[ref] = meta
   units = Array(meta["decision_units"])
   errors << "canonical decision-unit source has no decision_units: #{ref}" if units.empty?
   units.each do |unit|
@@ -135,6 +159,8 @@ Array(policy["decision_policies"]).each do |entry|
     errors << "decision unit #{unit_id} missing sufficiency evidence"
     sufficiency = {}
   end
+  evidence_level = sufficiency["evidence_level"].to_s
+  errors << "decision unit #{unit_id} missing/invalid sufficiency evidence_level" unless %w[design empirical].include?(evidence_level)
   errors << "decision unit #{unit_id} missing outcome_contract" if sufficiency["outcome_contract"].to_s.empty?
   errors << "decision unit #{unit_id} missing quality_requirement" if sufficiency["quality_requirement"].to_s.empty?
   evidence_refs = Array(sufficiency["evidence_refs"])
@@ -142,7 +168,21 @@ Array(policy["decision_policies"]).each do |entry|
   evidence_refs.each do |evidence_ref|
     errors << "decision unit #{unit_id} sufficiency evidence missing: #{evidence_ref}" unless File.file?(File.join(root, evidence_ref.to_s))
   end
-  errors << "decision unit #{unit_id} missing sufficiency verdict" if sufficiency["verdict"].to_s.empty?
+  verdict = sufficiency["verdict"].to_s
+  errors << "decision unit #{unit_id} missing sufficiency verdict" if verdict.empty?
+  if evidence_level == "design"
+    errors << "decision unit #{unit_id} design evidence may not claim empirical validity: #{verdict}" unless verdict.start_with?("design_")
+    forbidden_claim_tokens = %w[empirically_validated calibrated ready release_approved outcome_validated]
+    forbidden_claim_tokens.each do |token|
+      errors << "decision unit #{unit_id} design evidence contains empirical claim token #{token}" if verdict.include?(token)
+    end
+  elsif evidence_level == "empirical"
+    empirical_refs = Array(sufficiency["empirical_evidence_refs"])
+    errors << "decision unit #{unit_id} empirical sufficiency requires bound empirical_evidence_refs" if empirical_refs.empty?
+    empirical_refs.each do |evidence_ref|
+      errors << "decision unit #{unit_id} empirical evidence missing: #{evidence_ref}" unless File.file?(File.join(root, evidence_ref.to_s))
+    end
+  end
 
   if mode == "deterministic"
     errors << "deterministic unit #{unit_id} cannot allow a probabilistic executor" unless entry["probabilistic_executor_allowed"] == false
@@ -155,6 +195,7 @@ Array(policy["decision_policies"]).each do |entry|
     errors << "probabilistic unit #{unit_id} must not own canonical state mutation" unless entry["state_mutation_authority"] == "none"
     errors << "probabilistic unit #{unit_id} missing provenance requirements" if Array(entry["provenance_required"]).empty?
     errors << "probabilistic unit #{unit_id} lacks lower-mode insufficiency evidence" if sufficiency["lower_mode_rejection"].to_s.empty?
+    errors << "probabilistic unit #{unit_id} must require empirical validation before promotion" unless sufficiency["empirical_validation_required"] == true
   end
 
   if entry["presentation_only"] == true
@@ -189,8 +230,13 @@ engines_path = File.join(root, "blueprint/06-engines.md")
 engines = File.file?(engines_path) ? File.read(engines_path) : ""
 errors << "learning engines still claim AI is the sole scorer" if engines.include?("AI is the sole scorer")
 errors << "learning engines still use Recommendation Engine as the primary compute grouping" if engines.match?(/^## .*Recommendation Engine/m)
-%w["Domain contracts own canonical semantics and decisions" "lowest sufficient computation" "Probabilistic components are inference executors" "Generated presentation is non-authoritative"].each do |marker|
-  errors << "learning engines missing compute-boundary marker #{marker}" unless engines.include?(marker.delete_prefix('"').delete_suffix('"'))
+[
+  "Domain contracts own canonical semantics and decisions",
+  "lowest sufficient computation",
+  "Probabilistic components are inference executors",
+  "Generated presentation is non-authoritative"
+].each do |marker|
+  errors << "learning engines missing compute-boundary marker #{marker}" unless engines.include?(marker)
 end
 
 errors << "capability catalog still claims AI is the sole scorer" if features.include?("AI is the sole scorer")
@@ -198,11 +244,13 @@ errors << "capability catalog still assigns PERSONAL.Insights meaning to AI word
 
 routing_path = File.join(root, "artifacts/engineering/contracts/runtime/llm-routing-context-contract.md")
 routing = File.file?(routing_path) ? File.read(routing_path) : ""
-errors << "LLM routing still selects Go as a deterministic domain architecture" if routing.include?("deterministic Go domain rule")
-errors << "LLM routing still delegates retry semantics to a Worker Contract" if routing.include?("Worker Contract")
+errors << "probabilistic routing still selects Go as a deterministic domain architecture" if routing.include?("deterministic Go domain rule")
+errors << "probabilistic routing still delegates retry semantics to a Worker Contract" if routing.include?("Worker Contract")
 
 if errors.empty?
-  puts "compute boundary validation passed (units=#{unit_by_id.length}, future_defaults=#{future_seen.length}, projection_only=true)"
+  design_units = Array(policy["decision_policies"]).count { |entry| entry.dig("sufficiency", "evidence_level") == "design" }
+  empirical_units = Array(policy["decision_policies"]).count { |entry| entry.dig("sufficiency", "evidence_level") == "empirical" }
+  puts "compute boundary validation passed (units=#{unit_by_id.length}, design=#{design_units}, empirical=#{empirical_units}, future_defaults=#{future_seen.length}, projection_only=true)"
 else
   warn errors.join("\n")
   warn "compute boundary validation failed: #{errors.length} issue(s)"
