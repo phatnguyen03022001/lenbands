@@ -20,7 +20,7 @@ review_identity:
   main_codeowners_declared_account: tienphat
   declared_account_repository_permission: none
   independent_codeowner_review_available: false
-  candidate_may_fix_codeowners_file_but_that_does_not_create_independent_review
+  candidate_codeowners_fix_effect: does_not_create_independent_review
 
 rules:
   - repository_policy_files_are_not_evidence_of_github_enforcement
