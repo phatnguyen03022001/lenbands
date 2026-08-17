@@ -18,4 +18,10 @@ allowed-tools: Read, Grep, Glob, Edit, Write, Bash, WebSearch, WebFetch, Agent
 9. Do not edit application source while the trust policy source lock is active. Tool availability and repository verification do not authorize implementation.
 10. After each coherent batch run `tools/bin/lenbands verify` and `tools/bin/lenbands gate toolchain`; `gate p0` remains allowed to block on genuine evidence gaps.
 
+## Global audit coverage axes
+
+A full convergence audit still covers **180 capabilities**, all **roles**, **WCAG** and accessibility, privacy/security, **observability**, release/**rollback**, provider/exit controls, and source roots such as `apps/**`. These are coverage axes used to find unresolved authority and safety gaps. They are **not** a requirement that all 180 capabilities become implementation-ready at once and they do not create a global implementation unlock.
+
+Implementation eligibility and authorization remain family-scoped and exact-candidate-bound. Release readiness may aggregate multiple families independently of implementation eligibility.
+
 The final handoff lists resolved authority conflicts, validator coverage, non-authoritative historical residue, remaining external/evidence blockers, and the exact candidate SHA. Never self-declare approval, calibration, production readiness or “god level” from prose alone.
