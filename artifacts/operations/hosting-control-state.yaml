@@ -1,0 +1,30 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: github-hosting-control-state
+owner: operations
+purpose: record observed external GitHub enforcement state without treating repository prose as host evidence
+observed_at: 2026-08-17
+repository: phatnguyen03022001/lenbands
+observed_base_main_sha: 308b8c709b8bf381392d6613cf015947d7bdc8fe
+observation_source: github_connector_live_read
+
+main_branch:
+  protection: not_enforced
+  required_status_checks: not_enforced
+  code_owner_review: not_enforced
+  force_push_block: not_verified
+  branch_deletion_block: not_verified
+
+review_identity:
+  main_codeowners_declared_account: tienphat
+  declared_account_repository_permission: none
+  independent_codeowner_review_available: false
+  candidate_may_fix_codeowners_file_but_that_does_not_create_independent_review
+
+rules:
+  - repository_policy_files_are_not_evidence_of_github_enforcement
+  - repository_ci_success_is_not_branch_protection_evidence
+  - external_enforcement_claims_remain_blocked_until_live_host_state_is_verified
+  - candidate_verification_can_prove_repository_conformance_without_claiming_host_protection
+  - this_observed_state_must_be_refreshed_before_any_future_external_enforcement_claim
