@@ -2,59 +2,154 @@
 
 Canonical metadata is in `evaluation-contract.meta.yaml`.
 
-Canonical engineering implementation contract for evaluation request/result/audit/quality-state. It implements the capability and invariants from the Blueprint; it does not replace `blueprint/03-features.md`, `blueprint/06-engines.md`, or the IELTS Framework. P0 uses it for Writing; the schema is designed to extend to W/S/Pron when scope and evidence exist.
+This is the canonical engineering contract for evaluation request/result/audit/quality-state semantics. It implements capability invariants from the Blueprint; it does not replace capability meaning, the IELTS Framework, the compute-policy projection, or provider/runtime contracts. P0 uses it for Writing; future Speaking/Pronunciation implementations must decompose their own subtasks before authorization.
 
 ## Ownership
 
-This file is the canonical owner for the evaluation request/result/audit/quality-state schema and the engineering-facing criterion enum (`task_response|coherence_cohesion|lexical_resource|grammar`), mapped 1:1 to the Framework code `criterion_impact` (see Criterion mapping). The IELTS Framework remains the SSOT for domain enums; this contract owns only the engineering schema namespace and does not replace the Framework. `engineering/contracts/writing-task-2/evaluation-contract.md` is a scoped delta: it defines the evaluator DTO for Writing, must preserve the criterion enum, and must not expand the schema contrary to this contract. If the schema must change, bump this contract's version first.
+This contract owns the engineering evaluation schema, score identities/scopes, criterion-result structure, evidence/provenance acceptance boundary and quality-state semantics. The IELTS Framework remains the authority for IELTS controlled vocabulary and rubric meaning.
+
+Stable compute decision units are declared in `evaluation-contract.meta.yaml`. `artifacts/operations/execution-policy.yaml` may select/project their allowed compute mode but cannot create criteria, error IDs, score meanings, quality states or decision units.
+
+## Core authority invariant
+
+A probabilistic evaluator **performs inference; it does not own canonical semantics or decisions**.
+
+```text
+canonical request/task/rubric facts
+  -> probabilistic inference executor
+  -> typed candidate inference
+  -> evidence + provenance binding
+  -> deterministic evidence/schema/taxonomy validation
+  -> deterministic criterion acceptance
+  -> deterministic score aggregation
+  -> deterministic quality-state decision
+  -> immutable canonical evaluation result
+```
+
+A provider response is never a canonical `evaluation_result` merely because it parses.
 
 ## Score identity and scope
 
-LenBands evaluation output is a **diagnostic estimate**, not an official IELTS result.
+LenBands preserves four distinct identities:
 
-The system must preserve these identities separately:
+- `official_ielts_score` — supplied by the learner or an authorized source; LenBands evaluation does not create it.
+- `exam_simulation_estimate` — LenBands estimate from a complete exam-like simulation under the corresponding integrity policy.
+- `diagnostic_estimate` — estimate from bounded/partial evidence such as one Writing task or placement.
+- `learning_mastery` — learner-model state; never an IELTS band.
 
-- `official_ielts_score` — a real result supplied by the learner or an authorized source; this contract does not create it.
-- `exam_simulation_estimate` — a LenBands estimate from a complete exam-like simulation under the corresponding integrity policy.
-- `diagnostic_estimate` — an estimate from partial evidence such as one Writing task or placement.
-- `learning_mastery` — a LenBands learner-model state; never an IELTS band.
+P0 Writing Task 2 uses `score_scope: writing_task_2` and `score_label: diagnostic_estimate`. `overall_band` means the task-level aggregate estimate for that evaluated task only and cannot be consumed as the IELTS Writing section band.
 
-P0 Writing Task 2 uses `score_scope: writing_task_2` and `score_label: diagnostic_estimate`. The existing `overall_band` field is retained for schema compatibility and means **the task-level aggregate estimate for this evaluated task only**. It must not be presented or consumed as the IELTS Writing section band. A future Writing-section aggregation must keep Task 1 and Task 2 as separate scored tasks and implement the public IELTS weighting rule in its own versioned contract.
+## Criterion mapping
 
-## Criterion mapping (controlled vocabulary)
-
-The IELTS Framework `error-taxonomy.md` uses the short code `criterion_impact`; this contract uses the full enum. Mapping is 1:1:
-
-| Framework `criterion_impact` | Contract criterion enum |
+| Framework `criterion_impact` | Engineering criterion |
 |---|---|
 | `TR` | `task_response` |
 | `CC` | `coherence_cohesion` |
 | `LR` | `lexical_resource` |
 | `GRA` | `grammar` |
 
-Consumer contracts must use the full enum; the short code is valid only in the Framework taxonomy. (The `FC`/`PR` codes — Speaking — along with `answer-key`, `strategy`, `TR_TASK1`, `TR_LR` are outside this Writing Task 2 contract's scope.)
+Models may propose findings only within the schema; canonical error identities must resolve to the Framework/LenBands controlled vocabulary through deterministic taxonomy validation. A model cannot invent a new canonical `error_id`.
 
-## Input contract
+## Evaluation request
 
 ```yaml
 evaluation_request:
   request_id: string
   user_id: string
-  submission_ref: string         # WritingSubmission/SpeakingSubmission
-  task_ref: string               # WritingTask (published version)
-  task_type: string              # from writing-task-framework.md
+  submission_ref: string
+  submission_version: string
+  task_ref: string
+  task_version: string
+  task_type: string
   assessment_mode: learn | practice | retest | exam_simulation
-  rubric_version: string         # band descriptor version
-  prompt_template_id: string     # e.g. writing_evaluation_v1
-  prompt_template_hash: string   # hash template body (immutability)
+  rubric_version: string
+  prompt_template_id: string
+  prompt_template_hash: string
+  model_route_version: string
   context_budget:
-    input_tokens: integer        # hard envelope from llm-routing-context-contract
+    input_tokens: integer
     output_tokens: integer
 ```
 
-`assessment_mode` is evidence context. A scaffolded `learn` attempt may receive evaluation feedback, but it must not be treated as equivalent to an unscaffolded retest or exam-simulation attempt when readiness is computed.
+`assessment_mode` is evidence provenance. Scaffolded learning success cannot be silently promoted into exam-readiness evidence.
 
-## Output contract
+## Typed candidate inference
+
+The probabilistic executor returns a candidate, not a result:
+
+```yaml
+candidate_inference:
+  request_id: string
+  submission_ref: string
+  submission_version: string
+  task_ref: string
+  task_version: string
+  assessment_mode: learn | practice | retest | exam_simulation
+  rubric_version: string
+  prompt_template_id: string
+  prompt_template_hash: string
+  model_route_version: string
+  model_version: string
+  adapter_version: string
+  criteria:
+    task_response:
+      proposed_band: number
+      confidence_signal: number | null
+      evidence_refs: [string]
+      proposed_issues:
+        - proposed_error_id: string
+          evidence_ref: string
+          severity: high | medium | low
+    coherence_cohesion: {...}
+    lexical_resource: {...}
+    grammar: {...}
+  usage:
+    input_tokens_actual: integer
+    output_tokens_actual: integer
+```
+
+Required provenance is part of the acceptance boundary, not optional telemetry. Missing/mismatched task, submission, rubric, prompt, route/model, assessment-mode or evidence provenance makes the candidate invalid or insufficiently evidenced.
+
+## Evidence binding
+
+Every proposed criterion must preserve:
+
+```text
+rubric/construct claim
+  -> observable evidence requirement
+  -> immutable submission/task snapshot
+  -> evidence_ref resolving inside that snapshot
+  -> candidate interpretation
+  -> deterministic validation
+```
+
+A model may produce an intermediate semantic interpretation such as a likely reference-cohesion weakness. It becomes a canonical finding only when:
+
+1. the evidence reference resolves to the immutable submission snapshot;
+2. the proposed taxonomy identity exists and is permitted for the criterion/scope;
+3. the finding satisfies schema/rubric/evidence constraints;
+4. domain quality policy permits acceptance.
+
+Unsafe proxy-only scoring remains forbidden: essay length, rare-word count or surface complexity cannot substitute for rubric evidence.
+
+## Deterministic validation and aggregation
+
+After inference, deterministic domain logic owns:
+
+- evidence-reference resolution;
+- controlled taxonomy resolution;
+- criterion schema/range validation;
+- task/rubric/scope consistency;
+- task-level score aggregation;
+- confidence-state derivation under the active policy;
+- quality-state decision;
+- persistence eligibility.
+
+The model cannot define weighting, score range, score label, score scope, readiness effect or canonical persistence behavior.
+
+## Canonical evaluation result
+
+Only accepted/validated facts enter the canonical result:
 
 ```yaml
 evaluation_result:
@@ -63,135 +158,122 @@ evaluation_result:
   score_scope: writing_task_2
   score_label: diagnostic_estimate
   assessment_mode: learn | practice | retest | exam_simulation
-  model_version: string          # adapter/model version (provider-adapter-contract)
+  submission_ref: string
+  submission_version: string
+  task_ref: string
+  task_version: string
+  model_route_version: string
+  model_version: string
   rubric_version: string
   criteria:
     task_response:
-      band: number               # 0-9, step 0.5
-      confidence: number         # internal 0-1 signal; not a calibrated correctness probability by default
-      evidence_refs: [string]    # sentence/section refs in submission
+      band: number
+      evidence_refs: [string]
       issues:
-        - error_id: string       # from error-taxonomy.md
+        - error_id: string
           evidence_ref: string
           severity: high | medium | low
     coherence_cohesion: {...}
     lexical_resource: {...}
     grammar: {...}
-  overall_band: number           # task-level aggregate diagnostic estimate; NOT full Writing-section band
-  overall_confidence: number
+  overall_band: number | null
   confidence_state: unknown | provisional | stronger_evidence
   quality_status: accepted | low_confidence | insufficient_evidence | invalid
-  usage:
-    input_tokens_actual: integer
-    output_tokens_actual: integer
   created_at: timestamp
 ```
 
-## Evidence-centered scoring boundary
-
-Every scored criterion must preserve the chain:
-
-```text
-rubric/construct claim
-  -> observable evidence required
-  -> task/submission contains or fails to contain that evidence
-  -> scorer cites evidence_refs
-  -> criterion judgment
-  -> task-level diagnostic estimate
-```
-
-The scorer must not award or penalize a criterion solely from a proxy that is not evidence for that construct. Examples of unsafe proxy-only behavior include using essay length, rare-word count, or surface complexity as a substitute for rubric judgment.
-
-When required evidence cannot be established, use `insufficient_evidence` or a lower-confidence state according to policy; do not manufacture a precise criterion score to satisfy the schema.
+`overall_band` may be `null` when the evidence/quality policy does not justify a complete task-level estimate.
 
 ## Quality policy
 
 | Condition | quality_status | Behavior |
 |---|---|---|
-| All required criteria have evidence and the founder-approved quality policy is met | `accepted` | Show task-level estimate + learner feedback with scope |
-| Any criterion falls below the governed confidence/evidence policy | `low_confidence` | Show a provisional/limited-evidence state; learner may report incorrect feedback; do not use as a strong readiness signal |
-| Required input/evidence is missing | `insufficient_evidence` | Do not invent a complete diagnostic estimate; explain recovery/resubmission |
-| Schema validation fail | `invalid` | `EVALUATION_UNAVAILABLE`, retry under failure contract, do NOT best-effort score |
+| Required criteria/evidence/provenance valid and active quality policy satisfied | `accepted` | Persist bounded task-level diagnostic result and learner-safe feedback |
+| Evidence exists but governed support is below ordinary-consumption policy | `low_confidence` | Preserve provisional result; do not treat as strong readiness evidence |
+| Required evidence or scope coverage is missing | `insufficient_evidence` | Do not manufacture a complete estimate; provide recovery/resubmission |
+| Schema/provenance/reference validation fails | `invalid` | Return governed unavailable/retry behavior; never best-effort score |
 
-## Confidence and uncertainty
+A probabilistic confidence signal cannot self-promote a result into `accepted`. The quality state is a deterministic domain decision.
 
-`overall_confidence` is an internal governance signal calculated from criterion confidence according to a versioned policy. Weight and threshold are founder-approved policies; this draft has no active numeric threshold.
+## Feedback and presentation separation
 
-Confidence does **not** mean “probability that the band is correct” unless a benchmark explicitly calibrates that interpretation. Learner UI must not expose an uncalibrated raw percentage as scientific precision. It may show governed language such as `provisional estimate` or `limited evidence` according to `confidence_state` and `quality_status`.
+Feedback priority is computed from accepted canonical findings under versioned deterministic policy; P0 makes no second model call merely to choose which error matters most.
 
-A low-confidence output is not automatically wrong; it means the system has less support for ordinary consumption. Low-confidence and insufficient-evidence results must have recovery paths and must not silently become normal readiness evidence.
+Natural-language wording is presentation only:
 
-## Feedback-mode policy
+```text
+canonical findings + evidence + priority
+  -> optional wording generator
+  -> learner-facing explanation
+```
 
-Evaluation and coaching surfaces must respect assessment mode:
+Generated wording cannot change scores, error IDs, evidence refs, action priority, readiness or stored learner facts. If wording generation fails, the structured findings/reasons remain usable.
+
+## Assessment-mode policy
 
 | Mode | Feedback timing | Readiness meaning |
 |---|---|---|
-| `learn` | scaffolding/hints may appear; teaching detail can be immediate | learning evidence only; scaffolded success is weak readiness evidence |
-| `practice` | commit an answer/draft before answer-revealing feedback; then evidence -> one fix -> optional detail | diagnostic evidence when unscaffolded |
-| `retest` | no answer-revealing scaffold before commitment; concise result before deeper explanation | stronger evidence, especially on novel context |
-| `exam_simulation` | no formative hints/feedback until the configured section/test is complete | strongest LenBands simulation evidence when integrity conditions hold |
+| `learn` | scaffolding may appear; teaching detail can be immediate | learning evidence only |
+| `practice` | commit before answer-revealing feedback | diagnostic evidence when unscaffolded |
+| `retest` | no answer-revealing scaffold before commitment | stronger evidence, especially on novel context |
+| `exam_simulation` | formative feedback withheld until configured test/section completes | strongest LenBands simulation evidence when integrity conditions hold |
 
-This does not require all modes in P0. It prevents future surfaces from mixing learning assistance with exam-like evidence without preserving provenance.
+## Audit trail
 
-## Audit trail (required)
-
-Each evaluation emits an audit record (immutable):
+Each accepted or rejected inference attempt records immutable provenance sufficient for audit without logging chain-of-thought or raw learner content in general telemetry:
 
 ```yaml
 audit:
-  evaluation_id, request_id
-  contract_version, rubric_version
-  score_scope, score_label, assessment_mode
-  prompt_template_id, prompt_template_hash
-  model_version, adapter_version
-  input_token_count, output_token_count
-  provider_call_id (internal)
-  created_at
+  evaluation_id: string | null
+  request_id: string
+  submission_ref: string
+  submission_version: string
+  task_ref: string
+  task_version: string
+  contract_version: string
+  rubric_version: string
+  score_scope: string
+  score_label: string
+  assessment_mode: string
+  prompt_template_id: string
+  prompt_template_hash: string
+  model_route_version: string
+  model_version: string
+  adapter_version: string
+  provider_call_id: string | null
+  evidence_refs: [string]
+  validation_disposition: accepted | low_confidence | insufficient_evidence | invalid
+  input_token_count: integer
+  output_token_count: integer
+  created_at: timestamp
 ```
-
-Do not log: chain-of-thought, full raw prompt, or learner essay text (log `submission_ref` only).
 
 ## Anti-gaming
 
-The evaluation engine checks the submission before scoring:
-- Similarity vs known sample corpus above a governed threshold → flag `anti_gaming_flag: sample_match`.
-- Generated-submission risk signal above a governed threshold → flag `anti_gaming_flag: ai_generated`.
-- A flag is a risk signal, not proof. Apply the canonical anti-gaming policy, preserve a neutral explanation/resubmission path, and do not silently use flagged results as normal readiness evidence.
+Anti-gaming combines governed risk signals. Similarity or generated-submission detectors produce **candidate risk signals**, never proof of misconduct. Canonical policy decides whether a result is withheld, annotated or offered a neutral resubmission path. Detector thresholds remain inactive until approved and monitored for false positives.
 
-No detector threshold is active in this contract until approved and monitored for false positives.
+## Benchmark and compute-mode promotion
 
-## Benchmark regression and promotion suite
+Before changing prompt/model/rubric/model-route or promoting another probabilistic executor, use the approved gold/reference corpus and report at least criterion/task exact and ±0.5 agreement, absolute-error distributions, suitable ordinal agreement, repeated-run stability, task/proficiency slices, confidence calibration, and regression versus the currently promoted route.
 
-Before changing prompt/model/rubric, run the founder-approved gold-standard corpus. Promotion evidence should report at least:
-
-1. criterion-level exact agreement with reference ratings;
-2. criterion-level agreement within `±0.5` band;
-3. task-level exact and `±0.5` agreement;
-4. mean and median absolute error as descriptive metrics;
-5. an ordinal agreement statistic suitable for band ratings;
-6. repeated-run stability for identical inputs;
-7. performance by task/prompt and proficiency region;
-8. subgroup slices only where sample size, consent, and governance support meaningful interpretation;
-9. confidence calibration — whether low-confidence outputs are actually more error-prone;
-10. regression versus the currently promoted scorer/model version.
-
-A single aggregate MAE is not sufficient to establish validity, fairness, calibration, or stability. Numeric pass/fail thresholds are versioned policies approved by the founder; none are activated here without benchmark evidence.
+A compute-mode change is governed architecture. “The model seems better” is not evidence. Promotion requires evidence that lower sufficient modes cannot meet the declared semantic inference contract plus privacy/cost/latency/reliability review.
 
 ## P0 scope
 
 - Writing only.
 - One prompt template (`writing_evaluation_v1`).
-- Criterion evidence + task-level scope + confidence + audit are required.
-- Anti-gaming is a governed risk signal, not proof of misconduct.
-- Benchmark: the founder must curate/approve the gold-standard corpus and thresholds; there is not yet a sufficient run/corpus to claim calibration.
+- One bounded governed semantic-inference route at a time, with approved fallback only inside the same scorer-route policy.
+- Evidence/provenance binding, deterministic validation/aggregation, confidence/quality state and audit are required.
+- Feedback priority performs no second inference call.
+- No sufficient benchmark corpus/run currently exists to claim calibration or production readiness.
 
-## Cross-refs
+## Cross-references
 
-- Writing slice §7 (inline version): `experience/specs/vertical-slices/writing-task-2.md`.
-- LLM routing: `engineering/contracts/runtime/llm-routing-context-contract.md`.
-- Provider adapter: `engineering/contracts/runtime/provider-adapter-contract.md`.
-- Governance: `blueprint/06-engines.md` § Governance.
-- Band descriptor (rubric): `blueprint/framework/band-descriptor-map.md`.
+- Capability meaning: `blueprint/03-features.md`.
+- Compute boundary: `blueprint/06-engines.md`.
+- Compute projection: `artifacts/operations/execution-policy.yaml`.
+- Probabilistic routing: `artifacts/engineering/contracts/runtime/llm-routing-context-contract.md`.
+- Provider adapter: `artifacts/engineering/contracts/runtime/provider-adapter-contract.md`.
+- Band descriptor: `blueprint/framework/band-descriptor-map.md`.
 - Error taxonomy: `blueprint/framework/error-taxonomy.md`.
-- Evidence-informed audit: `artifacts/experience/research/learning-assessment-experience-audit.md`.
+- Evidence integrity: `artifacts/operations/evidence-integrity.yaml`.
