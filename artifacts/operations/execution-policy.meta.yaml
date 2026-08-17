@@ -1,0 +1,36 @@
+type: execution-policy-projection
+status: review
+version: 1.0.0
+owner: engineering + product + operations
+representation: yaml
+derived_from:
+  - STUDY.DailyPlan
+  - PERSONAL.NextBestAction
+  - PLACE.Test
+  - PLACE.BandEstimation
+  - PLACE.GapDetection
+  - PLACE.InitialPath
+  - EVAL.Writing
+  - COACH.ErrorAnalysis
+  - COACH.Feedback
+  - REVIEW.MistakeNotebook
+  - REVIEW.FSRS
+  - REVIEW.SmartQueue
+  - PRACTICE.Drill
+  - OPS.ModelRouting
+  - OPS.Quota
+  - OPS.CostBudget
+  - OPS.EvaluationQuality
+  - OPS.ReleaseGate
+  - GOVERNANCE.ConfidenceScore
+  - GOVERNANCE.AuditTrail
+purpose: non-authoritative compute-mode projection over exact canonical decision units
+artifact_id: execution-policy-projection
+created_at: 2026-08-17
+updated_at: 2026-08-17
+change_log:
+  - version: 1.0.0
+    date: 2026-08-17
+    changes:
+      - Added lowest-sufficient-compute projection with exact reverse binding to canonical domain decision units.
+      - Added sufficiency evidence, inference provenance requirements, non-authoritative presentation rules and governed compute-mode change semantics.
