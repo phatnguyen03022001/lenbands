@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 authority_scope: agent_change_and_anti_bypass_policy
@@ -8,6 +8,9 @@ principles:
   - immutable_evidence_may_be_added_but_not_modified_or_deleted
   - repository_checks_do_not_replace_live_host_control_evidence
   - host_enforcement_claims_are_observed_facts_not_repository_policy_assertions
+  - execution_policy_is_a_protected_non_authoritative_projection
+  - probabilistic_substitution_requires_governed_compute_mode_change
+  - probabilistic_inference_cannot_directly_author_canonical_state
 
 founder_local_profile:
   path: .claude/settings.local.json
@@ -125,6 +128,9 @@ founder_local_profile:
     - shared_permissions_deny_runtime_agents_and_the_implementation_compatibility_skill_while_locked
     - agent_teams_remain_disabled_until_git_worktree_isolation_exists
     - accept_edits_applies_only_below_shared_denies_sandbox_and_pretooluse_guards
+    - execution_policy_cannot_create_capabilities_or_decision_units
+    - deterministic_decision_units_reject_probabilistic_executor_substitution
+    - probabilistic_outputs_require_evidence_provenance_and_deterministic_domain_acceptance
 
 application_builder:
   phase_gate:
@@ -191,6 +197,7 @@ application_builder:
     - evidence_fabrication
     - unsandboxed_escape
     - preselected_runtime_topology_before_authorization
+    - unapproved_probabilistic_substitution
 
 required_public_commands:
   - doctor
@@ -213,6 +220,8 @@ required_verify_targets:
   - tools/commands/validate/data-governance.rb
   - tools/commands/validate/failure-registry.rb
   - tools/commands/validate/contract-ownership.rb
+  - tools/commands/validate/implementation-eligibility.rb
+  - tools/commands/validate/compute-boundary.rb
 
 required_freeze_targets:
   - tools/commands/doctor.rb
@@ -221,6 +230,7 @@ required_freeze_targets:
   - tools/commands/validate/trust-boundary.rb
   - tools/commands/validate/platform-boundary.rb
   - tools/commands/validate/domain-automation.rb
+  - tools/commands/validate/compute-boundary.rb
 
 protected_paths:
   - "**/AGENTS.md"
@@ -265,6 +275,8 @@ protected_paths:
   - artifacts/operations/data-retention-registry.meta.yaml
   - artifacts/operations/implementation-eligibility.yaml
   - artifacts/operations/implementation-eligibility.meta.yaml
+  - artifacts/operations/execution-policy.yaml
+  - artifacts/operations/execution-policy.meta.yaml
   - artifacts/operations/review-remediation-dispositions.yaml
   - artifacts/operations/review-remediation-dispositions.meta.yaml
   - artifacts/engineering/api/**
