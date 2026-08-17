@@ -1,0 +1,10 @@
+type: api-governance
+status: review
+version: 1.0.0
+owner: engineering + security
+representation: markdown
+derived_from: [IDENTITY.Auth, OPS.ReleaseGate, OPS.Observability]
+purpose: govern canonical API identity versioning errors idempotency and migration
+consumed_by: [engineering, operations]
+created_at: 2026-08-17
+updated_at: 2026-08-17
