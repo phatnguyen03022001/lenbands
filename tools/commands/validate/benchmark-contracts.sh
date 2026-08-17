@@ -28,10 +28,13 @@ Array(corpus["cases"]).each do |item|
   %w[case_id task_type task_version essay_ref reference rights_evidence_ref].each do |field|
     errors << "corpus case #{item["case_id"]}: missing #{field}" unless item.key?(field)
   end
-  criteria = item.dig("reference", "criteria") || {}
+  reference = item["reference"] || {}
+  criteria = reference["criteria"] || {}
   %w[task_response coherence_cohesion lexical_resource grammar].each do |criterion|
     errors << "corpus case #{item["case_id"]}: missing reference criterion #{criterion}" unless criteria.key?(criterion)
   end
+  errors << "corpus case #{item["case_id"]}: must_withhold_score must be boolean" unless [true, false].include?(reference["must_withhold_score"])
+  errors << "corpus case #{item["case_id"]}: evidence_refs must be non-empty" if item.key?("reference") && Array(reference["evidence_refs"]).empty?
   if corpus["status"] == "ready"
     rights_ref = item["rights_evidence_ref"].to_s
     errors << "corpus case #{item["case_id"]}: rights evidence file missing" if rights_ref.empty? || !File.file?(rights_ref)
@@ -39,9 +42,16 @@ Array(corpus["cases"]).each do |item|
 end
 
 quality = policy.fetch("quality", {})
-%w[criterion_mae_max_band overall_mae_max_band within_half_band_min evidence_coverage_min actionable_feedback_min invalid_or_low_confidence_withheld_min false_acceptance_max p95_latency_ms_max].each do |field|
-  errors << "threshold policy missing numeric quality field #{field}" unless quality[field].is_a?(Numeric)
+%w[criterion_mae_max_band overall_mae_max_band within_half_band_min invalid_or_low_confidence_withheld_min false_acceptance_max p95_latency_ms_max].each do |field|
+  errors << "threshold policy missing numeric machine-quality field #{field}" unless quality[field].is_a?(Numeric)
 end
+human = policy.fetch("human_quality_review", {})
+errors << "human quality review must be required" unless human["required"] == true
+%w[evidence_validity_min actionable_feedback_min].each do |field|
+  errors << "human quality review missing numeric field #{field}" unless human[field].is_a?(Numeric)
+end
+errors << "human quality rule must reject model/candidate booleans" unless human["rule"].to_s.include?("booleans_do_not_satisfy_this_gate")
+
 cost = policy.fetch("cost", {})
 errors << "cost retry threshold must be numeric" unless cost["max_retry_count"].is_a?(Numeric)
 if policy["armed"] == true
@@ -84,7 +94,7 @@ end
 
 if errors.empty?
   readiness = corpus["status"] == "ready" && policy["armed"] == true && packs.all? { |pack| pack["status"] == "passed" }
-  puts "benchmark/acceptance contract shape valid (readiness=#{readiness ? 'eligible' : 'blocked'}, corpus=#{corpus["status"]}, policy=#{policy["approval_state"]}, acceptance=#{packs.length} packs)"
+  puts "benchmark/acceptance contract shape valid (readiness=#{readiness ? 'eligible' : 'blocked'}, corpus=#{corpus["status"]}, policy=#{policy["approval_state"]}, acceptance=#{packs.length} packs, human_quality=separate)"
 else
   errors.each { |error| warn error }
   warn "benchmark/acceptance contract validation failed: #{errors.length} issue(s)"
