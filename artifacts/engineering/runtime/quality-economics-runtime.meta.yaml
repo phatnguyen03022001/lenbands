@@ -1,17 +1,44 @@
 type: owner-runtime-spec
 status: review
-version: 0.1.1
+version: 0.2.0
 owner: operations
 representation: markdown
 derived_from: [OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, OPS.EvaluationQuality, OPS.ContentQuality, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
 purpose: implementation-definition-for-quality-economics-family
 consumed_by: [engineering, operations, validators]
 created_at: 2026-08-07
-updated_at: 2026-08-10
+updated_at: 2026-08-17
 family_id: OPS.QualityEconomics
 family_version: 1.0.0
 build_status: candidate
+decision_units:
+  - unit_id: quality.model_route_selection
+    capability_ids: [OPS.ModelRouting]
+    purpose: select only a policy-approved provider-neutral route from eligible routes
+  - unit_id: quality.quota_decision
+    capability_ids: [OPS.Quota]
+    purpose: apply deterministic quota reservation charge release and denial rules
+  - unit_id: quality.cost_aggregation
+    capability_ids: [OPS.CostBudget, OPS.Observability]
+    purpose: aggregate measured provider-neutral usage and cost facts
+  - unit_id: quality.benchmark_metrics
+    capability_ids: [OPS.EvaluationQuality, OPS.OutcomeMeasurement]
+    purpose: compute benchmark and outcome metrics from immutable evidence records
+  - unit_id: quality.confidence_state_derivation
+    capability_ids: [GOVERNANCE.ConfidenceScore]
+    purpose: derive governed confidence state from validated inference evidence and active policy
+  - unit_id: quality.release_gate_decision
+    capability_ids: [OPS.ReleaseGate, OPS.ContentQuality, OPS.EvaluationQuality]
+    purpose: approve block or roll back only from validated evidence and armed policy thresholds
+  - unit_id: quality.audit_record
+    capability_ids: [GOVERNANCE.AuditTrail]
+    purpose: record immutable decision provenance without changing the underlying decision
 change_log:
+  - version: 0.2.0
+    date: 2026-08-17
+    changes:
+      - Added stable decision units for routing, quota, cost, benchmark, confidence-state, release-gate and audit computation.
+      - Kept route selection and release decisions deterministic even when routed workloads use probabilistic inference.
   - version: 0.1.1
     date: 2026-08-10
     changes:
