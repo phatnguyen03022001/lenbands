@@ -1,13 +1,46 @@
 type: evaluation-contract
 status: review
-version: 0.2.0
+version: 0.3.0
 owner: engineering + governance
 representation: markdown
-derived_from: [EVAL.Writing, EVAL.Speaking, EVAL.Pronunciation, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
+derived_from: [EVAL.Writing, EVAL.Speaking, EVAL.Pronunciation, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail, COACH.ErrorAnalysis, COACH.Feedback]
 purpose: evaluation-boundary-quality-policy
 created_at: 2026-08-07
 updated_at: 2026-08-17
+decision_units:
+  - unit_id: evaluation.submission_preflight
+    capability_ids: [EVAL.Writing]
+    purpose: validate authorization entitlement submission state scope and idempotency before inference
+  - unit_id: evaluation.semantic_inference
+    capability_ids: [EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback]
+    purpose: produce typed candidate rubric interpretations from free-form learner evidence
+  - unit_id: evaluation.evidence_reference_validation
+    capability_ids: [EVAL.Writing, COACH.ErrorAnalysis]
+    purpose: verify candidate evidence references resolve to the immutable submitted task snapshot
+  - unit_id: evaluation.taxonomy_resolution
+    capability_ids: [COACH.ErrorAnalysis]
+    purpose: resolve candidate semantic findings to controlled LenBands error taxonomy identities
+  - unit_id: evaluation.criterion_validation
+    capability_ids: [EVAL.Writing]
+    purpose: validate candidate criterion judgments against rubric scope evidence and schema constraints
+  - unit_id: evaluation.score_aggregation
+    capability_ids: [EVAL.Writing]
+    purpose: aggregate validated criterion results under canonical task-scoped scoring rules
+  - unit_id: evaluation.quality_state_decision
+    capability_ids: [EVAL.Writing, GOVERNANCE.ConfidenceScore]
+    purpose: decide accepted low_confidence insufficient_evidence or invalid from validated evidence and policy
+  - unit_id: evaluation.feedback_priority
+    capability_ids: [COACH.ErrorAnalysis, COACH.Feedback]
+    purpose: rank accepted findings and actions from canonical result facts without another semantic inference
+  - unit_id: evaluation.presentation_wording
+    capability_ids: [COACH.Feedback]
+    purpose: render optional learner-facing explanation without changing canonical findings scores evidence or decisions
 change_log:
+  - version: 0.3.0
+    date: 2026-08-17
+    changes:
+      - Added stable decision-unit identities separating probabilistic semantic inference from deterministic evidence validation, taxonomy resolution, score aggregation, quality decisions and feedback ranking.
+      - Declared presentation wording as a separate non-authoritative unit.
   - version: 0.2.0
     date: 2026-08-17
     changes:
