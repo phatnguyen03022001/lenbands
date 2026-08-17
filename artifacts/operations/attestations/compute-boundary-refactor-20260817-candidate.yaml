@@ -1,0 +1,13 @@
+change_id: compute-boundary-refactor-20260817-candidate
+change_scope: compute authority decision units inference provenance validators agent routing and stale contract convergence
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+external_review_required: true
+notes:
+  - This record declares candidate properties only; it is not founder authorization or CI evidence.
+  - Execution policy is introduced as a non-authoritative projection over exact canonical domain decision units.
+  - No API architecture, runtime topology, provider procurement, P0 readiness or production readiness is promoted by this change.
+  - Exact candidate verification, veto results and founder authorization remain external to the candidate tree.
