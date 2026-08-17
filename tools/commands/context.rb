@@ -24,7 +24,9 @@ begin
   domain = load_yaml.call("artifacts/operations/domain-automation-contract.yaml")
   trust = load_yaml.call("artifacts/operations/agent-trust-policy.yaml")
   framework_path = docs.dig("authority", "ielts_framework", "path").to_s
+  execution_policy_path = docs.dig("projections", "execution_policy", "path").to_s
   raise "DOCS.yaml missing ielts_framework authority" if framework_path.empty?
+  raise "DOCS.yaml missing execution_policy projection" if execution_policy_path.empty?
   framework_body = File.read(File.join(root, framework_path))
   framework = framework_body[/framework_version:\s*(\d+\.\d+\.\d+)/, 1]
   raise "framework_version missing from #{framework_path}" if framework.nil?
@@ -36,12 +38,18 @@ begin
     "project" => "LenBands IELTS application",
     "framework_version" => framework,
     "authority_registry" => "DOCS.yaml",
-    "reading_order" => ["DOCS.yaml", "task_specific_authority_from_DOCS", "referenced_contracts_only"],
+    "decision_policy_projection" => execution_policy_path,
+    "reading_order" => ["DOCS.yaml", "task_specific_authority_from_DOCS", "referenced_contracts_only", "execution_policy_only_when_compute_boundary_is_relevant"],
     "canonical_authorities" => canonical,
     "hard_rules" => [
       "resolve authority through DOCS.yaml before README/index/search results",
       "historical/transitional aliases never override canonical owners",
       "controlled vocabulary or explicit unresolved disposition; never invent domain IDs",
+      "execution-policy is a projection and may not invent capabilities, decision units or canonical semantics",
+      "use the lowest sufficient compute mode supported by product-quality, latency, cost and privacy evidence",
+      "probabilistic output is candidate inference; deterministic domain validation decides canonical state",
+      "generated presentation is non-authoritative and cannot mutate facts or decisions",
+      "a compute-mode change is a governed architectural change, not an implementation optimization",
       "no learner raw assessment content in analytics/general logs",
       "no readiness, calibration, approval or evidence claim without bound evidence",
       "runtime mechanism is not product semantics; buy commodity capabilities by default"
@@ -62,6 +70,7 @@ begin
   else
     puts "LenBands agent context (framework #{framework})"
     puts "Authority registry: DOCS.yaml"
+    puts "Compute projection: #{execution_policy_path}"
     puts "P0: #{packs.map { |pack| "#{pack["family_id"]}=#{pack["readiness_state"]}" }.join(' ')}"
     puts "Domain automation: #{domains.map { |name, value| "#{name}=#{value["coverage_state"]}" }.join(' ')}"
     puts "Hard rules:"
