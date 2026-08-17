@@ -22,6 +22,7 @@ tools/commands/validate/documents.rb
 ruby tools/commands/validate/framework-remediation.rb
 tools/commands/validate/contract-ownership.rb
 tools/commands/validate/implementation-catalog.sh
+ruby tools/commands/validate/compute-boundary.rb
 
 test_files=(tools/test/test_*.rb)
 if [[ ! -e "${test_files[0]}" ]]; then
