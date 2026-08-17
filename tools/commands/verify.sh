@@ -19,7 +19,7 @@ tools/commands/validate/domain-automation.rb
 tools/commands/validate/documents.rb
 # Canonical full-web API authority is validated independently while legacy
 # capability-pack OpenAPI files remain migration-only inputs.
-tools/commands/validate/canonical-web-api.rb
+ruby tools/commands/validate/canonical-web-api.rb
 tools/commands/validate/contract-ownership.rb
 tools/commands/validate/implementation-catalog.sh
 
