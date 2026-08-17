@@ -61,6 +61,18 @@ weaken_dimensions = Marshal.load(Marshal.dump(base))
 weaken_dimensions["sufficiency_evaluation"]["required_dimensions"].delete("privacy")
 mutations << ["compute selection drops privacy dimension", weaken_dimensions, "sufficiency dimensions drifted"]
 
+missing_profile = Marshal.load(Marshal.dump(base))
+missing_profile["decision_policies"][0]["sufficiency"]["constraint_profile"] = "unknown_profile"
+mutations << ["decision unit loses cross-cutting sufficiency binding", missing_profile, "missing/unknown constraint_profile"]
+
+profile_drops_privacy = Marshal.load(Marshal.dump(base))
+profile_drops_privacy["sufficiency_profiles"]["p0_deterministic_domain"]["dimensions"].delete("privacy")
+mutations << ["sufficiency profile drops privacy", profile_drops_privacy, "cross-cutting dimensions drifted"]
+
+profile_invents_semantics = Marshal.load(Marshal.dump(base))
+profile_invents_semantics["sufficiency_profiles"]["p0_deterministic_domain"]["canonical_compute_mode"] = "deterministic"
+mutations << ["sufficiency profile invents semantic decision", profile_invents_semantics, "may not define semantic/decision key canonical_compute_mode"]
+
 model_mutates_state = Marshal.load(Marshal.dump(base))
 model_entry = model_mutates_state["decision_policies"].find { |entry| entry["unit_id"] == "evaluation.semantic_inference" }
 model_entry["probabilistic_constraints"]["may_mutate_canonical_state"] = true
@@ -71,10 +83,36 @@ model_entry = missing_provenance["decision_policies"].find { |entry| entry["unit
 model_entry["provenance_required"] = []
 mutations << ["missing inference provenance", missing_provenance, "missing provenance requirements"]
 
+missing_lower_mode = Marshal.load(Marshal.dump(base))
+model_entry = missing_lower_mode["decision_policies"].find { |entry| entry["unit_id"] == "evaluation.semantic_inference" }
+model_entry["sufficiency"]["lower_mode_rejections"].delete("specialized_model_api")
+mutations << ["generative mode skips specialized lower mode", missing_lower_mode, "lower-mode rejection set drifted"]
+
+extra_lower_mode = Marshal.load(Marshal.dump(base))
+model_entry = extra_lower_mode["decision_policies"].find { |entry| entry["unit_id"] == "evaluation.semantic_inference" }
+model_entry["sufficiency"]["lower_mode_rejections"]["generative_model"] = "self"
+mutations << ["lower-mode map includes current mode", extra_lower_mode, "lower-mode rejection set drifted"]
+
 missing_empirical_requirement = Marshal.load(Marshal.dump(base))
 model_entry = missing_empirical_requirement["decision_policies"].find { |entry| entry["unit_id"] == "evaluation.semantic_inference" }
 model_entry["sufficiency"].delete("empirical_validation_required")
 mutations << ["probabilistic mode skips empirical promotion proof", missing_empirical_requirement, "must require empirical validation before promotion"]
+
+presentation_substitution = Marshal.load(Marshal.dump(base))
+presentation = presentation_substitution["decision_policies"].find { |entry| entry["unit_id"] == "evaluation.presentation_wording" }
+presentation["canonical_compute_mode"] = "generative_model"
+presentation["probabilistic_executor_allowed"] = true
+presentation["inference_executor"] = "governed_model_route"
+presentation["sufficiency"]["constraint_profile"] = "p0_writing_semantic_inference"
+presentation["sufficiency"]["lower_mode_rejections"] = {
+  "deterministic" => "claimed",
+  "statistical_optimization" => "claimed",
+  "specialized_model_api" => "claimed"
+}
+presentation["sufficiency"]["empirical_validation_required"] = true
+presentation["probabilistic_constraints"] = {"candidate_only" => true, "may_mutate_canonical_state" => false}
+presentation["provenance_required"] = ["evaluation_id"]
+mutations << ["P0 presentation silently becomes generative", presentation_substitution, "must use deterministic compute"]
 
 future_unit = Marshal.load(Marshal.dump(base))
 future_unit["future_capability_defaults"][0]["unit_id"] = "personal.future_invented_unit"
@@ -88,6 +126,10 @@ mutations.each do |label, data, expected|
     errors << "#{label}: expected failure marker #{expected.inspect}, got #{mutation_stderr.inspect}"
   end
 end
+
+docs = YAML.safe_load(File.read(File.join(root, "DOCS.yaml")), aliases: false)
+expected_compute_ownership = %w[decision_compute_boundaries probabilistic_inference_pipeline algorithmic_vs_inference_grouping compute_mode_change_gate]
+errors << "DOCS learning_engines regained broad domain-semantic ownership" unless Array(docs.dig("authority", "learning_engines", "owns")) == expected_compute_ownership
 
 agent_markers = {
   ".claude/agents/repo-cartographer.md" => ["exact `decision_units[].unit_id`", "never treat the execution-policy projection as semantic authority"],
@@ -107,4 +149,4 @@ agent_markers.each do |relative_path, markers|
 end
 
 abort(errors.join("\n")) unless errors.empty?
-puts "PASS: compute-boundary projection, sufficiency, mutation and agent-routing tests"
+puts "PASS: compute-boundary projection, exact sufficiency, lower-mode, mutation and agent-routing tests"
