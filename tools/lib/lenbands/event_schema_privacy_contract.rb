@@ -20,6 +20,7 @@ module Lenbands::EventSchemaPrivacyContract
       end.reject(&:empty?)
       fields.each do |field|
         normalized = field.downcase.tr("-", "_")
+        next if opaque_reference?(normalized)
         if forbidden.any? { |blocked| forbidden_match?(normalized, blocked) }
           errors << "#{event}: forbidden raw/sensitive event payload field #{field}"
         end
@@ -39,11 +40,18 @@ module Lenbands::EventSchemaPrivacyContract
   end
   private_class_method :registry_forbidden_fields
 
+  def opaque_reference?(field)
+    field.end_with?("_ref", "_refs") && !field.start_with?("raw_")
+  end
+  private_class_method :opaque_reference?
+
   def forbidden_match?(field, blocked)
     return true if field == blocked
     # Raw-content and credential nouns remain forbidden when a developer adds a
-    # common suffix/prefix such as *_text, *_body, raw_*, or *_payload.
-    field.start_with?("raw_#{blocked}") || field.end_with?("_#{blocked}") || field.start_with?("#{blocked}_")
+    # content-bearing prefix/suffix such as raw_*, *_text, *_body or *_payload.
+    return true if field.start_with?("raw_#{blocked}")
+    return true if field.start_with?("#{blocked}_") && !field.end_with?("_ref", "_refs")
+    field.end_with?("_#{blocked}")
   end
   private_class_method :forbidden_match?
 end
