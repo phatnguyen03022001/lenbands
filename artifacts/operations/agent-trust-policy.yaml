@@ -4,9 +4,10 @@ source_of_truth: true
 authority_scope: agent_change_and_anti_bypass_policy
 principles:
   - agents_may_change_implementation_but_not_silently_weaken_authority
-  - validators_gates_and_evidence_require_independent_review
+  - validators_gates_and_evidence_require_role_separated_review_and_founder_authorization
   - immutable_evidence_may_be_added_but_not_modified_or_deleted
-  - repository_checks_do_not_replace_external_branch_protection
+  - repository_checks_do_not_replace_live_host_control_evidence
+  - host_enforcement_claims_are_observed_facts_not_repository_policy_assertions
 
 founder_local_profile:
   path: .claude/settings.local.json
@@ -117,10 +118,10 @@ founder_local_profile:
     - stable_updates_reduce_third_party_endpoint_regression_risk
     - bounded_agents_cannot_mutate_the_local_profile
     - shared_bash_permission_is_fail_closed_by_the_reviewed_pretooluse_command_policy
-    - source_mutation_remains_globally_locked_during_family_authorization_migration
+    - source_mutation_remains_locked_until_family_scoped_authorization_is_implemented_and_granted
     - no_application_technology_is_pre_authorized_by_runtime_command_policy
     - deprecated_runtime_agent_names_are_non_authorizing_compatibility_surfaces
-    - future_implementation_authorization_is_family_and_exact_candidate_sha_scoped
+    - implementation_authorization_is_family_and_exact_candidate_sha_scoped
     - shared_permissions_deny_runtime_agents_and_the_implementation_compatibility_skill_while_locked
     - agent_teams_remain_disabled_until_git_worktree_isolation_exists
     - accept_edits_applies_only_below_shared_denies_sandbox_and_pretooluse_guards
@@ -128,8 +129,11 @@ founder_local_profile:
 application_builder:
   phase_gate:
     state: document_convergence
+    compatibility_mode: true
+    authority: non_authoritative_fail_closed_compatibility
     source_mutation: locked
     scope: migration_to_family_scoped_authorization
+    canonical_authorization_contract: artifacts/operations/implementation-eligibility.yaml
     locked_source_roots: [apps, services, engines]
     partial_pack_unlock_allowed: false
     founder_authorization_ref: null
@@ -157,10 +161,11 @@ application_builder:
       - p0_contracts_exist
       - prose_claims_document_completeness
     migration_note: >-
-      The current phase fields remain globally fail-closed for compatibility with shared
-      Claude guards. They do not define the future unlock model. The canonical future
-      model is artifacts/operations/implementation-eligibility.yaml and requires
-      family-scoped exact-candidate authorization.
+      This legacy all-application gate remains only as a fail-closed compatibility surface
+      for current shared Claude guards. It is not an implementation authorization model and
+      may not be used to deny or grant eligibility semantics. The canonical authorization
+      model is artifacts/operations/implementation-eligibility.yaml and is family-scoped
+      plus exact-candidate-SHA scoped.
   source_workspaces:
     application_candidate: apps/web
     legacy_locked_roots: [services, engines]
@@ -274,30 +279,19 @@ protected_paths:
 immutable_append_only_paths:
   - artifacts/operations/evidence/**
 
-attestation:
-  path_pattern: artifacts/operations/attestations/*.yaml
-  required_for_protected_change: true
-  required_fields:
-    - change_id
-    - change_scope
-    - protected_changes_reviewed
-    - authority_boundaries_changed
-    - validators_weakened
-    - evidence_modified
-    - readiness_claimed
-    - commands_run
-    - external_review_required
-  invariants:
-    protected_changes_reviewed: true
-    validators_weakened: false
-    evidence_modified: false
+candidate_change_governance:
+  canonical_contract: artifacts/operations/change-governance.yaml
+  candidate_declaration_contract_owner: change_governance
+  repository_tree_may_not_self_authorize: true
+  repository_tree_may_not_self_claim_ci_passed: true
 
-external_enforcement:
-  hosting: github
-  required_status_check: LenBands Toolchain Trust / verify-trust-boundary
-  require_code_owner_review: true
-  require_pull_request: true
-  block_force_push: true
-  block_branch_deletion: true
-  dismiss_stale_approvals: true
-  require_conversation_resolution: true
+host_controls:
+  observed_state_source: artifacts/operations/hosting-control-state.yaml
+  enforcement_claim_requires_live_host_evidence: true
+  desired_controls:
+    required_status_check: LenBands Toolchain Trust / verify-trust-boundary
+    block_force_push: true
+    block_branch_deletion: true
+    dismiss_stale_approvals_when_reviews_are_used: true
+    require_conversation_resolution_when_reviews_are_used: true
+  current_policy_rule: desired_host_controls_are_not_claimed_as_enforced_until_observed_live
