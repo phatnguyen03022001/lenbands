@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 repository: phatnguyen03022001/lenbands
 purpose: agent-readable document control plane
 rule: Read this registry before opening deep documents. A path not registered as canonical must not override a canonical document.
@@ -49,6 +49,7 @@ authority:
     document_id: artifact-constitution
     path: artifacts/CONVENTION.md
     owns: [artifact_placement, metadata, lifecycle]
+
   web_api:
     document_id: web-api
     path: artifacts/engineering/api/openapi.yaml
@@ -57,6 +58,14 @@ authority:
     document_id: web-api-schemas
     path: artifacts/engineering/api/schema-contract.yaml
     owns: [operation_request_schema, operation_success_response_schema, payload_field_semantics]
+  web_api_type_system:
+    document_id: web-api-type-system
+    path: artifacts/engineering/api/type-system.yaml
+    owns: [api_type_aliases, transport_policy, public_failure_codes, idempotency_key_shape]
+  web_api_operation_ownership:
+    document_id: web-api-operation-ownership
+    path: artifacts/engineering/api/operation-ownership.yaml
+    owns: [operation_to_implementation_family]
   web_access:
     document_id: web-access
     path: artifacts/engineering/api/access-control.md
@@ -64,11 +73,17 @@ authority:
   api_policy:
     document_id: api-policy
     path: artifacts/engineering/api/README.md
-    owns: [api_versioning, errors, idempotency, deprecation, provider_boundaries]
+    owns: [api_versioning, errors, idempotency, deprecation, provider_boundaries, resolved_codegen_rule]
+
+  runtime_contract:
+    document_id: runtime-contract
+    path: artifacts/engineering/runtime-contract.yaml
+    owns: [runtime_invariants, durable_operation_semantics, persistence_roles, cache_default, provider_runtime_boundary]
   platform_sourcing:
     document_id: platform-sourcing
     path: artifacts/business/decisions/platform-sourcing.md
-    owns: [build_buy_boundary, selected_managed_baseline, provider_exit]
+    owns: [build_buy_boundary, managed_provider_candidates, provider_exit]
+
   bops:
     document_id: bops
     path: artifacts/operations/bops/contract.yaml
@@ -77,6 +92,22 @@ authority:
     document_id: bops-threat-model
     path: artifacts/operations/bops/threat-model.md
     owns: [cross_boundary_threats, interference_controls, red_team_cases]
+  data_retention:
+    document_id: data-retention-registry
+    path: artifacts/operations/data-retention-registry.yaml
+    owns: [entity_purpose, retention_policy, export_behavior, deletion_behavior, telemetry_field_denies]
+  evidence_integrity:
+    document_id: evidence-integrity
+    path: artifacts/operations/evidence-integrity.yaml
+    owns: [evidence_authenticity, candidate_binding, runner_provenance, benchmark_truth_boundary]
+  implementation_eligibility:
+    document_id: implementation-eligibility
+    path: artifacts/operations/implementation-eligibility.yaml
+    owns: [scope_lifecycle_vs_eligibility_vs_authorization_vs_release]
+  review_remediation:
+    document_id: review-remediation-dispositions
+    path: artifacts/operations/review-remediation-dispositions.yaml
+    owns: [unmapped_error_remediation, deprecated_error_generation_policy, microskill_resolution]
   documentation_architecture:
     document_id: documentation-architecture
     path: artifacts/operations/documentation-architecture.yaml
@@ -101,6 +132,18 @@ legacy_aliases:
   artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md:
     canonical: artifacts/engineering/api/README.md
     status: compatibility_pointer
+  artifacts/engineering/contracts/runtime/async-job-worker-contract.md:
+    canonical: artifacts/engineering/runtime-contract.yaml
+    status: compatibility_pointer
+  artifacts/engineering/contracts/runtime/cache-contract.md:
+    canonical: artifacts/engineering/runtime-contract.yaml
+    status: compatibility_pointer
+  artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md:
+    canonical: artifacts/engineering/runtime-contract.yaml
+    status: compatibility_pointer
+  artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md:
+    canonical: artifacts/engineering/runtime-contract.yaml
+    status: compatibility_pointer
   artifacts/operations/bops-contract-pack.md:
     canonical: artifacts/operations/bops/contract.yaml
     status: migration_only
@@ -116,8 +159,9 @@ legacy_aliases:
 
 agent_rules:
   - Never resolve authority by newest-looking filename.
-  - Never treat README, catalog, index, generated projection, prompt, benchmark proposal, or research synthesis as a higher authority than its registered owner.
+  - Never treat README, catalog, index, generated projection, prompt, benchmark proposal, research synthesis, or compatibility pointer as a higher authority than its registered owner.
   - Do not scan the whole repository before consulting this registry.
-  - Follow legacy aliases only for migration/traceability, never to select a second source of truth.
-  - Stable product identities are capability IDs, framework node IDs, document_ids, and contract operationIds; paths are replaceable.
+  - Follow legacy aliases only for migration and traceability, never to select a second source of truth.
+  - Stable product identities are capability IDs, framework node IDs, document_ids, operationIds and implementation family IDs; paths are replaceable.
+  - Generated resolved OpenAPI is a deterministic build projection and never a semantic SSOT.
   - If two canonical entries appear to own the same semantic field, stop and report authority_collision.

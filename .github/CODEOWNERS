@@ -1,27 +1,34 @@
-# Default ownership. Confirm that @tienphat is the repository-host account before enabling branch protection.
-* @tienphat
+# Repository ownership. @phatnguyen03022001 is the current repository admin.
+# This makes CODEOWNERS enforceable once branch protection is enabled; it does not
+# satisfy the separate independent-review requirement for protected authority changes.
+* @phatnguyen03022001
 
-/AGENTS.md @tienphat
-/CLAUDE.md @tienphat
-**/AGENTS.md @tienphat
-**/CLAUDE.md @tienphat
-**/CLAUDE.local.md @tienphat
-**/.mcp.json @tienphat
-/.claude/ @tienphat
-/.claude-plugin/ @tienphat
-/blueprint/ @tienphat
-/artifacts/operations/architecture-frozen* @tienphat
-/artifacts/operations/domain-automation-contract* @tienphat
-/artifacts/operations/agent-trust-policy* @tienphat
-/artifacts/operations/evidence/ @tienphat
-/artifacts/operations/build-readiness-matrix* @tienphat
-/artifacts/operations/PENDING-EVIDENCE* @tienphat
-/artifacts/operations/capability-* @tienphat
-/artifacts/operations/promotion-* @tienphat
-/artifacts/operations/acceptance/ @tienphat
-/artifacts/operations/benchmark/ @tienphat
-/artifacts/operations/attestations/ @tienphat
-/artifacts/operations/spawn-prompts/ @tienphat
-/artifacts/engineering/contracts/events/event-ownership-registry* @tienphat
-/tools/ @tienphat
-/.github/ @tienphat
+/AGENTS.md @phatnguyen03022001
+/CLAUDE.md @phatnguyen03022001
+**/AGENTS.md @phatnguyen03022001
+**/CLAUDE.md @phatnguyen03022001
+**/CLAUDE.local.md @phatnguyen03022001
+**/.mcp.json @phatnguyen03022001
+/.claude/ @phatnguyen03022001
+/.claude-plugin/ @phatnguyen03022001
+/blueprint/ @phatnguyen03022001
+/DOCS.yaml @phatnguyen03022001
+/artifacts/operations/architecture-frozen* @phatnguyen03022001
+/artifacts/operations/domain-automation-contract* @phatnguyen03022001
+/artifacts/operations/agent-trust-policy* @phatnguyen03022001
+/artifacts/operations/evidence-integrity* @phatnguyen03022001
+/artifacts/operations/data-retention-registry* @phatnguyen03022001
+/artifacts/operations/implementation-eligibility* @phatnguyen03022001
+/artifacts/operations/build-readiness-matrix* @phatnguyen03022001
+/artifacts/operations/PENDING-EVIDENCE* @phatnguyen03022001
+/artifacts/operations/capability-* @phatnguyen03022001
+/artifacts/operations/promotion-* @phatnguyen03022001
+/artifacts/operations/acceptance/ @phatnguyen03022001
+/artifacts/operations/benchmark/ @phatnguyen03022001
+/artifacts/operations/attestations/ @phatnguyen03022001
+/artifacts/operations/spawn-prompts/ @phatnguyen03022001
+/artifacts/engineering/api/ @phatnguyen03022001
+/artifacts/engineering/runtime-contract* @phatnguyen03022001
+/artifacts/engineering/contracts/events/event-ownership-registry* @phatnguyen03022001
+/tools/ @phatnguyen03022001
+/.github/ @phatnguyen03022001

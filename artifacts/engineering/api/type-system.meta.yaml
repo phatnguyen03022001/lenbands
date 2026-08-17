@@ -1,0 +1,10 @@
+type: web-api-type-system
+status: review
+version: 1.1.0
+owner: engineering + security
+representation: yaml
+derived_from: [IDENTITY.Profile, EVAL.Writing, ADMIN.User, OPS.ReleaseGate]
+purpose: closed-web-api-type-and-transport-policy-registry
+consumed_by: [engineering, security, tooling]
+created_at: 2026-08-17
+updated_at: 2026-08-17

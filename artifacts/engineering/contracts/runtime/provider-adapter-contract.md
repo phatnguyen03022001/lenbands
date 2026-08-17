@@ -2,7 +2,7 @@
 
 ## Boundary
 
-Domain services call a provider-neutral adapter; no UI, domain entity, event name or Capability ID exposes provider terminology. Provider selection remains a Decision Artifact and cannot alter evaluation semantics without benchmark/release gate.
+Domain/application logic calls provider-neutral adapters. Provider names, model names, queue names, cache names and deployment products never become Capability IDs, event identities, failure semantics or learner-facing score meaning. Provider selection remains a sourcing/procurement decision and cannot alter evaluation semantics without benchmark/release evidence.
 
 ## Evaluation adapter interface
 
@@ -12,58 +12,46 @@ evaluate_request:
   submission_ref: opaque-id
   rubric_version: string
   task_version: string
+  scorer_route_version: string
   required_evidence: true
   deadline_at: timestamp
   cost_bucket: writing_eval_pilot
 
 evaluate_response:
-  outcome: accepted | low_confidence | insufficient_evidence | invalid | unavailable | delayed
-  evaluation_ref: opaque-id
+  quality_status: accepted | low_confidence | insufficient_evidence | invalid
+  delivery_state: completed | delayed | unavailable
+  evaluation_ref: opaque-id | null
   rubric_version: string
+  scorer_route_version: string
   model_version: string
   evidence_refs: []
-  confidence: number
-  usage: {input_tokens: integer, output_tokens: integer}
+  confidence_state: unknown | provisional | stronger_evidence
+  usage: {input_units: integer, output_units: integer}
   provider_trace_ref: opaque-id
 ```
 
-`accepted | low_confidence | insufficient_evidence | invalid` are canonical quality outcomes. `unavailable | delayed` are transport/job states when no quality result exists; the adapter must not treat them as persisted quality statuses.
+A delayed/unavailable call has no accepted learner score. Raw provider probability/confidence is never exposed as learner correctness confidence. Provider request/response bodies remain inside the privacy-scoped adapter/audit boundary; general logs retain only opaque/versioned references and governed aggregates.
 
-Raw provider request/response stays inside the privacy-scoped adapter/audit boundary. `provider_trace_ref` is opaque and never appears in learner analytics/UI.
+## Prompt and response integrity
 
-## Threat model — provider boundary (M12)
+- Prompt instructions are fixed/versioned; learner/content text is delimited data and cannot append system instructions.
+- The adapter validates normalized output against the canonical evaluation schema, rubric version, scorer-route version and task/submission provenance before domain persistence.
+- Provider/model fallback for learner-visible scoring is allowed only to a benchmark-approved combination in the same scorer-route version. Otherwise return delayed/unavailable.
+- A provider swap is configuration plus a reviewed adapter implementation, not a domain/API/event migration.
 
-| Asset | Threat | Control (P0) |
-|---|---|---|
-| Prompt template integrity | Prompt injection/override: learner or content text redefines the evaluation instruction | Prompt build is a fixed template in `writing_evaluation_v1.md`; embedded content is delimited data, not instructions; no free-form override appends to system prompt; prompt hash audited per call |
-| Provider response tampering | Adapter normalizes model output without integrity; a malicious/tampered provider response reaches domain | Adapter validates Evaluation Contract schema + rubric/model version + cost bucket before persistence; disagreement goes to benchmark, not averaged; dual-run cross-checks |
-| Provider credentials | Leaked provider API key/token | Keys live in a secrets manager / key store (provider/cloud not yet chosen), never in repo, env var per deployment, rotation policy; adapter reads via secret ref, not hard-coded |
-| Data exfiltration via provider | Raw essay/audio or hidden reasoning transmitted beyond agreed data scope | Adapter sends only required submission/text for evaluation; raw content stays learner-scoped; provider_trace_ref opaque; no raw content in learner analytics/UI |
-| Adapter isolation | Provider outage or malicious provider affects unrelated flows | Circuit breaker + deadline; adapter is per-provider module behind neutral interface; provider swap is config/feature-flag, not domain change |
+## Durable execution and retry
 
-Prompt-injection containment is a benchmark class (`evaluation-benchmark-spec.md` Adversarial cases) and must be tested before learner-visible promotion. This section is threat-model prose; it is not a security validation or evidence run.
+Retry ownership belongs to the canonical durable-operation contract, not to a worker process or provider SDK. The adapter performs only a bounded attempt within its supplied deadline. The orchestration boundary decides retries, deduplication and reconciliation using stable operation/idempotency identities. No Redis/queue/worker mechanism is implied.
 
-## Timeout, circuit and fallback
+Numeric timeout/circuit/retry values remain unarmed until backed by approved runtime/provider evidence. They are not architecture defaults.
 
-| Concern | P0 rule |
-|---|---|
-| Deadline | Worker passes absolute `deadline_at`; adapter never extends it silently |
-| Per-attempt timeout | Provider timeout must leave time for durable failure/result write before deadline |
-| Circuit | Open after the threshold in Runtime Baseline Configuration; threshold changes require release review and an alert |
-| Fallback | Prefer delayed queue/retry; alternate provider/model only if benchmarked for same contract and within cost quota |
-| Low confidence | Return evidence + caveat; do not promote to readiness or silently average provider scores |
-| Usage | Adapter records token/audio usage and cached/billed outcome for cost attribution |
-| Retry | Only worker owns retry. Adapter never internally retries beyond its bounded attempt without emitting telemetry |
+## Security/privacy
 
-## Dual-run and change policy
-
-- New provider/model/prompt/rubric runs shadow/dual-run against benchmark before learner-visible route change.
-- Both outputs map to the same Evaluation Contract; disagreements are evidence for benchmark/review, not values to average.
-- Adapter version, model version, prompt-template reference/hash and routing decision are audit fields.
-- Rollback switches adapter route through feature flag/config without API/event/domain semantic change.
+Credentials come from a managed secret boundary and never enter the repository/client. Only the minimum assessment content required for the approved purpose may be sent to a provider. Provider payloads are treated as untrusted input and normalized before entering canonical state.
 
 ## Acceptance conditions
 
-- Provider outage preserves submission and results in user-safe `delayed`/`unavailable` state.
-- Provider swap does not require OpenAPI, runtime entity or event semantic migration.
-- Cost, latency, error class and version are attributable for each accepted evaluation without retaining raw provider payload in general telemetry.
+- Provider outage preserves submission and yields delayed/unavailable without silent scorer substitution.
+- Provider swap preserves API, event, score and historical semantics.
+- Cost, latency, failure class and route/model versions are attributable without retaining raw provider payload in general telemetry.
+- Duplicate orchestration attempts cannot produce duplicate domain effects.

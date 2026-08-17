@@ -1,70 +1,66 @@
 # LenBands Web API
 
-The canonical web API is intentionally split by **non-overlapping semantic ownership**:
+The web API uses **non-overlapping semantic owners that compile into one build contract**:
 
-- `openapi.yaml` — HTTP paths, methods, operation IDs, access annotations, idempotency and error representation.
-- `schema-contract.yaml` — typed request/success-response payload semantics for every canonical `operationId`.
-- `access-control.md` — five personas, product roles, Premium entitlement and separation of duties.
+- `openapi.yaml` — HTTP paths/methods, operation IDs, persona/role/entitlement/data-class annotations and HTTP error surface.
+- `schema-contract.yaml` — request and success-response field semantics for every canonical `operationId`.
+- `type-system.yaml` — closed type aliases plus transport policies such as idempotency-key shape, public failure codes and webhook signature ordering.
+- `operation-ownership.yaml` — exactly one implementation-family owner for every canonical operation.
+- `access-control.md` — five web personas, three authenticated product roles, Premium entitlement and separation of duties.
 
-`DOCS.yaml` registers these owners. None may redefine the other's concern.
+`DOCS.yaml` registers these owners. None may redefine another concern.
+
+## Deterministic build projection
+
+`tools/commands/generate/canonical-web-api.rb` compiles the semantic inputs above into a resolved OpenAPI 3.1.2 projection. `tools/commands/generate/all.sh --check` proves the projection can be regenerated without unknown type tokens or generic build payloads.
+
+Rules:
+
+- source `openapi.yaml` may retain generic authoring placeholders while operation/access metadata is edited;
+- **generated/resolved OpenAPI is the only codegen/build input**;
+- resolved operations bind request/response bodies to the exact schemas registered by `operationId`;
+- `JsonObject`, `ObjectOK`, `ListOK`, `ObjectCreated` and `ObjectAccepted` are forbidden in the resolved build surface;
+- unknown schema/type tokens fail CI;
+- generated output is a projection and never becomes an additional SSOT.
 
 ## Identity model
 
-There are five web personas:
+Web personas: `guest`, `learner`, `premium_learner`, `colab`, `admin`.
 
-`guest`, `learner`, `premium_learner`, `colab`, `admin`.
+Authenticated product roles: `learner`, `colab`, `admin`.
 
-There are only three authenticated product roles:
-
-`learner`, `colab`, `admin`.
-
-`premium_learner` is `learner + premium entitlement`. It is deliberately **not** a separate authorization role. `guest` has no authenticated role. Internal workflow/webhook principals are service identities and are not web personas.
+`premium_learner = learner + premium entitlement`; it is not a separate security role. `guest` has no authenticated role. Signed webhook/workflow principals are internal service identities, not web personas.
 
 ## Contract rules
 
-- Target OpenAPI semantics: **3.1.2**. The document uses `openapi: 3.1.0`, the 3.1 document-format identifier.
-- Error bodies use RFC 9457 `application/problem+json`.
-- Every operation declares `x-web-personas`, `x-required-roles`, `x-required-entitlements`, `x-data-classes`, and `x-idempotency`.
-- Every canonical `operationId` has exactly one entry in `schema-contract.yaml` describing its JSON request and successful response contract.
-- `none` in the schema registry means the operation has no JSON request body; it does not mean an untyped body is accepted.
-- Authentication is provider-owned. LenBands does not create a second password/session API. The server verifies managed identity and enforces LenBands object/role/entitlement policy.
-- Client claims are inputs, not authorization decisions. Server policy and database controls remain authoritative.
-- Mutations that can create a durable side effect require an idempotency key.
-- Object ownership is checked server-side on every learner-owned resource; knowing an ID is never authorization.
-- Raw assessment content never appears in analytics, general logs, error details, or billing webhooks.
-- Provider response bodies are validated and normalized at adapter boundaries before entering domain state.
+- Resolved OpenAPI target: **3.1.2** with JSON Schema 2020-12 semantics.
+- Error bodies use RFC 9457 `application/problem+json`; public `Problem.code` values are compiled from the controlled failure projection.
+- Every operation declares persona, role, entitlement, data class and idempotency policy.
+- Every operation has exactly one typed request/success-response registry entry and exactly one implementation-family owner.
+- `none` request means no JSON request body.
+- Managed identity verifies authentication; LenBands server/data policy owns object/role/entitlement authorization.
+- Client claims and opaque IDs are never sufficient authorization.
+- Durable mutations require the controlled `Idempotency-Key` contract (16–128 characters in the resolved transport policy).
+- Raw C1–C4 assessment/security content never enters general analytics, logs, error details, or billing webhooks.
+- Signed billing webhooks verify the **raw request body before parsing/normalization**, deduplicate by provider event ID, and then update only the provider-neutral billing/entitlement ledger.
+- Provider responses are validated and normalized at adapter boundaries before entering domain state.
 
-## Schema maturity
+## Score identity and scorer isolation
 
-The schema registry freezes field-level semantics before implementation. The OpenAPI document may still use a transport-level generic object while migration/code-generation wiring is incomplete, but **build readiness is blocked** unless the operation exists in the typed schema registry and the implementation/codegen binds to that schema. Generic `additionalProperties` is therefore a migration representation, not permission for arbitrary domain payloads.
+These identities remain distinct: `official_ielts_score`, `exam_simulation_estimate`, `diagnostic_estimate`, `learning_mastery`. One Writing task result is task-scoped diagnostic evidence, not a complete official-equivalent Writing section score.
 
-Before implementation unlock, the canonical OpenAPI must either reference the typed schemas directly or a deterministic generator must prove that the rendered OpenAPI payload schemas are byte-for-byte/current projections of `schema-contract.yaml`.
-
-## Score identity
-
-These are different objects and may not share an ambiguous UI/API field:
-
-- `official_ielts_score`
-- `exam_simulation_estimate`
-- `diagnostic_estimate`
-- `learning_mastery`
-
-A single Writing Task result is task-scoped diagnostic evidence, not the official Writing section score.
-
-## Evaluation route isolation
-
-General coaching/generation may use provider fallback according to BOPS policy. Scoring may **not** fall back to a model/provider combination that has not passed the same benchmark/rubric release gate. A provider outage yields a delayed/unavailable evaluation state rather than silent scorer substitution.
+General generation/coaching may use policy-approved provider fallback. Learner-visible scoring may route only among benchmark-approved model/provider combinations inside the same scorer-route version. If no approved route is available, return `delayed`/`unavailable`; never silently substitute an unbenchmarked scorer.
 
 ## Versioning and deprecation
 
 - URI major version: `/v1`.
-- Additive compatible changes bump API/schema contract versions together when payload meaning changes.
-- Breaking semantics require a new major API version or an explicit compatibility migration.
-- Old split specs under `artifacts/engineering/contracts/**/openapi.yaml` are migration inputs only. They do not own new operations.
-- An operation is removable only after successor/retirement, migration window, usage evidence, and validator/reference migration are recorded.
+- Compatible payload additions follow the schema/API version policy.
+- Breaking semantics require an explicit compatibility migration or new major API version.
+- Legacy specs under `artifacts/engineering/contracts/**/openapi.yaml` are migration-only aliases and are never validation/codegen authorities.
+- Removal requires successor/retirement, migration window, usage/reference evidence and zero unresolved canonical consumers.
 
 ## Application boundary
 
-The browser talks to the same-origin Next.js application boundary. Server-side route handlers/actions call managed data/provider services. Sensitive provider credentials and elevated database credentials never enter client JavaScript.
+The browser talks to the reviewed same-origin managed application boundary selected by the sourcing decision. The API contract does not require Next.js, Go, Python, a standalone BFF, or a dedicated service topology.
 
-Direct browser-to-managed-data access is allowed only for an explicitly reviewed public/learner-owned surface with RLS; sensitive assessment/Admin/Colab mutations default to the application API so authorization, idempotency, audit and evidence rules stay centralized.
+Direct browser-to-managed-data access is allowed only for explicitly reviewed public/subject-owned surfaces with server/data-layer authorization such as RLS. Sensitive assessment, Admin and Colab mutations default to the governed application API so authorization, idempotency, audit and evidence rules remain centralized.

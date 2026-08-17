@@ -1,0 +1,56 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: evidence-integrity
+owner: operations + quality + security
+purpose: define what may become readiness evidence and prevent self-asserted result ingestion
+
+evidence_classes:
+  static_validation:
+    may_prove: [repository_shape, schema_consistency, deterministic_generation, reference_resolution]
+    may_not_prove: [runtime_behavior, benchmark_quality, calibration, rights, production_readiness]
+  runtime_acceptance:
+    may_prove: [registered_runtime_test_outcomes_for_one_exact_candidate]
+    required_provenance: [candidate_sha, runner_id, runner_sha256, manifest_sha256, result_sha256, started_at, completed_at, execution_environment]
+  benchmark:
+    may_prove: [metrics_against_one_authorized_gold_dataset_and_one_threshold_policy]
+    required_provenance: [candidate_sha, dataset_id, dataset_version, dataset_sha256, policy_id, policy_sha256, runner_sha256, result_sha256, scorer_route_version]
+  human_review:
+    may_prove: [rights_review, label_review, evidence_quality_review, actionability_review, founder_or_codeowner_approval]
+    required_provenance: [reviewer_identity, reviewed_object_sha256, decision, reviewed_at]
+
+integrity_rules:
+  - candidate_outputs_must_not_define_their_own_expected_result
+  - benchmark_expected_withhold_or_quality_disposition_is_gold_dataset_authority
+  - reviewer_name_as_free_text_is_not_execution_proof
+  - external_result_yaml_is_not_acceptance_evidence_without_registered_runner_provenance
+  - every_evidence_payload_is_bound_to_one_exact_candidate_sha
+  - every_input_manifest_policy_and_dataset_is_bound_by_sha256
+  - evidence_files_are_append_only_and_never_overwritten
+  - release_decisions_consume_evidence_refs_and_do_not_mutate_test_or_benchmark_results
+  - a_metric_that_requires_human_judgment_is_not_auto_promoted_from_a_model_supplied_boolean
+
+runtime_acceptance_policy:
+  current_state: blocked_until_registered_runtime_harness_exists
+  ingestion_of_claimed_pass_yaml: forbidden
+  unblock_requires:
+    - registered_test_command_per_acceptance_test
+    - exact_candidate_checkout
+    - machine_result_envelope
+    - result_and_runner_hashes
+    - immutable_evidence_write
+
+benchmark_policy:
+  numeric_metrics_owned_by_runner: [criterion_mae_band, overall_mae_band, within_half_band, false_acceptance_rate, p95_latency_ms, cost_per_accepted_evaluation_usd]
+  gold_owned_expectations: [reference_criterion_bands, reference_overall_band, must_withhold_score]
+  human_review_metrics: [evidence_validity, feedback_actionability]
+  rule: human_review_metrics_must_be_separate_blinded_evidence_and_cannot_be_candidate_booleans
+
+release_gate:
+  fail_closed_when:
+    - candidate_sha_missing_or_mismatch
+    - evidence_hash_missing_or_mismatch
+    - required_gold_or_policy_not_approved
+    - human_review_required_but_missing
+    - runner_not_registered
+    - evidence_file_mutated

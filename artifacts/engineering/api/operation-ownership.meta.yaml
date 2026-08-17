@@ -1,0 +1,10 @@
+type: web-api-operation-ownership-registry
+status: review
+version: 1.0.0
+owner: engineering + product
+representation: yaml
+derived_from: [IDENTITY.Profile, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
+purpose: exact-operation-to-implementation-family-ownership
+consumed_by: [engineering, product, tooling, agents]
+created_at: 2026-08-17
+updated_at: 2026-08-17

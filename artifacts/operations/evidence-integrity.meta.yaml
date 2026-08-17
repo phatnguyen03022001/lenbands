@@ -1,0 +1,10 @@
+type: evidence-integrity-contract
+status: review
+version: 1.0.0
+owner: operations + quality + security
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.EvaluationQuality, GOVERNANCE.AuditTrail]
+purpose: machine-evidence-authenticity-and-provenance-policy
+consumed_by: [operations, quality, security, tooling]
+created_at: 2026-08-17
+updated_at: 2026-08-17

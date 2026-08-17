@@ -1,0 +1,109 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: data-retention-registry
+owner: privacy + operations
+purpose: complete C1-C5 entity purpose retention export and deletion coverage without inventing unapproved legal durations
+
+policy:
+  numeric_retention_days_are_not_activated_until_legal_and_operational_review
+  raw_c1_to_c4_data_must_have_an_explicit_entity_entry
+  c5_may_outlive_source_only_when_irreversibly_aggregated_or_deidentified_under_review
+  deletion_is_fail_closed_when_legal_hold_or_integrity_dependency_is_unknown
+
+entities:
+  account_profile:
+    data_class: C1_account
+    owner: identity
+    purpose: account_access_and_profile
+    retention: account_lifetime_subject_to_approved_recovery_window
+    export: include
+    deletion: delete_or_irreversibly_anonymize_after_approved_recovery_and_legal_checks
+  consent_record:
+    data_class: C1_account
+    owner: privacy
+    purpose: prove_versioned_consent_decision
+    retention: policy_and_legal_requirement_bound
+    export: include
+    deletion: retain_only_minimum_audit_fact_when_legally_required_otherwise_delete
+  learner_goal:
+    data_class: C2_learning
+    owner: learning
+    purpose: personalize_plan_and_target
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_with_subject
+  placement_attempt:
+    data_class: C3_assessment
+    owner: assessment
+    purpose: diagnostic_evidence
+    retention: account_lifetime_or_subject_delete_unless_separate_research_consent_exists
+    export: include
+    deletion: delete_raw_attempt_and_subject_linked_results
+  study_session:
+    data_class: C2_learning
+    owner: learning
+    purpose: resume_learning_and_measure_progress
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_with_subject
+  practice_attempt:
+    data_class: C3_assessment
+    owner: practice
+    purpose: answer_key_scoring_and_learning_evidence
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_raw_attempt_and_subject_linked_results
+  review_item:
+    data_class: C2_learning
+    owner: review
+    purpose: spaced_review_and_remediation
+    retention: while_source_evidence_exists_and_account_is_active
+    export: include
+    deletion: delete_with_source_or_subject
+  writing_draft:
+    data_class: C3_assessment
+    owner: writing
+    purpose: learner_authored_work_in_progress
+    retention: account_lifetime_or_learner_delete
+    export: include
+    deletion: delete_on_learner_or_account_request_subject_to_recovery_policy
+  writing_submission:
+    data_class: C3_assessment
+    owner: writing
+    purpose: immutable_scoring_input_and_audit_reference
+    retention: account_lifetime_or_subject_delete_unless_separate_research_consent_exists
+    export: include
+    deletion: delete_raw_snapshot_and_subject_linked_copy_after_integrity_reconciliation
+  evaluation_result:
+    data_class: C3_assessment
+    owner: evaluation
+    purpose: learner_feedback_and_assessment_evidence
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_subject_linked_result_and_evidence_refs
+  entitlement_ledger:
+    data_class: C1_account
+    owner: billing
+    purpose: access_entitlement_and_subscription_reconciliation
+    retention: provider_and_legal_requirement_bound
+    export: include_minimum_subject_view
+    deletion: remove_product_copy_when_no_longer_legally_or_operationally_required
+  security_audit_record:
+    data_class: C4_security
+    owner: security
+    purpose: security_and_change_audit
+    retention: approved_security_policy_bound
+    export: exclude_security_sensitive_details_but_support_required_privacy_disclosure
+    deletion: minimize_or_pseudonymize_subject_link_when_permitted
+  product_telemetry:
+    data_class: C5_derived
+    owner: operations
+    purpose: aggregate_product_reliability_and_outcome_measurement
+    retention: shortest_operationally_necessary_window
+    export: only_when_subject_link_remains
+    deletion: delete_subject_linked_events_or_irreversibly_deidentify
+
+forbidden_general_telemetry_fields: [essay, essay_text, audio, audio_data, transcript, raw_answer, error_text, prompt, prompt_body, provider_payload, access_token, authorization_header, email, display_name]
+
+coverage_rule: every_api_schema_or_runtime_entity_that_can_store_C1_C2_C3_or_C4_must_resolve_to_exactly_one_registry_entity_before_implementation_eligibility

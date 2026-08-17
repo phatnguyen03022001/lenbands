@@ -1,0 +1,51 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: review-remediation-dispositions
+owner: learning + quality
+purpose: close every controlled error_id to exactly one remediation disposition when review-mapping.md has no card row
+
+unmapped_dispositions:
+  L_ans_wrong_content: {action: retest, card_kind: retest_question_type}
+  L_ans_number_format: {action: drill, card_kind: recall_form}
+  L_ans_unit_missing: {action: drill, card_kind: recall_form}
+  L_note_incomplete: {action: retest, card_kind: retest_question_type}
+  L_direction_lost: {action: retest, card_kind: retest_question_type}
+  L_overtime_spent: {action: pacing_drill, card_kind: retest_question_type}
+  R_completion_over_limit: {action: instruction_drill, card_kind: recall_form}
+  R_completion_not_in_passage: {action: retest, card_kind: retest_question_type}
+  R_overtime_spent: {action: pacing_drill, card_kind: retest_question_type}
+  W_tr_off_topic: {action: structure_drill, card_kind: apply_structure}
+  W_tr_under_wordcount: {action: development_drill, card_kind: apply_structure}
+  W_cc_no_paragraphing: {action: structure_drill, card_kind: apply_structure}
+  W_cc_progression_unclear: {action: structure_drill, card_kind: apply_structure}
+  W_lr_word_form_error: {action: form_drill, card_kind: recall_form}
+  W_lr_spelling: {action: form_drill, card_kind: recall_form}
+  W_lr_paraphrase_task_mis: {action: paraphrase_drill, card_kind: apply_paraphrase}
+  W_gra_only_simple: {action: grammar_drill, card_kind: apply_grammar_correct}
+  W_gra_subject_verb: {action: grammar_drill, card_kind: apply_grammar_correct}
+  W_t1_opinion_injected: {action: task_focus_drill, card_kind: apply_structure}
+  S_fc_repetition: {action: fluency_drill, card_kind: retest_question_type}
+  S_fc_off_topic: {action: relevance_drill, card_kind: apply_structure}
+  S_fc_part2_under_time: {action: sustained_turn_drill, card_kind: retest_question_type}
+  S_fc_no_discourse_marker: {action: discourse_organization_review, card_kind: apply_structure}
+  S_lr_repetitive: {action: paraphrase_drill, card_kind: apply_paraphrase}
+  S_lr_wrong_collocation: {action: lexical_drill, card_kind: recall_meaning}
+  S_lr_no_idiom: {action: none, new_generation: false, reason: deprecated_non_error}
+  S_gra_tense: {action: grammar_drill, card_kind: apply_grammar_correct}
+  S_gra_subject_verb: {action: grammar_drill, card_kind: apply_grammar_correct}
+  S_pr_sentence_stress: {action: pronunciation_drill, card_kind: retest_question_type}
+  S_pr_fast_unintelligible: {action: pronunciation_drill, card_kind: retest_question_type}
+  X_skip_and_not_return: {action: pacing_drill, card_kind: retest_question_type}
+
+microskill_resolution:
+  L_word_boundary:
+    state: reviewed_no_specific_microskill_required
+    replacement_for_unknown_microskill: null
+    reason: boundary_segmentation_is_remediated_from_audio_evidence_without_inventing_a_band_or_skill_id
+
+rules:
+  - every_active_error_id_must_be_in_review_mapping_or_unmapped_dispositions
+  - an_error_id_may_not_be_in_both_sets_except_a_declared_microskill_resolution
+  - deprecated_error_ids_have_new_generation_false
+  - no_runtime_may_invent_a_review_mapping

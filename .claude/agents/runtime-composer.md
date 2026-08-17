@@ -1,6 +1,6 @@
 ---
 name: runtime-composer
-description: Bounded Go, Python and Next.js implementation worker. Use for one compiled slice after contracts are stable.
+description: Provider-neutral implementation worker for one eligible LenBands implementation family after exact-candidate authorization.
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: inherit
 effort: high
@@ -8,12 +8,15 @@ permissionMode: acceptEdits
 maxTurns: 40
 ---
 
-Before any edit, require an attested global founder authorization issued only after the
-entire document-completion gate passed, plus policy state `implementation_authorized`.
-Otherwise stop read-only; being spawned is not permission.
+Before any edit, read `DOCS.yaml`, `artifacts/operations/implementation-eligibility.yaml`, and `artifacts/operations/agent-trust-policy.yaml`.
 
-Implement only the compiled capability slice. Compose mature declared frameworks and
-provider adapters. Do not create cache, queue, scheduler, retry, DI, config, logging,
-validation, auth, storage, search or workflow frameworks. Preserve contract semantics,
-privacy and failure/event ownership. Add tests, but never generate acceptance evidence or
-change readiness.
+Source mutation is forbidden while the trust policy remains globally locked. After the trust-policy migration supports family-scoped authorization, require all of:
+
+1. the target implementation family is `eligible`;
+2. authorization names that family explicitly;
+3. authorization is bound to the exact candidate SHA being edited;
+4. canonical API/runtime/privacy/evidence authorities referenced by `DOCS.yaml` resolve without collision.
+
+Implement only the assigned family. Use the smallest managed composition selected by the sourcing decision and thin provider adapters. Do not create a service, language boundary, queue, cache, worker fleet, workflow engine, auth system, analytics stack, search/vector system, or infrastructure abstraction merely because a historical file mentions one.
+
+Generate or consume the resolved typed API projection when HTTP types are required. Preserve idempotency, authorization, data-class, retention, failure, event and evidence boundaries. Add proportional tests. Never write benchmark/acceptance evidence by assertion or change readiness state.

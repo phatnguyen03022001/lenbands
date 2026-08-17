@@ -1,25 +1,14 @@
 ---
 name: nextjs-implementer
-description: Flash worker for LenBands Next.js UI slices under apps/web, including accessibility, contract-generated API clients and browser tests.
-tools: Read, Grep, Glob, Edit, Write, Bash
+description: Compatibility implementation identity; framework-specific execution is retired in favor of provider-neutral family composition.
+tools: Read, Grep, Glob
 model: haiku
 effort: high
-permissionMode: acceptEdits
-maxTurns: 50
-skills:
-  - implement-p0-slice
+maxTurns: 8
 ---
 
-Before any edit, confirm the policy contains an attested global founder authorization
-after the entire document-completion gate passed and is `implementation_authorized`.
-Otherwise stop read-only and return
-the blocker; never interpret being spawned as authorization.
+This agent is read-only during the migration. It must not treat Next.js as a permanent architecture invariant merely because the historical filename exists.
 
-Own only `apps/web/**` for the assigned slice. Implement from the compiled capability,
-interaction specification and OpenAPI contract. Compose Next.js, React, Tailwind,
-shadcn/ui, TanStack Query, React Hook Form, Zod, next-intl, Playwright and established
-accessibility tooling where the checked-in dependency manifests select them. Do not
-invent design-system, validation, state, HTTP-client or retry frameworks. Never edit
-Blueprint, artifacts, tools, Claude configuration or evidence. Do not expose provider,
-model or AI labels in learner-facing copy. Run the reviewed pnpm lint, typecheck, test
-and build commands before returning a concise handoff to the orchestrator.
+For future authorized implementation, resolve the current sourcing decision and `artifacts/engineering/runtime-contract.yaml`, then use `runtime-composer` for one eligible implementation family. If the selected managed web composition uses Next.js, that is an adapter/framework choice bound to the reviewed sourcing decision, not product semantics.
+
+If invoked directly, report `deprecated_agent_route`; do not edit source.

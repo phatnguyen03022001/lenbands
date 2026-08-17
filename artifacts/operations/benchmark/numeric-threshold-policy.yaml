@@ -1,21 +1,25 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 policy_id: writing-evaluation-pilot-thresholds-v1
 status: review
 approval_state: pending_founder
 armed: false
 scope: P0-04_EVAL.Writing
-policy_note: >
+policy_note: >-
   Numeric values below are candidate release floors for the first authorized baseline.
   They are policy targets, not measured results and not evidence of calibration.
 quality:
   criterion_mae_max_band: 0.50
   overall_mae_max_band: 0.50
   within_half_band_min: 0.80
-  evidence_coverage_min: 0.95
-  actionable_feedback_min: 0.90
-  invalid_or_low_confidence_withheld_min: 1.0
   false_acceptance_max: 0.0
   p95_latency_ms_max: 10000
+human_quality_review:
+  required: true
+  evidence_validity_min: 0.95
+  actionable_feedback_min: 0.90
+  review_state: missing
+  review_ref: null
+  rule: model_or_candidate_supplied_booleans_do_not_satisfy_this_gate
 cost:
   cost_per_accepted_evaluation_usd_max: null
   max_retry_count: 1
@@ -24,4 +28,4 @@ approval_requirements:
   approved_by: founder
   approved_at: null
   approval_record: null
-  required_before_armed: [gold_corpus_ready, baseline_run_complete, provider_price_version, release_gate_review]
+  required_before_armed: [gold_corpus_ready, baseline_run_complete, blinded_human_quality_review, provider_price_version, release_gate_review]

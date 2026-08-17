@@ -2,3 +2,4 @@
 set -euo pipefail
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 ruby "$script_dir/implementation-catalog.rb" "$@"
+ruby "$script_dir/implementation-eligibility.rb"

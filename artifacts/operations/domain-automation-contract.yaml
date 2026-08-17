@@ -4,7 +4,7 @@ source_of_truth: true
 authority_scope: domain_automation_measurement
 success_metric: business_automation_coverage
 non_goal: infrastructure_automation_platform
-principle: business-value-logic-lives-in-domain-contracts; frameworks-runtimes-and-providers-are-replaceable-adapters
+principle: business_value_logic_lives_in_domain_contracts_and_managed_runtime_remains_replaceable
 policy_invariants:
   - business_logic_domain_owned
   - provider_semantics_neutral
@@ -13,85 +13,75 @@ policy_invariants:
   - evidence_required_for_readiness
 
 commodity_concerns:
-  - cache framework
-  - event bus
-  - dependency-injection container
-  - validation library
-  - CLI framework
-  - config loader
-  - logger
-  - retry framework
-  - plugin loader
-  - template engine
-  - Markdown parser
-  - AST parser
-  - diff engine
-  - scheduler
-  - message broker
-  - search engine
-  - vector database
+  - authentication
+  - durable_execution
+  - relational_storage
+  - object_storage
+  - cache
+  - search
+  - vector_retrieval
+  - analytics
+  - feature_flags
+  - billing
+  - email
+  - observability
+  - model_gateway
 
 domains:
   repository:
     coverage_state: enforced
-    authorities: [tools/manifest.yaml, tools/toolchain.yaml, artifacts/operations/ssot-registry.md]
+    authorities: [DOCS.yaml, tools/toolchain.yaml, artifacts/operations/agent-trust-policy.yaml]
     controls:
       - {id: repository_contract, command: verify}
       - {id: agent_onboarding, command: context}
       - {id: anti_bypass, command: validate trust-boundary}
       - {id: ownership, command: validate contract-ownership}
-      - {id: dependency_and_projection, command: validate implementation-catalog}
-      - {id: migration_and_compatibility, command: validate tooling}
+      - {id: implementation_eligibility, command: validate implementation-catalog}
     gaps: []
-
   knowledge:
     coverage_state: partial
-    authorities: [blueprint/framework/README.md, knowledge-assets/README.md]
+    authorities: [blueprint/framework/README.md, knowledge-assets/README.md, artifacts/operations/review-remediation-dispositions.yaml]
     controls:
-      - {id: terminology_and_band, command: validate framework}
+      - {id: terminology_and_remediation, command: validate framework}
       - {id: knowledge_integrity, command: validate knowledge-assets}
-      - {id: lineage_and_revision, command: validate evidence-lineage}
+      - {id: lineage, command: validate evidence-lineage}
     gaps: [rights_and_content_review_evidence, calibrated_difficulty_registry]
-
   learning:
     coverage_state: partial
-    authorities: [blueprint/03-features.md, blueprint/framework/README.md]
+    authorities: [blueprint/03-features.md, blueprint/framework/README.md, artifacts/operations/implementation-eligibility.yaml]
     controls:
-      - {id: prerequisite_vocabulary, command: validate framework}
       - {id: capability_learning_coverage, command: validate implementation-catalog}
-    gaps: [runtime_learning_graph_evidence, recommendation_acceptance_evidence, practice_runtime_validation]
-
+      - {id: framework_semantics, command: validate framework}
+    gaps: [runtime_learning_evidence, recommendation_acceptance_evidence]
   assessment:
     coverage_state: evidence_blocked
-    authorities: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/operations/benchmark/gold-corpus-manifest.yaml]
+    authorities: [artifacts/engineering/api/schema-contract.yaml, artifacts/operations/benchmark/gold-corpus-manifest.yaml, artifacts/operations/evidence-integrity.yaml]
     controls:
-      - {id: rubric_and_state_contract, command: validate semantic-contracts}
+      - {id: semantic_contracts, command: validate semantic-contracts}
       - {id: benchmark_contract, command: validate benchmark-contracts}
       - {id: release_threshold, command: gate p0}
     gaps: [gold_corpus, examiner_labels, numeric_threshold_approval, benchmark_run]
-
   ai:
     coverage_state: partial
-    authorities: [artifacts/operations/spawn-prompts/registry.yaml, artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md]
+    authorities: [artifacts/engineering/runtime-contract.yaml, artifacts/business/decisions/platform-sourcing.md, artifacts/operations/spawn-prompts/registry.yaml]
     controls:
-      - {id: prompt_contract_and_hash, command: validate spawn-prompts}
-      - {id: prompt_output_lineage, command: validate evidence-lineage}
-      - {id: provider_adapter_boundary, command: validate platform-boundary}
-    gaps: [runtime_model_evaluation, hallucination_benchmark, provider_switch_evidence, cost_route_evidence]
-
+      - {id: prompt_lineage, command: validate spawn-prompts}
+      - {id: evidence_lineage, command: validate evidence-lineage}
+      - {id: provider_boundary, command: validate platform-boundary}
+    gaps: [runtime_model_evaluation, provider_switch_evidence, cost_route_evidence]
   release:
     coverage_state: evidence_blocked
-    authorities: [artifacts/operations/toolchain-freeze-contract.md, artifacts/operations/build-readiness-matrix.md]
+    authorities: [artifacts/operations/implementation-eligibility.yaml, artifacts/operations/evidence-integrity.yaml, artifacts/operations/build-readiness-matrix.md]
     controls:
       - {id: repository_verification, command: verify}
       - {id: toolchain_freeze, command: gate toolchain}
       - {id: p0_readiness, command: gate p0}
-    gaps: [p0_acceptance_runs, founder_approvals, benchmark_evidence]
-
+    gaps: [registered_runtime_harness, p0_acceptance_runs, founder_approvals, benchmark_evidence]
   runtime_integration:
     coverage_state: adapter_only
-    authorities: [artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md, artifacts/business/decisions/build-buy-register.md]
+    authorities: [artifacts/engineering/runtime-contract.yaml, artifacts/business/decisions/platform-sourcing.md, artifacts/engineering/api/openapi.yaml]
     controls:
       - {id: no_reinvented_runtime, command: validate platform-boundary}
-      - {id: dependency_and_runtime_presence, command: gate repository}
-    gaps: [go_dependency_manifest, python_dependency_manifest, nextjs_dependency_manifest, provider_integration_evidence]
+      - {id: ownership, command: validate contract-ownership}
+      - {id: deterministic_projection, command: generate all}
+    gaps: [provider_procurement, provider_integration_evidence, restore_drill]

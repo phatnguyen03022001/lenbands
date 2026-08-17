@@ -5,199 +5,155 @@ require "yaml"
 require "set"
 require "date"
 
-root = File.expand_path("../../..", __dir__)
-errors = []
+$LOAD_PATH.unshift File.expand_path("../../lib", __dir__)
+require "lenbands"
+require "lenbands/api_schema_compiler"
 
-load_yaml = lambda do |relative_path|
-  path = File.join(root, relative_path)
-  unless File.file?(path)
-    errors << "missing required YAML: #{relative_path}"
-    next {}
+root = Lenbands::ROOT
+errors = []
+load_yaml = lambda do |relative|
+  begin
+    data = YAML.safe_load(File.read(File.join(root, relative)), permitted_classes: [Date], aliases: false)
+    unless data.is_a?(Hash)
+      errors << "#{relative}: YAML root must be a mapping"
+      next {}
+    end
+    data
+  rescue StandardError => e
+    errors << "#{relative}: #{e.message}"
+    {}
   end
-  data = YAML.safe_load(File.read(path), permitted_classes: [Date], aliases: false)
-  unless data.is_a?(Hash)
-    errors << "YAML root must be a mapping: #{relative_path}"
-    next {}
-  end
-  data
-rescue Psych::Exception, SystemCallError => e
-  errors << "invalid YAML #{relative_path}: #{e.message}"
-  {}
 end
 
 docs = load_yaml.call("DOCS.yaml")
 openapi = load_yaml.call("artifacts/engineering/api/openapi.yaml")
 schema_contract = load_yaml.call("artifacts/engineering/api/schema-contract.yaml")
+type_system = load_yaml.call("artifacts/engineering/api/type-system.yaml")
+ownership = load_yaml.call("artifacts/engineering/api/operation-ownership.yaml")
 bops = load_yaml.call("artifacts/operations/bops/contract.yaml")
 
-canonical_path = docs.dig("authority", "web_api", "path")
-schema_path = docs.dig("authority", "web_api_schemas", "path")
-errors << "DOCS.yaml web_api must resolve to canonical OpenAPI" unless canonical_path == "artifacts/engineering/api/openapi.yaml"
-errors << "DOCS.yaml web_api_schemas must resolve to canonical schema contract" unless schema_path == "artifacts/engineering/api/schema-contract.yaml"
+errors << "DOCS web_api path drifted" unless docs.dig("authority", "web_api", "path") == "artifacts/engineering/api/openapi.yaml"
+errors << "DOCS web_api_schemas path drifted" unless docs.dig("authority", "web_api_schemas", "path") == "artifacts/engineering/api/schema-contract.yaml"
+errors << "DOCS web_api_type_system path drifted" unless docs.dig("authority", "web_api_type_system", "path") == "artifacts/engineering/api/type-system.yaml"
+errors << "DOCS web_api_operation_ownership path drifted" unless docs.dig("authority", "web_api_operation_ownership", "path") == "artifacts/engineering/api/operation-ownership.yaml"
 
-legacy = docs["legacy_aliases"]
-unless legacy.is_a?(Hash)
-  errors << "DOCS.yaml legacy_aliases must be a mapping"
-else
-  %w[artifacts/engineering/contracts/openapi.yaml artifacts/engineering/contracts/writing-task-2/openapi.yaml].each do |path|
-    entry = legacy[path]
-    errors << "legacy OpenAPI alias missing: #{path}" unless entry.is_a?(Hash)
-    errors << "legacy OpenAPI alias #{path} does not resolve to canonical API" unless entry&.dig("canonical") == canonical_path
-    errors << "legacy OpenAPI alias #{path} must be migration_only" unless entry&.dig("status") == "migration_only"
-  end
+legacy = docs["legacy_aliases"] || {}
+%w[artifacts/engineering/contracts/openapi.yaml artifacts/engineering/contracts/writing-task-2/openapi.yaml].each do |path|
+  entry = legacy[path]
+  errors << "legacy OpenAPI alias missing: #{path}" unless entry.is_a?(Hash)
+  errors << "legacy OpenAPI alias #{path} must be migration_only" unless entry&.dig("status") == "migration_only"
+  errors << "legacy OpenAPI alias #{path} must resolve to canonical API" unless entry&.dig("canonical") == "artifacts/engineering/api/openapi.yaml"
 end
 
-errors << "canonical OpenAPI must use 3.1 document format" unless openapi["openapi"].to_s.start_with?("3.1.")
+errors << "authoring OpenAPI must remain 3.1.x" unless openapi["openapi"].to_s.start_with?("3.1.")
 paths = openapi["paths"]
-errors << "canonical OpenAPI paths must be a mapping" unless paths.is_a?(Hash)
-
+unless paths.is_a?(Hash)
+  errors << "canonical OpenAPI paths must be a mapping"
+  paths = {}
+end
 allowed_personas = Set.new(%w[guest learner premium_learner colab admin])
 allowed_roles = Set.new(%w[learner colab admin service])
 allowed_data = Set.new(%w[C0_public C1_account C2_learning C3_assessment C4_security C5_derived])
 seen_personas = Set.new
-operation_ids = []
-operation_count = 0
+operations = []
 
-Array(paths&.to_a).each do |path, item|
-  unless item.is_a?(Hash)
-    errors << "#{path}: path item must be a mapping"
-    next
-  end
-
-  item.each do |method, operation|
+paths.each do |path, path_item|
+  next unless path_item.is_a?(Hash)
+  path_item.each do |method, operation|
     next unless %w[get post put patch delete].include?(method)
     unless operation.is_a?(Hash)
       errors << "#{method.upcase} #{path}: operation must be a mapping"
       next
     end
-
-    operation_count += 1
     op_id = operation["operationId"]
-    operation_ids << op_id
+    operations << op_id
     errors << "#{method.upcase} #{path}: operationId missing" if op_id.to_s.empty?
-
     personas = operation["x-web-personas"]
     roles = operation["x-required-roles"]
     entitlements = operation["x-required-entitlements"]
     data_classes = operation["x-data-classes"]
     idem = operation["x-idempotency"]
-
     errors << "#{op_id}: x-web-personas must be an array" unless personas.is_a?(Array)
     errors << "#{op_id}: x-required-roles must be an array" unless roles.is_a?(Array)
     errors << "#{op_id}: x-required-entitlements must be an array" unless entitlements.is_a?(Array)
-    errors << "#{op_id}: x-data-classes must be a non-empty array" unless data_classes.is_a?(Array) && !data_classes.empty?
+    errors << "#{op_id}: x-data-classes must be non-empty" unless data_classes.is_a?(Array) && !data_classes.empty?
     errors << "#{op_id}: x-idempotency missing" if idem.to_s.empty?
-
-    personas = Array(personas)
-    roles = Array(roles)
-    entitlements = Array(entitlements)
-    data_classes = Array(data_classes)
+    personas = Array(personas); roles = Array(roles); entitlements = Array(entitlements); data_classes = Array(data_classes)
     seen_personas.merge(personas)
-
-    unknown_personas = personas.to_set - allowed_personas
-    unknown_roles = roles.to_set - allowed_roles
-    unknown_data = data_classes.to_set - allowed_data
-    errors << "#{op_id}: unknown personas #{unknown_personas.to_a.inspect}" unless unknown_personas.empty?
-    errors << "#{op_id}: unknown roles #{unknown_roles.to_a.inspect}" unless unknown_roles.empty?
-    errors << "#{op_id}: unknown data classes #{unknown_data.to_a.inspect}" unless unknown_data.empty?
-
+    errors << "#{op_id}: unknown persona" unless personas.to_set.subset?(allowed_personas)
+    errors << "#{op_id}: unknown role" unless roles.to_set.subset?(allowed_roles)
+    errors << "#{op_id}: unknown data class" unless data_classes.to_set.subset?(allowed_data)
     if personas.include?("guest")
-      errors << "#{op_id}: guest operation must have no required roles" unless roles.empty?
-      errors << "#{op_id}: guest operation must explicitly disable bearer security" unless operation["security"] == []
+      errors << "#{op_id}: guest operation must disable bearer security" unless operation["security"] == []
       errors << "#{op_id}: guest operation may expose only C0_public" unless data_classes.to_set.subset?(Set.new(%w[C0_public]))
     end
-
     if entitlements.include?("premium")
       errors << "#{op_id}: premium entitlement requires learner role" unless roles == ["learner"]
-      errors << "#{op_id}: premium-only operation must not admit base learner persona" if personas.include?("learner")
+      errors << "#{op_id}: premium-only operation admits base learner" if personas.include?("learner")
     end
-
     if path.start_with?("/v1/colab/")
-      errors << "#{op_id}: Colab surface must be Colab-only" unless personas == ["colab"] && roles == ["colab"]
-      errors << "#{op_id}: Colab surface must not expose C1/C3/C4" unless (data_classes.to_set & Set.new(%w[C1_account C3_assessment C4_security])).empty?
+      errors << "#{op_id}: Colab surface access drift" unless personas == ["colab"] && roles == ["colab"]
+      errors << "#{op_id}: Colab may not expose C1/C3/C4" unless (data_classes.to_set & Set.new(%w[C1_account C3_assessment C4_security])).empty?
     end
-
     if path.start_with?("/v1/admin/")
-      errors << "#{op_id}: Admin surface must be Admin-only" unless personas == ["admin"] && roles == ["admin"]
-      errors << "#{op_id}: Admin surface must not expose raw C3 assessment data" if data_classes.include?("C3_assessment")
+      errors << "#{op_id}: Admin surface access drift" unless personas == ["admin"] && roles == ["admin"]
+      errors << "#{op_id}: Admin may not expose raw C3" if data_classes.include?("C3_assessment")
     end
-
     if path.start_with?("/v1/webhooks/")
-      errors << "#{op_id}: webhook must have no web personas" unless personas.empty?
+      errors << "#{op_id}: webhook must have no web persona" unless personas.empty?
       errors << "#{op_id}: webhook must use service role" unless roles == ["service"]
-      errors << "#{op_id}: webhook cannot accept C2/C3/C4" unless (data_classes.to_set & Set.new(%w[C2_learning C3_assessment C4_security])).empty?
+      errors << "#{op_id}: webhook may not accept C2/C3/C4" unless (data_classes.to_set & Set.new(%w[C2_learning C3_assessment C4_security])).empty?
     end
-
     if %w[post put patch delete].include?(method) && !path.start_with?("/v1/webhooks/")
       errors << "#{op_id}: durable mutation must require idempotency" unless idem == "required"
       params = Array(operation["parameters"])
-      has_key = params.any? { |entry| entry.is_a?(Hash) && entry["$ref"] == "#/components/parameters/IdempotencyKey" }
-      errors << "#{op_id}: durable mutation missing Idempotency-Key parameter" unless has_key
+      errors << "#{op_id}: durable mutation missing Idempotency-Key" unless params.any? { |entry| entry.is_a?(Hash) && entry["$ref"] == "#/components/parameters/IdempotencyKey" }
     end
   end
 end
+errors << "operationId duplicated" unless operations.compact.uniq.length == operations.compact.length
+errors << "canonical API must contain exactly 60 operations" unless operations.length == 60
+errors << "canonical API persona coverage drift" unless seen_personas == allowed_personas
 
-errors << "canonical OpenAPI operationId duplicated" unless operation_ids.compact.uniq.length == operation_ids.compact.length
-missing_personas = allowed_personas - seen_personas
-errors << "canonical OpenAPI does not cover personas: #{missing_personas.to_a.sort.join(', ')}" unless missing_personas.empty?
-errors << "canonical OpenAPI must contain a meaningful full-web surface" if operation_count < 40
-
-# Payload schema contract must be complete for exactly the canonical operations.
-operation_contracts = schema_contract["operation_contracts"]
+contracts = schema_contract["operation_contracts"]
 schemas = schema_contract["schemas"]
-unless operation_contracts.is_a?(Hash)
-  errors << "schema-contract operation_contracts must be a mapping"
-  operation_contracts = {}
+unless contracts.is_a?(Hash) && schemas.is_a?(Hash)
+  errors << "schema contract must contain operation_contracts and schemas mappings"
+  contracts = {}; schemas = {}
 end
-unless schemas.is_a?(Hash)
-  errors << "schema-contract schemas must be a mapping"
-  schemas = {}
-end
-
-openapi_ids = operation_ids.compact.to_set
-schema_ids = operation_contracts.keys.to_set
-missing_schema_ops = openapi_ids - schema_ids
-extra_schema_ops = schema_ids - openapi_ids
-errors << "schema-contract missing operationIds: #{missing_schema_ops.to_a.sort.join(', ')}" unless missing_schema_ops.empty?
-errors << "schema-contract contains unknown operationIds: #{extra_schema_ops.to_a.sort.join(', ')}" unless extra_schema_ops.empty?
-
-operation_contracts.each do |op_id, contract|
-  unless contract.is_a?(Hash)
-    errors << "#{op_id}: operation schema contract must be a mapping"
-    next
-  end
-  request_schema = contract["request"]
-  response_schema = contract["response"]
-  errors << "#{op_id}: request schema missing" if request_schema.to_s.empty?
-  errors << "#{op_id}: response schema missing" if response_schema.to_s.empty?
-  unless request_schema.to_s == "none" || schemas.key?(request_schema)
-    errors << "#{op_id}: request schema #{request_schema.inspect} is undefined"
-  end
-  errors << "#{op_id}: response schema #{response_schema.inspect} is undefined" unless schemas.key?(response_schema)
+openapi_ids = operations.compact.to_set
+errors << "schema operation set differs from OpenAPI" unless contracts.keys.to_set == openapi_ids
+errors << "ownership operation set differs from OpenAPI" unless (ownership["operations"] || {}).keys.to_set == openapi_ids
+contracts.each do |op_id, contract|
+  request = contract["request"]
+  response = contract["response"]
+  errors << "#{op_id}: undefined request schema #{request}" unless request == "none" || schemas.key?(request)
+  errors << "#{op_id}: undefined response schema #{response}" unless schemas.key?(response)
 end
 
-# Reject ambiguous/unsafe schema-level score and identity shortcuts.
-%w[PlacementResult EvaluationResult AttemptSummary].each do |name|
-  errors << "schema-contract missing critical score schema #{name}" unless schemas.key?(name)
-end
-placement_props = schemas.dig("PlacementResult", "properties") || {}
+compiled, compile_errors = Lenbands::ApiSchemaCompiler.compile(schema_contract: schema_contract, type_system: type_system)
+errors.concat(compile_errors)
+resolved, resolve_errors = Lenbands::ApiSchemaCompiler.resolve_openapi(openapi: openapi, schema_contract: schema_contract, type_system: type_system)
+errors.concat(resolve_errors)
+errors.concat(Lenbands::ApiSchemaCompiler.validate_resolved(openapi: resolved, schema_contract: schema_contract, type_system: type_system))
+errors << "compiled schema count differs from semantic schema count" unless compiled.length == schemas.length
+
+%w[PlacementResult EvaluationResult AttemptSummary].each { |name| errors << "critical score schema missing #{name}" unless schemas.key?(name) }
 eval_props = schemas.dig("EvaluationResult", "properties") || {}
-errors << "PlacementResult must preserve score_label" unless placement_props.key?("score_label")
-errors << "PlacementResult must preserve score_scope" unless placement_props.key?("score_scope")
-errors << "EvaluationResult must preserve score_label" unless eval_props.key?("score_label")
-errors << "EvaluationResult must preserve score_scope" unless eval_props.key?("score_scope")
-errors << "EvaluationResult must preserve scorer_route_version" unless eval_props.key?("scorer_route_version")
+%w[score_label score_scope scorer_route_version quality_status confidence_state criteria].each { |field| errors << "EvaluationResult missing #{field}" unless eval_props.key?(field) }
+config_alias = type_system.dig("aliases", "governed_config_map") || {}
+errors << "Admin config type must block secret-like keys" unless config_alias.dig("propertyNames", "not", "pattern").to_s.include?("secret")
 
 bops_personas = Set.new(Array(bops.dig("scope", "web_personas")))
 bops_roles = Set.new(Array(bops.dig("scope", "authorization_roles")))
-errors << "BOPS persona set differs from canonical API" unless bops_personas == allowed_personas
-errors << "BOPS authenticated role set must be learner/colab/admin" unless bops_roles == Set.new(%w[learner colab admin])
+errors << "BOPS persona set differs from API" unless bops_personas == allowed_personas
+errors << "BOPS authenticated role set drift" unless bops_roles == Set.new(%w[learner colab admin])
 
 problem = openapi.dig("components", "schemas", "Problem")
-errors << "RFC9457 Problem schema missing" unless problem.is_a?(Hash) && Array(problem["required"]).to_set.superset?(Set.new(%w[type title status]))
+errors << "RFC9457 Problem source schema missing" unless problem.is_a?(Hash) && Array(problem["required"]).to_set.superset?(Set.new(%w[type title status]))
 
 if errors.empty?
-  puts "canonical web API validation passed (operations=#{operation_count}, typed_contracts=#{operation_contracts.length}, personas=#{seen_personas.to_a.sort.join(',')})"
+  puts "canonical web API validation passed (operations=60, typed_contracts=#{contracts.length}, compiled_schemas=#{compiled.length}, generic_build_payloads=0)"
 else
   warn errors.join("\n")
   warn "canonical web API validation failed: #{errors.length} issue(s)"

@@ -11,6 +11,7 @@ if [[ "${1:-}" == "--check" ]]; then
   tools/commands/generate/lifecycle-registry.sh --check
   tools/commands/generate/operational-coverage.sh --check
   tools/commands/generate/repository-baseline.sh --check
+  ruby tools/commands/generate/canonical-web-api.rb --check
   exit 0
 fi
 
@@ -20,3 +21,4 @@ tools/commands/generate/capability-index.sh
 tools/commands/generate/lifecycle-registry.sh
 tools/commands/generate/operational-coverage.sh
 tools/commands/generate/repository-baseline.sh
+ruby tools/commands/generate/canonical-web-api.rb --output artifacts/operations/.tmp/openapi.resolved.yaml

@@ -117,10 +117,11 @@ founder_local_profile:
     - stable_updates_reduce_third_party_endpoint_regression_risk
     - bounded_agents_cannot_mutate_the_local_profile
     - shared_bash_permission_is_fail_closed_by_the_reviewed_pretooluse_command_policy
-    - runtime_build_commands_are_workspace_scoped_and_forbid_shell_chaining_or_arbitrary_interpreters
-    - document_convergence_is_global_and_has_no_per_pack_implementation_unlock
-    - implementation_workers_and_commands_remain_dormant_until_the_global_gate_is_attested
-    - shared_permissions_deny_runtime_agents_and_the_implementation_skill_while_locked
+    - source_mutation_remains_globally_locked_during_family_authorization_migration
+    - no_application_technology_is_pre_authorized_by_runtime_command_policy
+    - deprecated_runtime_agent_names_are_non_authorizing_compatibility_surfaces
+    - future_implementation_authorization_is_family_and_exact_candidate_sha_scoped
+    - shared_permissions_deny_runtime_agents_and_the_implementation_compatibility_skill_while_locked
     - agent_teams_remain_disabled_until_git_worktree_isolation_exists
     - accept_edits_applies_only_below_shared_denies_sandbox_and_pretooluse_guards
 
@@ -128,7 +129,7 @@ application_builder:
   phase_gate:
     state: document_convergence
     source_mutation: locked
-    scope: entire_ielts_application
+    scope: migration_to_family_scoped_authorization
     locked_source_roots: [apps, services, engines]
     partial_pack_unlock_allowed: false
     founder_authorization_ref: null
@@ -155,21 +156,28 @@ application_builder:
       - toolchain_gate_passes
       - p0_contracts_exist
       - prose_claims_document_completeness
+    migration_note: >-
+      The current phase fields remain globally fail-closed for compatibility with shared
+      Claude guards. They do not define the future unlock model. The canonical future
+      model is artifacts/operations/implementation-eligibility.yaml and requires
+      family-scoped exact-candidate authorization.
   source_workspaces:
-    nextjs: apps/web
-    go: services/api
-    python: engines/evaluation
+    application_candidate: apps/web
+    legacy_locked_roots: [services, engines]
+    rule: paths_do_not_select_languages_services_or_provider_topology
   orchestrator:
     route: explicit_cli_pro_escalation
     model: deepseek-v4-pro
   workers:
     model_alias: haiku
     resolved_model: deepseek-v4-flash
-    agents: [nextjs-implementer, go-backend-implementer, python-evaluation-implementer, runtime-integration-verifier]
+    implementation_agent: runtime-composer
+    verification_agent: runtime-integration-verifier
+    deprecated_compatibility_agents: [nextjs-implementer, go-backend-implementer, python-evaluation-implementer]
   execution_boundary:
-    - native_package_install_and_lock
-    - native_build_lint_typecheck_test
-    - contract_codegen
+    - registered_native_dependency_command_after_authorization
+    - registered_native_build_lint_typecheck_test_after_authorization
+    - deterministic_contract_codegen
     - registered_lenbands_validation
   forbidden_execution:
     - shell_chaining
@@ -177,6 +185,7 @@ application_builder:
     - protected_path_mutation
     - evidence_fabrication
     - unsandboxed_escape
+    - preselected_runtime_topology_before_authorization
 
 required_public_commands:
   - doctor
@@ -195,6 +204,9 @@ required_verify_targets:
   - tools/commands/validate/trust-boundary.rb
   - tools/commands/validate/domain-automation.rb
   - tools/commands/validate/evidence-lineage.rb
+  - tools/commands/validate/evidence-integrity.rb
+  - tools/commands/validate/data-governance.rb
+  - tools/commands/validate/failure-registry.rb
   - tools/commands/validate/contract-ownership.rb
 
 required_freeze_targets:
@@ -213,6 +225,8 @@ protected_paths:
   - .git/**
   - .claude/**
   - .claude-plugin/**
+  - .github/**
+  - DOCS.yaml
   - blueprint/**
   - artifacts/operations/architecture-frozen.md
   - artifacts/operations/architecture-frozen.meta.yaml
@@ -240,12 +254,22 @@ protected_paths:
   - artifacts/operations/domain-automation-contract.meta.yaml
   - artifacts/operations/agent-trust-policy.yaml
   - artifacts/operations/agent-trust-policy.meta.yaml
+  - artifacts/operations/evidence-integrity.yaml
+  - artifacts/operations/evidence-integrity.meta.yaml
+  - artifacts/operations/data-retention-registry.yaml
+  - artifacts/operations/data-retention-registry.meta.yaml
+  - artifacts/operations/implementation-eligibility.yaml
+  - artifacts/operations/implementation-eligibility.meta.yaml
+  - artifacts/operations/review-remediation-dispositions.yaml
+  - artifacts/operations/review-remediation-dispositions.meta.yaml
+  - artifacts/engineering/api/**
+  - artifacts/engineering/runtime-contract.yaml
+  - artifacts/engineering/runtime-contract.meta.yaml
   - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md
   - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.meta.yaml
   - artifacts/engineering/contracts/events/event-ownership-registry.yaml
   - artifacts/engineering/contracts/events/event-ownership-registry.meta.yaml
   - tools/**
-  - .github/**
 
 immutable_append_only_paths:
   - artifacts/operations/evidence/**

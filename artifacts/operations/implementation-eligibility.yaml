@@ -1,0 +1,43 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: implementation-eligibility
+owner: engineering + operations
+purpose: separate product scope, implementation eligibility, authorization and release readiness
+
+axes:
+  scope_lifecycle:
+    values: [ACTIVE, PLANNED, DEPRECATED]
+    meaning: product_scope_only
+  implementation_eligibility:
+    values: [blocked, eligible]
+    evaluated_per: capability_family
+    requires:
+      - family_dependencies_resolved
+      - framework_dependencies_resolved
+      - asset_requirements_resolved
+      - decision_requirements_resolved
+      - required_owner_contracts_approved
+      - no_open_critical_or_high_finding_for_family
+  implementation_authorization:
+    values: [locked, authorized]
+    evaluated_per: exact_candidate_sha_and_family
+    requires: [family_eligible, founder_authorization_ref, authorization_attestation_ref]
+  release_readiness:
+    values: [not_ready, ready]
+    evaluated_per: release_scope
+    requires: [runtime_acceptance, evidence_integrity, privacy_security_quality_cost_gates]
+
+invariants:
+  - ACTIVE_does_not_mean_implementation_authorized
+  - implementation_eligibility_does_not_mean_release_ready
+  - one_family_may_be_eligible_while_other_families_remain_blocked
+  - closed_pilot_release_may_still_require_all_P0_families_ready
+  - authorization_is_bound_to_exact_candidate_sha_and_declared_family_scope
+  - evidence_that_requires_runtime_is_never_required_to_start_implementation
+  - no_unknown_placeholder_or_unapproved_decision_may_be_silently_coerced_to_eligible
+
+current_transition:
+  source_mutation_state: locked
+  reason: existing_agent_runtime_still_enforces_global_document_convergence_until_validator_and_agent_policy_migration_is_completed
+  rule: this_contract_does_not_unlock_source_by_itself

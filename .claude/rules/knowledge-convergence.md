@@ -7,26 +7,17 @@ paths:
 
 # Knowledge convergence protocol
 
-For every requested addition:
+For every requested addition or correction:
 
-1. Classify it as product, IELTS framework, business/runtime contract, Knowledge Asset,
-   projection, or evidence.
-2. Locate the current canonical owner through README/index links and `derived_from`.
-3. Modify the owner in place. Merge duplicates; never create “enhanced”, “v2”, “final”,
-   “complete” or agent-specific parallel documents.
-4. Preserve controlled IDs. Missing vocabulary becomes `unknown_*` plus an explicit gap.
-5. Bump the owner version according to repository conventions and update its sidecar.
-6. Regenerate projections only through registered generators.
-7. Run repository verification before handoff.
+1. Read `DOCS.yaml` first and resolve the semantic owner from its `document_id`/authority entry.
+2. Classify every encountered source as canonical, transitional, historical, deprecated, projection or evidence. A non-canonical source may inform traceability but may not override its canonical owner.
+3. Modify the existing owner in place. Merge duplicates; never create `enhanced`, `v2`, `final`, `complete`, `latest` or agent-specific parallel authority.
+4. Preserve controlled IDs. Missing vocabulary requires an explicit reviewed disposition; do not hide unresolved semantics behind a placeholder that validators ignore.
+5. Bump semantic versions/sidecars only when their governed meaning changes.
+6. Regenerate projections only through registered deterministic generators.
+7. Check default-context visibility and executable inbound references before demoting/deleting an old authority.
+8. Run repository verification before handoff.
 
-## Depth quality
+A deeper contract must add a machine-checkable or acceptance-relevant invariant: ownership, state transition, failure behavior, privacy boundary, precondition, acceptance criterion, dependency or traceability. More prose alone is not depth.
 
-A deeper section must add testable value: invariant, precondition, ownership, state
-transition, failure behavior, privacy boundary, acceptance criterion, dependency or
-traceability. More prose without one of these is not increased depth.
-
-Do not duplicate the same fact across layers. A consumer references its owner. When two
-owners appear to conflict, stop and report the conflict rather than choosing silently.
-
-Knowledge Assets must use the registered spawn workflow, controlled vocabulary,
-lineage, integrity checksum and rights-review state. Generated text is never evidence.
+Knowledge Assets must retain registered provenance, rights state and integrity. Generated text, a passing validator, or a citation is not runtime/calibration evidence.

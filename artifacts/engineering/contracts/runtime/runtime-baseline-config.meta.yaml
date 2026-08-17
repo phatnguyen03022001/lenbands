@@ -1,9 +1,9 @@
 type: runtime-configuration-contract
 status: draft
-version: 0.1.2
+version: 0.2.0
 owner: engineering
 representation: yaml
 derived_from: [EVAL.Writing, OPS.Quota, OPS.CostBudget, OPS.Observability]
-purpose: closed-pilot-runtime-safe-defaults
+purpose: closed-pilot-candidate-values-with-explicit-activation-gate
 created_at: 2026-08-06
-updated_at: 2026-08-07
+updated_at: 2026-08-17

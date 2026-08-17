@@ -1,10 +1,10 @@
 type: quality-threshold-policy
 status: review
-version: 0.1.0
+version: 0.2.0
 owner: founder + operations
 representation: yaml
 derived_from: [EVAL.Writing, GOVERNANCE.ConfidenceScore, OPS.EvaluationQuality, OPS.CostBudget, OPS.ReleaseGate]
-purpose: candidate-numeric-quality-and-cost-gates-for-writing-evaluation-pilot
-consumed_by: [engineering, operations]
+purpose: candidate-numeric-quality-cost-and-separate-human-review-gates-for-writing-evaluation-pilot
+consumed_by: [engineering, operations, quality]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-17

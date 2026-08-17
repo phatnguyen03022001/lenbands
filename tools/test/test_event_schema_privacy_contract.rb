@@ -15,9 +15,14 @@ reporter << "canonical event schema privacy contract rejected" unless validate.c
 
 FORBIDDEN_MUTATIONS = {
   "essay_text" => "writing_submission_accepted",
+  "essay" => "writing_draft_saved",
   "audio_data" => "session_completed",
+  "transcript" => "retest_started",
   "raw_answer" => "retest_started",
   "error_text" => "learning_error_saved",
+  "prompt_body" => "evaluation_submitted",
+  "provider_payload" => "evaluation_scored",
+  "email" => "account_created",
   "learner_content" => "writing_draft_saved"
 }.freeze
 

@@ -1,0 +1,64 @@
+schema_version: 1.1.0
+status: review
+source_of_truth: true
+contract_id: web-api-type-system
+owner: engineering + security
+purpose: closed type and transport-policy registry for schema-contract.yaml and deterministic OpenAPI resolution
+
+primitive_types:
+  string: {type: string}
+  integer: {type: integer}
+  number: {type: number}
+  boolean: {type: boolean}
+
+aliases:
+  timestamp: {type: string, format: date-time}
+  date: {type: string, format: date}
+  semver: {type: string, pattern: '^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$'}
+  half_band_0_9: {type: number, minimum: 0, maximum: 9, multipleOf: 0.5}
+  integer_5_480: {type: integer, minimum: 5, maximum: 480}
+  scalar_or_structured_answer:
+    oneOf: [{type: string}, {type: number}, {type: boolean}, {type: array, items: {type: string}}, {type: object, additionalProperties: true}]
+  structured_content:
+    type: object
+    additionalProperties: true
+    x-lenbands-data-class: C2_learning
+  governed_config_map:
+    type: object
+    propertyNames:
+      not: {pattern: '(?i)(secret|token|password|credential|private[_-]?key|api[_-]?key)'}
+    additionalProperties:
+      oneOf: [{type: string}, {type: number}, {type: integer}, {type: boolean}, {type: 'null'}]
+    x-lenbands-rule: web_admin_config_must_not_carry_secrets
+  governed_aggregate_map: {type: object, additionalProperties: {type: [string, number, integer, boolean, 'null']}}
+  provider_neutral_usage_map: {type: object, additionalProperties: {type: [number, integer, string, 'null']}}
+  aggregate_map: {type: object, additionalProperties: {type: [number, integer, string, 'null']}}
+  provider_payload_normalized_after_signature_verification:
+    type: object
+    additionalProperties: true
+    x-lenbands-trust-boundary: signature_verified_before_normalization
+  provider_or_config: {type: string, enum: [provider, config]}
+
+transport_policy:
+  idempotency_key: {type: string, minLength: 16, maxLength: 128}
+  webhook_signature_input: raw_request_body
+  webhook_normalization_order: [verify_signature, deduplicate_event_id, parse_and_normalize, apply_provider_neutral_ledger_effect]
+  public_failure_codes:
+    - EVALUATION_DELAYED
+    - EVALUATION_UNAVAILABLE
+    - EVALUATION_LOW_CONFIDENCE
+    - QUOTA_EXCEEDED
+    - SYNC_CONFLICT
+    - DRAFT_SYNC_UNAVAILABLE
+    - SUBMISSION_UNAVAILABLE
+    - CONTENT_UNAVAILABLE
+
+compiler_rules:
+  - schema_names_resolve_before_aliases
+  - array_angle_syntax_is_recursive
+  - pipe_union_of_literals_becomes_enum
+  - null_in_a_union_becomes_json_schema_null
+  - every_single_token_type_must_be_a_primitive_alias_or_declared_schema
+  - unknown_type_tokens_fail_ci
+  - object_schemas_reject_unknown_properties_unless_the_alias_explicitly_allows_them
+  - resolved_openapi_is_the_only_codegen_input

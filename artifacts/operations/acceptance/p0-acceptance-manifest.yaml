@@ -1,8 +1,14 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: not_run
 source_of_truth: true
 run_policy: runtime_only
 evidence_root: artifacts/operations/evidence
+runtime_harness:
+  state: missing
+  runner_command: null
+  candidate_binding: exact_commit_sha
+  external_claim_ingestion: forbidden
+  unblock_requires: [registered_test_command_per_test, exact_candidate_checkout, machine_result_envelope, runner_hash, result_hash]
 evidence_ref_schema:
   required_fields: [path, checksum]
   checksum_format: sha256

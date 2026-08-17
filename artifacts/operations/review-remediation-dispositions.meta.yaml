@@ -1,0 +1,10 @@
+type: review-remediation-registry
+status: review
+version: 1.0.0
+owner: learning + quality
+representation: yaml
+derived_from: [COACH.ErrorAnalysis, REVIEW.SmartQueue, REVIEW.FSRS]
+purpose: complete-controlled-error-remediation-disposition
+consumed_by: [learning, quality, engineering, tooling]
+created_at: 2026-08-17
+updated_at: 2026-08-17

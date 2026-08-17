@@ -1,0 +1,81 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: platform-runtime
+owner: engineering + operations
+purpose: provider-neutral runtime invariants for all implementation slices
+
+principles:
+  - domain_semantics_are_provider_neutral
+  - managed_capabilities_are_preferred_over_custom_infrastructure
+  - execution_mechanisms_are_replaceable_adapters_not_product_authority
+  - durable_domain_effects_are_idempotent
+  - raw_learner_content_is_never_general_telemetry
+  - unmeasured_optimizations_are_disabled_by_default
+
+execution_modes:
+  request_response:
+    use_when: completion_fits_within_the_http_budget_and_no_durable_background_continuation_is_required
+    requirements: [authorization, input_validation, idempotency_for_mutations, bounded_deadline, typed_failure]
+  durable_operation:
+    use_when: work_must_survive_request_lifetime_or_provider_latency
+    canonical_state_machine: [accepted, processing, succeeded, delayed, unavailable, failed, cancelled]
+    requirements:
+      - durable_operation_record
+      - stable_idempotency_key
+      - absolute_deadline
+      - bounded_provider_attempts
+      - commit_domain_effect_before_completion_acknowledgement
+      - reconciliation_from_canonical_state
+      - no_raw_content_in_transport_metadata
+    implementation_note: provider_managed_workflow_queue_or_equivalent_is_an_adapter_choice
+
+persistence:
+  canonical_relational_state:
+    requirement: managed_transactional_relational_store
+    owns: [domain_state, idempotency_records, operation_state, audit_references]
+  object_content:
+    requirement: private_managed_object_storage_when_binary_or_large_content_is_needed
+    rule: access_is_subject_scoped_and_raw_content_is_not_copied_into_general_events_or_logs
+  cache:
+    default_state: disabled
+    enable_only_if: measured_latency_or_cost_evidence_and_a_documented_invalidation_model_exist
+    invariant: cache_outage_may_change_latency_but_not_authorization_entitlement_score_or_durability
+  search_or_vector_index:
+    default_state: disabled
+    enable_only_if: measured_retrieval_requirement_cannot_be_met_by_primary_store_or_managed_search
+
+async_handoff:
+  semantic_owner: durable_operation
+  required_fields: [operation_id, operation_type, idempotency_key_hash, subject_ref, payload_ref, privacy_class, deadline_at, created_at, state]
+  forbidden_fields: [raw_essay, raw_audio, transcript, prompt_body, provider_payload, access_token, secret]
+  delivery_semantics: at_least_once_transport_with_exactly_once_domain_effect_by_idempotency
+  retry_owner: one_layer_only
+  replay_rule: replay_creates_a_new_audited_operation_and_never_mutates_a_terminal_result
+
+provider_boundary:
+  adapter_contract: artifacts/engineering/contracts/runtime/provider-adapter-contract.md
+  allowed_provider_change: configuration_or_adapter_change_with_no_domain_or_api_semantic_change
+  learner_visible_scoring_fallback: only_between_benchmark_approved_routes_within_the_same_scorer_route_version
+  no_approved_scoring_route: delayed_or_unavailable_not_silent_substitution
+
+configuration:
+  activated_values_source: artifacts/engineering/contracts/runtime/runtime-baseline-config.yaml
+  rule: candidate_values_are_not_runtime_defaults_until_explicitly_armed
+
+non_authoritative_mechanisms:
+  - redis_streams
+  - kafka
+  - custom_worker_fleet
+  - go_api
+  - python_request_service
+  - custom_cache_cluster
+  - custom_workflow_engine
+
+acceptance_invariants:
+  - duplicate_delivery_produces_at_most_one_domain_effect_and_one_charge
+  - crash_or_retry_converges_from_canonical_state_without_raw_content_in_logs
+  - provider_outage_preserves_submissions_and_exposes_a_safe_delayed_or_unavailable_state
+  - cache_disabled_or_flushed_does_not_change_product_semantics
+  - provider_swap_does_not_require_domain_event_or_http_semantic_migration
+  - every_runtime_value_used_for_release_is_armed_and_has_an_approval_or_evidence_reference

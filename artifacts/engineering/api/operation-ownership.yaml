@@ -1,0 +1,74 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: web-api-operation-ownership
+owner: engineering + product
+purpose: one canonical implementation-family owner for every canonical web operation
+
+operations:
+  getPublicConfig: ADMIN.Governance
+  getPublicCatalog: CONTENT.Knowledge
+  getPublicPricing: SUBSCRIPTION.Usage
+  getMe: IDENTITY.Core
+  updateMe: IDENTITY.Core
+  getMyEntitlements: SUBSCRIPTION.Usage
+  recordConsent: IDENTITY.Core
+  requestMyExport: IDENTITY.Core
+  requestMyDeletion: IDENTITY.Core
+  getMyGoal: PLACEMENT.Diagnosis
+  putMyGoal: PLACEMENT.Diagnosis
+  startPlacement: PLACEMENT.Diagnosis
+  submitPlacementResponse: PLACEMENT.Diagnosis
+  submitPlacement: PLACEMENT.Diagnosis
+  getPlacementAttempt: PLACEMENT.Diagnosis
+  getTodayPlan: STUDY.DailyAction
+  recordTodayCheckIn: STUDY.DailyAction
+  startStudySession: STUDY.DailyAction
+  updateStudySession: STUDY.DailyAction
+  getLearningPath: PERSONAL.Recommendation
+  listPracticeSets: PRACTICE.Drill
+  createPracticeAttempt: PRACTICE.Drill
+  submitPracticeAnswer: PRACTICE.Drill
+  submitPracticeAttempt: PRACTICE.Drill
+  getPracticeAttempt: PRACTICE.Drill
+  getReviewQueue: REVIEW.ErrorToReview
+  rateReviewItem: REVIEW.ErrorToReview
+  listMyAttempts: HISTORY.Assessment
+  getProgressSummary: PROGRESS.Learning
+  searchLearningResources: SEARCH.Knowledge
+  getWritingTask: WRITING.Evaluation
+  saveWritingDraft: WRITING.Evaluation
+  createWritingSubmission: WRITING.Evaluation
+  getWritingSubmission: WRITING.Evaluation
+  getWritingEvaluation: WRITING.Evaluation
+  submitWritingFeedback: WRITING.Evaluation
+  getPremiumInsights: PROGRESS.Learning
+  createDeepFeedback: COACH.Feedback
+  listMockTests: MOCK.ExamSimulation
+  startMockTestAttempt: MOCK.ExamSimulation
+  listContentItems: CONTENT.Management
+  createContentItem: CONTENT.Management
+  getContentItem: CONTENT.Management
+  updateContentItem: CONTENT.Management
+  submitContentForReview: CONTENT.Management
+  publishContentItem: CONTENT.Management
+  retireContentItem: CONTENT.Management
+  listContentReports: CONTENT.Management
+  updateContentReport: CONTENT.Management
+  suggestContentTags: CONTENT.Management
+  listAdminUsers: ADMIN.Governance
+  setUserStatus: ADMIN.Governance
+  getSystemConfig: ADMIN.Governance
+  putSystemConfig: ADMIN.Governance
+  listAuditRecords: ADMIN.Governance
+  getEvaluationGovernance: OPS.QualityEconomics
+  getUsageOverview: OPS.QualityEconomics
+  evaluateReleaseGate: OPS.QualityEconomics
+  getBillingOverview: SUBSCRIPTION.Usage
+  receivePaddleWebhook: SUBSCRIPTION.Usage
+
+rules:
+  - operation_ids_equal_the_canonical_openapi_set_exactly
+  - every_owner_family_exists_in_capability_family_registry
+  - one_operation_has_exactly_one_owner_family
+  - capability_manifest_api_operations_are_projections_and_may_not_override_this_registry

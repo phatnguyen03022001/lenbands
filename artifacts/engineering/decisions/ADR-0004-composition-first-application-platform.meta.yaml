@@ -1,13 +1,13 @@
 type: architecture-decision-record
 status: review
-version: 0.2.0
+version: 0.3.0
 owner: founder + engineering
 representation: markdown
 derived_from: [OPS.CostBudget, OPS.ModelRouting, OPS.Observability, EVAL.Writing, REVIEW.FSRS]
-purpose: keep-business-value-in-domain-contracts-and-commodity-runtime-behind-replaceable-adapters
+purpose: keep-business-value-in-domain-contracts-and-commodity-runtime-behind-replaceable-managed-adapters
 consumed_by: [engineering, operations, experience]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-17
 policy_invariants:
   - business_logic_domain_owned
   - provider_semantics_neutral
@@ -15,20 +15,16 @@ policy_invariants:
   - adapter_exit_path_required
   - evidence_required_for_readiness
 commodity_concerns:
-  - cache framework
-  - event bus
-  - dependency-injection container
-  - validation library
-  - CLI framework
-  - config loader
-  - logger
-  - retry framework
-  - plugin loader
-  - template engine
-  - Markdown parser
-  - AST parser
-  - diff engine
-  - scheduler
-  - message broker
-  - search engine
-  - vector database
+  - authentication
+  - durable_execution
+  - relational_storage
+  - object_storage
+  - cache
+  - search
+  - vector_retrieval
+  - analytics
+  - feature_flags
+  - billing
+  - email
+  - observability
+  - model_gateway

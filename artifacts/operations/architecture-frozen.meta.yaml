@@ -1,14 +1,12 @@
 type: architecture-freeze
-status: approved
-version: 0.3.0
+status: review
+version: 0.4.0
 owner: product + engineering + operations
 representation: markdown
 derived_from: [OPS.ReleaseGate]
-source_files: [blueprint/README.md, blueprint/03-features.md, blueprint/08-roadmap.md, artifacts/CONVENTION.md]
-purpose: repository-wide-architecture-and-implementation-invariants
+source_files: [DOCS.yaml, blueprint/03-features.md, artifacts/CONVENTION.md, artifacts/operations/implementation-eligibility.yaml, artifacts/engineering/runtime-contract.yaml]
+purpose: repository-authority-and-implementation-governance-invariants
 consumed_by: [all-agents, validators, engineering, operations]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-17
 schema_version: 1.0.0
-reviewed_by: founder
-reviewed_at: 2026-08-07
