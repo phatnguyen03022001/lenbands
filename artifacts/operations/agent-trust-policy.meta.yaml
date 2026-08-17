@@ -1,6 +1,6 @@
 type: agent-trust-policy
 status: review
-version: 0.7.0
+version: 0.7.1
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
@@ -21,3 +21,10 @@ change_log:
       - Declared historical implementation-agent names compatibility-only and non-authorizing.
       - Bound the future authorization model to implementation family plus exact candidate SHA.
       - Added canonical API, runtime, evidence, retention and eligibility authorities to protected paths and verify targets.
+  - version: 0.7.1
+    date: 2026-08-17
+    changes:
+      - Removed legacy self-attestation and false GitHub-enforcement claims from the agent trust policy.
+      - Delegated candidate declaration and external authorization semantics to change-governance.yaml.
+      - Delegated observed host-control truth to hosting-control-state.yaml; desired controls are not evidence of enforcement.
+      - Marked the historical all-application source lock explicitly as non-authoritative fail-closed compatibility while family/exact-SHA authorization remains canonical.
