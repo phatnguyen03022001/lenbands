@@ -3,12 +3,13 @@
 
 require "yaml"
 require "set"
+require "date"
 
 root = File.expand_path("../../..", __dir__)
 errors = []
 load_yaml = lambda do |relative|
   begin
-    data = YAML.safe_load(File.read(File.join(root, relative)), aliases: false)
+    data = YAML.safe_load(File.read(File.join(root, relative)), permitted_classes: [Date], aliases: false)
     data.is_a?(Hash) ? data : {}
   rescue StandardError => e
     errors << "#{relative}: #{e.message}"
