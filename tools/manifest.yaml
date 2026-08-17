@@ -11,7 +11,7 @@ tools:
   context:
     type: utility
     entrypoint: tools/commands/context.rb
-    consumes: [DOCS.yaml, artifacts/operations/capability-manifest.yaml, artifacts/operations/domain-automation-contract.yaml, artifacts/operations/agent-trust-policy.yaml]
+    consumes: [DOCS.yaml, artifacts/operations/capability-manifest.yaml, artifacts/operations/domain-automation-contract.yaml, artifacts/operations/agent-trust-policy.yaml, artifacts/operations/execution-policy.yaml]
     produces: []
     invalidates: []
     depends_on: []
@@ -150,10 +150,28 @@ tools:
   validate-implementation-eligibility:
     type: validator
     entrypoint: tools/commands/validate/implementation-eligibility.rb
-    consumes: [artifacts/operations/implementation-eligibility.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/operations/promotion-policy.yaml]
+    consumes: [artifacts/operations/implementation-eligibility.yaml, artifacts/operations/execution-policy.yaml, artifacts/operations/capability-family-registry.yaml, artifacts/operations/promotion-policy.yaml]
     produces: []
     invalidates: []
     depends_on: []
+
+  validate-compute-boundary:
+    type: validator
+    entrypoint: tools/commands/validate/compute-boundary.rb
+    consumes:
+      - DOCS.yaml
+      - blueprint/03-features.md
+      - blueprint/06-engines.md
+      - artifacts/operations/execution-policy.yaml
+      - artifacts/engineering/contracts/daily-action-contract.meta.yaml
+      - artifacts/engineering/contracts/placement-diagnosis-contract.meta.yaml
+      - artifacts/engineering/contracts/evaluation/evaluation-contract.meta.yaml
+      - artifacts/engineering/contracts/error-to-review/data-contract.meta.yaml
+      - artifacts/engineering/runtime/quality-economics-runtime.meta.yaml
+      - artifacts/engineering/contracts/runtime/llm-routing-context-contract.md
+    produces: []
+    invalidates: []
+    depends_on: [validate-implementation-eligibility]
 
   validate-semantic-contracts:
     type: validator
@@ -235,7 +253,7 @@ tools:
     consumes: [tools/manifest.yaml]
     produces: []
     invalidates: []
-    depends_on: [validate-tools, validate-claude-code, validate-trust-boundary, validate-capability-phase-index, validate-documents, validate-contract-ownership, validate-domain-automation, validate-evidence-lineage, validate-evidence-integrity, validate-data-governance, validate-failure-registry, validate-platform-boundary, validate-framework-remediation, validate-implementation-eligibility, validate-implementation-catalog]
+    depends_on: [validate-tools, validate-claude-code, validate-trust-boundary, validate-capability-phase-index, validate-documents, validate-contract-ownership, validate-domain-automation, validate-evidence-lineage, validate-evidence-integrity, validate-data-governance, validate-failure-registry, validate-platform-boundary, validate-framework-remediation, validate-implementation-eligibility, validate-implementation-catalog, validate-compute-boundary]
 
   gate-toolchain-freeze:
     type: utility
@@ -255,7 +273,7 @@ tools:
 
   compile-capability:
     type: utility
-    consumes: [artifacts/operations/capability-manifest.yaml, artifacts/operations/capability-family-map.yaml, artifacts/operations/implementation-eligibility.yaml]
+    consumes: [artifacts/operations/capability-manifest.yaml, artifacts/operations/capability-family-map.yaml, artifacts/operations/implementation-eligibility.yaml, artifacts/operations/execution-policy.yaml]
     produces: []
     invalidates: []
     depends_on: []
