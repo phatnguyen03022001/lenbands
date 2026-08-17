@@ -68,5 +68,22 @@ mutations.each do |label, data, expected|
   end
 end
 
+agent_markers = {
+  ".claude/agents/repo-cartographer.md" => ["exact `decision_units[].unit_id`", "never treat the execution-policy projection as semantic authority"],
+  ".claude/agents/contract-deepener.md" => ["execution-policy.yaml` may only project an existing exact unit", "probabilistic outputs remain typed candidate inference"],
+  ".claude/agents/red-team-reviewer.md" => ["classifiers, embeddings, rerankers, remote model APIs", "compute-mode changes hidden inside"],
+  ".claude/agents/runtime-composer.md" => ["actual computation does not exceed the projected compute mode", "A deterministic unit may not call a classifier"],
+  ".claude/agents/runtime-integration-verifier.md" => ["canonical compute mode vs actual executor/dependencies", "blocking substitution"],
+  ".claude/agents/verification-auditor.md" => ["compute-boundary mutation tests", "deterministic units reject probabilistic substitution"],
+  ".claude/agents/ielts-semantics-auditor.md" => ["intermediate semantic interpretation from canonical semantic fact", "cannot redefine or invent canonical IELTS/LenBands semantics"]
+}
+
+agent_markers.each do |relative_path, markers|
+  body = File.read(File.join(root, relative_path))
+  markers.each do |marker|
+    errors << "#{relative_path} lost compute-boundary routing marker: #{marker}" unless body.include?(marker)
+  end
+end
+
 abort(errors.join("\n")) unless errors.empty?
-puts "PASS: compute-boundary projection and mutation tests"
+puts "PASS: compute-boundary projection, mutation and agent-routing tests"
