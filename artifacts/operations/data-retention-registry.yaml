@@ -104,6 +104,6 @@ entities:
     export: only_when_subject_link_remains
     deletion: delete_subject_linked_events_or_irreversibly_deidentify
 
-forbidden_general_telemetry_fields: [essay, essay_text, audio, audio_data, transcript, raw_answer, error_text, prompt, prompt_body, provider_payload, access_token, authorization_header, email, display_name]
+forbidden_general_telemetry_fields: [essay, essay_text, learner_content, audio, audio_data, transcript, raw_answer, error_text, prompt, prompt_body, provider_payload, access_token, authorization_header, email, display_name]
 
 coverage_rule: every_api_schema_or_runtime_entity_that_can_store_C1_C2_C3_or_C4_must_resolve_to_exactly_one_registry_entity_before_implementation_eligibility
