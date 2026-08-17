@@ -1,0 +1,10 @@
+type: web-api-schema-contract
+status: review
+version: 0.1.1
+owner: engineering + security
+representation: yaml
+derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
+purpose: typed request-response contract for canonical web operation ids
+consumed_by: [experience, engineering, operations]
+created_at: 2026-08-17
+updated_at: 2026-08-17

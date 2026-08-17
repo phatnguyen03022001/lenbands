@@ -25,7 +25,7 @@ trap 'rm -f "$rendered"' EXIT
 
 {
   printf '%s\n\n' '# Capability Index (generated)'
-  printf '%s\n\n' 'Đây là projection chỉ đọc từ Blueprint Capability Catalog; không chỉnh tay và không thay thế `blueprint/03-features.md`.'
+  printf '%s\n\n' 'This is a read-only projection of the Blueprint Capability Catalog; do not edit it manually and do not treat it as a replacement for `blueprint/03-features.md`.'
   printf '%s\n' '- `generated_from`: `blueprint/03-features.md`'
   printf '%s\n' "- \`generated_at\`: \`${generated_at}\`"
   printf '%s\n\n' '- `schema_version`: `1`'

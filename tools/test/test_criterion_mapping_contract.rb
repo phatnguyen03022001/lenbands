@@ -27,10 +27,15 @@ unless validate.call(mutated_contract, taxonomy, openapi).any? { |item| item.inc
   reporter << "canonical criterion mapping drift was accepted"
 end
 
+# Mutate the controlled criterion cell structurally rather than matching the
+# human-language description. Documentation wording may change while the table
+# contract remains the same; this mutation test must continue testing the
+# semantic criterion boundary rather than a Vietnamese/English literal.
 mutated_taxonomy = taxonomy.sub(
-  "| `W_tr_position_unclear` | task response | Position không rõ, thay đổi | TR |",
-  "| `W_tr_position_unclear` | task response | Position không rõ, thay đổi | TA |"
+  /^(\| `W_tr_position_unclear` \|[^|]*\|[^|]*\| )TR( \|.*)$/,
+  '\\1TA\\2'
 )
+reporter << "Writing taxonomy mutation fixture did not match the controlled row" if mutated_taxonomy == taxonomy
 unless validate.call(canonical, mutated_taxonomy, openapi).any? { |item| item.include?("taxonomy criterion set drift") }
   reporter << "Writing taxonomy criterion drift was accepted"
 end

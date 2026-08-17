@@ -1,0 +1,43 @@
+schema_version: 1.0.0
+change_id: platform-contract-restructure-20260817-v2
+change_scope: terminal-audit-of-document-control-plane-buy-first-platform-bops-canonical-five-persona-web-api-typed-payload-contract-and-red-team-boundaries
+protected_changes_reviewed: true
+authority_boundaries_changed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+external_review_required: true
+approval_ref: user-founder-authorized-platform-restructure-and-agent-team-audit-20260817
+supersedes: platform-contract-restructure-20260817-v1
+verification_evidence:
+  workflow: LenBands Toolchain Trust
+  prior_verified_head: ea2ef90b29c6545f4b32d23bb152cc41518408b2
+  prior_run_id: 31988816750
+  prior_result:
+    doctor: passed
+    verify: passed
+    gate_toolchain: passed
+    build_change_set: passed
+    protected_attestation_gate: passed
+  same_head_required_before_merge: true
+notes:
+  - This terminal record supersedes v1 while preserving v1 as append-only history.
+  - DOCS.yaml is the repository authority/navigation control plane; one semantic owner is registered for each changed concern and legacy authority-looking paths are migration or historical inputs only.
+  - The Blueprint no longer duplicates a fixed Go/Python/Next.js stack; system architecture is provider-neutral and buy-first, while provider selection is isolated in the sourcing decision and BOPS.
+  - The five web personas are guest, learner, premium_learner, colab, and admin. Authenticated product roles remain learner, colab, and admin; Premium is an entitlement overlay rather than a separate security hierarchy.
+  - artifacts/engineering/api/openapi.yaml is the single canonical HTTP-operation authority and covers all five web personas plus the internal signed service webhook principal.
+  - artifacts/engineering/api/schema-contract.yaml provides an exact typed request/success-response contract for every canonical operationId; repository verification fails on missing, extra, or undefined mappings.
+  - BOPS 1.1 covers account/identity, privacy/retention, billing/entitlements, content operations, evaluation quality, release/change, procurement, incidents/support, data classes, IAM, durability, backup/recovery, observability, cost, and release blockers.
+  - The red-team model explicitly covers API/document authority collision, persona-role collision, scorer fallback interference, cross-mode leakage, repeated-item contamination, prompt injection, retry duplication, webhook disorder, RLS/elevated-key bypass, BOLA, BFLA, analytics contamination, mutable assessment content, entitlement drift, unsafe provider consumption, adaptive tunnel vision, feedback overload, and provider/alert noise.
+  - General generation may use governed fallback, but learner-visible scoring can fall back only among benchmark-approved model/provider combinations within the same scorer-route version; otherwise evaluation is delayed or unavailable.
+  - Custom Go/Python/Redis/Kafka/auth/payment/workflow/search infrastructure is not part of the default P0 production topology. A new service/runtime requires an evidence-backed blocker rather than anticipated scale or developer preference.
+  - Legacy split OpenAPI files still physically exist only because migration validators and historical capability packs reference them. DOCS.yaml prevents them from becoming parallel authority; their eventual removal requires inbound-reference and validator migration.
+  - The canonical OpenAPI still contains a generic transport object during migration. Typed payload meaning is owned by schema-contract.yaml, and build readiness remains blocked until direct OpenAPI references or a deterministic generated projection bind those schemas to implementation/codegen.
+  - Dormant trust-policy Go/Python implementation worker/workspace names remain locked migration scaffolding and do not authorize those services; changing that security/tooling topology requires a separate validator-aware protected migration.
+  - Provider candidates are design/procurement candidates only. No DPA, provisioning, cost, calibration, P0, scorer-quality, or production-readiness claim is made here.
+  - Same-head GitHub CI must pass again after this terminal attestation; the prior successful run is evidence, not permission to skip final verification.
+  - External CODEOWNERS review remains required before this layered PR can be merged into its parent branch.

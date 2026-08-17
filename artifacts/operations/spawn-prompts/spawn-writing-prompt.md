@@ -1,47 +1,50 @@
 # PROMPT: Spawn Writing Task Prompt (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay 3 tham số.
+> Copy from `---BẮT ĐẦU---` to the end. Replace the three parameters.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho app IELTS LenBands. Nhiệm vụ: sinh Writing Task prompt từ framework. KHÔNG dùng kiến thức training — chỉ dùng framework trong repo.
+You are a content spawner for the LenBands IELTS app. Generate original Writing task assets from the governed framework. Do not invent IELTS scoring rules from training knowledge.
 
-## THAM SỐ
-- task_type: `W_task2_opinion`  (phải có trong writing-task-framework.md; options: W_task2_opinion, W_task2_discussion, W_task2_advantages_disadvantages, W_task2_problem_solution, W_task2_two_part, W_ac_task1_chart, W_gt_task1_formal_letter, W_gt_task1_semi_formal_letter, W_gt_task1_informal_letter)
-- exam_module: `academic`  (hoặc `general_training`)
-- count: 5 prompt
+## PARAMETERS
+- task_type: `W_task2_opinion`
+- exam_module: `academic`
+- count: 5 prompts
 
-## BƯỚC 1 — ĐỌC FRAMEWORK
-- `blueprint/framework/writing-task-framework.md`  ← task type enum + structure + critical requirements
-- `blueprint/framework/band-descriptor-map.md`  ← band 6→7 phân biệt cho Writing
-- `blueprint/framework/vocab-collocation-topic.md`  ← topic enum (10 topic) cho prompt topic
-- `blueprint/framework/grammar-band-framework.md`  ← grammar point gợi ý cho prompt
-- `blueprint/framework/README.md`
+## STEP 1 — READ FRAMEWORK
+- `blueprint/framework/writing-task-framework.md`  ← official-derived Writing requirements + LenBands task taxonomy
+- `blueprint/framework/band-descriptor-map.md`  ← operational descriptor summaries; official source remains normative
+- `blueprint/framework/vocab-collocation-topic.md`  ← LenBands topic taxonomy
+- `blueprint/framework/grammar-band-framework.md`  ← optional curriculum tags only; not official band requirements
+- `blueprint/framework/microskill-enum.md`  ← controlled micro-skill IDs
+- `blueprint/framework/README.md`  ← authority classes
 
-Nếu `task_type` không có trong framework → báo `unknown_task_type`, DỪNG.
+If a controlled ID is missing, return the relevant `unknown_*` value and stop.
 
-## BƯỚC 2 — SINH 5 PROMPT
-Mỗi prompt phải:
-- Thuộc đúng `task_type` (opinion = "To what extent do you agree/disagree", discussion = "Discuss both views", v.v.).
-- Topic thuộc 10 topic enum.
-- Band-appropriate (Task 2 academic cần abstract reasoning, không quá cụ thể).
-- KHÔNG copy Cambridge bản gốc — viết mới (origin: `cambridge_pattern`).
+## STEP 2 — GENERATE ORIGINAL PROMPTS
+Each prompt must:
+- Match the selected LenBands `task_type` while remaining faithful to the public IELTS task format.
+- Use an appropriate topic from the LenBands topic taxonomy.
+- Be answerable without specialist knowledge.
+- Be original; do not copy or closely paraphrase a published IELTS/Cambridge prompt.
+- Avoid embedding a target band or named grammar structure as a requirement for the learner.
 
-## BƯỚC 3 — SCHEMA WRITING TASK
+`task_type` is an internal authoring taxonomy. It must not be described as an official exhaustive IELTS taxonomy.
+
+## STEP 3 — WRITING TASK SCHEMA
 
 ```yaml
 task_id: W_t_001
 exam_module: academic
 task_type: W_task2_opinion
 prompt_text: |
-  Some people believe that governments should invest more money in public transportation systems.
-  To what extent do you agree or disagree?
-prompt_word_count_target: 250
-prompt_hash: <hash của prompt_text — compute sau>
-band_range: 5.0-9.0
+  Some cities are considering reducing the amount of space available for private cars in their centres.
+  To what extent do you agree or disagree with this approach?
+minimum_response_words: 250
+prompt_hash: <sha256 of prompt_text>
 rights:
-  origin: cambridge_pattern
-  origin_ref: "original prompt, pattern follows IELTS Task 2 opinion"
+  origin: generated
+  origin_ref: "original LenBands prompt following the public IELTS Writing Task 2 interaction pattern"
 tags:
   topic: [t_transport_travel, t_society_culture]
   microskill_ref: [W_position_clarity, W_idea_development]
@@ -49,18 +52,22 @@ status: draft
 version: 0.1.0
 ```
 
-## LUẬT CỨNG
-1. `task_type` PHẢI có trong `writing-task-framework.md`. Ngoài → `unknown_task_type`, DỪNG.
-2. `topic` PHẢI thuộc 10 topic enum.
-3. `microskill_ref` PHẢI có trong `microskill-enum.md`.
-4. `prompt_text` phải đúng pattern `task_type` (vd opinion = "agree/disagree", không nhầm sang "discuss both views").
-5. `rights.origin` phải hợp lệ enum.
-6. KHÔNG copy Cambridge prompt thật — viết mới.
-7. 5 prompt phải **đa dạng topic** — không lặp 1 topic.
+Do not use `band_range` on a prompt as if the prompt itself guarantees or measures a band. If the product later needs calibrated item-difficulty metadata, it must come from a separate reviewed/calibrated field and evidence source.
 
-## ĐIỀU KIỆN DỪNG
-- task_type không có → `unknown_task_type`, DỪNG.
-- Không chắc pattern → ghi `needs_review`.
+## HARD RULES
+1. `task_type` MUST exist in `writing-task-framework.md`.
+2. `topic` MUST belong to the LenBands topic enum.
+3. `microskill_ref` MUST exist in `microskill-enum.md`.
+4. Prompt wording must satisfy the selected task contract and exam module.
+5. The asset must be original and must not reproduce a real published prompt.
+6. `rights.origin` must use a valid provenance enum.
+7. Do not add a fixed paragraph count, memorized phrase, vocabulary list, grammar structure, or synthetic band cap as a learner requirement.
+8. Do not infer a Writing section band from this prompt or from one task response; scoring is handled by the evaluation contract.
+
+## STOP CONDITIONS
+- Unknown controlled ID → return the appropriate `unknown_*` value and STOP.
+- Uncertain format fidelity or rights/provenance → `needs_review`.
+- Candidate is substantially similar to known published material → reject and generate a different original concept.
 
 ## SIDECAR META.YAML SCHEMA (canonical)
 ```yaml
@@ -73,25 +80,23 @@ owner: colab
 derived_from: [KA.Exercise]
 framework_refs:
   - file: writing-task-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [W_task2_opinion]
 origin: {source: generated, license: unknown}
 integrity: {checksum: sha256:<64-hex-payload-hash>, payload_file: W_t_001.md}
 governance: {rights_status: pending_review, review_status: draft}
 spawn_lineage: {workflow_run_id: <actual-run-id>, prompt_template_id: spawn-writing-prompt, prompt_hash: <hash>, model: <model-id>, parameters: {task_type: W_task2_opinion, exam_module: academic}}
-created_at: "2026-08-07T00:00:00Z"
-updated_at: "2026-08-07T00:00:00Z"
+created_at: "2026-08-17T00:00:00Z"
+updated_at: "2026-08-17T00:00:00Z"
 ```
 
-Sidecar là metadata canonical; `rights.origin` trong payload là authoring-side classification, không thay thế sidecar `origin`.
+The sidecar is canonical metadata. All generated assets remain `draft` until content/rights review.
 
 ## OUTPUT
-2 file mỗi prompt:
+Two files per prompt:
 - `knowledge-assets/writing-prompts/W_t_001.md`
 - `knowledge-assets/writing-prompts/W_t_001.meta.yaml`
 
-Output sidecar phải theo schema canonical ở trên và checksum đúng payload `.md`.
-
-Bắt đầu: đọc framework, xác nhận task_type, sinh 5 prompt.
+Validate framework references, duplicate/similarity risk, provenance, and payload checksum before completion.
 
 ---KẾT THÚC---

@@ -12,7 +12,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-vocab.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-vocab.meta.yaml
     owner: colab
-    source_sha256: sha256:239616de11d3567057ee2aa776a9dbf9f4e6b73242fd12ab8e6bb1fb8cf1fa25
+    source_sha256: sha256:8b86f67acb7db098c889c7bdd64815586ecf15cdf3339a6af668832dc0c7a5be
     framework_files: [vocab-collocation-topic, microskill-enum, band-descriptor-map]
     output_kind: vocabulary
     output_root: knowledge-assets/vocabulary
@@ -21,7 +21,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-collocation.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-collocation.meta.yaml
     owner: colab
-    source_sha256: sha256:1e0ab8cf710c784928632a5a80797f35b3f9b24367d147984603dde488a16180
+    source_sha256: sha256:7317d6036654bc58080aa31b97e284d1b9972547de559b9f86adc15eac7a8b06
     framework_files: [vocab-collocation-topic, microskill-enum]
     output_kind: collocation
     output_root: knowledge-assets/collocations
@@ -30,8 +30,8 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-grammar-lesson.meta.yaml
     owner: colab
-    source_sha256: sha256:a0fbfcd134e45a6ccf8237763a7fa200b456a718b0311f1bf77df7fc84eabbf0
-    framework_files: [grammar-band-framework, error-taxonomy, review-mapping, microskill-enum]
+    source_sha256: sha256:dc194e26f3bb666538a1b2871e740375b0a319d01b4a6ea006b278af5546487f
+    framework_files: [grammar-band-framework, band-descriptor-map, error-taxonomy, review-mapping, microskill-enum]
     output_kind: grammar_lesson
     output_root: knowledge-assets/grammar
     required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]
@@ -39,7 +39,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-question-item.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-question-item.meta.yaml
     owner: colab
-    source_sha256: sha256:c736795e0e4fbbb51750882d55a1c16adc9cd6d3b8fc2a2e44e7817ca67699ff
+    source_sha256: sha256:dc912a1092f1f1af63bfe72e1199fb8b90a51b6310e7808940092c0c1d1b48a2
     framework_files: [skill-questiontype-band, microskill-enum, error-taxonomy, exam-module-differences]
     output_kind: question_item
     output_root: knowledge-assets/questions
@@ -48,7 +48,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-error-example.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-error-example.meta.yaml
     owner: colab
-    source_sha256: sha256:f76805910b9c01f90b9fab9792c733183638364b61375d2aa0b47641bd7c5c3f
+    source_sha256: sha256:f96d0ebd1ed621293fcb3668ad96fb3acae731681a9209b15b26c09683564175
     framework_files: [error-taxonomy, review-mapping, microskill-enum]
     output_kind: error_example
     output_root: knowledge-assets/error-examples
@@ -57,7 +57,7 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-speaking-cue-card.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-speaking-cue-card.meta.yaml
     owner: colab
-    source_sha256: sha256:4aeded66881252116e6e0a67d9457e1606d93805485cdbfc8a28b5fe6ca15a01
+    source_sha256: sha256:b1f1f1b40fa7612472eb786a2780253a605c75076a61e56660a9bc4a23aa324d
     framework_files: [speaking-parts-framework, band-descriptor-map, microskill-enum, vocab-collocation-topic]
     output_kind: speaking_cue_card
     output_root: knowledge-assets/speaking-cue-cards
@@ -66,8 +66,8 @@ prompt_templates:
     path: artifacts/operations/spawn-prompts/spawn-writing-prompt.md
     metadata_path: artifacts/operations/spawn-prompts/spawn-writing-prompt.meta.yaml
     owner: colab
-    source_sha256: sha256:05c2605ac469007558bc392218e2740242c968696cdd5488a95c6d75f57a332d
-    framework_files: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework]
+    source_sha256: sha256:23d751a8ea5e76bc9ad29fed97d31be3ab88884b0649ff9377a03f24d8286e16
+    framework_files: [writing-task-framework, band-descriptor-map, vocab-collocation-topic, grammar-band-framework, microskill-enum]
     output_kind: writing_prompt
     output_root: knowledge-assets/writing-prompts
     required_output: [payload_md, sidecar_meta_yaml, integrity_checksum, spawn_lineage]

@@ -1,0 +1,89 @@
+type: documentation-architecture
+status: review
+version: 1.0.0
+owner: founder + engineering + operations
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability]
+purpose: make repository navigation deterministic and suppress documentation noise
+created_at: 2026-08-17
+updated_at: 2026-08-17
+
+principles:
+  - semantic identity is document_id, not filename
+  - one semantic owner per field
+  - indexes navigate; they do not restate contracts
+  - generated files are projections, never authorities
+  - migration aliases expire; parallel authorities do not
+  - rename only after inbound references have a machine-readable successor
+
+filename_policy:
+  mutable_canonical: lower-kebab-case
+  mutable_version_location: sibling_meta_yaml
+  immutable_evidence: date_or_version_allowed
+  prohibited_new_patterns: [final, latest, new, v2-as-filename-revision, copy, contract-pack, target-architecture]
+  allowed_special_names: [README.md, AGENTS.md, DOCS.yaml, CODEOWNERS]
+
+folder_policy:
+  blueprint: product_and_domain_design_authority
+  artifacts/business: sourcing_market_legal_business_decisions
+  artifacts/experience: research_and_learner_interaction
+  artifacts/engineering: implementation_and_api_contracts
+  artifacts/operations: quality_security_release_evidence_and_runtime_operations
+  knowledge-assets: learner_serving_content
+
+canonical_renames:
+  - from: artifacts/engineering/contracts/openapi.yaml
+    to: artifacts/engineering/api/openapi.yaml
+    mode: consolidate
+    reason: remove split API authority
+  - from: artifacts/engineering/contracts/writing-task-2/openapi.yaml
+    to: artifacts/engineering/api/openapi.yaml
+    mode: consolidate
+    reason: remove P0-specific second API authority
+  - from: artifacts/operations/bops-contract-pack.md
+    to: artifacts/operations/bops/contract.yaml
+    mode: normalize
+    reason: separate machine controls from prose threat analysis
+  - from: artifacts/business/decisions/build-buy-register.md
+    to: artifacts/business/decisions/platform-sourcing.md
+    mode: supersede
+    reason: sourcing decision should be capability/platform oriented
+  - from: artifacts/business/decisions/managed-platform-baseline-decision.md
+    to: artifacts/business/decisions/platform-sourcing.md
+    mode: supersede
+    reason: one sourcing authority
+  - from: artifacts/engineering/technology-stack-recommendations.md
+    to: artifacts/business/decisions/platform-sourcing.md
+    mode: reduce
+    reason: avoid library catalog becoming architecture authority
+
+blueprint_display_names:
+  blueprint/01-product.md: product
+  blueprint/02-architecture.md: system-architecture
+  blueprint/03-features.md: capability-catalog
+  blueprint/04-experience.md: learner-experience
+  blueprint/05-content.md: content-system
+  blueprint/06-engines.md: learning-engines
+  blueprint/07-conventions.md: conventions
+  blueprint/08-roadmap.md: roadmap
+
+note: >
+  Numbered Blueprint filenames remain physical paths during this migration because they have extensive
+  validator and artifact references. DOCS.yaml supplies stable semantic document IDs now. Physical renaming
+  is permitted only after a generated inbound-reference report proves zero unresolved consumers.
+
+noise_budget:
+  maximum_canonical_docs_per_semantic_concern: 1
+  maximum_readme_authority: 0
+  maximum_provider_specific_docs_in_agent_default_read_path: 0
+  maximum_parallel_openapi_authorities: 1
+  maximum_web_authorization_roles: 4
+  web_personas: 5
+  rule: a new document needs a new semantic owner or it belongs inside an existing document
+
+migration_gate:
+  - DOCS.yaml resolves every new canonical authority
+  - legacy paths are marked migration_only or historical_input
+  - validators consume canonical paths before legacy paths are removed
+  - no unresolved inbound references before physical rename/delete
+  - same-head repository verify and trust-boundary gate pass

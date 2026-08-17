@@ -1,0 +1,38 @@
+schema_version: 1.0.0
+change_id: english-docs-audit-20260817-v3
+change_scope: audit-and-remediate-english-blueprint-artifacts-framework-semantics-integrity-and-governance-before-merge
+protected_changes_reviewed: true
+authority_boundaries_changed: false
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+external_review_required: true
+approval_ref: user-founder-authorized-docs-audit-20260817
+supersedes: english-docs-migration-20260816-v2
+verification_evidence:
+  workflow: LenBands Toolchain Trust
+  prior_verified_head: 9608e43eb2b060833764e310c199eac72864e29d
+  prior_run_id: 31963211817
+  prior_result:
+    doctor: passed
+    verify: passed
+    gate_toolchain: passed
+  same_head_required_before_merge: true
+notes:
+  - This terminal record preserves v1 and v2 as append-only historical attestations and supersedes v2 for the final audit state.
+  - The audit expanded beyond translation because independent semantic review found baseline IELTS scoring and authority problems that could not be safely carried forward unchanged.
+  - Canonical ownership boundaries are unchanged; the framework now explicitly classifies external-normative, official-derived, LenBands-controlled, and experimental-heuristic claims.
+  - Incorrect inferred Listening/Reading conversion tables were replaced with official public average anchors plus a fail-closed versioned conversion contract.
+  - Writing task diagnostics were separated from the complete Writing section score, preserving Task 2 double weighting.
+  - Speaking strict-mock behavior was separated from guided-practice policies and unsupported fixed question/bullet counts were removed as IELTS claims.
+  - Internal grammar, vocabulary, collocation, micro-skill, error, task-difficulty, and band-signal metadata are explicitly non-scoring unless calibrated.
+  - Listening Summary Completion was added as a controlled LenBands question type and propagated through coverage, runtime, and spawn workflows.
+  - Spawn workflow registry/schema, prompt hashes, per-file framework references, golden examples, and generated projections were reconciled without falsifying historical Knowledge Asset provenance.
+  - Lifecycle projection generation was made deterministic across Ruby/Psych null serialization differences rather than hand-editing 180 capability rows.
+  - Validators were changed to match canonical authority contracts while retaining fail-closed checks; no validator/evidence/readiness invariant was disabled.
+  - Required GitHub CI must pass again on the exact terminal PR head after this attestation is added; the prior successful run is audit evidence, not permission to skip same-head verification.
+  - External CODEOWNERS review remains required before merge.

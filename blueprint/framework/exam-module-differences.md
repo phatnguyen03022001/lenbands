@@ -1,205 +1,186 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Exam Module Differences (Academic vs General Training) + Score Conversion
 
-Status: `framework` — định nghĩa khác biệt Academic vs General Training + bảng quy đổi raw score sang band cho Listening/Reading. Feed `PRACTICE.MockTest`, `BAND.ExamReadiness`, `LEARN.Path` module routing.
+Status: `framework` — defines Academic vs General Training differences, answer normalization, and the authority boundary for Listening/Reading raw-score conversion. Feeds `PRACTICE.MockTest`, `BAND.ExamReadiness`, and `LEARN.Path` module routing.
 
-## Academic vs General Training — khác biệt
+Authority:
+- Test format and published score anchors are **official-derived** from IELTS.org.
+- Exact per-form raw-score boundaries are **not** invented by this framework. They must come from a versioned, reviewed score-conversion source.
+- If a configured conversion conflicts with current official IELTS guidance, the official source wins and the configuration must be reviewed.
 
-IELTS có 2 module: **Academic** (du học, đăng ký chuyên môn) và **General Training** (di cư, làm việc). Khác biệt ở 3 skill:
+## Academic vs General Training — differences
+
+IELTS has two modules: **Academic** and **General Training**. Reading and Writing differ; Listening and Speaking use the same test format for both modules.
 
 | Skill | Academic | General Training |
 |---|---|---|
-| Listening | **Giống nhau** (cùng 4 section, cùng audio) | Giống Academic |
-| Reading | 3 passage dài, scholarly (tạp chí, sách, journal) | 3 section: Section 1 (2-3 text ngắn everyday), Section 2 (2 text workplace), Section 3 (1 text dài general) |
-| Writing | Task 1: mô tả chart/table/process/map/diagram. Task 2: essay academic | Task 1: letter (formal/semi/informal). Task 2: essay (giống AT nhưng topic đời sống hơn) |
-| Speaking | **Giống nhau** | Giống Academic |
+| Listening | **Same format**: four parts, 40 questions | Same as Academic |
+| Reading | Three sections using texts drawn from books, journals, magazines, newspapers, and online resources for a non-specialist audience | Three sections progressing from everyday material to workplace material and a longer general-interest text |
+| Writing | Task 1 describes visual information; Task 2 responds to a point of view, argument, or problem | Task 1 is a letter; Task 2 responds to a point of view, argument, or problem |
+| Speaking | **Same** three-part interview | Same as Academic |
 
-Module được learner chọn lúc setup (`GOAL.Target` phải có `exam_module: academic | general_training`). Toàn bộ path + content routing dựa vào field này.
+The learner selects a module during setup. `GOAL.Target` must contain `exam_module: academic | general_training`. Learning paths and content routing depend on this field.
 
 ## Module routing rule
 
 | Capability | Academic | General Training |
 |---|---|---|
-| `LEARN.Reading` | passage scholarly, academic vocab | passage everyday/workplace |
-| `LEARN.Writing` Task 1 | chart/table/process/map/diagram | letter (3 tone) |
-| `LEARN.Writing` Task 2 | topic academic (vd education, technology, science) | topic đời sống (vd family, work, community) |
-| `PRACTICE.MockTest` | full Academic | full GT |
-| `KA.Vocabulary` | topic academic + all 10 topic | all 10 topic, thiên everyday |
+| `LEARN.Reading` | Academic Reading source style and task mix | General Training Reading source style and task mix |
+| `LEARN.Writing` Task 1 | visual-information response | letter |
+| `LEARN.Writing` Task 2 | Academic Task 2 | General Training Task 2 |
+| `PRACTICE.MockTest` | full Academic | full General Training |
+| `KA.Vocabulary` | curriculum may emphasize academic-register vocabulary | curriculum may emphasize everyday/workplace vocabulary where appropriate |
 
-Learner không mix module trong 1 path. Nếu chuyển module (rare), re-placement.
+A learner does not mix modules within one mock-test attempt. Product policy may require re-placement or a new diagnostic when a learner changes module; that policy is LenBands-specific, not an IELTS rule.
 
-## Listening/Reading — raw score → band conversion
+## Listening/Reading — raw score → band authority
 
-Listening và Reading chấm bằng answer key (objective). Band tính từ raw score qua **bảng quy đổi**. Bảng đổi nhẹ theo kỳ thi (curve), nhưng dùng benchmark chuẩn dưới đây làm default.
+Listening and Reading each contain 40 questions and award one mark for each correct answer. IELTS converts raw marks to whole/half band scores. IELTS explicitly states that the precise number of marks needed can vary slightly from one test version to another.
 
-### Listening (40 câu) → band
+### Official published average anchors
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 6-9 |
-| 4.5 | 10-11 |
-| 5.0 | 12-15 |
-| 5.5 | 16-18 |
-| 6.0 | 19-22 |
-| 6.5 | 23-25 |
-| 7.0 | 26-29 |
-| 7.5 | 30-31 |
-| 8.0 | 32-34 |
-| 8.5 | 35-36 |
-| 9.0 | 37-40 |
+These are the **average marks published by IELTS.org**, not complete half-band conversion tables:
 
-### Reading Academic (40 câu) → band
+| Skill/module | Band | Average marks out of 40 |
+|---|---:|---:|
+| Listening | 5 | 16 |
+| Listening | 6 | 23 |
+| Listening | 7 | 30 |
+| Listening | 8 | 35 |
+| Academic Reading | 5 | 15 |
+| Academic Reading | 6 | 23 |
+| Academic Reading | 7 | 30 |
+| Academic Reading | 8 | 35 |
+| General Training Reading | 4 | 15 |
+| General Training Reading | 5 | 23 |
+| General Training Reading | 6 | 30 |
+| General Training Reading | 7 | 35 |
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 4-5 |
-| 4.5 | 6-7 |
-| 5.0 | 8-11 |
-| 5.5 | 12-13 |
-| 6.0 | 14-18 |
-| 6.5 | 19-22 |
-| 7.0 | 23-25 |
-| 7.5 | 26-28 |
-| 8.0 | 29-31 |
-| 8.5 | 32-33 |
-| 9.0 | 34-40 |
+The framework **must not interpolate or invent** missing half-band cut-offs from these anchors.
 
-### Reading General Training (40 câu) → band
+### Runtime conversion contract
 
-GT Reading raw → band **khó hơn AT** (cùng band cần nhiều câu đúng hơn, vì passage dễ hơn).
+A scored mock must reference an explicit, reviewed conversion version:
 
-| Band | Raw score range (approx) |
-|---|---|
-| 4.0 | 6-8 |
-| 4.5 | 9-11 |
-| 5.0 | 12-14 |
-| 5.5 | 15-18 |
-| 6.0 | 19-22 |
-| 6.5 | 23-25 |
-| 7.0 | 26-29 |
-| 7.5 | 30-31 |
-| 8.0 | 32-33 |
-| 8.5 | 34-35 |
-| 9.0 | 36-40 |
+```yaml
+score_conversion:
+  source: ielts_public_or_calibrated_table
+  source_ref: <immutable-source-or-reviewed-config-ref>
+  version: <version>
+  module: listening | academic_reading | general_training_reading
+  status: approved
+```
 
-Lưu ý: đây là benchmark chuẩn (Cambridge pattern). Curve thực có thể lệch ±1 câu.
+Rules:
+- `PRACTICE.MockTest` may calculate a Listening/Reading band only when an approved conversion version covering the raw score is available.
+- The result stores `raw_score`, `conversion_version`, and `conversion_source_ref` for auditability.
+- If no approved conversion covers the score, return `conversion_unavailable`; do **not** guess or interpolate a band.
+- The official average anchors above are suitable for sanity checks, not sufficient by themselves to define every half-band boundary.
 
 ## Answer normalization rules (Listening/Reading)
 
-Answer key matching phải normalize trước khi so:
+Answer-key matching may normalize mechanically equivalent representations before comparison, but normalization must never turn a semantically different answer into a correct one.
 
-| Rule | Mô tả |
+| Rule | Description |
 |---|---|
-| Case-insensitive | "Paris" = "paris" = "PARIS" |
-| Trim whitespace | " Paris " = "Paris" |
-| Article optional (if allowed) | "a book" = "book" (tùy question, theo key config) |
-| Plural sensitivity | theo key: strict (book ≠ books) hoặc lenient (theo instruction) |
-| Alternative spelling | British vs American (colour/color) — theo key config |
-| Number format | "1,000" = "1000" = "one thousand" (tùy key) |
-| Word limit | instruction "NO MORE THAN TWO WORDS" → answer > 2 từ = wrong |
-| Hyphenation | "well-known" = "well known" (theo key, default yes) |
+| Case normalization | compare case-insensitively when case is not part of the answer construct |
+| Trim whitespace | remove accidental leading/trailing whitespace |
+| Alternative accepted answer | accept only alternatives explicitly registered in the question key |
+| Spelling variant | accept British/American variants only when the reviewed key permits them |
+| Number/date formatting | normalize mechanically equivalent formats only when the reviewed key permits them |
+| Word limit | enforce the wording of the question instruction; an answer exceeding the stated limit is wrong |
+| Hyphenation | treat variants as equivalent only when the reviewed key explicitly permits it |
 
-### Number/date/phone/currency normalization (Listening depth)
+Do not apply global rules such as "articles are always optional" or "plural is always lenient". Those decisions belong to the reviewed answer key for the specific item.
 
-Listening có nhiều format number cần normalize riêng (vì learner nghe rồi viết, dễ sai format):
+### Number/date/phone/currency normalization
 
-| Loại | Quy tắc | Ví dụ |
-|---|---|---|
-| Date | chấp nhận nhiều format: DD/MM/YYYY, DD Month YYYY, Month DD | "5 March 2024" = "05/03/2024" = "March 5, 2024" |
-| Phone | chấp nhận spaces/dashes, leading 0 optional theo key | "020 7946 0958" = "0207-946-0958" |
-| Currency | symbol (£/$/€) optional nếu key không yêu symbol; "£500" = "500 pounds" = "five hundred pounds" (tùy key config) | "£15.50" = "15.50" (nếu key lenient) |
-| Decimal | "0.5" = "point five" = "nought point five" | — |
-| Time | "9.30" = "9:30" = "half past nine" (tùy key) | — |
-| Age | "18-year-old" = "18 years old" = "18" | — |
-| Quantity + unit | "2 kilograms" = "2 kilos" = "2 kg" = "2" (nếu key chỉ cần số) | — |
-| Ordinal | "3rd" = "third" = "3" (tùy key) | — |
+Listening items may register controlled normalization for mechanically equivalent forms:
 
-Key config quyết định strict/lenient:
+| Type | Example of configurable equivalence |
+|---|---|
+| Date | `15 March` / `March 15` when both are accepted by the reviewed key |
+| Phone | spaces or hyphens may be ignored when they do not change the digits |
+| Currency | symbol/word form may be normalized only when the reviewed key permits it |
+| Decimal | numeric and spoken-number forms may be mapped when explicitly configured |
+| Time | equivalent clock formats may be mapped when explicitly configured |
+| Quantity + unit | unit omission is accepted only when the item asks for the number alone |
+
+Example key configuration:
+
 ```yaml
 correct_answer:
-  - value: "15 March"
-  - value: "March 15"
-  - value: "15th March"
+  values: ["15 March", "March 15"]
   normalize: [lowercase, trim, date_flexible]
-```
-
-Listening-specific error:
-| error_id | Mô tả |
-|---|---|
-| `L_ans_number_format` | Sai format number (date/phone/currency) dù nghe đúng số | `L_number_date_capture` |
-| `L_ans_unit_missing` | Thiếu đơn vị (kg, pounds) khi key yêu cầu | `L_number_date_capture` |
-
-Key structure (trong asset `question_id`):
-
-```yaml
-question_id: R_q_482
-correct_answer:
-  - value: "environment"
-  - value: "the environment"
-  - value: "environments"
-  - rule: lenient_plural
-  - normalize: [lowercase, trim]
 word_limit: 2
-explanation_ref: ...
 ```
 
-## Overall band calculation (IELTS rule)
+Listening-specific errors:
 
-Overall band = **average của 4 skill**, rounded to nearest 0.5 (rounding规则: .25 → .5, .75 → next whole).
-
-| Average | Overall band |
+| error_id | Description |
 |---|---|
-| x.00-x.24 | x.0 |
-| x.25-x.74 | x.5 |
-| x.75-x.99 | (x+1).0 |
+| `L_ans_number_format` | Format does not match an accepted normalized representation |
+| `L_ans_unit_missing` | A required unit is missing |
 
-Ví dụ: L6.5 R6.0 W6.0 S6.5 → avg 6.25 → overall **6.5**.
+## Overall band calculation
 
-## Mock test scoring (PRACTICE.MockTest)
+IELTS overall band is the average of the four section band scores. If the average ends in `.25`, it is rounded up to the next half band; if it ends in `.75`, it is rounded up to the next whole band. Other averages are reported to the nearest whole or half band according to IELTS rules.
 
-- Listening/Reading: auto-score qua answer key + bảng quy đổi.
-- Writing/Speaking: AI score qua `EVAL.Writing`/`EVAL.Speaking` + descriptor.
-- Overall: tính theo rule trên.
-- Output: per-skill band + overall + raw score (L/R) + criterion band (W/S).
+Examples:
+- L6.5 R6.0 W6.0 S6.5 → average 6.25 → overall **6.5**.
+- L6.5 R6.5 W6.5 S6.5 → average 6.5 → overall **6.5**.
+- L7.0 R7.0 W6.5 S6.5 → average 6.75 → overall **7.0**.
 
-## Band cap vs reading level
+## Mock test scoring (`PRACTICE.MockTest`)
 
-IELTS band không = CEFR 1-1 nhưng tương quan:
+- Listening/Reading: raw score from the answer key, then an **approved versioned conversion table**.
+- Writing: criterion scoring for both tasks, with Task 2 carrying twice the weight of Task 1 in the Writing section score.
+- Speaking: four equally weighted criteria.
+- Overall IELTS band: calculated from the four section bands using the official rounding rule.
+- Audit output: per-skill band, overall band, L/R raw score + conversion version, and W/S criterion evidence.
 
-| IELTS Band | CEFR approx |
-|---|---|
-| 4.0 | A2+ |
-| 4.5-5.0 | B1 |
-| 5.5-6.0 | B1+ / B2 |
-| 6.5-7.0 | B2 / B2+ |
-| 7.5-8.0 | C1 |
-| 8.5-9.0 | C1+ / C2 |
+## IELTS ↔ CEFR guardrails
 
-Dùng làm cross-reference cho vocab `cefr` field, không thay thế band.
+IELTS and CEFR do **not** align at exact transition points. Do not assign a precise CEFR level to every IELTS half band as if the scales were interchangeable.
 
-## Cách dùng
+Current public IELTS guidance states, in particular:
+- the minimum C1 threshold falls **between IELTS 6.5 and 7.0**;
+- IELTS **8.5 and above** is recognized as C2, while band 8 is borderline.
 
-- `GOAL.Target` có `exam_module`: định direction toàn path.
-- `LEARN.Path` route content theo module.
-- `PRACTICE.MockTest` chọn module, chấm theo bảng quy đổi + descriptor.
-- `BAND.ExamReadiness` tính overall theo rule IELTS.
-- `EVAL.Writing` biết task type Academic vs GT → chấm structure khác.
+Any finer CEFR crosswalk used by LenBands must carry its own research/provenance and must be presented as an approximation, not an official one-to-one conversion.
+
+## Official references
+
+- IELTS scoring in detail: `https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail`
+- IELTS and the CEFR: `https://ielts.org/organisations/ielts-for-organisations/compare-ielts/ielts-and-the-cefr`
+- Academic test format: `https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-academic-test/academic-test-format-in-detail`
+- General Training test format: `https://ielts.org/organisations/ielts-for-organisations/test-types/ielts-general-training-test/general-training-test-format-in-detail`
+
+## Usage
+
+- `GOAL.Target` contains `exam_module` and determines path direction.
+- `LEARN.Path` routes content by module.
+- `PRACTICE.MockTest` selects the module and records the approved score-conversion version.
+- `BAND.ExamReadiness` consumes scored evidence; it must not manufacture missing conversions.
+- `EVAL.Writing` reads Academic vs General Training task type and applies the appropriate task contract.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
 - `version: 1.0.1` — reconciled answer-normalization error references.
-- `version: 1.0.6` — normalized the per-file release record; module and score rules are unchanged.
-- Bảng quy đổi cập nhật khi Cambridge release pattern mới: patch + note.
-- Thêm module (vd Life Skills — ngoài scope hiện tại): minor.
+- `version: 1.0.6` — normalized the per-file release record; module and score rules were unchanged.
+- `version: 1.0.7` — replaced incorrect inferred raw-score ranges with current IELTS.org average anchors, made exact half-band conversion fail-closed and versioned, tightened answer-normalization authority, and corrected CEFR claims.
+- A correction to an official-derived fact requires a patch bump plus source review.
+- Adding a new product-supported IELTS test type requires an explicit scope decision rather than agent inference.
 
-## Không tự suy luận
+## Do not infer
 
-- Bảng quy đổi phải khớp file này; không tự bịa "L 30 = band 7.5".
-- Module phải là `academic` hoặc `general_training`, không tự đặt module khác.
-- Answer normalization theo rule trên; key ngoài rule → báo `unknown_normalization`.
+- Do not infer a half-band conversion from neighboring official anchor points.
+- Do not present a LenBands score table as an official IELTS per-form curve.
+- Do not convert IELTS to CEFR one-to-one without an explicitly sourced crosswalk.
+- Module values supported by this contract are `academic` and `general_training`; additional IELTS products require an explicit product decision.
+- Unknown answer-normalization behavior must return `unknown_normalization` rather than silently accepting an answer.

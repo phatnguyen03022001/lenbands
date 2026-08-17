@@ -1,0 +1,10 @@
+type: canonical-web-openapi
+status: review
+version: 0.1.0
+owner: engineering + security
+representation: openapi
+derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy, PLACE.Test, STUDY.DailyPlan, PRACTICE.Set, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
+purpose: single canonical HTTP API for all web personas
+consumed_by: [experience, engineering, operations]
+created_at: 2026-08-17
+updated_at: 2026-08-17

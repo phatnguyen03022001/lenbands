@@ -1,9 +1,17 @@
 type: evaluation-contract
 status: review
-version: 0.1.4
+version: 0.2.0
 owner: engineering + governance
 representation: markdown
 derived_from: [EVAL.Writing, EVAL.Speaking, EVAL.Pronunciation, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
 purpose: evaluation-boundary-quality-policy
 created_at: 2026-08-07
-updated_at: 2026-08-08
+updated_at: 2026-08-17
+change_log:
+  - version: 0.2.0
+    date: 2026-08-17
+    changes:
+      - Separated official IELTS results, exam-simulation estimates, task-level diagnostic estimates, and learning mastery.
+      - Preserved overall_band for schema compatibility while explicitly scoping P0 Writing Task 2 as a task-level diagnostic estimate, not a Writing-section band.
+      - Added assessment_mode provenance, evidence-centered scoring boundaries, learner-safe confidence semantics, mode-specific feedback policy, and insufficient-evidence behavior.
+      - Expanded benchmark promotion evidence beyond aggregate MAE to exact/adjacent agreement, ordinal agreement, repeated-run stability, confidence calibration, task/proficiency slices, and governed subgroup analysis.

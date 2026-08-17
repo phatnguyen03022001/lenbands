@@ -1,216 +1,217 @@
 # 05 — Content & Knowledge System
 
-File này mô tả toàn bộ **Knowledge Layer**: Knowledge Assets (tri thức hệ thống), Taxonomy, Tagging schema, Question Bank, Colab Workflow, Versioning, Publishing. Đây là nền cho mọi feature AI (`REVIEW.FSRS`, `PRACTICE.Adaptive`, `PERSONAL.Insights`, `COACH.ErrorAnalysis`) — metadata nông = garbage in, garbage out.
+This file describes the complete **Knowledge Layer**: Knowledge Assets (system knowledge), Taxonomy, Tagging schema, Question Bank, Colab Workflow, Versioning, and Publishing. It is the foundation for all AI features (`REVIEW.FSRS`, `PRACTICE.Adaptive`, `PERSONAL.Insights`, `COACH.ErrorAnalysis`) — shallow metadata means garbage in, garbage out.
 
-> **IELTS Knowledge Framework**: bộ khung domain (band descriptor, question type, micro-skill, error taxonomy, grammar/vocab band, speaking parts, writing task, exam module) nằm ở `blueprint/framework/`. Mọi `learning_design_profile`, `KA.*` asset, `BAND.Map` checklist, `EVAL.*` và `REVIEW.*` phải trace về id trong framework. Xem `framework/README.md`.
+> **IELTS Knowledge Framework**: the domain framework (official-derived descriptors/format facts plus LenBands-controlled question types, micro-skills, errors, grammar/vocabulary curriculum, speaking/writing practice models, and exam-module rules) lives in `blueprint/framework/`. Every `learning_design_profile`, `KA.*` asset, `BAND.Map` curriculum view, `EVAL.*`, and `REVIEW.*` must trace to the correct framework authority class. See `framework/README.md`.
 
 ## Knowledge Assets
 
-Tri thức hệ thống do Colab publish, tiêu thụ bởi learner.
+System knowledge published by Colab and consumed by learners.
 
-| Asset | Mô tả |
+| Asset | Description |
 |---|---|
-| Lesson | Bài học cấu trúc (theo skill, band, dạng bài) |
-| Grammar | Điểm ngữ pháp |
-| Vocabulary | Từ vựng (có phonetic, definition, example, collocation, band tag) |
+| Lesson | Structured lesson by skill, learning stage, and question type |
+| Grammar | Grammar point |
+| Vocabulary | Vocabulary item with phonetic form, definition, example, collocation, and provisional routing metadata where applicable |
 | Collocation | Collocation |
-| Template | Mẫu câu Writing / Speaking |
-| Strategy | Chiến thuật làm bài theo dạng |
-| Example | Ví dụ minh họa (essay sample, speaking transcript mẫu) |
-| Exercise | Bài tập gắn với lesson/knowledge |
+| Template | Writing / Speaking sentence pattern |
+| Strategy | Question-type-specific test strategy |
+| Example | Worked example such as an essay sample or sample speaking transcript |
+| Exercise | Exercise linked to a lesson/knowledge item |
 
-Mỗi asset có metadata schema (xem Taxonomy dưới).
+Every asset has a metadata schema defined by the taxonomy below.
 
 ## Taxonomy & Tagging (core IP)
 
-Đây là phần **quyết định** chất lượng toàn bộ hệ thống AI. Mỗi content item (question, passage, lesson, asset, sample) **bắt buộc** tag theo các chiều:
+This layer is **decisive** for the quality of the entire AI system. Every content item (question, passage, lesson, asset, sample) must carry the applicable governed metadata dimensions; fields that do not apply to a content type must not be fabricated merely to satisfy a generic schema.
 
 ### Tag dimensions
 
-| Dimension | Ví dụ | Dùng cho |
+| Dimension | Example | Used by |
 |---|---|---|
 | `skill` | listening / reading / writing / speaking / pronunciation | Routing, filter |
-| `band` | 3.0 → 9.0 (step 0.5) | `BAND.*`, `PRACTICE.Adaptive` |
-| `question_type` | ID đã có trong framework tương ứng; thiếu registry → `unknown_question_type` | `LEARN.QuestionTypes`, `PERSONAL.Insights` |
-| `micro_skill` | ID đã có trong framework tương ứng; thiếu registry → `unknown_microskill` | `PERSONAL.Insights`, `COACH.ErrorAnalysis` |
-| `distractor_type` | Registry v1 chưa được định nghĩa → `unknown_distractor_type` | `COACH.DistractorExplanation` |
-| `paraphrase_pattern` | Registry v1 chưa được định nghĩa → `unknown_paraphrase_pattern` | `COACH.DistractorExplanation`, `PERSONAL.Insights` |
-| `grammar_point` | Grammar ID trong `grammar-band-framework.md`; thiếu → `unknown_grammar_point` | `COACH.ErrorAnalysis`, FSRS card nguồn |
-| `ielts_topic` | environment, technology, education, health... | `SEARCH.*`, recommendation |
-| `difficulty` | `unknown_difficulty` cho tới khi có calibration run; không claim thang 1–5 | `PRACTICE.Adaptive` |
-| `cefr` | A2/B1/B2/C1/C2 | cross-reference band |
-| `estimated_time` | phút | `STUDY.DailyPlan` |
-| `practice_unit` | Pronunciation unit (`P_*`); bắt buộc khi `skill=pronunciation` | `LEARN.Pronunciation`, `EVAL.Pronunciation`, `REVIEW.FSRS` |
+| `band` / `band_range` | provisional LenBands routing metadata, e.g. `6.5-7.5`; never an automatic IELTS score/requirement | Curriculum routing, `PRACTICE.Adaptive` after calibration |
+| `question_type` | Existing ID in the corresponding framework; missing registry → `unknown_question_type` | `LEARN.QuestionTypes`, `PERSONAL.Insights` |
+| `micro_skill` | Existing ID in the corresponding framework; missing registry → `unknown_microskill` | `PERSONAL.Insights`, `COACH.ErrorAnalysis` |
+| `distractor_type` | Registry v1 is not yet defined → `unknown_distractor_type` | `COACH.DistractorExplanation` |
+| `paraphrase_pattern` | Registry v1 is not yet defined → `unknown_paraphrase_pattern` | `COACH.DistractorExplanation`, `PERSONAL.Insights` |
+| `grammar_point` | Grammar ID in `grammar-band-framework.md`; missing → `unknown_grammar_point` | `COACH.ErrorAnalysis`, source for FSRS cards |
+| `ielts_topic` | LenBands-controlled topic ID such as `t_environment`; not an official exhaustive IELTS topic list | `SEARCH.*`, recommendation |
+| `difficulty` | `unknown_difficulty` until a calibration run exists; provisional labels must say so | `PRACTICE.Adaptive` |
+| `cefr` | optional CEFR label with independent provenance; never derived mechanically from IELTS band metadata | cross-reference only when sourced |
+| `estimated_time` | minutes, with method/calibration when used predictively | `STUDY.DailyPlan` |
+| `practice_unit` | Pronunciation unit (`P_*`); required when `skill=pronunciation` | `LEARN.Pronunciation`, `EVAL.Pronunciation`, `REVIEW.FSRS` |
 
-### Tại sao tagging depth quan trọng
-   
-- `REVIEW.FSRS` chỉ tối ưu nếu card gắn đúng `grammar_point` / `micro_skill` — không thì ôn sai đơn vị.
-- `PRACTICE.Adaptive` chọn câu dựa trên `difficulty` + `question_type` + `micro_skill` — thiếu = chọn ngẫu nhiên.
-- `PERSONAL.Insights` ("bạn sai Matching Headings vì thiếu paraphrase") cần `question_type` + `micro_skill` + `paraphrase_pattern` — thiếu = không giải thích được.
-- `COACH.ErrorAnalysis` cần `grammar_point` để gợi ý đúng bài học.
+### Why tagging depth matters
 
-**Đây là hidden cost của Colab:** khối lượng metadata khổng lồ. Phải có tooling hỗ trợ (auto-tag đề xuất, Colab duyệt). Những dimension chưa có framework registry không được dùng làm build input; phải giữ `unknown_*` và mở decision/evidence riêng.
+- `REVIEW.FSRS` can optimize only when a card is mapped to the correct `grammar_point` / `micro_skill`; otherwise the system reviews the wrong unit.
+- `PRACTICE.Adaptive` selects questions using calibrated/provisional `difficulty` + `question_type` + `micro_skill`; missing metadata turns selection into randomness, while uncalibrated metadata must not be presented as validated difficulty.
+- `PERSONAL.Insights` (for example, "you miss Matching Headings because paraphrase recognition is weak") requires `question_type` + `micro_skill` + `paraphrase_pattern`; without them, the system cannot explain the weakness.
+- `COACH.ErrorAnalysis` needs `grammar_point` to recommend the correct lesson.
 
-### Auto-tagging hỗ trợ
+**This is the hidden cost of Colab:** the metadata workload is large. Tooling must support it through auto-tag suggestions followed by Colab review. Dimensions without a framework registry must not become build inputs; retain `unknown_*` and open a separate decision/evidence path.
 
-Vì tagging thủ công đắt, hệ thống có auto-tag đề xuất (AI-assisted), Colab duyệt lại:
+### Auto-tagging support
 
-| Capability | Mô tả |
+Manual tagging is expensive, so the system provides AI-assisted tag suggestions that Colab reviews:
+
+| Capability | Description |
 |---|---|
-| `CONTENT.AutoTag` | AI đề xuất tag cho content mới (skill, question_type, micro_skill, topic) |
-| `CONTENT.TagReview` | Colab duyệt/chỉnh tag trước publish |
+| `CONTENT.AutoTag` | AI suggests tags for new content (skill, question_type, micro_skill, topic) |
+| `CONTENT.TagReview` | Colab reviews/edits suggested tags before publication |
 
 ## Question Bank
 
-Kho câu hỏi cho L/R (câu hỏi khách quan) và prompt cho W/S.
+The question store for objective Listening/Reading items and Writing/Speaking prompts.
 
-| Trường | Mô tả |
+| Field | Description |
 |---|---|
-| `question_id` | duy nhất |
-| `skill`, `question_type`, `band`, `difficulty` | taxonomy |
-| `passage_id` / `audio_id` | gắn stimulus (L/R) |
-| `prompt` | câu hỏi / task |
-| `options` | (nếu MCQ) |
-| `correct_answer` | key |
-| `explanation` | `COACH.AnswerExplanation` dùng |
-| `distractor_tags` | cho `COACH.DistractorExplanation` |
-| `micro_skill_tags`, `paraphrase_tags` | cho `PERSONAL.Insights` |
-| `version`, `status` | versioning (xem dưới) |
+| `question_id` | unique |
+| `skill`, `question_type` | controlled taxonomy |
+| `band` / `band_range`, `difficulty`, `calibration_status` | internal routing/calibration metadata; not an IELTS scoring formula |
+| `passage_id` / `audio_id` | stimulus reference (L/R) |
+| `prompt` | question / task |
+| `options` | if MCQ |
+| `correct_answer` | answer key |
+| `explanation` | used by `COACH.AnswerExplanation` |
+| `distractor_tags` | used by `COACH.DistractorExplanation` |
+| `micro_skill_tags`, `paraphrase_tags` | used by `PERSONAL.Insights` |
+| `version`, `status` | versioning; see below |
 
 ## Colab Workflow
 
 ```text
 Create content
    ↓
-Auto-tag (AI đề xuất)          ← CONTENT.AutoTag
+Auto-tag (AI suggestion)         ← CONTENT.AutoTag
    ↓
-Tag review (Colab duyệt)       ← CONTENT.TagReview
+Tag review (Colab review)        ← CONTENT.TagReview
    ↓
-Content review                 ← CONTENT.Moderation
+Content review                   ← CONTENT.Moderation
    ↓
-Publish                        ← CONTENT.Publish
+Publish                          ← CONTENT.Publish
    ↓
-Monitor (feedback, performance)← CONTENT.Feedback
+Monitor (feedback, performance)  ← CONTENT.Feedback
    ↓
-Update / Retire                ← CONTENT.BlueprintUpdate
+Update / Retire                  ← CONTENT.BlueprintUpdate
 ```
 
 ### Moderation checklist
 
-- Kiểm lỗi nội dung (factual, chính tả, key sai)
-- Kiểm tag (skill, band, question_type, distractor, micro_skill)
-- Kiểm difficulty calibration
-- Kiểm paraphrase/distractor hợp lệ
-- Unpublish nội dung có vấn đề
+- Check content errors: factual errors, spelling, incorrect answer key
+- Check tags: skill, routing band metadata, question_type, distractor, micro_skill
+- Check difficulty/calibration state and evidence
+- Check paraphrase/distractor validity
+- Unpublish problematic content
 
 ### Content Feedback loop
 
-Learner báo lỗi → Colab xử lý → fix → republish:
+Learner reports an issue → Colab handles it → fix → republish:
 
 ```text
 Learner Report Content / Suggest Fix / Report Wrong Answer
    ↓                          ← CONTENT.Feedback
-Colab xem (Moderation Queue)
+Colab reviews (Moderation Queue)
    ↓
-Fix (nếu đúng) / Reject (nếu sai)
+Fix (if valid) / Reject (if invalid)
    ↓
-Republish (tăng version)
+Republish (increment version)
    ↓
 Notify learner (optional)
 ```
 
 ## Versioning
 
-Mỗi content item có `version` và `status`:
+Every content item has a `version` and `status`:
 
-| Status | Ý nghĩa |
+| Status | Meaning |
 |---|---|
-| `draft` | Colab đang soạn |
-| `in_review` | Đang moderation |
-| `published` | Live cho learner |
-| `deprecated` | Cũ, vẫn truy cập được link cũ nhưng không gợi ý |
-| `retired` | Bỏ, không hiển thị |
+| `draft` | Colab is authoring |
+| `in_review` | Under moderation |
+| `published` | Live for learners |
+| `deprecated` | Old; direct links still work, but the item is no longer recommended |
+| `retired` | Removed from learner surfaces |
 
-Khi sửa content đã published → tạo version mới, giữ version cũ để:
-- Assessment History không vỡ (learner đã làm version cũ vẫn thấy kết quả đúng)
-- FSRS card gắn version không bị orphan
+When published content changes, create a new version and preserve the old one so that:
+- Assessment History remains valid; a learner who completed the old version still sees the correct historical result
+- FSRS cards bound to a version do not become orphaned
 
 ## Publishing policy
 
-- Chỉ `published` mới hiển thị cho learner.
-- `deprecated` vẫn truy cập được qua direct link (vd learner đã bookmark) nhưng không vào recommendation/search kết quả chính.
-- `retired` ẩn hoàn toàn.
-- Khi IELTS blueprint thay đổi → `CONTENT.BlueprintUpdate` cập nhật hàng loạt + tăng version.
+- Only `published` content is shown to learners.
+- `deprecated` remains available through a direct link (for example, an existing bookmark) but is excluded from primary recommendation/search results.
+- `retired` is fully hidden.
+- When the IELTS blueprint changes, `CONTENT.BlueprintUpdate` performs governed bulk updates and increments versions.
 
 ## Scope reminder
 
-- Colab **không bao giờ chấm** Writing/Speaking/Pronunciation (`01-product.md` Role boundaries).
-- Colab chỉ owns content layer, không owns evaluation layer.
-- Auto-tag là AI-assisted, nhưng quyết định cuối cùng do Colab (human-in-the-loop ở **content**, không phải evaluation).
+- Colab **never scores** Writing/Speaking/Pronunciation (`01-product.md` Role boundaries).
+- Colab owns only the content layer, not the evaluation layer.
+- Auto-tagging is AI-assisted, but Colab makes the final decision: human-in-the-loop exists for **content**, not evaluation.
 
 ## Taxonomy governance
 
-Tag không chỉ là text tự do; phải dùng controlled vocabulary, version và provenance.
+Tags are not free-form text; they require controlled vocabulary, versioning, provenance, and explicit authority.
 
-| Quy tắc | Yêu cầu |
+| Rule | Requirement |
 |---|---|
-| Controlled values | `skill`, `question_type`, `micro_skill`, `distractor_type`, `paraphrase_pattern`, `grammar_point`, `topic` có enum/version |
-| Required by asset | Question bắt buộc có answer/explanation; L/R bắt buộc stimulus/segment; W/S bắt buộc prompt/rubric; asset học bắt buộc objective/estimated time |
-| Provenance | Mỗi item có source, license, author, reviewer, created_at, updated_at và rationale cho answer/tag khó |
-| Calibration | Difficulty, band và estimated_time có method, sample size, confidence và ngày calibration |
-| Change impact | Đổi tag/answer phải báo ảnh hưởng tới FSRS, recommendation, attempts, search và published version |
-| Quality status | `draft → tagged → reviewed → calibrated → published`; thiếu gate thì không live |
+| Controlled values | `skill`, `question_type`, `micro_skill`, `distractor_type`, `paraphrase_pattern`, `grammar_point`, `topic` have enums/versions |
+| Required by asset | Questions require answer/explanation; L/R require stimulus/segment; W/S require prompt/rubric; learning assets require objective/estimated time |
+| Provenance | Every item has source, license, author, reviewer, created_at, updated_at, and rationale for difficult answers/tags |
+| Calibration | Difficulty, routing band metadata, and estimated_time have method, sample size, confidence, and calibration date before being called calibrated |
+| Change impact | Changes to tags/answers identify impact on FSRS, recommendation, attempts, search, and published versions |
+| Quality status | `draft → tagged → reviewed → calibrated → published`; missing required gates block publication |
 
 ### Content type schemas
 
-Question Bank không đủ để đại diện toàn bộ Knowledge Layer. Cần schema riêng cho:
+Question Bank alone cannot represent the entire Knowledge Layer. Separate schemas are required for:
 
-- **Passage/Audio**: section/part, transcript, segment timestamps, speaker, media codec, duration, accessibility transcript và rights.
-- **Lesson/Asset**: objective, prerequisite, explanation, examples, practice links, target band, estimated time và mastery evidence.
-- **Writing/Speaking prompt**: task type, official-like constraints, rubric version, allowed context, sample answers và scoring notes.
-- **Question**: answer normalization, alternate accepted answers, option order, stimulus version, distractor rationale và exposure limits.
+- **Passage/Audio**: section/part, transcript, segment timestamps, speaker, media codec, duration, accessibility transcript, and rights.
+- **Lesson/Asset**: objective, prerequisite, explanation, examples, practice links, provisional curriculum routing metadata, estimated time, and mastery evidence.
+- **Writing/Speaking prompt**: task type, public-format constraints, rubric version, allowed context, sample answers, and scoring notes. A prompt does not itself own or guarantee a band.
+- **Question**: answer normalization, alternate accepted answers, option order, stimulus version, distractor rationale, and exposure limits.
 
-### Controlled coverage matrix — skill, module, question type và band
+### Controlled coverage matrix — skill, module, question type, and learning bucket
 
-Đây là **coverage contract**, không phải content inventory và không phải mô tả Band Descriptor chính thức. Nó khóa vocabulary mà Blueprint, Artifact và agent được phép dùng khi mô tả một learning design profile. Asset thực tế, prompt, rubric chi tiết và calibration evidence chỉ xuất hiện sau này.
+This is a **coverage contract**, not a content inventory and not a description of official Band Descriptors. It fixes the vocabulary that Blueprint, Artifacts, and agents may use when describing a learning design profile. Actual assets, prompts, detailed rubrics, and calibration evidence appear only later.
 
-#### Exam module và band range
+#### Exam module and learning-band bucket
 
-| Field | Controlled values | Quy tắc |
+| Field | Controlled values | Rule |
 |---|---|---|
-| `exam_module` | `academic`, `general_training`, `shared` | Writing/Reading phải chỉ rõ module; Listening/Speaking thường dùng `shared`. |
-| `learning_band_bucket` | `3.0-4.5`, `5.0-5.5`, `6.0-6.5`, `7.0-7.5`, `8.0-9.0` | Bucket scaffold cho learning design, không là hard gate hay kết quả chấm. |
-| `learning_stage` | `foundation`, `developing`, `target`, `advanced`, `precision` | Mapping lần lượt theo năm band range ở trên. |
-| `calibration_status` | `provisional`, `calibrated`, `retired` | Không gọi item là calibrated nếu chưa có evidence về method, sample và ngày calibration. |
+| `exam_module` | `academic`, `general_training`, `shared` | Writing/Reading must declare a module; Listening/Speaking normally use `shared`. |
+| `learning_band_bucket` | `3.0-4.5`, `5.0-5.5`, `6.0-6.5`, `7.0-7.5`, `8.0-9.0` | A LenBands scaffold bucket for learning design, not a hard gate, official task difficulty, or scoring result. |
+| `learning_stage` | `foundation`, `developing`, `target`, `advanced`, `precision` | Internal names that map respectively to the five learning buckets above. |
+| `calibration_status` | `provisional`, `calibrated`, `retired` | Do not call an item calibrated without evidence for method, sample, confidence, and calibration date. |
 
-#### Question-type vocabulary theo skill
+#### Question-type vocabulary by skill
 
-| Skill | Controlled `question_type` | Nhóm micro-skill tối thiểu cần map |
+| Skill | Controlled `question_type` | Minimum micro-skill group to map |
 |---|---|---|
-| Listening | `L_form_completion`, `L_note_completion`, `L_table_completion`, `L_sentence_completion`, `L_flow_chart_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer` | `L_predict_content`, `L_number_date_capture`, `L_signal_word_detection`, `L_distractor_rejection`, `L_spelling_from_audio`, `L_note_concurrent`, `L_follow_direction`, `L_stage_tracking` |
+| Listening | `L_form_completion`, `L_note_completion`, `L_table_completion`, `L_flow_chart_completion`, `L_summary_completion`, `L_sentence_completion`, `L_map_plan_labelling`, `L_diagram_labelling`, `L_multiple_choice`, `L_matching`, `L_short_answer` | `L_predict_content`, `L_number_date_capture`, `L_signal_word_detection`, `L_distractor_rejection`, `L_spelling_from_audio`, `L_note_concurrent`, `L_follow_direction`, `L_stage_tracking` |
 | Reading | `R_multiple_choice`, `R_multiple_choice_multi`, `R_true_false_not_given`, `R_yes_no_not_given`, `R_matching_headings`, `R_matching_information_paragraph`, `R_matching_information_section`, `R_matching_features`, `R_matching_sentence_endings`, `R_sentence_completion`, `R_summary_completion`, `R_note_completion`, `R_table_completion`, `R_flow_chart_completion`, `R_diagram_labelling`, `R_short_answer` | `R_skim_main_idea`, `R_scan_specific_info`, `R_paraphrase_recognition`, `R_abstract_inference`, `R_reference_resolution`, `R_distractor_rejection` |
 | Writing | `W_ac_task1_chart`, `W_ac_task1_table`, `W_ac_task1_process`, `W_ac_task1_map`, `W_ac_task1_diagram`, `W_gt_task1_formal_letter`, `W_gt_task1_semi_formal_letter`, `W_gt_task1_informal_letter`, `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part` | `W_task_analysis`, `W_position_clarity`, `W_idea_development`, `W_overview_t1`, `W_paragraph_topic_sentence`, `W_cohesive_device_range`, `W_lexical_precision`, `W_complex_structure_range`, `W_punctuation_control` |
 | Speaking | `S_part1_interview`, `S_part2_long_turn`, `S_part3_discussion` | `S_extend_answer`, `S_cue_card_structure`, `S_abstract_reasoning`, `S_discourse_marker_use`, `S_paraphrase_spontaneous`, `S_self_correction_fluency`, `S_complex_grammar_speak`, `S_intonation_meaning`, `S_phoneme_target` |
 
-#### Band progression behavior
+#### Learning progression behavior
 
-Mỗi `learning_design_profile` phải chọn **một** band range và mô tả behavior tương ứng; không được dùng nhãn “Band 7+” chung chung.
+Every `learning_design_profile` must select **one** learning bucket and describe the corresponding internal teaching behavior. These stages are LenBands scaffolding; they are not official IELTS subscales and do not themselves prove a band.
 
-| Band range / stage | Thiết kế học | Feedback và practice | Bằng chứng tiến bộ tối thiểu |
+| Learning bucket / stage | Learning design | Feedback and practice | Minimum evidence of curriculum progress |
 |---|---|---|---|
-| `3.0-4.5` / foundation | Chia nhỏ task, vocabulary hướng dẫn, một mục tiêu quan sát được | Feedback ngắn, một lỗi ưu tiên, practice có scaffold | Hoàn tất task đơn vị + recall/retest có hỗ trợ |
-| `5.0-5.5` / developing | Kết nối micro-skill với question type, giảm hint từng bước | Chỉ rõ vì sao sai và một strategy thay thế | Retest cùng error pattern với hint giảm |
-| `6.0-6.5` / target | Timed practice vừa phải, trade-off giữa tiêu chí | Evidence trong câu trả lời/bài viết, ưu tiên lỗi ảnh hưởng outcome | Performance ổn định qua nhiều prompt/item tương đương |
-| `7.0-7.5` / advanced | Task phức hợp, paraphrase/inference/precision cao hơn | So sánh lựa chọn, chỉ ra nuance và consistency | Retest không scaffold; recurrence lỗi giảm |
-| `8.0-9.0` / precision | Tối ưu accuracy, flexibility, kiểm soát rủi ro | Feedback ít nhưng sâu, không khuyến khích overfit template | Evidence đa bối cảnh và kiểm tra anti-gaming |
+| `3.0-4.5` / foundation | Break tasks into smaller units, guided vocabulary, one observable goal | Short feedback, one priority error, scaffolded practice | Complete unit task + supported recall/retest |
+| `5.0-5.5` / developing | Connect micro-skill to question type and reduce hints step by step | Explain why the answer is wrong and provide one alternative strategy | Retest the same error pattern with fewer hints |
+| `6.0-6.5` / target | Moderate timed practice and trade-offs between criteria | Evidence from the answer/writing, prioritizing errors that affect outcome | Stable performance across multiple equivalent prompts/items |
+| `7.0-7.5` / advanced | More complex tasks with higher paraphrase/inference/precision demands | Compare options and surface nuance and consistency | Unscaffolded retest with lower error recurrence |
+| `8.0-9.0` / precision | Optimize accuracy, flexibility, and risk control | Less frequent but deeper feedback; avoid template overfitting | Evidence across multiple contexts plus anti-gaming checks |
 
 #### Completeness rule
 
-Một Artifact mô tả lesson, practice, evaluation hoặc review phải khai báo ít nhất: `skill`, `exam_module`, `learning_band_bucket`, `learning_stage`, `target_micro_skills`, `evaluation_rule`, `review_mapping` và `calibration_status`. `question_type` bắt buộc cho Listening/Reading/Writing/Speaking; `practice_unit` bắt buộc cho Pronunciation. Thiếu field theo skill thì artifact chỉ là concept, không được chuyển thành build-ready spec.
+An Artifact describing a lesson, practice, evaluation, or review must declare at minimum: `skill`, `exam_module`, `learning_band_bucket`, `learning_stage`, `target_micro_skills`, `evaluation_rule`, `review_mapping`, and `calibration_status`. `question_type` is required for Listening/Reading/Writing/Speaking; `practice_unit` is required for Pronunciation. If a skill-specific field is missing, the artifact remains a concept and cannot become a build-ready spec.
 
-## Skill × Question Type × Band Framework
+## Skill × Question Type × Learning Bucket Framework
 
-Blueprint chưa cần liệt kê từng asset hay từng bài học, nhưng mọi learning design phải mô tả được tổ hợp `skill × question_type × learning_band_bucket`. Đây là đơn vị chuẩn để sau này tạo Vertical Slice Spec, rubric, practice và review rule.
+The Blueprint does not need to list every asset or lesson, but every learning design must be expressible as `skill × question_type × learning_band_bucket`. This is the standard unit used later to create Vertical Slice Specs, rubrics, practice rules, and review rules.
 
 ```yaml
 learning_design_profile:
@@ -233,35 +234,35 @@ learning_design_profile:
   acceptance_evidence: <how improvement is verified>
 ```
 
-Quy tắc bất biến:
+Invariant rules:
 
-- `skill`, `question_type`, `learning_band_bucket` dùng controlled vocabulary/version; không dùng text tự do.
-- Knowledge Asset payload dùng `band_range` cho target range của asset theo format `N.N-N.N` (ví dụ `6.5-7.5`). Authoring contract dùng `target_band_range: [min, max]`; hai field không được trộn.
-- Band là range hướng dẫn độ khó, feedback depth và progressive disclosure; không khóa người học khỏi nội dung có ích.
-- Mỗi profile phải có outcome và evidence kiểm chứng, không chỉ có "lesson" hoặc "practice".
-- Một Vertical Slice Spec có thể cover nhiều profile cùng behavior, nhưng phải liệt kê rõ profile nào trong scope.
-- Thiếu profile không được agent tự suy luận thành content, rubric hoặc band requirement.
+- `skill`, `question_type`, and `learning_band_bucket` use controlled vocabulary/versioning; do not use free text.
+- Knowledge Asset payloads may retain `band_range` for provisional routing in `N.N-N.N` format (for example `6.5-7.5`). The authoring contract may use `target_band_range: [min, max]`; these fields must not be confused with an assessed IELTS band.
+- A learning bucket may guide scaffolding, feedback depth, and progressive disclosure, but it does not lock learners out of useful content or produce a score.
+- Every profile has an outcome and verification evidence, not merely a "lesson" or "practice" label.
+- A Vertical Slice Spec may cover several profiles with identical behavior, but it must list exactly which profiles are in scope.
+- Agents must not infer missing profiles into content, rubrics, or band requirements.
 
 ### Content quality gates
 
-Trước publish, Colab phải đạt:
+Before publication, Colab must satisfy:
 
-1. correctness và answer key đã kiểm tra độc lập;
-2. taxonomy completeness và không dùng tag ngoài controlled vocabulary;
-3. difficulty/band có calibration evidence hoặc được đánh dấu `provisional`;
-4. explanation dẫn tới một action học cụ thể;
-5. accessibility, licensing, media integrity và version relationship hợp lệ;
-6. không tạo duplicate exposure hoặc leakage cho exam simulation.
+1. correctness and answer key independently checked;
+2. taxonomy completeness with no tags outside controlled vocabulary;
+3. difficulty/routing-band metadata backed by calibration evidence or explicitly marked `provisional`;
+4. explanation leads to one concrete learning action;
+5. accessibility, licensing, media integrity, and version relationships are valid;
+6. no duplicate exposure or leakage is introduced into exam simulation.
 
 ### Cost-aware content operations
 
-- Auto-tag theo batch, cache theo content hash và chỉ re-tag phần thay đổi.
-- Dùng rule/lookup trước model; model nhỏ đề xuất tag, chỉ escalate item mơ hồ.
-- Precompute explanation/embedding khi publish; không tạo lại cho từng learner nếu context không đổi.
-- Theo dõi chi phí trên mỗi published item, mỗi explanation và mỗi learner outcome; content có cost cao nhưng outcome thấp phải bị review.
+- Auto-tag in batches, cache by content hash, and re-tag only changed portions.
+- Use rules/lookups before models; use a smaller model for tag suggestions and escalate only ambiguous items.
+- Precompute explanations/embeddings at publication; do not regenerate them for every learner when context is unchanged.
+- Track cost per published item, explanation, and learner outcome; high-cost content with low outcome must be reviewed.
 
 ## Cross-references
 
-- Capability id liên quan: `CONTENT.*`, `KA.*` → `03-features.md`
-- Tagging feed vào: `PRACTICE.Adaptive`, `PERSONAL.Insights`, `COACH.*`, `REVIEW.FSRS` → `03-features.md`, `06-engines.md`
-- Workflow UI cảm xúc → `04-experience.md` (Colab journey nằm ngoài 8 learner journey, là operator journey)
+- Related capability IDs: `CONTENT.*`, `KA.*` → `03-features.md`
+- Tagging feeds: `PRACTICE.Adaptive`, `PERSONAL.Insights`, `COACH.*`, `REVIEW.FSRS` → `03-features.md`, `06-engines.md`
+- Workflow emotional UX → `04-experience.md` (the Colab journey is an operator journey outside the eight learner journeys)

@@ -1,0 +1,123 @@
+schema_version: 1.0.0
+repository: phatnguyen03022001/lenbands
+purpose: agent-readable document control plane
+rule: Read this registry before opening deep documents. A path not registered as canonical must not override a canonical document.
+
+reading_order:
+  - DOCS.yaml
+  - task_specific_authority_from_this_registry
+  - referenced_contracts_only
+
+authority:
+  product:
+    document_id: product
+    path: blueprint/01-product.md
+    owns: [vision, actors, scope, product_principles, success_contract]
+  system_architecture:
+    document_id: system-architecture
+    path: blueprint/02-architecture.md
+    owns: [system_boundaries, domain_map, architecture_invariants, runtime_state_model]
+  capabilities:
+    document_id: capability-catalog
+    path: blueprint/03-features.md
+    owns: [capability_ids, capability_meaning]
+  learner_experience:
+    document_id: learner-experience
+    path: blueprint/04-experience.md
+    owns: [journeys, experience_principles, learner_facing_recovery]
+  content_system:
+    document_id: content-system
+    path: blueprint/05-content.md
+    owns: [content_model, taxonomy_application, publishing_content_semantics]
+  learning_engines:
+    document_id: learning-engines
+    path: blueprint/06-engines.md
+    owns: [evaluation, recommendation, review, governance_engine_boundaries]
+  conventions:
+    document_id: conventions
+    path: blueprint/07-conventions.md
+    owns: [product_naming, ui_conventions]
+  roadmap:
+    document_id: roadmap
+    path: blueprint/08-roadmap.md
+    owns: [phase_scope, promotion_horizon]
+  ielts_framework:
+    document_id: ielts-framework
+    path: blueprint/framework/README.md
+    owns: [ielts_controlled_vocabulary, official_derived_vs_lenbands_authority]
+  artifact_constitution:
+    document_id: artifact-constitution
+    path: artifacts/CONVENTION.md
+    owns: [artifact_placement, metadata, lifecycle]
+  web_api:
+    document_id: web-api
+    path: artifacts/engineering/api/openapi.yaml
+    owns: [http_operations, operation_access_annotations, http_error_representation]
+  web_api_schemas:
+    document_id: web-api-schemas
+    path: artifacts/engineering/api/schema-contract.yaml
+    owns: [operation_request_schema, operation_success_response_schema, payload_field_semantics]
+  web_access:
+    document_id: web-access
+    path: artifacts/engineering/api/access-control.md
+    owns: [web_personas, authorization_roles, entitlements, endpoint_access_policy]
+  api_policy:
+    document_id: api-policy
+    path: artifacts/engineering/api/README.md
+    owns: [api_versioning, errors, idempotency, deprecation, provider_boundaries]
+  platform_sourcing:
+    document_id: platform-sourcing
+    path: artifacts/business/decisions/platform-sourcing.md
+    owns: [build_buy_boundary, selected_managed_baseline, provider_exit]
+  bops:
+    document_id: bops
+    path: artifacts/operations/bops/contract.yaml
+    owns: [business_operations_platform_security_controls, data_classes, provider_controls, slo_targets]
+  bops_threat_model:
+    document_id: bops-threat-model
+    path: artifacts/operations/bops/threat-model.md
+    owns: [cross_boundary_threats, interference_controls, red_team_cases]
+  documentation_architecture:
+    document_id: documentation-architecture
+    path: artifacts/operations/documentation-architecture.yaml
+    owns: [document_ids, naming_rules, migration_aliases, noise_budget]
+  learning_assessment_research:
+    document_id: learning-assessment-experience-research
+    path: artifacts/experience/research/learning-assessment-experience-audit.md
+    owns: [evidence_informed_product_hypotheses]
+    authority_class: research_not_runtime
+  trust_policy:
+    document_id: agent-trust-policy
+    path: artifacts/operations/agent-trust-policy.yaml
+    owns: [protected_paths, attestations, independent_review]
+
+legacy_aliases:
+  artifacts/engineering/contracts/openapi.yaml:
+    canonical: artifacts/engineering/api/openapi.yaml
+    status: migration_only
+  artifacts/engineering/contracts/writing-task-2/openapi.yaml:
+    canonical: artifacts/engineering/api/openapi.yaml
+    status: migration_only
+  artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md:
+    canonical: artifacts/engineering/api/README.md
+    status: compatibility_pointer
+  artifacts/operations/bops-contract-pack.md:
+    canonical: artifacts/operations/bops/contract.yaml
+    status: migration_only
+  artifacts/business/decisions/build-buy-register.md:
+    canonical: artifacts/business/decisions/platform-sourcing.md
+    status: historical_input
+  artifacts/business/decisions/managed-platform-baseline-decision.md:
+    canonical: artifacts/business/decisions/platform-sourcing.md
+    status: superseded_candidate_baseline
+  artifacts/engineering/technology-stack-recommendations.md:
+    canonical: artifacts/business/decisions/platform-sourcing.md
+    status: compatibility_pointer
+
+agent_rules:
+  - Never resolve authority by newest-looking filename.
+  - Never treat README, catalog, index, generated projection, prompt, benchmark proposal, or research synthesis as a higher authority than its registered owner.
+  - Do not scan the whole repository before consulting this registry.
+  - Follow legacy aliases only for migration/traceability, never to select a second source of truth.
+  - Stable product identities are capability IDs, framework node IDs, document_ids, and contract operationIds; paths are replaceable.
+  - If two canonical entries appear to own the same semantic field, stop and report authority_collision.

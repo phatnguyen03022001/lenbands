@@ -1,0 +1,10 @@
+type: bops-threat-model
+status: review
+version: 1.0.0
+owner: security + operations
+representation: markdown
+derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AntiGaming, IDENTITY.Privacy]
+purpose: red-team cross-boundary interference and abuse scenarios
+consumed_by: [engineering, operations]
+created_at: 2026-08-17
+updated_at: 2026-08-17

@@ -1,23 +1,23 @@
 # Spawn Prompt Artifacts
 
-Đây là thư viện workflow artifact cho agent tạo Knowledge Asset. Agent được phép và nên đọc thư mục này khi cần spawn; không có quy tắc cấm đọc hoặc cấm index.
+This is the workflow-artifact library for agents that create Knowledge Assets. Agents are allowed and encouraged to read this directory when spawning assets; there is no rule prohibiting reading or indexing it.
 
 ## Authority boundary
 
-- IELTS domain, controlled vocabulary và band semantics: `blueprint/framework/` là nguồn sự thật.
-- Prompt template: file `spawn-*.md` trong thư mục này là workflow contract, không được tạo enum hoặc band ngoài framework.
-- Prompt registry: `registry.yaml` là manifest/index vận hành, không phải nguồn sự thật mới.
-- Learner content: `knowledge-assets/` cùng sidecar là canonical output; prompt không được trở thành bản content thứ hai.
-- Evidence/run history: `artifacts/operations/evidence/` bất biến; không sửa run record cũ khi prompt đổi.
+- IELTS domain, controlled vocabulary, and band semantics: `blueprint/framework/` is the source of truth.
+- Prompt template: `spawn-*.md` files in this directory are workflow contracts and must not create enums or band semantics outside the framework.
+- Prompt registry: `registry.yaml` is an operational manifest/index, not a new source of truth.
+- Learner content: `knowledge-assets/` plus sidecars are the canonical outputs; prompts must not become a second copy of learner content.
+- Evidence/run history: `artifacts/operations/evidence/` is immutable; do not modify earlier run records when prompts change.
 
-## Cách dùng
+## Usage
 
-1. Đọc [registry.yaml](registry.yaml) để lấy `prompt_template_id`, owner, framework refs, output contract và validator.
-2. Đọc prompt artifact tương ứng.
-3. Chỉ dùng input có id tồn tại trong framework; thiếu id thì trả `unknown_*` và dừng.
-4. Nếu không đủ bằng chứng hoặc không chắc, trả `needs_review`; không bịa.
-5. Output chỉ đi vào `knowledge-assets/` với payload `.md` và sidecar `.meta.yaml`, status ban đầu là `draft`.
-6. Chạy `./tools/validate-spawn-prompts.sh` và `./tools/validate-knowledge-assets.sh`.
+1. Read [registry.yaml](registry.yaml) to obtain `prompt_template_id`, owner, framework refs, output contract, and validator.
+2. Read the corresponding prompt artifact.
+3. Use only input IDs that exist in the framework; if an ID is missing, return `unknown_*` and stop.
+4. If evidence is insufficient or uncertain, return `needs_review`; do not invent facts.
+5. Output only to `knowledge-assets/` as a `.md` payload plus `.meta.yaml` sidecar, with initial status `draft`.
+6. Run `./tools/validate-spawn-prompts.sh` and `./tools/validate-knowledge-assets.sh`.
 
 ## Prompt catalog
 
@@ -31,6 +31,6 @@
 | `spawn-speaking-cue-card` | Speaking Part 2 cue card | part, genre, topic, speaking microskill |
 | `spawn-writing-prompt` | Writing task prompt | task type, topic, writing microskill |
 
-## Không được claim
+## Claims not permitted
 
-Prompt pass validator chỉ chứng minh cấu trúc, reference và integrity của workflow. Nó không chứng minh chất lượng IELTS, rights, calibration, benchmark hoặc learner outcome. Những claim đó cần evidence riêng và không được tự chuyển asset sang `published`.
+A prompt passing its validator proves only workflow structure, reference resolution, and integrity. It does not prove IELTS quality, rights, calibration, benchmark validity, or learner outcome. Those claims require separate evidence, and a prompt must never promote an asset to `published` on its own.

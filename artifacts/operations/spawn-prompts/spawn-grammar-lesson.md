@@ -1,37 +1,45 @@
 # PROMPT: Spawn Grammar Lesson (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay `grammar_id` nếu cần.
+> Copy from `---BẮT ĐẦU---` to the end. Replace `grammar_id` when needed.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho app IELTS LenBands. Nhiệm vụ: sinh 1 grammar lesson từ framework. KHÔNG dùng kiến thức training — chỉ dùng framework trong repo.
+You are a content spawner for the LenBands IELTS app. Generate one grammar lesson from the governed LenBands grammar curriculum. Do not turn curriculum band labels into official IELTS requirements.
 
-## THAM SỐ
-- grammar_id: `g_second_conditional`  (đổi tại đây nếu spawn grammar point khác — phải có trong grammar-band-framework.md)
-- band_master: 7.0  (lấy từ framework, không tự đặt)
+## PARAMETERS
+- grammar_id: `g_second_conditional`
 
-## BƯỚC 1 — ĐỌC FRAMEWORK
-- `blueprint/framework/grammar-band-framework.md`  ← 47 grammar point + node schema (band_introduce, band_master, depends_on, done_when, can_statement)
-- `blueprint/framework/error-taxonomy.md`  ← error gắn grammar (vd W_gra_complex_with_error)
-- `blueprint/framework/review-mapping.md`  ← review rule cho grammar error
-- `blueprint/framework/microskill-enum.md`  ← microskill gắn grammar (vd W_complex_structure_range)
-- `blueprint/framework/README.md`  ← nguyên tắc controlled vocabulary
+## STEP 1 — READ FRAMEWORK
+- `blueprint/framework/grammar-band-framework.md`  ← controlled grammar IDs + curriculum heuristics
+- `blueprint/framework/band-descriptor-map.md`  ← official-derived holistic GRA signals
+- `blueprint/framework/error-taxonomy.md`  ← controlled learner-error IDs
+- `blueprint/framework/review-mapping.md`  ← controlled review rules
+- `blueprint/framework/microskill-enum.md`  ← controlled micro-skill IDs
+- `blueprint/framework/README.md`  ← authority classes
 
-Nếu `grammar_id` không có trong framework → báo `unknown_grammar_id`, DỪNG.
+If `grammar_id` does not exist, return `unknown_grammar_id` and stop.
 
-## BƯỚC 2 — SINH LESSON
-Lesson phải dạy grammar point đó ở độ sâu band_master. Bao gồm: rule, form, usage, band signal (khi nào dùng để lên band), ví dụ đúng, ví dụ sai (error phổ biến), exercise gợi ý.
+## STEP 2 — GENERATE THE LESSON
+Teach the selected structure accurately and practically. Include:
+- rule/form;
+- meaning and communicative use;
+- accurate examples;
+- realistic learner errors linked to controlled `error_id` values;
+- practice activities;
+- an **IELTS relevance** note explaining how flexible/accurate use can contribute evidence to Grammatical Range & Accuracy.
 
-## BƯỚC 3 — SCHEMA LESSON FILE
+Do NOT write that mastering this named structure is required for a specific IELTS band. `band_introduce` and `band_master` are LenBands curriculum heuristics only.
+
+## STEP 3 — LESSON FILE SCHEMA
 
 ```markdown
 ---
 grammar_id: g_second_conditional
 lesson_id: gl_second_conditional_01
-band_master: 7.0
-band_introduce: 6.0
-can_statement: <lấy từ framework node, nguyên văn>
-depends_on: [<lấy từ framework node>]
+curriculum_band_introduce: 6.0
+curriculum_band_master: 7.0
+can_statement: <copy from complete framework node; otherwise null + needs_review>
+depends_on: [<copy only reviewed framework dependencies>]
 microskill_ref: [W_complex_structure_range]
 status: draft
 version: 0.1.0
@@ -43,45 +51,44 @@ derived_from:
 
 # Second Conditional
 
-## Rule
-<nội dung: định nghĩa, dạng form, cách dùng>
+## Rule and form
+<accurate explanation>
 
-## Form
-<if + past simple, would + bare infinitive; câu ví dụ form>
+## Meaning and use
+<communicative functions>
 
-## Usage
-<khi nào dùng: hypothetical present/future, advice, imagination>
+## IELTS relevance
+<explain that accurate/flexible structural range can support GRA evidence; explicitly state that IELTS does not require this named structure for a particular band>
 
-## Band signal (6.0 → 7.0)
-<vì sao dùng second conditional giúp lên band 7: complex structure, hypothetical reasoning>
+## Correct examples
+<3-5 natural examples>
 
-## Examples (đúng)
-<3-5 câu đúng, tự nhiên, gắn topic IELTS nếu được>
+## Common errors
+<2-3 realistic incorrect → corrected examples with controlled error_id>
 
-## Common errors (liên kết error-taxonomy)
-<2-3 lỗi phổ biến, dạng sai → sửa, gắn error_id từ error-taxonomy.md>
-
-## Practice gợi ý
-<2-3 bài tập: sentence transformation, gap fill, writing task ứng dụng>
+## Suggested practice
+<2-3 activities>
 
 ## Review mapping
-<nhắc review rule từ review-mapping.md cho error gắn grammar này>
+<reference a governed review rule when one exists>
 ```
 
-## LUẬT CỨNG
-1. `grammar_id` PHẢI có trong `grammar-band-framework.md`. Ngoài → `unknown_grammar_id`, DỪNG.
-2. `band_master`, `band_introduce`, `can_statement`, `depends_on` lấy **nguyên văn** từ framework node — không tự sửa.
-3. `error_id` trong "Common errors" PHẢI có trong `error-taxonomy.md`.
-4. `microskill_ref` PHẢI có trong `microskill-enum.md`.
-5. Ví dụ đúng phải câu tiếng Anh thật, đúng form second conditional.
-6. Ví dụ sai phải là lỗi thật learner mắc (vd "If I will have money, I would travel" → sai "will" trong if-clause).
-7. KHÔNG bịa error_id/microskill_id ngoài enum.
-8. Nếu framework chỉ có summary table và thiếu `can_statement` hoặc edge provenance, ghi `null`/`needs_review`; không tự viết field như thể đã lấy từ framework.
+## HARD RULES
+1. `grammar_id` MUST exist in `grammar-band-framework.md`.
+2. Curriculum band fields must preserve the framework values but MUST be labeled as LenBands curriculum heuristics.
+3. Do not claim `curriculum_band_master: 7.0` means IELTS requires this structure for Band 7.
+4. `can_statement`/`depends_on` may be copied only from a complete reviewed node. Missing data → `null`/`needs_review`.
+5. Every `error_id` must exist in `error-taxonomy.md`.
+6. Every `microskill_ref` must exist in `microskill-enum.md`.
+7. Examples must be grammatically valid and original.
+8. Do not invent provenance such as `cambridge_syllabus` or `efl_research` without a concrete reviewed source reference.
+9. The lesson may support practice/diagnosis; it must not calculate or cap an IELTS band.
 
-## ĐIỀU KIỆN DỪNG
-- grammar_id không có trong framework → `unknown_grammar_id`, DỪNG.
-- Framework file không đọc được → báo, DỪNG.
-- Không chắc ví dụ/form → ghi `needs_review`, KHÔNG bịa.
+## STOP CONDITIONS
+- Unknown grammar ID → `unknown_grammar_id`, STOP.
+- Framework cannot be read → report and STOP.
+- Required controlled reference is unresolved → `needs_review`.
+- Uncertain grammatical explanation/example → `needs_review`; do not fabricate.
 
 ## SIDECAR META.YAML SCHEMA (canonical)
 ```yaml
@@ -94,25 +101,21 @@ owner: colab
 derived_from: [KA.Grammar]
 framework_refs:
   - file: grammar-band-framework
-    version: 1.0.6
+    version: 1.0.7
     nodes: [g_second_conditional]
 origin: {source: generated, license: unknown}
 integrity: {checksum: sha256:<64-hex-payload-hash>, payload_file: gl_second_conditional_01.md}
 governance: {rights_status: pending_review, review_status: draft}
 spawn_lineage: {workflow_run_id: <actual-run-id>, prompt_template_id: spawn-grammar-lesson, prompt_hash: <hash>, model: <model-id>, parameters: {grammar_id: g_second_conditional}}
-created_at: "2026-08-07T00:00:00Z"
-updated_at: "2026-08-07T00:00:00Z"
+created_at: "2026-08-17T00:00:00Z"
+updated_at: "2026-08-17T00:00:00Z"
 ```
 
-Sidecar là metadata canonical; không lặp `grammar_id`, `band_master` hoặc lesson content vào sidecar ngoài các field lineage/framework cần audit.
-
 ## OUTPUT
-2 file:
-- `knowledge-assets/grammar/gl_second_conditional_01.md`       (nội dung lesson)
+Two files:
+- `knowledge-assets/grammar/gl_second_conditional_01.md`
 - `knowledge-assets/grammar/gl_second_conditional_01.meta.yaml`
 
-Output sidecar phải theo schema canonical ở trên và checksum đúng payload `.md`.
-
-Bắt đầu: đọc framework, xác nhận grammar_id có, rồi sinh lesson.
+Validate framework references, payload checksum, and `needs_review` state before completion.
 
 ---KẾT THÚC---

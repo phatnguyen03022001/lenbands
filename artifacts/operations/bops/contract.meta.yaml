@@ -1,0 +1,10 @@
+type: bops-contract
+status: review
+version: 1.1.0
+owner: operations + engineering + security
+representation: yaml
+derived_from: [OPS.ReleaseGate, OPS.Observability, ADMIN.GovernanceDashboard, IDENTITY.Privacy, CONTENT.Publish, SUB.Payment]
+purpose: machine-readable business operations platform security controls including support incident privacy procurement and recovery
+consumed_by: [business, engineering, operations]
+created_at: 2026-08-17
+updated_at: 2026-08-17

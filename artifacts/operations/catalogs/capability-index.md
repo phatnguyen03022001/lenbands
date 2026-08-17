@@ -1,6 +1,6 @@
 # Capability Index (generated)
 
-Đây là projection chỉ đọc từ Blueprint Capability Catalog; không chỉnh tay và không thay thế `blueprint/03-features.md`.
+This is a read-only projection of the Blueprint Capability Catalog; do not edit it manually and do not treat it as a replacement for `blueprint/03-features.md`.
 
 - `generated_from`: `blueprint/03-features.md`
 - `generated_at`: `2026-08-07T09:59:27Z`

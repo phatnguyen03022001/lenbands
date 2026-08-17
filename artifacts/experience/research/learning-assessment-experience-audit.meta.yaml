@@ -1,0 +1,22 @@
+type: learning-assessment-experience-research
+status: draft
+version: 0.1.0
+owner: product + engineering + governance
+representation: markdown
+derived_from:
+  - PLACE.SkillDiagnosis
+  - PERSONAL.NextBestAction
+  - PRACTICE.Adaptive
+  - EVAL.Writing
+  - REVIEW.FSRS
+  - OPS.OutcomeMeasurement
+  - OPS.EvaluationQuality
+  - GOVERNANCE.ConfidenceScore
+purpose: evidence-informed-learning-assessment-experience-policy-input
+consumed_by:
+  - Placement & Diagnosis Contract
+  - Daily Action Contract
+  - Evaluation Contract
+  - Experience Research
+created_at: 2026-08-17
+updated_at: 2026-08-17

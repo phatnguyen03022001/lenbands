@@ -50,12 +50,18 @@ files.each do |name|
   end
 end
 
-if versions.values.compact.uniq.length != 1
-  errors << "framework files do not share one version: #{versions.inspect}"
-end
+# Domain files are independently versioned. The umbrella version tracks the
+# framework file-set/schema boundary; a factual patch in one domain file must
+# not force unrelated files to claim a release they did not have.
 umbrella = File.read(File.join(framework_root, "README.md"))
-if versions.values.compact.uniq.length == 1 && !umbrella.include?("framework_version: #{versions.values.compact.uniq.first}")
-  errors << "framework README umbrella version diverges from domain files"
+umbrella_version = umbrella[/framework_version:\s*(\d+\.\d+\.\d+)/, 1]
+errors << "framework README missing valid framework_version" unless umbrella_version&.match?(/\A\d+\.\d+\.\d+\z/)
+if umbrella_version
+  umbrella_major = umbrella_version.split(".").first
+  versions.each do |name, version|
+    next unless version&.match?(/\A\d+\.\d+\.\d+\z/)
+    errors << "#{name}: major version #{version} incompatible with umbrella #{umbrella_version}" unless version.split(".").first == umbrella_major
+  end
 end
 
 grammar = File.read(File.join(framework_root, "grammar-band-framework.md"))
@@ -113,8 +119,9 @@ errors << "writing task enum mismatch: #{writing_ids.to_a.sort.inspect}" unless 
 errors << "writing framework contains wildcard task ID" if writing.match?(/`W_(?:ac_task1|gt_task1|task2)_\*`/)
 
 question_types = File.read(File.join(framework_root, "skill-questiontype-band.md"))
-errors << "Listening question-type count label is stale" unless question_types.include?("## Listening — 10 question types")
-errors << "Reading question-type count label is stale" unless question_types.include?("## Reading — 16 question types")
+errors << "Listening question-type count label is stale" unless question_types.include?("## Listening — 11 question types")
+errors << "Listening summary-completion type is missing" unless question_types.include?("`L_summary_completion`")
+errors << "Reading question-type count label is stale" unless question_types.include?("## Reading — 16 LenBands question types")
 
 features = File.read(File.join(root, "blueprint", "03-features.md"))
 event_pack = File.read(File.join(root, "artifacts", "engineering", "contracts", "events", "event-schema-pack.md"))
@@ -141,7 +148,7 @@ unless conventions.include?("**Quality status**: `accepted`, `low_confidence`, `
 end
 
 if errors.empty?
-  puts "framework validation passed (version #{versions.values.compact.uniq.first})"
+  puts "framework validation passed (umbrella #{umbrella_version}; domain versions #{versions.values.uniq.sort.join(', ')})"
 else
   errors.each { |error| warn error }
   warn "framework validation failed: #{errors.length} issue(s)"

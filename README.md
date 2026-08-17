@@ -1,21 +1,36 @@
-# Lenbands
+# LenBands
 
-This repository is organized by lifecycle and responsibility, not by file type.
-
-| Layer | Purpose | Changes when |
-|---|---|---|
-| `blueprint/` | Defines — SSOT, invariants, product/runtime contracts | Foundational decisions change |
-| `artifacts/` | Decides, documents, proves, indexes | Research, operations, legal, or measurement changes |
-| `knowledge-assets/` | Canonical learning content used to create learner experiences | Content is created, reviewed, published, or retired |
+LenBands is organized by **semantic authority**, not by whichever file looks newest or most detailed.
 
 ## Start here
 
-- Product/system source of truth: [`blueprint/README.md`](blueprint/README.md)
-- Operational decisions and evidence: [`artifacts/README.md`](artifacts/README.md)
-- Frozen architecture and implementation invariants: [`artifacts/operations/architecture-frozen.md`](artifacts/operations/architecture-frozen.md)
-- Agent workflow artifacts: [`artifacts/operations/spawn-prompts/README.md`](artifacts/operations/spawn-prompts/README.md)
-- Knowledge Asset contract: [`knowledge-assets/README.md`](knowledge-assets/README.md)
+1. [`DOCS.yaml`](DOCS.yaml) — machine-readable authority, aliases, and agent navigation.
+2. [`AGENTS.md`](AGENTS.md) — bounded agent rules.
+3. Open only the canonical document that `DOCS.yaml` says owns the concern.
+
+Do not scan the whole repository as a prerequisite to normal work.
+
+## Repository planes
+
+| Plane | Owns |
+|---|---|
+| `blueprint/` | durable product/domain invariants and IELTS framework |
+| `artifacts/business/` | sourcing, market, commercial and legal decisions |
+| `artifacts/experience/` | learner research and interaction specifications |
+| `artifacts/engineering/` | API, data, event, failure and implementation contracts |
+| `artifacts/operations/` | BOPS, quality, security, release, audit and evidence |
+| `knowledge-assets/` | versioned learner-serving content |
+
+Important current canonical contracts:
+
+- Web API: `artifacts/engineering/api/openapi.yaml`
+- Five-persona access model: `artifacts/engineering/api/access-control.md`
+- Buy-first platform sourcing: `artifacts/business/decisions/platform-sourcing.md`
+- BOPS: `artifacts/operations/bops/contract.yaml`
+- Threat/interference model: `artifacts/operations/bops/threat-model.md`
+
+Legacy paths are retained only when `DOCS.yaml` explicitly marks them as migration or historical inputs.
 
 ## Working rule
 
-Do not create a folder or abstraction merely to anticipate the future. Add structure when the first asset or workflow genuinely needs it.
+Create a new document only when it owns a new semantic concern. Otherwise extend the existing owner. Generated projections, indexes, research notes and provider catalogs never become competing sources of truth.

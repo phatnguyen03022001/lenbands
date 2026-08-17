@@ -1,0 +1,10 @@
+type: platform-sourcing-decision
+status: review
+version: 1.0.0
+owner: founder + engineering + operations
+representation: markdown
+derived_from: [OPS.CostBudget, OPS.ReleaseGate, IDENTITY.Auth, SUB.Payment, EVAL.Writing]
+purpose: buy-first managed-platform sourcing boundary and exit policy
+consumed_by: [engineering, operations, business]
+created_at: 2026-08-17
+updated_at: 2026-08-17

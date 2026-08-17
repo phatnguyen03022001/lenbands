@@ -1,94 +1,97 @@
-# PROMPT: Spawn Question Item (L/R) (DeepSeek V4 Flash)
+# PROMPT: Spawn Question Item (Listening/Reading) (DeepSeek V4 Flash)
 
-> Copy từ `---BẮT ĐẦU---` đến cuối. Thay 4 tham số ở đầu.
+> Copy from `---BẮT ĐẦU---` to the end. Replace the parameters at the top.
 
 ---BẮT ĐẦU---
 
-Bạn là content spawner cho app IELTS LenBands. Nhiệm vụ: sinh câu hỏi Reading/Listening từ framework. KHÔNG dùng kiến thức training — chỉ dùng framework trong repo.
+You are a content spawner for the LenBands IELTS app. Generate original Listening/Reading question assets from the governed framework. Do not invent IELTS format, difficulty, scoring, or answer-normalization rules from training knowledge.
 
-## THAM SỐ
-- skill: `reading`  (hoặc `listening`)
-- question_type: `R_matching_headings`  (phải có trong skill-questiontype-band.md)
-- band_difficulty: `high`  (lấy từ framework cho question type đó)
-- count: 5 câu (cùng 1 passage cho Reading, hoặc cùng 1 section cho Listening)
+## PARAMETERS
 
-## BƯỚC 1 — ĐỌC FRAMEWORK
-- `blueprint/framework/skill-questiontype-band.md`  ← question type enum + `requires` (prerequisite micro-skill)
-- `blueprint/framework/microskill-enum.md`  ← micro-skill gắn question type (R_skim_main_idea, R_paraphrase_recognition...)
-- `blueprint/framework/error-taxonomy.md`  ← error phổ biến cho question type (R_ans_paraphrase_missed, R_distractor...)
-- `blueprint/framework/exam-module-differences.md`  ← answer normalization rules, word limit rules
-- `blueprint/framework/band-descriptor-map.md`  ← band difficulty signal (paraphrase depth)
-- `blueprint/framework/README.md`  ← nguyên tắc
+- skill: `reading`  # `reading` or `listening`
+- question_type: `R_matching_headings`
+- exam_module: `academic`
+- count: 5
 
-Nếu `question_type` không có trong framework → báo `unknown_question_type`, DỪNG.
+## STEP 1 — READ FRAMEWORK
 
-## BƯỚC 2 — SINH PASSAGE/SECTION + 5 CÂU
-- Reading: 1 passage 400-600 từ (academic, level band target), 5 câu `R_matching_headings` (cho 5-7 đoạn, list heading pool 6-8).
-- Listening: 1 transcript section 200-400 từ, 5 câu theo question_type.
+- `blueprint/framework/skill-questiontype-band.md` — controlled LenBands task IDs mapped to public IELTS task families
+- `blueprint/framework/microskill-enum.md` — controlled micro-skill IDs
+- `blueprint/framework/error-taxonomy.md` — controlled learner-error IDs
+- `blueprint/framework/exam-module-differences.md` — module routing, answer-normalization authority, score-conversion boundary
+- `blueprint/framework/README.md` — authority classes
 
-Passage/transcript PHẢI:
-- Band difficulty đúng `band_difficulty` (high = paraphrase depth cao, abstract reasoning).
-- Topic thuộc 10 topic enum (t_environment, t_education, ...).
-- KHÔNG copy từ Cambridge published (rights — dùng `cambridge_pattern` origin, viết mới theo pattern).
+If `question_type`, topic, micro-skill, or required error ID is missing, return the relevant `unknown_*` value and stop.
 
-## BƯỚC 3 — SCHEMA QUESTION ITEM
+## STEP 2 — GENERATE ORIGINAL STIMULUS + ITEMS
+
+For Reading, generate an original passage/source-text set appropriate to the selected module and selected controlled task type.
+
+For Listening, generate an original transcript/script plus item set appropriate to the selected controlled task type. `L_summary_completion` is a valid Listening ID and must be supported when selected.
+
+Rules:
+- Do not copy or closely paraphrase published IELTS/Cambridge passages, recordings, transcripts, or questions.
+- Use `origin: generated` for newly authored LenBands content.
+- A question type does not have an official IELTS band. If provisional item difficulty is needed for authoring, store it separately as `difficulty_status: provisional` and do not use it for scoring.
+- Difficulty depends on the actual stimulus/item, distractors, inference load, language, and learner population; do not infer it from question-type identity alone.
+- Listening/Reading scoring is answer-key based. Exact raw-score-to-band conversion is outside an individual item and must use an approved versioned conversion source.
+- Answer normalization is item-key/config specific. Do not globally accept arbitrary synonyms, article deletion, plural changes, or format variants.
+
+## QUESTION ITEM SCHEMA
 
 ```yaml
-question_id: R_q_001                    # R_ (reading) hoặc L_ (listening), tăng dần
+question_id: R_q_001
 skill: reading
 question_type: R_matching_headings
-band_difficulty: high
-exam_module: academic                   # hoặc general_training
-passage_id: R_p_001                     # reference passage (passage file riêng hoặc inline)
-origin: cambridge_pattern               # không phải bản gốc Cambridge, viết theo pattern
-rights:
-  origin: cambridge_pattern
-  origin_ref: "original passage, pattern follows Cambridge IELTS"
+exam_module: academic
+stimulus_ref: R_p_001
 topic_ref: [t_environment]
+difficulty:
+  status: provisional
+  label: high
+  evidence_ref: null
 prompt: "Choose the correct heading for each paragraph from the list below."
-passage: |                              # nội dung passage (cho reading) hoặc rút gọn + audio_ref
-  <full passage text, 5-7 paragraphs>
-options:                                # heading pool (cho matching)
-  - "i. The consequences of deforestation"
-  - "ii. A historical overview"
-  - ...
-correct_answer:
-  - paragraph: A
-    heading: "iii"
-  - paragraph: B
-    heading: "vii"
-  ...
-explanation:                            # COACH.AnswerExplanation tiêu thụ
-  paragraph_A: "Heading iii because paraphrase 'consequences' = 'results'..."
-  paragraph_B: ...
-distractor_tags:                        # cho COACH.DistractorExplanation
-  - distractor_type: lexical_trap      # từ error-taxonomy
-    location: "option i vs paragraph A — từ trùng 'deforestation' nhưng nghĩa khác"
-microskill_tags: [R_skim_main_idea, R_paraphrase_recognition, R_discourse_marker_tracking]
-paraphrase_tags: [synonym_substitution, complex_paraphrase]
-word_limit: null                        # cho completion types: "NO MORE THAN TWO WORDS"
+options: []
+correct_answer: []
+answer_normalization:
+  rules: []
+explanation:
+  evidence_refs: []
+  rationale: ""
+error_tags: [R_ans_distractor_lexical, R_ans_paraphrase_missed]
+microskill_tags: [R_skim_main_idea, R_paraphrase_recognition]
+rights:
+  origin: generated
+  origin_ref: "original LenBands item following a public IELTS task family"
 status: draft
 version: 0.1.0
 ```
 
-## LUẬT CỨNG
-1. `question_type` PHẢI có trong `skill-questiontype-band.md`. Ngoài → `unknown_question_type`, DỪNG.
-2. `topic_ref` PHẢI thuộc 10 topic enum.
-3. `microskill_tags` PHẢI có trong `microskill-enum.md`.
-4. `distractor_tags.distractor_type` PHẢI khớp error category trong `error-taxonomy.md` (vd lexical_trap, paraphrase_trap).
-5. `correct_answer` phải **đúng事实** theo passage — không mâu thuẫn.
-6. `explanation` phải giải thích **vì sao đúng** + paraphrase link (paraphrase nào trỏ).
-7. Distractor phải **hợp lý** (đừng quá obviously sai) — bẫy thật (từ trùng nghĩa khác, số liệu gần đúng).
-8. Passage KHÔNG copy Cambridge bản gốc — viết mới.
-9. Answer normalization theo `exam-module-differences.md` (case-insensitive, trim, word limit nếu completion).
-10. `rights.origin` phải hợp lệ enum (first_party, licensed, cambridge_pattern, generated, public_domain, unknown).
+For completion items, include the exact instruction/word limit and an explicit accepted-answer registry. For T/F/NG or Y/N/NG, explanations must distinguish the required evidence semantics. For map/plan/diagram tasks, stimulus labels/coordinates must be versioned rather than inferred dynamically.
 
-## ĐIỀU KIỆN DỪNG
-- question_type không có trong framework → `unknown_question_type`, DỪNG.
-- Không chắc passage band difficulty → ghi `needs_review`, không bịa.
-- Distractor không tự nhiên → ghi `needs_review`.
+## HARD RULES
 
-## SIDECAR META.YAML SCHEMA (canonical)
+1. `question_type` MUST exist in `skill-questiontype-band.md`.
+2. `topic_ref` MUST belong to the LenBands topic enum used by the content system.
+3. Every `microskill_tags` value MUST exist in `microskill-enum.md`.
+4. Every `error_tags` value MUST exist in `error-taxonomy.md`; categories or approximate substrings are not valid IDs.
+5. The correct answer must be fully supported by the generated stimulus.
+6. Explanations must cite the relevant stimulus evidence and explain why the answer is supported.
+7. Distractors must be plausible but unambiguously wrong under the evidence.
+8. Do not copy published test content or label generated content as Cambridge-derived.
+9. Normalization follows the reviewed item key and `exam-module-differences.md`.
+10. `difficulty` is provisional unless a governed calibration record exists; never convert it directly into an IELTS band.
+11. A question item never owns the raw-score-to-band conversion table.
+12. Output remains `draft` until content, rights, and quality review.
+
+## STOP CONDITIONS
+
+- Unknown controlled ID → return the relevant `unknown_*` value and STOP.
+- Uncertain format fidelity, answer-key correctness, or rights/provenance → `needs_review`.
+- Candidate content substantially resembles known published material → reject it and generate a different original stimulus.
+
+## SIDECAR META.YAML SCHEMA
+
 ```yaml
 type: knowledge-asset
 asset_kind: question_item
@@ -99,25 +102,30 @@ owner: colab
 derived_from: [KA.Exercise]
 framework_refs:
   - file: skill-questiontype-band
-    version: 1.0.6
+    version: 1.1.0
     nodes: [R_matching_headings]
+  - file: microskill-enum
+    version: 1.0.7
+    nodes: [R_skim_main_idea, R_paraphrase_recognition]
+  - file: error-taxonomy
+    version: 1.0.7
+    nodes: [R_ans_paraphrase_missed, R_ans_distractor_lexical]
+  - file: exam-module-differences
+    version: 1.0.7
+    sections: ["Listening/Reading — raw score → band authority"]
 origin: {source: generated, license: unknown}
 integrity: {checksum: sha256:<64-hex-payload-hash>, payload_file: R_q_001.md}
 governance: {rights_status: pending_review, review_status: draft}
 spawn_lineage: {workflow_run_id: <actual-run-id>, prompt_template_id: spawn-question-item, prompt_hash: <hash>, model: <model-id>, parameters: {skill: reading, question_type: R_matching_headings}}
-created_at: "2026-08-07T00:00:00Z"
-updated_at: "2026-08-07T00:00:00Z"
+created_at: "2026-08-17T00:00:00Z"
+updated_at: "2026-08-17T00:00:00Z"
 ```
 
-Sidecar là metadata canonical; payload giữ schema question item và rights authoring fields nếu cần.
-
 ## OUTPUT
-2 file:
-- `knowledge-assets/question-bank/R_q_001.md`       (nội dung schema trên)
-- `knowledge-assets/question-bank/R_q_001.meta.yaml`
 
-Output sidecar phải theo schema canonical ở trên và checksum đúng payload `.md`.
+- `knowledge-assets/questions/<question_id>.md`
+- `knowledge-assets/questions/<question_id>.meta.yaml`
 
-Bắt đầu: đọc framework, xác nhận question_type, sinh passage + 5 câu.
+Validate all framework references, answer evidence, provenance, duplicates/similarity risk, and payload checksum before completion. List any `unknown_*` or `needs_review` states.
 
 ---KẾT THÚC---

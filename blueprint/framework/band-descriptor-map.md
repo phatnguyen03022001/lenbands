@@ -1,167 +1,195 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Band Descriptor Map
 
-Status: `framework` — invariant IELTS knowledge. Đây là ánh xạ chính thức từ public IELTS band descriptors, được tái cấu trúc để máy đọc được. **Không thêm diễn dịch; nếu mâu thuẫn với nguồn chính thức, nguồn chính thức thắng.**
+Status: `framework` — official-derived **operational summaries** of public IELTS Writing and Speaking band descriptors. The current public IELTS descriptor/scoring material is external normative authority. These paraphrases are useful for indexing and diagnostics but must not replace the official descriptor version used by a calibrated evaluator.
 
-Nguồn: IELTS public band descriptors (Writing Task 1, Writing Task 2, Speaking), được dùng làm rubric cho `EVAL.Writing`, `EVAL.Speaking`, `BAND.Requirement`. Listening và Reading không có descriptor theo tiêu chí — chấm bằng answer key, band = số điểm đúng theo bảng quy đổi.
+Authority rules:
+- Official IELTS.org descriptors and scoring guidance win on conflict.
+- Tables below are concise paraphrases, not verbatim complete scales.
+- An evaluator must record the descriptor/rubric version it used.
+- Internal error tags or curriculum completion cannot override criterion evidence.
 
-## Quy ước
+Official references:
+- Writing/scoring overview: `https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail`
+- Academic Writing format/marking: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-writing`
+- Writing descriptor release: `https://ielts.org/news-and-insights/ielts-writing-band-descriptors-and-key-assessment-criteria`
+- Speaking format: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-speaking`
 
-- 4 criterion Writing: **TR** (Task Response), **CC** (Coherence & Cohesion), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy).
-- 4 criterion Speaking: **FC** (Fluency & Coherence), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy), **PR** (Pronunciation).
-- Mỗi ô là **đặc trưng phân biệt** ở band đó (không phải toàn bộ descriptor — để tránh trùng lặp giữa các band, mỗi band chỉ ghi thêm gì so với band dưới).
-- Band 1-3 gộp chung vì Learner App target band 3.0+; dưới 3.0 không mô hình hóa sâu.
-- Listening/Reading: bảng quy đổi (raw score → band) ở `exam-module-differences.md`, không lặp ở đây.
+## Conventions
 
-## Writing — Task Response (TR)
+- Writing criteria: **TA/TR** (Task Achievement for Task 1 / Task Response for Task 2), **CC** (Coherence & Cohesion), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy).
+- Speaking criteria: **FC** (Fluency & Coherence), **LR** (Lexical Resource), **GRA** (Grammatical Range & Accuracy), **PR** (Pronunciation).
+- Each cell records a compact distinguishing signal. It is not the full descriptor and must not be treated as a substitute for the official scale.
+- Listening/Reading are objectively marked; score conversion is governed by `exam-module-differences.md`.
 
-| Band | Đặc trưng phân biệt (thêm so với band dưới) |
+## Writing — Task Response / Task Achievement signals
+
+| Band | Operational summary |
 |---|---|
-| 9 | Fully developed, fully addresses all parts, well-supported, no irrelevance |
-| 8 | Sufficiently addresses all parts, well-developed, relevant |
-| 7 | Addresses all parts, presents clear position throughout, main ideas extended+supported (một số thể hiện chưa hoàn toàn nhất quán) |
-| 6 | Addresses all parts (một số phần đầy đủ hơn khác), presents relevant main ideas (một số không được phát triển đầy đủ hoặc không rõ ràng) |
-| 5 | Addresses task chỉ chung chung, expresses position nhưng không rõ ràng, main ideas hạn chế — **đường ranh 5/6: có phát triển thật hay không** |
-| 4 | Responses đúng dạng nhưng không đủ, khó xác định position, ideas limited |
-| 3 | Không hiểu task, ideas limited/không liên quan, có thể off-topic |
-| 2 | Barely responds, no position, barely relevant |
-| 1 | No position, totally irrelevant |
+| 9 | Task is fully satisfied; position/features and support are complete, precise, and relevant. |
+| 8 | Task is sufficiently and appropriately addressed with well-developed, relevant support/features. |
+| 7 | Task requirements are addressed; position/key features are clear; main ideas/features are extended and supported with some possible limitation. |
+| 6 | Main requirements are addressed, but coverage/development may be uneven or some support may be insufficient. |
+| 5 | Task is addressed incompletely or generally; development/key-feature coverage is limited. |
+| 4 | Response is only partly relevant/adequate and key requirements are insufficiently handled. |
+| 3 | Task is seriously misunderstood or insufficiently addressed. |
+| 2 | Barely responds to the task. |
+| 1 | Minimal relevant response. |
 
-**Phân biệt mấu chốt 6.0 vs 7.0:** 7.0 có position xuyên suốt + main ideas được extended có support; 6.0 position có nhưng main ideas phát triển không đều.
+Use the task-specific official descriptor (Task 1 or Task 2); do not apply Task 2 position language mechanically to Task 1.
 
-## Writing — Coherence & Cohesion (CC)
+## Writing — Coherence & Cohesion signals
 
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Skilful paragraphing, cohesive devices used with complete flexibility, fully logical progression |
-| 8 | Logical, all cohesive devices appropriate, clear central topic trong mỗi paragraph |
-| 7 | Logically organized, clear progression, range of cohesive devices (một số bị over-/under-use), presents clear central topic |
-| 6 | Arranges coherently, overall progression, uses cohesive devices nhưng **mechanical** (this, however, firstly lặp), refers/thêm rõ nhưng không luôn successful |
-| 5 | Presents organization nhưng **không rõ ràng**, cohesive devices inadequate/repeated, lacks overall progression, paragraphing có nhưng không logic |
-| 4 | Presents information có nhưng khó theo dõi, few cohesive devices, repetitive, không có hoặc sai paragraphing |
-| 3 | No logical organization, no cohesive devices (or wrong), no progression |
-| 2 | Little organization, very little cohesive language |
-| 1 | Incoherent |
+| 9 | Organisation and cohesion are fully controlled and progression is effortless. |
+| 8 | Information/ideas are logically sequenced; cohesion and paragraphing are managed very well. |
+| 7 | Clear logical organisation/progression with a range of cohesive resources; minor over-/under-use may occur. |
+| 6 | Overall progression is present; cohesion works but can be mechanical, repetitive, or imperfect. |
+| 5 | Organisation is present but progression/cohesion is limited or inconsistent. |
+| 4 | Organisation and cohesion are weak enough to make the response difficult to follow. |
+| 3 | Little effective organisation or progression. |
+| 2 | Very little organisation/cohesive control. |
+| 1 | No meaningful coherent organisation. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 dùng cohesive devices tự nhiên, có range; 6.0 mechanical (máy móc, lặp), tham chiếu đôi khi không rõ.
+## Writing — Lexical Resource signals
 
-## Writing — Lexical Resource (LR)
-
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Wide range tự nhiên, full flexibility, accurate, rare errors chỉ là slip |
-| 8 | Wide vocabulary, fluently + flexibly, rare errors, sophisticated |
-| 7 | Sufficient range cho clarity + style, less common items, awareness of style/collocation (một số sai chọn), occasional errors |
-| 6 | Adequate range cho task, attempts less common (có lỗi), errors trong spelling/word formation nhưng không cản trở communication |
-| 5 | Limited range, adequate for task cơ bản, repetitive, errors spelling/word form rõ, **khó hiểu đôi chỗ** |
-| 4 | Limited, basic vocabulary, repetitive, errors cản trở meaning |
-| 3 | Rất limited, có thể lặp很多 |
-| 2 | Cực kỳ limited, chỉ từ đơn giản |
-| 1 | Chỉ vài từ rời rạc |
+| 9 | Very wide, natural, precise lexical control; errors are rare slips. |
+| 8 | Wide, flexible vocabulary with strong precision and very few errors. |
+| 7 | Sufficient range for precision/flexibility, including some less-common language and generally appropriate collocation/style. |
+| 6 | Adequate range for the task; attempts at less-common language may be inaccurate but communication is generally clear. |
+| 5 | Limited/repetitive range with noticeable lexical/spelling/word-formation limitations. |
+| 4 | Basic, restricted vocabulary with errors that can impede meaning. |
+| 3 | Very limited lexical resource. |
+| 2 | Extremely limited simple vocabulary. |
+| 1 | Isolated words only. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 dùng less common items + collocation với awareness; 6.0 chỉ adequate, attempts less common còn lỗi.
+## Writing — Grammatical Range & Accuracy signals
 
-## Writing — Grammatical Range & Accuracy (GRA)
-
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexible range, accurate, chỉ slip |
-| 8 | Wide range of structures, majority error-free, occasional non-systematic errors |
-| 7 | Various complex structures, frequent error-free sentences, good control of grammar/punctuation (một vài errors) |
-| 6 | Mix of simple + complex forms, flex nhưng có lỗi trong grammar/punctuation, errors hiếm khi cản trở communication |
-| 5 | Limited range, attempts complex nhưng **limited accuracy**, errors frequent, punctuation lỗi |
-| 4 | Chỉ basic forms, một vài complex có lỗi, errors frequent → cản trở |
-| 3 | Cố basic nhưng error-heavy |
-| 2 | Chỉ structures đơn giản, hầu hết lỗi |
-| 1 | Không có cấu trúc có thể hiểu |
+| 9 | Very wide, flexible, accurate structural control; errors are rare slips. |
+| 8 | Wide structural range with most sentences error-free and only occasional non-systematic errors. |
+| 7 | Variety of complex structures with frequent error-free sentences and generally good control. |
+| 6 | Mix of simple and complex forms; errors remain but generally do not impede communication. |
+| 5 | Limited range; complex attempts have limited accuracy and errors are frequent. |
+| 4 | Predominantly basic forms with frequent errors that can impede meaning. |
+| 3 | Attempts basic forms with heavy error load. |
+| 2 | Very limited simple structures, mostly inaccurate. |
+| 1 | No meaningful grammatical control. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 various complex structures + frequent error-free; 6.0 mix simple/complex, có lỗi nhưng không cản trở.
+The descriptor evaluates **range and accuracy in the actual response**. IELTS does not require a checklist of named structures such as a particular conditional, inversion, or cleft sentence for a specific band.
 
-## Speaking — Fluency & Coherence (FC)
+## Speaking — Fluency & Coherence signals
 
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Speaks fluently, only occasional repetition/self-correction, develops topics fully+coherently, appropriate length |
-| 8 | Develops topics coherently+appropriately, fluency chia relates to language content (không accent) |
-| 7 | Speaks at length without noticeable effort/loss of coherence, may exhibit **language-related hesitation** (vì tìm từ/grammar), some repetition, uses range of connectives+discourse markers (some over-/under-use) |
-| 6 | Willing to speak at length nhưng **có mất fluency**, uses connectives+discourse markers but limited/repeated, repetition, self-correction, hesitation để tìm từ |
-| 5 | Usually maintains flow but uses **repetition, self-correction, slow speech, hesitation**, links ideas simple, overuse certain connectives/discourse markers |
-| 4 | Cannot respond without hesitation, speech slow, frequent repetition/self-correction, links simple but không logic |
-| 3 | Hesitation rất dài, no clear message, simple speech |
-| 2 | Pause dài, barely linked |
-| 1 | No communication possible |
+| 9 | Fluent, coherent, fully developed speech with only very occasional repetition/self-correction. |
+| 8 | Very fluent, coherent development with only occasional language-related hesitation. |
+| 7 | Can speak at length without noticeable loss of coherence; some hesitation/repetition may occur; discourse resources are reasonably flexible. |
+| 6 | Can speak at length but fluency/coherence is sometimes lost; hesitation, repetition, or limited connective use is more noticeable. |
+| 5 | Flow is maintained only with noticeable repetition, self-correction, hesitation, or simple linking. |
+| 4 | Frequent pauses/repetition and weak linking substantially limit sustained speech. |
+| 3 | Long pauses and limited connected speech make the message difficult to sustain. |
+| 2 | Speech consists largely of isolated or memorised fragments separated by long pauses. |
+| 1 | No meaningful communication. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 at length without noticeable effort, hesitation chỉ là language-related; 6.0 mất fluency, hesitation để tìm từ, connectives limited.
+## Speaking — Lexical Resource signals
 
-## Speaking — Lexical Resource (LR)
-
-(So với Writing LR: thêm idiom, paraphrase sống)
-
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexibility, precise meaning, idiomatic, wide range including rare items |
-| 8 | Wide vocabulary, idiomatic, flexible+fluent |
-| 7 | Flexible use including less common+idiomatic, some awareness of style/collocation, paraphrase effectively, occasional inaccuracies |
-| 6 | Wide enough vocabulary to discuss at length, generally paraphrase successfully, uses less common (some inaccuracies) |
-| 5 | Manages to talk với limited flexibility, general meaning clear dù **limited attempt paraphrase**, errors rõ |
-| 4 | Limited, family topic OK, paraphrase rarely successful |
-| 3 | Simple vocabulary to express personal info, insufficient for complex topics |
-| 2 | Isolated words/memorized phrases |
-| 1 | Nothing |
+| 9 | Very wide, precise, flexible, natural lexical control. |
+| 8 | Wide, flexible lexical resource with effective idiomatic use and precise meaning. |
+| 7 | Flexible vocabulary, including some less-common/idiomatic language; effective paraphrase with occasional inaccuracies. |
+| 6 | Vocabulary is wide enough to discuss topics at length; paraphrase is generally successful despite some inaccuracies. |
+| 5 | Vocabulary handles familiar/general meaning with limited flexibility and paraphrase. |
+| 4 | Limited range, strongest on familiar topics; paraphrase has limited success. |
+| 3 | Simple vocabulary supports mainly personal/basic information. |
+| 2 | Isolated words or memorised phrases. |
+| 1 | No meaningful lexical evidence. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 paraphrase effectively + idiomatic; 6.0 paraphrase generally OK, less common có inaccuracy.
+Idiomatic language is assessed holistically as part of lexical flexibility. Absence of a fixed number of idioms is not itself an IELTS error.
 
-## Speaking — Grammatical Range & Accuracy (GRA)
+## Speaking — Grammatical Range & Accuracy signals
 
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Full flexible accurate, complex forms freely+accurately |
-| 8 | Wide range of structures flexibly, frequent error-free, some basic errors |
-| 7 | Various complex structures flexibly, frequent error-free, some persistent grammatical errors (non-systematic) |
-| 6 | Various simple+complex forms, flex nhưng limited, mistakes nhưng không cản trở |
-| 5 | Limited range, attempts complex limited accuracy, errors frequent |
-| 4 | Basic forms used, limited accuracy, complex forms error-heavy |
-| 3 | Cố simple form, errors heavy |
-| 2 | Simple isolated words, errors-heavy |
-| 1 | Nothing |
+| 9 | Very wide, flexible, accurate structural control. |
+| 8 | Wide structural range used flexibly with frequent error-free speech. |
+| 7 | A range of complex structures is used with flexibility; many sentences are error-free although some errors remain. |
+| 6 | Mix of simple and complex structures with limited flexibility; errors generally do not prevent communication. |
+| 5 | Limited range; complex attempts show limited accuracy and errors are frequent. |
+| 4 | Basic forms dominate and accuracy is limited. |
+| 3 | Simple structures are attempted with heavy error load. |
+| 2 | Very limited simple forms. |
+| 1 | No meaningful grammatical evidence. |
 
-**Mấu chốt 6.0 vs 7.0:** tương tự Writing GRA — 7.0 various complex flexibly; 6.0 mix có lỗi nhưng không cản trở.
+## Speaking — Pronunciation signals
 
-## Speaking — Pronunciation (PR)
-
-| Band | Đặc trưng phân biệt |
+| Band | Operational summary |
 |---|---|
-| 9 | Effortless to understand, full灵活 features (rhythm, intonation, individual sounds) |
-| 8 | Easy to understand throughout, variety of features, occasional individual sound mispronunciation不影响 meaning |
-| 7 | Shows all positive features (6) **and** some use of features band 8 — easy to understand throughout, occasional individual sound errors不影响 meaning |
-| 6 | Uses **range of pronunciation features** với mixed control, **some effective use of features** nhưng không sustained, generally clear throughout despite occasional mispronunciation |
-| 5 | Shows all 4 positive features band 6 **but with some problems** OR shows some band 6 features but not sustained, can be understood generally but effort required by listener |
-| 4 | Limited use of features, frequent mispronunciation, **listener effort needed** |
-| 3 | Limited features, many mispronunciations, hard to follow |
-| 2 | Very hard to understand, almost no features |
-| 1 | Unintelligible |
+| 9 | Effortless intelligibility with highly flexible control of pronunciation features. |
+| 8 | Easy to understand throughout with a wide range of effectively controlled features. |
+| 7 | Easy to understand throughout; positive pronunciation features are sustained, with some higher-band control. |
+| 6 | Generally clear; a range of features is used but control is mixed or not sustained. |
+| 5 | Generally understandable but listener effort may be required; higher-band features are limited or inconsistent. |
+| 4 | Limited feature control and frequent pronunciation problems require listener effort. |
+| 3 | Pronunciation limitations make speech difficult to follow. |
+| 2 | Very difficult to understand. |
+| 1 | Unintelligible. |
 
-**Mấu chốt 6.0 vs 7.0:** 7.0 easy throughout + sustained positive features; 6.0 range có nhưng mixed control, không sustained, occasional mispronunciation.
+Accent identity is not the target; intelligibility and control of relevant phonological features are.
 
-## Cách dùng (cho engine + agent)
+## Scoring contract
 
-- `EVAL.Writing`/`EVAL.Speaking` phải chấm theo 4 criterion, output band per criterion. Overall skill band = average của 4 criterion, **làm tròn về 0.5 gần nhất theo quy tắc IELTS: .25→.5, .75→next whole** (vd avg 6.25 → 6.5, avg 6.75 → 7.0). Chi tiết bảng quy đổi ở `exam-module-differences.md`.
-- `BAND.Requirement`/`BAND.Map` dùng descriptor để sinh checklist "cần gì để đạt band X" (vd band 7.0 GRA: "various complex structures, frequent error-free").
-- `COACH.ErrorAnalysis` phải map error → criterion bị ảnh hưởng + band tương ứng.
-- Đường ranh quan trọng cho calibration: **5.0 vs 6.0** (có phát triển thật không; có mix complex không) và **6.0 vs 7.0** (range/flexibility vs adequate).
-- Listening/Reading: band được tính từ raw score qua quy đổi, không qua descriptor — bảng quy đổi ở `exam-module-differences.md`.
+### Writing
 
-## Không tự suy luận
+Each Writing **task** is assessed on four equally weighted criteria. The task-level analytic result may record the four criterion bands and their average for diagnostics.
 
-Nếu descriptor ở đây không đủ để chấm một edge case, engine phải trả `insufficient_evidence` chứ không đoán band. Bổ sung descriptor (rare) phải qua Colab review và cập nhật version.
+The **Writing section score is not simply the four-criterion average of one response**. IELTS assesses Task 1 and Task 2 separately, and **Task 2 contributes twice as much as Task 1** to the Writing section score. Any `EVAL.Writing` section-level score must therefore preserve both task results and apply the reviewed Writing aggregation contract.
+
+Required audit fields:
+
+```yaml
+writing_score:
+  task1: {criteria: {...}, task_score: <diagnostic-average>}
+  task2: {criteria: {...}, task_score: <diagnostic-average>}
+  aggregation: task2_weighted_twice
+  rubric_version: <official-derived-rubric-version>
+  section_band: <result>
+```
+
+Do not invent a section band when one task is missing unless a separate diagnostic mode explicitly labels the result as incomplete/non-official.
+
+### Speaking
+
+Speaking uses four equally weighted criteria: FC, LR, GRA, and PR. The criterion evidence and the rubric version must be retained with the resulting Speaking band.
+
+### Listening / Reading
+
+Use objective answer-key evidence plus an approved versioned raw-score conversion source as defined in `exam-module-differences.md`.
+
+## Usage
+
+- `EVAL.Writing` and `EVAL.Speaking` use the current reviewed rubric, not this summary in isolation.
+- `BAND.Requirement` may paraphrase descriptor expectations but must not turn internal grammar/vocabulary counts into official IELTS requirements.
+- `COACH.ErrorAnalysis` can map observed issues to criteria; an individual error tag does not mechanically determine a band.
+- `BAND.Map` must distinguish curriculum progress from criterion-based band evidence.
+
+## Do not infer
+
+If evidence or an authoritative rubric is insufficient, return `insufficient_evidence`. Never manufacture a band from a checklist, a single error, vocabulary count, grammar-node count, or unvalidated heuristic.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
-- `version: 1.0.1` — standardized criterion and band descriptor boundaries.
-- `version: 1.0.6` — added the missing per-file version record; descriptor semantics and calibration claims are unchanged.
-- Thêm descriptor hoặc đổi semantics: minor; sửa metadata/prose không đổi nghĩa: patch; bỏ: `deprecated_in` (không xóa).
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
+- `version: 1.0.1` — standardized criterion/band summary structure.
+- `version: 1.0.6` — normalized per-file version records without establishing calibration evidence.
+- `version: 1.0.7` — clarified that descriptor text is an operational paraphrase, corrected Writing task-vs-section aggregation, and prohibited checklist-based band inference.
+- A factual/semantic correction requires a patch bump and source review; a structural descriptor-schema change requires a minor bump.

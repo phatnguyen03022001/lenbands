@@ -1,106 +1,95 @@
 ---
-version: 1.0.6
+version: 1.0.7
 scope: framework
 ---
 
 # Vocabulary × Collocation × Topic Framework
 
-Status: `framework` — versioned controlled vocabulary. Định nghĩa **topic enum**, **collocation framework**, và **target count** vocabulary/collocation theo band. Feed `KA.Vocabulary`, `KA.Collocation`, `BAND.Map` vocab row + collocation row.
+Status: `framework` — LenBands-controlled vocabulary/collocation/topic taxonomy and authoring schema. Feeds `KA.Vocabulary`, `KA.Collocation`, search/recommendation tags, and curriculum coverage views.
 
-Quy ước:
-- File này KHÔNG liệt kê từng từ (đó là asset, do Colab author). File này định nghĩa **khung** + **số lượng mục tiêu** + **cấu trúc metadata** mỗi từ/collocation phải có.
-- Số lượng là **gợi ý band completion** (cho `BAND.Map`), không phải rule cứng — learner có thể master ít hơn nhưng dùng chính xác.
-- Versioned; topic enum thêm = minor bump.
+Authority:
+- Topic IDs, collocation categories, asset metadata shape, and internal content-routing labels are `lenbands-controlled`.
+- Vocabulary/collocation counts, band ranges attached to words, and any relationship between item count and IELTS band are `experimental-heuristic` unless a calibration record says otherwise.
+- IELTS does **not** publish a fixed number of words, collocations, or idioms required for a band. These counts must never be presented as an official band requirement or used to calculate a band.
+- CEFR and IELTS are distinct scales. A vocabulary asset may carry a CEFR label only when that label has its own provenance; do not derive CEFR mechanically from an IELTS band tag.
 
-## Topic enum (controlled vocabulary)
+## Topic enum (LenBands-controlled)
 
-IELTS topic thường chia thành 10 chủ đề lớn (theo Cambridge + British Council common topic). Mỗi topic có sub-topic.
+These 10 topic IDs are an internal content-organization scheme. They cover common broad subject areas useful for IELTS preparation but are **not** an official exhaustive IELTS topic list.
 
-| topic_id | Topic | Sub-topic ví dụ |
+| topic_id | Topic | Example sub-topics |
 |---|---|---|
-| `t_environment` | Environment | climate change, pollution, conservation, renewable energy |
-| `t_technology` | Technology | AI, internet, social media, gadgets, automation |
-| `t_education` | Education | school, university, learning methods, exams, teachers |
-| `t_health` | Health | diet, exercise, mental health, disease, healthcare |
-| `t_work_business` | Work & Business | jobs, workplace, career, management, economy |
-| `t_society_culture` | Society & Culture | family, tradition, urbanization, crime, demographic |
-| `t_media_news` | Media & News | journalism, advertising, fake news, entertainment |
+| `t_environment` | Environment | climate, pollution, conservation, energy |
+| `t_technology` | Technology | AI, internet, social media, automation |
+| `t_education` | Education | school, university, learning methods, assessment |
+| `t_health` | Health | diet, exercise, mental health, healthcare |
+| `t_work_business` | Work & Business | jobs, workplace, careers, economy |
+| `t_society_culture` | Society & Culture | family, tradition, urbanisation, demographics |
+| `t_media_news` | Media & News | journalism, advertising, entertainment, information quality |
 | `t_transport_travel` | Transport & Travel | public transport, tourism, aviation, commuting |
 | `t_crime_law` | Crime & Law | justice, punishment, policing, rights |
 | `t_science_arts` | Science & Arts | research, space, music, literature, museums |
 
-Sub-topic là flexible (Colab thêm), nhưng `topic_id` phải thuộc 10 trên. Topic ngoài enum → báo `unknown_topic`.
+Sub-topics may evolve, but `topic_id` must come from the controlled enum. Unknown topic → `unknown_topic`.
 
-## Vocabulary target count theo band × topic
+## Vocabulary coverage hypotheses
 
-Số lượng từ (headword) learner cần **active** (dùng được, không chỉ nhận biết) cho band target, phân bổ đều 10 topic:
+Historical LenBands planning used cumulative active-vocabulary targets such as 600 / 1200 / 2500 / 4000 / 6000 items across progressively higher curriculum buckets. These numbers are retained only as **unvalidated capacity-planning hypotheses** so existing planning artifacts remain interpretable.
 
-| Band target | Total vocab active | Per topic (avg) | Band range của chính bản thân từ |
-|---|---|---|---|
-| 5.0 | ~600 | 60 | most band 4-5 |
-| 6.0 | ~1200 | 120 | band 5-6 |
-| 7.0 | ~2500 | 250 | band 6-7 (less common + topic) |
-| 8.0 | ~4000 | 400 | band 7-8 (sophisticated + rare) |
-| 9.0 | ~6000 | 600 | band 8-9 (idiomatic + precise) |
+```yaml
+vocabulary_count_hypothesis:
+  status: unvalidated
+  values: [600, 1200, 2500, 4000, 6000]
+  permitted_use: content_capacity_planning_only
+  prohibited_use: [ielts_band_requirement, learner_band_scoring, readiness_gate]
+```
 
-Lưu ý:
-- Active (dùng được Writing/Speaking) ≠ passive (nhận biết Reading/Listening). Reading/Listening cần nhiều hơn (~2x).
-- Band 6→7 vùng phân biệt: vocab **less common** + **topic-specific** + **precise synonym**.
-- Con số cumulative — mỗi band cộng thêm, không thay thế.
+Do not show a learner "2500 words = Band 7" or any equivalent claim. A learner may demonstrate strong lexical resource with a different inventory, and IELTS scores lexical performance in context rather than counting known headwords.
 
-`BAND.Map` vocab row hiển thị `{known_count} / {target_for_band}` per topic, vd "Health 22/70 (band 6.5-7.0 gợi ý 70)".
-
-## Vocabulary metadata schema (mỗi từ trong `KA.Vocabulary`)
-
-Mỗi headword asset phải có:
+## Vocabulary metadata schema
 
 ```yaml
 word_id: v_env_001
 headword: ephemeral
 phonetic: /ɪˈfɛm(ə)rəl/
 pos: adjective
-band_range: 6.5-7.5
+band_range: 6.5-7.5              # internal routing heuristic unless calibrated
+calibration_status: provisional  # provisional | calibrated | retired
 topic_ref: [t_environment, t_science_arts]
-cefr: C1
+cefr: C1                         # optional; requires independent provenance
+cefr_source_ref: <source-or-null>
 definition_en: lasting for a very short time
 definition_vi: ngắn ngủi, phù du
 example: Fame in the modern age is often ephemeral.
 collocations: [ephemeral nature, ephemeral phenomenon]
 synonyms: [transient, fleeting, momentary]
 antonyms: [permanent, enduring]
-microskill_ref: [W_lexical_precision, S_idiomatic_use]
+microskill_ref: [W_lexical_precision]
 frequency: less_common
 ```
 
-Trường bắt buộc: `word_id, headword, phonetic, pos, band_range, topic_ref, definition_en, example, frequency`. Trường khác optional nhưng recommend.
+Core identity/content fields: `word_id, headword, phonetic, pos, topic_ref, definition_en, example, frequency`.
+
+Rules:
+- `band_range` is content-routing metadata, not proof that knowing the word produces that band.
+- `cefr` must not be inferred from `band_range`; missing provenance → omit/`null`/`needs_review` according to the asset schema.
+- Synonyms, antonyms, pronunciation, and collocations require linguistic review where generated confidence is insufficient.
 
 ## Collocation framework
 
-Collocation = cụm từ thường đi cùng nhau. Band 6→7 phân biệt quan trọng ở **collocation awareness**.
+### Controlled categories
 
-### Collocation categories (types)
-
-| category_id | Loại | Ví dụ |
+| category_id | Type | Example |
 |---|---|---|
-| `c_adj_noun` | Adj + Noun | heavy rain, stark contrast |
-| `c_verb_noun` | Verb + Noun (delexical) | make a decision, take a risk |
+| `c_adj_noun` | Adjective + Noun | heavy rain, stark contrast |
+| `c_verb_noun` | Verb + Noun | make a decision, take a risk |
 | `c_verb_prep` | Verb + Preposition | depend on, result in |
 | `c_noun_noun` | Noun + Noun | business model, climate change |
 | `c_verb_adverb` | Verb + Adverb | significantly improve, sharply decline |
 | `c_fixed_phrase` | Fixed phrase | on the contrary, in light of |
-| `c_academic_phrase` | Academic phrase | it is widely argued that, a body of evidence |
+| `c_academic_phrase` | Academic phrase | a body of evidence |
 
-### Collocation target count theo band
-
-| Band target | Collocations active (tổng) | Per category (avg) |
-|---|---|---|
-| 5.0 | ~100 | 15 |
-| 6.0 | ~300 | 45 |
-| 7.0 | ~600 | 85 |
-| 8.0 | ~1000 | 140 |
-| 9.0 | ~1500 | 215 |
-
-`BAND.Map` collocation row: `{known}/{target}` per category, vd "Cause/effect 5/20".
+Historical target counts such as 100 / 300 / 600 / 1000 / 1500 active collocations are **unvalidated capacity-planning hypotheses** with the same prohibited uses as vocabulary counts. They are not IELTS requirements.
 
 ### Collocation metadata schema
 
@@ -109,65 +98,59 @@ collocation_id: c_verb_noun_042
 collocation: make a significant contribution
 category: c_verb_noun
 band_range: 6.5-7.5
+calibration_status: provisional
 topic_ref: [t_work_business, t_society_culture]
 example: She has made a significant contribution to the field.
 synonyms_phrases: [play a major role, contribute substantially]
-common_mistake: "do a contribution" (sai — phải là make)
+common_mistake: "do a contribution"
 microskill_ref: [W_collocation_awareness]
 ```
 
-## Topic coverage matrix (gợi ý, cho `BAND.Map` + Colab authoring)
+## Topic coverage planning
 
-Mỗi cell là số từ/collocation gợi ý tối thiểu cho band 7.0 (band 6.0 ≈ 50%, band 8.0 ≈ 150%):
+Content operations may distribute assets across the 10 topic IDs to avoid severe authoring imbalance. Any per-topic numeric quota belongs to an operational content plan, not to IELTS scoring or `BAND.Requirement`.
 
-| Topic | Vocab band 7 | Collocation band 7 |
-|---|---|---|
-| t_environment | 250 | 60 |
-| t_technology | 250 | 60 |
-| t_education | 250 | 60 |
-| t_health | 250 | 60 |
-| t_work_business | 250 | 60 |
-| t_society_culture | 250 | 60 |
-| t_media_news | 250 | 60 |
-| t_transport_travel | 250 | 60 |
-| t_crime_law | 250 | 60 |
-| t_science_arts | 250 | 60 |
-| **Total** | **2500** | **600** |
+`BAND.Map` must not display vocabulary/collocation item counts as if they were official band thresholds. A separate **Curriculum Coverage** view may display authored/mastered inventory counts when clearly labeled as LenBands curriculum data.
 
-Khớp với count band 7.0 ở bảng trên. Colab nên ưu tiên author topic đều, không lệch (nhiều environment, ít crime).
+## Idiomatic language
 
-## Idiom framework (band 7+ Speaking)
+LenBands may classify idiomatic/formulaic language for Speaking practice, for example:
 
-Speaking band 7.0+ cần idiomatic. Idiom enum (subset):
-
-| idiom_category | Ví dụ |
+| idiom_category | Example |
 |---|---|
-| `i_simile_metaphor` | a blessing in disguise, hit the nail on the head |
-| `i_phrasal_verb_idiomatic` | come up with, look forward to, get along with |
-| `i_colloquial_phrase` | at the end of the day, to cut a long story short |
+| `i_simile_metaphor` | a blessing in disguise |
+| `i_phrasal_verb_idiomatic` | come up with |
+| `i_colloquial_phrase` | to cut a long story short |
 
-Idiom count band 7.0+ Speaking: ~80 active. Không bắt buộc Writing (Writing tránh colloquial).
+There is no fixed "N idioms for Band 7" rule. Speaking Lexical Resource is assessed holistically. Forced or inappropriate idiom use can reduce naturalness/precision rather than improve a score.
 
-## Cách dùng
+## Usage
 
-- `KA.Vocabulary` asset: mỗi từ có metadata schema + `word_id`.
-- `KA.Collocation` asset: mỗi collocation có schema + `collocation_id`.
-- `BAND.Map` vocab row: hiển thị per-topic `{known}/{target}` với target theo band từ bảng trên.
-- `BAND.Map` collocation row: hiển thị per-category `{known}/{target}`.
-- `REVIEW.FSRS` card `recall_meaning`: source `word_id` hoặc `collocation_id`.
-- `COACH.ErrorAnalysis` map vocab/collocation error (`W_lr_wrong_collocation`, `W_lr_repetitive`) → `collocation_id`/`word_id`.
+- `KA.Vocabulary`: each asset uses a controlled `word_id`/topic schema and preserves provenance.
+- `KA.Collocation`: each asset uses a controlled category and provenance.
+- Search/recommendation may use topic/category metadata.
+- Curriculum coverage may count mastered/internal assets, but a count must not become an IELTS band calculation.
+- `REVIEW.FSRS`: cards can reference `word_id` or `collocation_id` as learning-unit identity.
+- `COACH.ErrorAnalysis`: observed lexical/collocation evidence can link to relevant assets for remediation.
+
+## Calibration boundary
+
+A vocabulary/collocation difficulty or band association can become `calibrated` only when a governed calibration record provides method, sample, confidence, date, and version. Calibration may improve adaptive routing; it still does not create an official IELTS vocabulary-count requirement.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
+- Current release: `1.0.7`; the frontmatter is authoritative for the file version.
+- `version: 1.0.1` — audited topic/collocation/idiom controlled IDs and provenance/version metadata.
+- `version: 1.0.6` — normalized the per-file release record; controlled enums were unchanged.
+- `version: 1.0.7` — reclassified vocabulary/collocation count targets and item band labels as unvalidated LenBands planning/routing heuristics, removed fixed idiom-count claims, and prohibited count-based IELTS band inference.
+- Adding a controlled topic/category: minor bump + `added_in`.
+- Correcting authoring metadata or heuristic interpretation: patch + review note.
+- Removal: deprecate rather than silently delete.
 
-- `version: 1.0.1` — 10 topic, 7 collocation category, 3 idiom category; provenance/version audit completed.
-- `version: 1.0.6` — normalized the per-file release record; vocabulary enums and targets are unchanged.
-- Thêm topic: minor + `added_in`.
-- Sửa target count: patch + note (research-backed, không đoán).
+## Do not infer
 
-## Không tự suy luận
-
-- `BAND.Map` target count phải khớp bảng này, không tự bịa "band 7 cần 5000 từ".
-- Topic/collocation id ngoài enum không hợp lệ → báo `unknown_topic` / `unknown_collocation_category`.
-- Asset (từ/collocation thực) là Colab author, không phải framework này sinh ra.
+- Do not invent official IELTS vocabulary, collocation, topic, or idiom-count requirements.
+- Do not convert `known_count` into an IELTS band.
+- Do not derive CEFR directly from IELTS band metadata.
+- Unknown topic/category → `unknown_topic` / `unknown_collocation_category`.
+- Concrete learner-facing word/collocation content remains governed Knowledge Asset content, not framework-owned truth.

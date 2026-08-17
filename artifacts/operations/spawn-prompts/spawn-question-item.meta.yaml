@@ -1,28 +1,28 @@
 type: prompt-template
 prompt_template_id: spawn-question-item
 status: review
-version: 0.2.0
+version: 0.2.4
 owner: colab
 representation: markdown
 derived_from: [CONTENT.Publish, PRACTICE.Drill]
 purpose: workflow-for-draft-reading-listening-question-assets
 consumed_by: [operations]
 created_at: 2026-08-07
-updated_at: 2026-08-07
+updated_at: 2026-08-17
 framework_refs:
   - file: skill-questiontype-band
-    version: 1.0.6
+    version: 1.1.0
     nodes: [R_matching_headings]
   - file: microskill-enum
-    version: 1.0.6
+    version: 1.0.7
     nodes: [R_skim_main_idea, R_paraphrase_recognition]
   - file: error-taxonomy
-    version: 1.0.6
-    nodes: [R_ans_paraphrase_missed, R_distractor]
+    version: 1.0.7
+    nodes: [R_ans_paraphrase_missed, R_ans_distractor_lexical]
   - file: exam-module-differences
-    version: 1.0.6
-    sections: ["Academic vs General Training", "Listening/Reading — raw score → band conversion"]
+    version: 1.0.7
+    sections: ["Listening/Reading — raw score → band authority"]
 output_contract: {asset_kind: question_item, output_root: knowledge-assets/questions, status: draft}
 hash_scope: full_file_bytes
-source_sha256: sha256:c736795e0e4fbbb51750882d55a1c16adc9cd6d3b8fc2a2e44e7817ca67699ff
+source_sha256: sha256:dc912a1092f1f1af63bfe72e1199fb8b90a51b6310e7808940092c0c1d1b48a2
 validation_command: ./tools/validate-spawn-prompts.sh

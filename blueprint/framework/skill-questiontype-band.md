@@ -1,144 +1,161 @@
 ---
-version: 1.0.6
+version: 1.1.0
 scope: framework
 ---
 
 # Skill × Question Type × Band Matrix
 
-Status: `framework` — invariant vocabulary. Liệt kê đầy đủ question type/task type theo skill + band range phổ biến. Controlled vocabulary cho `05-content.md` và `BAND.Map`.
+Status: `framework` — LenBands-controlled task/question-type vocabulary mapped to public IELTS task families. Feeds content tagging, practice routing, and curriculum coverage.
 
-## Node schema (mỗi question type)
+Authority:
+- Public IELTS task families and Speaking timing are `official-derived`.
+- LenBands may split an official family into finer internal IDs (for example paragraph-vs-section matching information or separate visual/completion layouts) when that helps diagnosis/authoring.
+- `band_difficulty`, `Common band range`, and individual task-band ranges are `experimental-heuristic` metadata unless calibrated. IELTS does not assign a band to a question type.
+- A question/task ID does not itself imply learner ability or item difficulty.
 
-Mỗi question type đầy đủ là node sở hữu `requires` và `done_when` inline. Các bảng inventory chỉ khóa ID; khi thiếu node schema chi tiết, asset phải giữ `needs_review` và không được claim calibrated.
+Official references:
+- Listening format: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-listening`
+- Academic Reading format: `https://ielts.org/take-a-test/test-types/ielts-academic-test/ielts-academic-format-reading`
+- General Training Reading format: `https://ielts.org/take-a-test/test-types/ielts-general-training-test/ielts-general-training-format-reading`
+
+## Node schema
 
 ```yaml
 question_type_id: R_matching_headings
 name: Matching Headings
 skill: reading
-band_difficulty: high
-requires:                              # micro-skill cần có để làm dạng này (từ microskill-enum.md)
-  - R_skim_main_idea                   # hard mặc định nếu không ghi strength
+band_difficulty: high             # provisional LenBands routing heuristic
+calibration_status: provisional
+requires:
+  - R_skim_main_idea
   - id: R_paraphrase_recognition
-    strength: hard_prerequisite
-  - id: R_discourse_marker_tracking
     strength: recommended
 done_when:
-  accuracy_pct: 75                     # question type completion threshold
-  recent_mock_pass: true               # ≥1 mock test gần nhất pass dạng này
+  accuracy_pct: 75                # internal mastery rule, not an IELTS band rule
+  recent_mock_pass: true
 ```
 
-Quy ước: `requires` tham chiếu micro-skill id từ `microskill-enum.md`. Question type không depend trực tiếp vào question type khác (độ độc lập cao), chỉ depend qua micro-skill chung.
+`requires` references controlled micro-skill IDs. Missing calibration/provenance means the node may still be used as a stable authoring ID but must not claim calibrated difficulty.
 
-## Listening — 10 question types
+## Listening — 11 question types
 
-| id | Question type | Mô tả | Band range phổ biến |
+Public IELTS groups tasks into multiple choice, matching, plan/map/diagram labelling, form/note/table/flow-chart/summary completion, sentence completion, and short-answer questions. LenBands separates several layouts into finer controlled IDs:
+
+| id | LenBands question type | Public family | provisional difficulty note |
 |---|---|---|---|
-| `L_form_completion` | Form Completion | Điền form (tên, số, địa chỉ) | 3.0–6.0 (Section 1) |
-| `L_note_completion` | Note Completion | Điền note gap | 4.0–7.5 |
-| `L_table_completion` | Table Completion | Điền bảng | 4.5–7.0 |
-| `L_sentence_completion` | Sentence Completion | Điền cuối câu | 4.5–7.0 |
-| `L_flow_chart_completion` | Flow-chart Completion | Điền flow-chart (process steps) | 4.5–7.0 |
-| `L_map_plan_labelling` | Map / Plan Labelling | Nhãn bản đồ/mặt bằng (spatial) | 4.5–7.0 |
-| `L_diagram_labelling` | Diagram Labelling | Nhãn sơ đồ (object/process) | 5.0–7.0 |
-| `L_multiple_choice` | Multiple Choice (1 from 3, multi-select) | Chọn 1 hoặc nhiều | 4.5–8.5 |
-| `L_matching` | Matching | Khớp item | 5.5–8.5 |
-| `L_short_answer` | Short Answer | Trả lời ngắn | 4.5–7.5 |
+| `L_form_completion` | Form Completion | form/note/table/flow-chart/summary completion | often fact-focused |
+| `L_note_completion` | Note Completion | form/note/table/flow-chart/summary completion | context-dependent |
+| `L_table_completion` | Table Completion | form/note/table/flow-chart/summary completion | context-dependent |
+| `L_flow_chart_completion` | Flow-chart Completion | form/note/table/flow-chart/summary completion | process tracking may be relevant |
+| `L_summary_completion` | Summary Completion | form/note/table/flow-chart/summary completion | main-idea/detail integration may be relevant |
+| `L_sentence_completion` | Sentence Completion | sentence completion | context-dependent |
+| `L_map_plan_labelling` | Map / Plan Labelling | plan/map/diagram labelling | spatial tracking may be relevant |
+| `L_diagram_labelling` | Diagram Labelling | plan/map/diagram labelling | visual/part tracking may be relevant |
+| `L_multiple_choice` | Multiple Choice | multiple choice | varies by recording/item |
+| `L_matching` | Matching | matching | varies by recording/item |
+| `L_short_answer` | Short Answer | short-answer questions | context-dependent |
 
-Listening có 10 dạng controlled vocabulary (tách diagram/flow-chart/map vì cơ chế differ: map cần spatial follow, diagram cần part label, flow-chart cần process tracking). Đây là SSOT; `05-content.md` đồng bộ với enum này.
+Question counts are variable. Do not attach a fixed IELTS band to any type.
 
-Section khó tăng dần: S1 (easiest, social) → S4 (hardest, academic). Band difficulty signal qua section.
+## Reading — 16 LenBands question types
 
-## Reading — 16 question types (Academic + General Training shared vocabulary)
+Public IELTS Reading uses multiple choice, identifying information, identifying writer views/claims, matching information/headings/features/sentence endings, sentence completion, summary/note/table/flow-chart completion, diagram label completion, and short-answer questions. LenBands retains finer internal splits where useful:
 
-| id | Question type | Mô tả | Band difficulty |
+| id | Question type | Public task family | provisional difficulty note |
 |---|---|---|---|
-| `R_multiple_choice` | Multiple Choice (1 from 4) | Chọn đáp án | medium |
-| `R_multiple_choice_multi` | Multiple Choice (multi-select, choose 2+) | Chọn nhiều từ list | high |
-| `R_true_false_not_given` | True/False/Not Given | Phát biểu có đúng/sai/không có trong bài | medium |
-| `R_yes_no_not_given` | Yes/No/Not Given | Tác giả đồng ý/không/không rõ | medium-high (yếu paraphrase) |
-| `R_matching_headings` | Matching Headings | Tiêu đề cho đoạn | high (paraphrase + main idea) |
-| `R_matching_information_paragraph` | Matching Information (which paragraph) | Thông tin ở **đoạn nào** (paragraph-level) | high (scan + paraphrase, local) |
-| `R_matching_information_section` | Matching Information (which section) | Thông tin ở **phần nào** (section-level, nhóm đoạn) | high (global grouping, khó hơn paragraph) |
-| `R_matching_features` | Matching Features | Khớp đặc điểm (người/tên/lý thuyết) | high |
-| `R_matching_sentence_endings` | Matching Sentence Endings | Nối nửa câu | medium |
-| `R_sentence_completion` | Sentence Completion | Điền cuối câu | medium |
-| `R_summary_completion` | Summary Completion (with/without box) | Điền tóm tắt | medium-high |
-| `R_note_completion` | Note Completion | Điền note | medium |
-| `R_table_completion` | Table Completion | Điền bảng | medium |
-| `R_flow_chart_completion` | Flow-chart Completion | Điền flow-chart | medium |
-| `R_diagram_labelling` | Diagram Labelling | Nhãn sơ đồ | medium |
-| `R_short_answer` | Short Answer | Trả lời ngắn | medium |
+| `R_multiple_choice` | Multiple Choice (single answer) | multiple choice | varies |
+| `R_multiple_choice_multi` | Multiple Choice (multi-select) | multiple choice | varies |
+| `R_true_false_not_given` | True/False/Not Given | identifying information | evidence classification |
+| `R_yes_no_not_given` | Yes/No/Not Given | writer views/claims | stance classification |
+| `R_matching_headings` | Matching Headings | matching headings | main idea + paraphrase |
+| `R_matching_information_paragraph` | Matching Information — paragraph | matching information | local search/paraphrase |
+| `R_matching_information_section` | Matching Information — section | matching information | broader search scope |
+| `R_matching_features` | Matching Features | matching features | relationships/attribution |
+| `R_matching_sentence_endings` | Matching Sentence Endings | matching sentence endings | meaning/syntax fit |
+| `R_sentence_completion` | Sentence Completion | sentence completion | detail retrieval |
+| `R_summary_completion` | Summary Completion | summary/note/table/flow-chart completion | synthesis/detail |
+| `R_note_completion` | Note Completion | summary/note/table/flow-chart completion | detail/organisation |
+| `R_table_completion` | Table Completion | summary/note/table/flow-chart completion | categorical detail |
+| `R_flow_chart_completion` | Flow-chart Completion | summary/note/table/flow-chart completion | sequence/process |
+| `R_diagram_labelling` | Diagram Label Completion | diagram label completion | text↔visual mapping |
+| `R_short_answer` | Short Answer | short-answer questions | detail retrieval |
 
-**Ghi chú Academic vs General Training:** vocabulary giống nhau, khác passage (Academic: scholarly; GT: everyday/workplace). Xem `exam-module-differences.md`.
+Academic and General Training share broad task families; source-text style/content differs by module. See `exam-module-differences.md`.
 
-## Writing — task types
+## Writing — LenBands task taxonomy
 
 ### Academic
 
-| id | Task type | Band range | Mô tả |
+| id | Task type | routing band_range | Description |
 |---|---|---|---|
-| `W_ac_task1_chart` | Task 1 Academic — Chart/Graph | 5.0–9.0 | Mô tả biểu đồ (line/bar/pie) |
-| `W_ac_task1_table` | Task 1 Academic — Table | 5.0–9.0 | Mô tả bảng số liệu |
-| `W_ac_task1_process` | Task 1 Academic — Process | 5.5–9.0 | Mô tả quy trình |
-| `W_ac_task1_map` | Task 1 Academic — Map | 5.5–9.0 | So sánh bản đồ |
-| `W_ac_task1_diagram` | Task 1 Academic — Diagram/Object | 5.5–9.0 | Mô tả sơ đồ vật thể |
-| `W_task2_opinion` | Task 2 — Opinion | 5.0–9.0 | "Do you agree/disagree" |
-| `W_task2_discussion` | Task 2 — Discussion | 5.0–9.0 | "Discuss both views" |
-| `W_task2_advantages_disadvantages` | Task 2 — Advantages/Disadvantages | 5.0–9.0 | Outweigh / pros cons |
-| `W_task2_problem_solution` | Task 2 — Problem/Solution | 5.0–9.0 | Causes+solutions |
-| `W_task2_two_part` | Task 2 — Two-part question | 5.5–9.0 | 2 sub-questions |
+| `W_ac_task1_chart` | Task 1 Academic — Chart/Graph | 5.0–9.0 | visual data (chart/graph) |
+| `W_ac_task1_table` | Task 1 Academic — Table | 5.0–9.0 | tabular visual data |
+| `W_ac_task1_process` | Task 1 Academic — Process | 5.5–9.0 | process/procedure |
+| `W_ac_task1_map` | Task 1 Academic — Map | 5.5–9.0 | map/plan/change |
+| `W_ac_task1_diagram` | Task 1 Academic — Diagram/Object | 5.5–9.0 | object/event/sequence visual |
+| `W_task2_opinion` | Task 2 — Opinion | 5.0–9.0 | position/extent question |
+| `W_task2_discussion` | Task 2 — Discussion | 5.0–9.0 | views/discussion |
+| `W_task2_advantages_disadvantages` | Task 2 — Advantages/Disadvantages | 5.0–9.0 | benefits/drawbacks/weighing |
+| `W_task2_problem_solution` | Task 2 — Problem/Solution | 5.0–9.0 | cause/problem/response |
+| `W_task2_two_part` | Task 2 — Two-part | 5.5–9.0 | two explicit questions |
 
 ### General Training
 
-| id | Task type | Band range | Mô tả |
+| id | Task type | routing band_range | Description |
 |---|---|---|---|
-| `W_gt_task1_formal_letter` | Task 1 GT — Formal Letter | 5.0–9.0 | Formal complaint/request |
-| `W_gt_task1_semi_formal_letter` | Task 1 GT — Semi-formal Letter | 5.0–9.0 | Người quen, context formal |
-| `W_gt_task1_informal_letter` | Task 1 GT — Informal Letter | 5.0–9.0 | Bạn bè |
-| `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part` | Task 2 GT — (giống Academic Task 2) | 5.0–9.0 | (xem Academic) |
+| `W_gt_task1_formal_letter` | Task 1 GT — Formal Letter | 5.0–9.0 | formal situation/register |
+| `W_gt_task1_semi_formal_letter` | Task 1 GT — Semi-formal Letter | 5.0–9.0 | known recipient, non-intimate context |
+| `W_gt_task1_informal_letter` | Task 1 GT — Informal Letter | 5.0–9.0 | personal/familiar context |
+| `W_task2_opinion`, `W_task2_discussion`, `W_task2_advantages_disadvantages`, `W_task2_problem_solution`, `W_task2_two_part` | Task 2 authoring categories | 5.0–9.0 | shared internal Task 2 taxonomy |
+
+These `band_range` values are authoring/routing metadata only until calibrated; they are not claims that a task type belongs to one IELTS band.
 
 ## Speaking — parts
 
-| id | Part | Band range | Mô tả | Duration |
+| id | Part | routing band_range | Description | official-derived duration |
 |---|---|---|---|---|
-| `S_part1_interview` | Part 1 — Interview | 4.0–9.0 | Q&A cá nhân + topic quen (home/work/study, family) | 4-5 min |
-| `S_part2_long_turn` | Part 2 — Long Turn (Cue Card) | 4.5–9.0 | Monologue 1-2 min theo cue card | 3-4 min (1 prep + 2 nói) |
-| `S_part3_discussion` | Part 3 — Discussion | 5.5–9.0 | Q&A trừu tượng liên quan Part 2 | 4-5 min |
+| `S_part1_interview` | Part 1 — Introduction/interview | 4.0–9.0 | familiar/general questions | 4–5 min |
+| `S_part2_long_turn` | Part 2 — Long Turn | 4.5–9.0 | task card + preparation + long turn | 3–4 min total |
+| `S_part3_discussion` | Part 3 — Discussion | 5.5–9.0 | more general/abstract discussion related to Part 2 | 4–5 min |
 
-Part 3 khó nhất — yêu cầu abstract reasoning, paraphrase sâu.
+Part-level `routing band_range` is LenBands metadata. IELTS awards one Speaking band from performance across the test, not separate bands by part.
 
-## Pronunciation — không có "question type" riêng
+## Pronunciation — diagnostic units, not question types
 
-Pronunciation là criterion của Speaking (PR) nhưng được tách thành domain `EVAL.Pronunciation` vì cơ chế feedback khác. Đơn vị đánh giá:
-
-| id | Đơn vị | Mô tả |
+| id | Unit | Description |
 |---|---|---|
-| `P_phoneme` | Phoneme | Âm vị (vd /θ/, /ð/) |
-| `P_word_stress` | Word Stress | Trọng âm từ (vd phoTOgrapher) |
-| `P_sentence_stress` | Sentence Stress | Trọng âm câu (content vs function words) |
-| `P_intonation` | Intonation | Ngữ điệu (rising/falling) |
-| `P_linking` | Connected speech | Linking, elision, assimilation |
+| `P_phoneme` | Phoneme | selected segmental feature |
+| `P_word_stress` | Word Stress | lexical stress/prominence |
+| `P_sentence_stress` | Sentence Stress | utterance prominence |
+| `P_intonation` | Intonation | pitch/prominence contour |
+| `P_linking` | Connected speech | linking/reduction diagnostics |
 
-## Band difficulty (chung cho L/R)
+## Difficulty metadata boundary
 
-IELTS không gắn band vào từng question type — difficulty đến từ **paraphrase depth**, **abstract reasoning**, **synonym density**. Nguyên tắc:
+Difficulty depends on the actual stimulus/item, language, distractors, inference load, task demands, and learner population. Labels such as `low | medium | high` or a numeric/band range may be used only as provisional authoring metadata until calibrated.
 
-| Difficulty signal | Tăng band target cần |
-|---|---|
-| Keyword match (trùng từ) | 3.0–5.0 |
-| Synonym paraphrase (1 bước) | 5.0–6.0 |
-| Complex paraphrase (2+ bước, cả câu) | 6.5–7.5 |
-| Abstract/inference (ý ngụ ý, không nói thẳng) | 7.5–9.0 |
+Historical rules such as "keyword match = Band 3–5" or "abstract inference = Band 7.5–9" are not official IELTS rules and must not be used as score conversions.
 
-Difficulty signal này là `difficulty_signals` trong `learning_design_profile` (05-content.md) và feed `PRACTICE.Adaptive`.
+## Usage
+
+- Content uses only controlled IDs from this file.
+- `PRACTICE.Adaptive` may use provisional difficulty metadata conservatively; calibrated routing requires evidence.
+- `BAND.Map` may show task-family exposure/performance but must not map question-type identity directly to a band.
+- Official score calculation remains in the governed assessment/scoring contracts.
 
 ## Versioning
 
-- Current release: `1.0.6`; the frontmatter is authoritative for the file version.
+- Current release: `1.1.0`; the frontmatter is authoritative for the file version.
+- `version: 1.0.3` — corrected earlier Listening/Reading inventory counts.
+- `version: 1.0.6` — normalized the per-file release record; controlled IDs were unchanged.
+- `version: 1.1.0` — added missing `L_summary_completion`, mapped LenBands IDs to public IELTS task families, and reclassified task-band/difficulty labels as provisional internal metadata.
+- New controlled question/task ID: minor bump.
+- Description/heuristic correction without ID change: patch.
+- Removal: deprecate rather than silently delete.
 
-- `version: 1.0.3` — corrected Listening/Reading inventory counts to match the enumerated nodes.
-- `version: 1.0.6` — normalized the per-file release record; question-type enums are unchanged.
+## Do not infer
 
-## Không tự suy luận
-
-Nếu một question type không nằm ở bảng trên, agent phải báo `unknown_question_type` chứ không tự đặt tên. Thêm dạng mới (rare) phải qua Colab review + cập nhật version file này.
+- Unknown type → `unknown_question_type`.
+- Do not claim a task type has an official IELTS band.
+- Do not infer item difficulty from question-type identity alone.
+- Do not create a new internal split/ID without review and downstream coverage update.
