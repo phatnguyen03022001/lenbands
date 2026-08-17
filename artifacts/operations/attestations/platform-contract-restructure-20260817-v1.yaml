@@ -1,0 +1,38 @@
+schema_version: 1.0.0
+change_id: platform-contract-restructure-20260817-v1
+change_scope: restructure-document-control-plane-buy-first-platform-bops-canonical-five-persona-web-api-and-red-team-boundaries
+authority_boundaries_changed: true
+protected_changes_reviewed: true
+validators_weakened: false
+evidence_modified: false
+readiness_claimed: false
+commands_run:
+  - tools/bin/lenbands doctor
+  - tools/bin/lenbands verify
+  - tools/bin/lenbands gate toolchain
+external_review_required: true
+approval_ref: user-founder-authorized-platform-restructure-and-agent-team-audit-20260817
+verification_evidence:
+  workflow: LenBands Toolchain Trust
+  prior_verified_head: 2968e92c8a517b375f96524433e4fb7a6de385ce
+  prior_run_id: 31988340443
+  prior_result:
+    doctor: passed
+    verify: passed
+    gate_toolchain: passed
+    build_change_set: passed
+    protected_attestation_gate: expected_failure_missing_attestation
+  same_head_required_before_merge: true
+notes:
+  - The restructure is isolated in layered Draft PR 2 targeting docs/english-blueprint-artifacts rather than main.
+  - DOCS.yaml introduces stable document IDs and one semantic owner per concern; legacy paths are aliases or historical inputs, not parallel authorities.
+  - Product architecture changes from service-first Go/Python/Redis defaults to a provider-neutral modular buy-first application boundary. No runtime source was unlocked or implemented.
+  - Current sourcing candidates consolidate commodity web/runtime/workflow/model-gateway duties and managed Postgres/Auth/Storage duties; provider activation still requires procurement, privacy, cost, security and exit review.
+  - The canonical web API now covers guest, learner, premium_learner, colab and admin personas. Premium remains a learner entitlement, not a separate security role.
+  - BOPS is split into a machine-readable control contract and an explicit red-team interference/threat model.
+  - A new canonical-web-api validator is additive. Legacy OpenAPI/capability-pack validators remain active during migration; no validator or evidence invariant was disabled.
+  - Scoring fallback is fail-closed outside benchmark-approved model/provider combinations for a scorer-route version.
+  - Raw account, learning, assessment and security data are excluded from general analytics; elevated managed-database credentials remain server-only and do not replace application authorization.
+  - The prior bootstrap run intentionally omitted this attestation so the verification commands could be recorded from real CI evidence rather than predeclared.
+  - This record makes no claim that P0, scorer calibration, procurement, provider activation or production readiness is complete.
+  - Same-head CI must pass again after this attestation and after any further protected cleanup before merge.
