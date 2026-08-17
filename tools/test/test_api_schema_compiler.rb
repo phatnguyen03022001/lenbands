@@ -38,7 +38,11 @@ class ApiSchemaCompilerTest < Minitest::Test
           "post" => {
             "operationId" => "createThing",
             "requestBody" => {"$ref" => "#/components/requestBodies/JsonObject"},
-            "responses" => {"201" => {"$ref" => "#/components/responses/ObjectCreated"}}
+            "responses" => {
+              "201" => {"$ref" => "#/components/responses/ObjectCreated"},
+              "202" => {"$ref" => "#/components/responses/ObjectAccepted"},
+              "204" => {"description" => "done"}
+            }
           }
         }
       },
@@ -49,21 +53,27 @@ class ApiSchemaCompilerTest < Minitest::Test
           "Problem" => {"type" => "object", "properties" => {"code" => {"type" => "string"}}}
         },
         "requestBodies" => {"JsonObject" => {"required" => true}},
-        "responses" => {"ObjectCreated" => {"description" => "generic"}}
+        "responses" => {
+          "ObjectCreated" => {"description" => "generic"},
+          "ObjectAccepted" => {"description" => "generic"}
+        }
       }
     }
   end
 
-  def test_resolves_generic_transport_to_exact_schemas_and_policy
+  def test_resolves_every_success_transport_to_exact_schema_and_policy
     resolved, errors = Lenbands::ApiSchemaCompiler.resolve_openapi(openapi: openapi, schema_contract: schema_contract, type_system: type_system)
     assert_empty errors
     assert_empty Lenbands::ApiSchemaCompiler.validate_resolved(openapi: resolved, schema_contract: schema_contract, type_system: type_system)
     operation = resolved.dig("paths", "/things", "post")
     assert_equal "#/components/schemas/ThingInput", operation.dig("requestBody", "content", "application/json", "schema", "$ref")
     assert_equal "#/components/schemas/Thing", operation.dig("responses", "201", "content", "application/json", "schema", "$ref")
+    assert_equal "#/components/schemas/Thing", operation.dig("responses", "202", "content", "application/json", "schema", "$ref")
+    refute operation.dig("responses", "204").key?("content")
     assert_equal({"type" => "string", "minLength" => 16, "maxLength" => 128}, resolved.dig("components", "parameters", "IdempotencyKey", "schema"))
     assert_equal %w[CONTENT_UNAVAILABLE], resolved.dig("components", "schemas", "Problem", "properties", "code", "enum")
     refute resolved.dig("components", "schemas").key?("JsonObject")
+    refute resolved.dig("components", "responses").key?("ObjectAccepted")
   end
 
   def test_unknown_type_token_fails_closed
