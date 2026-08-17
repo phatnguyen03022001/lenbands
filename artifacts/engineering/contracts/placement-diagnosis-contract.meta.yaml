@@ -1,6 +1,6 @@
 type: placement-diagnosis-contract
 status: review
-version: 0.2.0
+version: 0.3.0
 owner: engineering
 representation: markdown
 derived_from:
@@ -15,7 +15,31 @@ derived_from:
 purpose: p0-diagnosis-runtime-contract
 created_at: 2026-08-07
 updated_at: 2026-08-17
+decision_units:
+  - unit_id: placement.item_selection
+    capability_ids: [PLACE.Test]
+    purpose: select the next P0 placement item from the published deterministic blueprint
+  - unit_id: placement.response_fact_scoring
+    capability_ids: [PLACE.Test, PLACE.SkillDiagnosis]
+    purpose: normalize and score objective response facts under the published placement configuration
+  - unit_id: placement.termination
+    capability_ids: [PLACE.Test]
+    purpose: apply coverage burden and evidence stopping rules
+  - unit_id: placement.band_estimate
+    capability_ids: [PLACE.BandEstimation, BAND.Current]
+    purpose: derive the bounded provisional diagnostic estimate from valid placement evidence
+  - unit_id: placement.gap_derivation
+    capability_ids: [PLACE.GapDetection]
+    purpose: derive explicit gaps from persisted estimate evidence and target requirements
+  - unit_id: placement.initial_path_selection
+    capability_ids: [PLACE.InitialPath]
+    purpose: select an initial path from persisted goal gap and valid configuration facts
 change_log:
+  - version: 0.3.0
+    date: 2026-08-17
+    changes:
+      - Added stable decision-unit identities for deterministic P0 placement computation.
+      - Kept future adaptive/statistical placement outside P0 until calibration evidence supports a compute-mode change.
   - version: 0.2.0
     date: 2026-08-17
     changes:
