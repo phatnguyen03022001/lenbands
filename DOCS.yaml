@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 repository: phatnguyen03022001/lenbands
 purpose: agent-readable document control plane
 rule: Read this registry before opening deep documents. A path not registered as canonical must not override a canonical document.
@@ -108,6 +108,14 @@ authority:
     document_id: review-remediation-dispositions
     path: artifacts/operations/review-remediation-dispositions.yaml
     owns: [unmapped_error_remediation, deprecated_error_generation_policy, microskill_resolution]
+  change_governance:
+    document_id: candidate-change-governance
+    path: artifacts/operations/change-governance.yaml
+    owns: [candidate_declaration, exact_candidate_proof, external_authorization_binding, main_ref_update_policy]
+  hosting_control_state:
+    document_id: github-hosting-control-state
+    path: artifacts/operations/hosting-control-state.yaml
+    owns: [observed_github_enforcement_state, external_control_evidence_status]
   documentation_architecture:
     document_id: documentation-architecture
     path: artifacts/operations/documentation-architecture.yaml
@@ -120,7 +128,7 @@ authority:
   trust_policy:
     document_id: agent-trust-policy
     path: artifacts/operations/agent-trust-policy.yaml
-    owns: [protected_paths, attestations, independent_review]
+    owns: [agent_permissions, protected_paths, sandbox_policy, source_mutation_guard]
 
 legacy_aliases:
   artifacts/engineering/contracts/openapi.yaml:
@@ -141,7 +149,7 @@ legacy_aliases:
   artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
-  artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md:
+  artifacts/engineering/contracts/runtime/cloud-topology-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
   artifacts/operations/bops-contract-pack.md:
@@ -164,4 +172,6 @@ agent_rules:
   - Follow legacy aliases only for migration and traceability, never to select a second source of truth.
   - Stable product identities are capability IDs, framework node IDs, document_ids, operationIds and implementation family IDs; paths are replaceable.
   - Generated resolved OpenAPI is a deterministic build projection and never a semantic SSOT.
+  - Repository policy is not evidence of external GitHub enforcement; use hosting_control_state for observed host controls.
+  - Candidate declarations describe a candidate but cannot authorize or verify themselves; use change_governance for the proof boundary.
   - If two canonical entries appear to own the same semantic field, stop and report authority_collision.
