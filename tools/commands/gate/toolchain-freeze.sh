@@ -11,6 +11,8 @@ tools/commands/validate/trust-boundary.rb
 tools/commands/validate/contract-ownership.rb
 tools/commands/validate/platform-boundary.rb
 tools/commands/validate/domain-automation.rb
+ruby tools/commands/validate/implementation-eligibility.rb
+ruby tools/commands/validate/compute-boundary.rb
 tools/commands/generate/all.sh --check
 tools/commands/validate/documents.rb
 tools/commands/validate/implementation-catalog.sh
