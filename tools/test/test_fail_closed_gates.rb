@@ -17,6 +17,12 @@ errors << "agent context command failed" unless status.success?
 begin
   context = YAML.safe_load(stdout, aliases: false)
   errors << "agent context omitted protected paths" unless Array(context["protected_paths"]).any?
+  errors << "agent context omitted compute execution projection" unless context["decision_policy_projection"] == "artifacts/operations/execution-policy.yaml"
+  hard_rules = Array(context["hard_rules"])
+  errors << "agent context lost execution-policy projection boundary" unless hard_rules.any? { |rule| rule.include?("may not invent capabilities, decision units or canonical semantics") }
+  errors << "agent context lost lowest-sufficient-compute rule" unless hard_rules.any? { |rule| rule.include?("lowest sufficient compute mode") }
+  errors << "agent context lost candidate-inference acceptance boundary" unless hard_rules.any? { |rule| rule.include?("probabilistic output is candidate inference") }
+  errors << "agent context lost non-authoritative presentation boundary" unless hard_rules.any? { |rule| rule.include?("generated presentation is non-authoritative") }
 rescue StandardError => e
   errors << "agent context is not valid YAML: #{e.message}"
 end
@@ -36,7 +42,15 @@ Tempfile.create("lenbands-protected-diff") do |file|
   file.write("M\ttools/toolchain.yaml\n")
   file.flush
   _stdout, _stderr, status = run.call("tools/bin/lenbands", "validate", "trust-boundary", "--diff", file.path)
-  errors << "protected change accepted without attestation" if status.success?
+  errors << "protected change accepted without candidate declaration" if status.success?
+end
+
+Tempfile.create("lenbands-compute-policy-diff") do |file|
+  file.write("M\tartifacts/operations/execution-policy.yaml\n")
+  file.flush
+  _stdout, stderr, status = run.call("tools/bin/lenbands", "validate", "trust-boundary", "--diff", file.path)
+  errors << "compute execution policy accepted as an unprotected change" if status.success?
+  errors << "compute policy protected-change failure reason missing" unless stderr.include?("protected") || stderr.include?("declaration")
 end
 
 Tempfile.create("lenbands-immutable-diff") do |file|
@@ -49,7 +63,7 @@ end
 
 Tempfile.create("lenbands-attested-diff") do |file|
   file.write("M\ttools/toolchain.yaml\n")
-  file.write("A\tartifacts/operations/attestations/godlevel-convergence-20260817-candidate.yaml\n")
+  file.write("A\tartifacts/operations/attestations/compute-boundary-refactor-20260817-candidate.yaml\n")
   file.flush
   stdout, stderr, status = run.call("tools/bin/lenbands", "validate", "trust-boundary", "--diff", file.path)
   errors << "valid candidate declaration rejected: #{stdout}#{stderr}" unless status.success?
