@@ -1,6 +1,6 @@
 type: execution-policy-projection
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: engineering + product + operations
 representation: yaml
 derived_from:
@@ -29,6 +29,12 @@ artifact_id: execution-policy-projection
 created_at: 2026-08-17
 updated_at: 2026-08-17
 change_log:
+  - version: 1.1.0
+    date: 2026-08-17
+    changes:
+      - Separated design sufficiency from empirical outcome/calibration/readiness evidence.
+      - Added product outcome, quality, latency, cost, privacy and reliability as required compute-selection dimensions.
+      - Prevented design-level compute decisions from claiming empirical validity or release readiness.
   - version: 1.0.0
     date: 2026-08-17
     changes:
