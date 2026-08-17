@@ -1,9 +1,9 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 status: review
 source_of_truth: false
 authority_class: projection
 projection_id: compute-execution-policy
-purpose: project the lowest sufficient compute mode for canonical decision units without owning capability or domain semantics
+purpose: project the lowest sufficient compute mode for exact canonical decision units without owning capability or domain semantics
 
 architecture_principles:
   - domain_contracts_own_canonical_semantics_and_decisions
@@ -19,7 +19,10 @@ selection_order: [deterministic, statistical_optimization, specialized_model_api
 
 sufficiency_evaluation:
   required_dimensions: [product_outcome, quality, latency, cost, privacy, reliability]
-  rule: select the lowest compute mode that can satisfy all required dimensions for the declared decision contract
+  unit_specific_dimensions: [product_outcome, quality]
+  profile_bound_dimensions: [latency, cost, privacy, reliability]
+  rule: select the lowest compute mode that satisfies every required dimension for the exact decision unit
+  profile_binding_rule: every Tier-A decision policy must bind exactly one compatible sufficiency_profile; the profile supplies cross-cutting design constraints and never capability semantics
   evidence_levels:
     design:
       meaning: contract_and_architecture_evidence_sufficient_to_select_a_candidate_compute_boundary
@@ -31,15 +34,26 @@ sufficiency_evaluation:
       meaning: measured_acceptance_benchmark_or_runtime_evidence_bound_by_evidence_integrity
       requires_evidence_integrity: true
       requires_bound_run_or_measurement_refs: true
-  constraint_authorities:
-    product_outcome: canonical_domain_owner_and_vertical_slice
-    quality: canonical_domain_owner_plus_quality_or_evaluation_contract
-    latency: artifacts/engineering/contracts/runtime/observability-slo-contract.md
-    cost: artifacts/engineering/runtime/quality-economics-runtime.md
-    privacy: artifacts/operations/bops/contract.yaml
-    reliability: artifacts/engineering/runtime-contract.yaml
   design_evidence_authorizes: compute_boundary_for_candidate_implementation_only
   empirical_evidence_required_for: [product_outcome_claim, calibration_claim, readiness_promotion, release_approval]
+
+sufficiency_profiles:
+  p0_deterministic_domain:
+    evidence_level: design
+    applies_to_modes: [deterministic]
+    dimensions:
+      latency: {authority_ref: artifacts/engineering/contracts/runtime/observability-slo-contract.md, disposition: governed_by_runtime_slo_without_model_network_dependency}
+      cost: {authority_ref: artifacts/engineering/runtime/quality-economics-runtime.md, disposition: deterministic_or_managed_compute_cost_governed_without_model_escalation}
+      privacy: {authority_ref: artifacts/operations/bops/contract.yaml, disposition: no_probabilistic_transfer_required_for_the_decision}
+      reliability: {authority_ref: artifacts/engineering/runtime-contract.yaml, disposition: deterministic_domain_state_and_idempotency_rules_remain_authoritative}
+  p0_writing_semantic_inference:
+    evidence_level: design
+    applies_to_modes: [generative_model]
+    dimensions:
+      latency: {authority_ref: artifacts/engineering/contracts/runtime/observability-slo-contract.md, disposition: bounded_async_evaluation_route_with_delayed_or_unavailable_recovery}
+      cost: {authority_ref: artifacts/operations/cost-budget.md, disposition: bounded_provider_attempt_and_founder_approved_cost_gate_required}
+      privacy: {authority_ref: artifacts/operations/bops/contract.yaml, disposition: minimum_assessment_payload_only_with_provider_control_and_no_general_telemetry_copy}
+      reliability: {authority_ref: artifacts/engineering/runtime-contract.yaml, disposition: provider_failure_cannot_change_score_semantics_and_unapproved_fallback_is_forbidden}
 
 projection_rules:
   policy_may_not_create_capabilities: true
@@ -49,34 +63,22 @@ projection_rules:
   canonical_semantics_remain_in_domain_owner: true
   model_output_is_candidate_inference_only: true
   canonical_state_mutation_requires_deterministic_domain_decision: true
-  higher_compute_mode_requires_lower_mode_insufficiency_evidence: true
+  higher_compute_mode_requires_exact_lower_mode_insufficiency_evidence: true
   future_defaults_do_not_authorize_implementation: true
   design_sufficiency_may_not_claim_empirical_validity: true
+  presentation_uses_deterministic_compute_in_p0: true
 
 canonical_unit_sources:
-  - meta_ref: artifacts/engineering/contracts/daily-action-contract.meta.yaml
-    contract_version: 0.3.0
-  - meta_ref: artifacts/engineering/contracts/placement-diagnosis-contract.meta.yaml
-    contract_version: 0.3.0
-  - meta_ref: artifacts/engineering/contracts/evaluation/evaluation-contract.meta.yaml
-    contract_version: 0.3.0
-  - meta_ref: artifacts/engineering/contracts/error-to-review/data-contract.meta.yaml
-    contract_version: 0.3.0
-  - meta_ref: artifacts/engineering/runtime/quality-economics-runtime.meta.yaml
-    contract_version: 0.2.0
+  - {meta_ref: artifacts/engineering/contracts/daily-action-contract.meta.yaml, contract_version: 0.3.0}
+  - {meta_ref: artifacts/engineering/contracts/placement-diagnosis-contract.meta.yaml, contract_version: 0.3.0}
+  - {meta_ref: artifacts/engineering/contracts/evaluation/evaluation-contract.meta.yaml, contract_version: 0.3.0}
+  - {meta_ref: artifacts/engineering/contracts/error-to-review/data-contract.meta.yaml, contract_version: 0.3.0}
+  - {meta_ref: artifacts/engineering/runtime/quality-economics-runtime.meta.yaml, contract_version: 0.2.0}
 
 tiering:
-  A:
-    meaning: active_or_p0_executable
-    requires_full_decision_policy: true
-    requires_sufficiency_evidence: true
-  B:
-    meaning: near_horizon_before_implementation
-    requires_full_decision_policy_before_authorization: true
-    requires_sufficiency_evidence_before_authorization: true
-  C:
-    meaning: future_catalog
-    coarse_disposition_only: true
+  A: {meaning: active_or_p0_executable, requires_full_decision_policy: true, requires_sufficiency_evidence: true}
+  B: {meaning: near_horizon_before_implementation, requires_full_decision_policy_before_authorization: true, requires_sufficiency_evidence_before_authorization: true}
+  C: {meaning: future_catalog, coarse_disposition_only: true}
 
 forbidden_probabilistic_decision_classes:
   - authentication
@@ -104,7 +106,7 @@ decision_policies:
     decision_aggregator: deterministic_domain_rule
     presentation_generator: none
     state_mutation_authority: daily_action_domain
-    sufficiency: {evidence_level: design, outcome_contract: assemble auditable learner-owned inputs for a daily plan, quality_requirement: identical versioned facts yield identical eligible inputs, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: assemble auditable learner-owned inputs for a daily plan, quality_requirement: identical versioned facts yield identical eligible inputs, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PERSONAL.NextBestAction
     unit_id: daily_action.weakness_eligibility
@@ -118,7 +120,7 @@ decision_policies:
     decision_aggregator: deterministic_domain_rule
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: decide whether independent evidence supports weakness routing, quality_requirement: duplicate or revealed evidence cannot create a false weakness signal, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: decide whether independent evidence supports weakness routing, quality_requirement: duplicate or revealed evidence cannot create a false weakness signal, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PERSONAL.NextBestAction
     unit_id: daily_action.priority_ranking
@@ -132,7 +134,7 @@ decision_policies:
     decision_aggregator: deterministic_priority_policy
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: rank eligible actions under goal review weakness coverage and overload constraints, quality_requirement: ranking is reason-coded versioned and reproducible, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: rank eligible actions under goal review weakness coverage and overload constraints, quality_requirement: ranking is reason-coded versioned and reproducible, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PERSONAL.NextBestAction
     unit_id: daily_action.action_selection
@@ -146,7 +148,7 @@ decision_policies:
     decision_aggregator: deterministic_selection_policy
     presentation_generator: none
     state_mutation_authority: daily_action_domain
-    sufficiency: {evidence_level: design, outcome_contract: select one useful next action or a bounded fallback set, quality_requirement: selection has controlled reasons and a safe deterministic fallback, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md, artifacts/engineering/runtime/daily-action-runtime.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: select one useful next action or a bounded fallback set, quality_requirement: selection has controlled reasons and a safe deterministic fallback, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md, artifacts/engineering/runtime/daily-action-runtime.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PERSONAL.NextBestAction
     unit_id: daily_action.reason_fact
@@ -160,7 +162,7 @@ decision_policies:
     decision_aggregator: deterministic_domain_rule
     presentation_generator: none
     state_mutation_authority: daily_action_domain
-    sufficiency: {evidence_level: design, outcome_contract: explain the selected action with stable reason facts, quality_requirement: reason code and evidence refs are auditable and cannot be rewritten by presentation, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: explain the selected action with stable reason facts, quality_requirement: reason code and evidence refs are auditable and cannot be rewritten by presentation, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: STUDY.DailyPlan
     unit_id: daily_action.presentation_wording
@@ -175,7 +177,7 @@ decision_policies:
     presentation_generator: deterministic_template
     state_mutation_authority: none
     presentation_only: true
-    sufficiency: {evidence_level: design, outcome_contract: render a concise learner-facing reason for the P0 action, quality_requirement: wording failure cannot change or invalidate the selected action, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: render a concise learner-facing reason for the P0 action, quality_requirement: wording failure cannot change or invalidate the selected action, evidence_refs: [artifacts/engineering/contracts/daily-action-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.Test
     unit_id: placement.item_selection
@@ -189,7 +191,7 @@ decision_policies:
     decision_aggregator: deterministic_blueprint_rule
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: select P0 placement items from a published bounded blueprint, quality_requirement: fixed or rule-based selection is auditable and does not claim CAT precision, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: select P0 placement items from a published bounded blueprint, quality_requirement: fixed or rule-based selection is auditable and does not claim CAT precision, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.SkillDiagnosis
     unit_id: placement.response_fact_scoring
@@ -203,7 +205,7 @@ decision_policies:
     decision_aggregator: deterministic_scoring_rule
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: derive objective response facts under the published placement configuration, quality_requirement: known-key or configured scoring is reproducible and versioned, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: derive objective response facts under the published placement configuration, quality_requirement: known-key or configured scoring is reproducible and versioned, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.Test
     unit_id: placement.termination
@@ -217,7 +219,7 @@ decision_policies:
     decision_aggregator: deterministic_stopping_policy
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: terminate with an explicit evidence or burden reason, quality_requirement: max burden never fabricates a numeric estimate, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: terminate with an explicit evidence or burden reason, quality_requirement: max burden never fabricates a numeric estimate, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.BandEstimation
     unit_id: placement.band_estimate
@@ -231,7 +233,7 @@ decision_policies:
     decision_aggregator: versioned_diagnostic_mapping
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: produce only the bounded provisional diagnostic estimate supported by P0 evidence, quality_requirement: missing coverage returns null or narrower scope rather than invented precision, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: produce only the bounded provisional diagnostic estimate supported by P0 evidence, quality_requirement: missing coverage returns null or narrower scope rather than invented precision, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.GapDetection
     unit_id: placement.gap_derivation
@@ -245,7 +247,7 @@ decision_policies:
     decision_aggregator: deterministic_gap_mapping
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: derive explicit target gaps from canonical evidence and requirements, quality_requirement: no gap is inferred when required source facts are missing, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: derive explicit target gaps from canonical evidence and requirements, quality_requirement: no gap is inferred when required source facts are missing, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PLACE.InitialPath
     unit_id: placement.initial_path_selection
@@ -259,7 +261,7 @@ decision_policies:
     decision_aggregator: deterministic_path_policy
     presentation_generator: none
     state_mutation_authority: placement_domain
-    sufficiency: {evidence_level: design, outcome_contract: select an initial path from valid goal and gap facts, quality_requirement: missing facts block path inference instead of opening a model route, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: select an initial path from valid goal and gap facts, quality_requirement: missing facts block path inference instead of opening a model route, evidence_refs: [artifacts/engineering/contracts/placement-diagnosis-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: EVAL.Writing
     unit_id: evaluation.submission_preflight
@@ -273,7 +275,7 @@ decision_policies:
     decision_aggregator: deterministic_preflight_policy
     presentation_generator: none
     state_mutation_authority: evaluation_domain
-    sufficiency: {evidence_level: design, outcome_contract: validate authorization entitlement submission scope idempotency and route eligibility, quality_requirement: invalid preflight never reaches a model provider, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: validate authorization entitlement submission scope idempotency and route eligibility, quality_requirement: invalid preflight never reaches a model provider, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: EVAL.Writing
     unit_id: evaluation.semantic_inference
@@ -291,10 +293,14 @@ decision_policies:
     provenance_required: [rubric_version, task_version, prompt_template_hash, model_route_version, model_version, assessment_mode, evidence_refs, confidence_state]
     sufficiency:
       evidence_level: design
+      constraint_profile: p0_writing_semantic_inference
       outcome_contract: interpret free-form Writing evidence against rubric constructs and propose typed criterion findings
       quality_requirement: inference preserves evidence references scope and rubric identity and remains unpromoted without benchmark evidence
       evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md]
-      lower_mode_rejection: deterministic and statistical-only computation cannot perform the required open-ended rubric-linked semantic interpretation
+      lower_mode_rejections:
+        deterministic: closed rules cannot perform the required open-ended rubric-linked interpretation of arbitrary learner prose while preserving evidence-linked candidate findings
+        statistical_optimization: estimators and optimizers over predefined numeric features cannot satisfy the full evidence-linked cross-criterion semantic interpretation contract
+        specialized_model_api: no approved specialist boundary currently demonstrates coverage of the full Writing Task 2 rubric-linked semantic inference contract; a future validated specialist would require a governed downward compute-mode change
       empirical_validation_required: true
       verdict: design_selected_mode_requires_empirical_validation
 
@@ -310,7 +316,7 @@ decision_policies:
     decision_aggregator: deterministic_reference_validator
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: prove candidate evidence refs resolve to the immutable submitted task snapshot, quality_requirement: unresolved or out-of-scope evidence cannot enter a canonical evaluation, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: prove candidate evidence refs resolve to the immutable submitted task snapshot, quality_requirement: unresolved or out-of-scope evidence cannot enter a canonical evaluation, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: COACH.ErrorAnalysis
     unit_id: evaluation.taxonomy_resolution
@@ -324,7 +330,7 @@ decision_policies:
     decision_aggregator: controlled_taxonomy_resolution
     presentation_generator: none
     state_mutation_authority: evaluation_domain
-    sufficiency: {evidence_level: design, outcome_contract: accept only controlled error identities supported by validated candidate evidence, quality_requirement: models cannot invent canonical taxonomy IDs, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, blueprint/framework/error-taxonomy.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: accept only controlled error identities supported by validated candidate evidence, quality_requirement: models cannot invent canonical taxonomy IDs, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, blueprint/framework/error-taxonomy.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: EVAL.Writing
     unit_id: evaluation.criterion_validation
@@ -338,7 +344,7 @@ decision_policies:
     decision_aggregator: rubric_scope_and_schema_validator
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: validate criterion candidates against canonical rubric scope and schema, quality_requirement: schema or evidence failure becomes invalid or insufficient_evidence rather than best-effort scoring, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: validate criterion candidates against canonical rubric scope and schema, quality_requirement: schema or evidence failure becomes invalid or insufficient_evidence rather than best-effort scoring, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: EVAL.Writing
     unit_id: evaluation.score_aggregation
@@ -352,7 +358,7 @@ decision_policies:
     decision_aggregator: canonical_task_score_rule
     presentation_generator: none
     state_mutation_authority: evaluation_domain
-    sufficiency: {evidence_level: design, outcome_contract: aggregate validated criterion results into a task-scoped diagnostic estimate, quality_requirement: model output cannot redefine weighting score scope or score identity, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: aggregate validated criterion results into a task-scoped diagnostic estimate, quality_requirement: model output cannot redefine weighting score scope or score identity, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: EVAL.Writing
     unit_id: evaluation.quality_state_decision
@@ -366,7 +372,7 @@ decision_policies:
     decision_aggregator: versioned_quality_policy
     presentation_generator: none
     state_mutation_authority: evaluation_domain
-    sufficiency: {evidence_level: design, outcome_contract: decide accepted low_confidence insufficient_evidence or invalid, quality_requirement: probabilistic confidence cannot self-promote a result into canonical accepted state, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: decide accepted low_confidence insufficient_evidence or invalid, quality_requirement: probabilistic confidence cannot self-promote a result into canonical accepted state, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: COACH.Feedback
     unit_id: evaluation.feedback_priority
@@ -380,31 +386,22 @@ decision_policies:
     decision_aggregator: deterministic_feedback_priority
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: rank accepted findings and next actions without another semantic inference call, quality_requirement: priority is reproducible from canonical findings and policy, evidence_refs: [artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: rank accepted findings and next actions without another semantic inference call, quality_requirement: priority is reproducible from canonical findings and policy, evidence_refs: [artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: COACH.Feedback
     unit_id: evaluation.presentation_wording
     domain_meta_ref: artifacts/engineering/contracts/evaluation/evaluation-contract.meta.yaml
     domain_contract_version: 0.3.0
     tier: A
-    canonical_compute_mode: generative_model
-    probabilistic_executor_allowed: true
-    inference_executor: governed_model_route
+    canonical_compute_mode: deterministic
+    probabilistic_executor_allowed: false
+    inference_executor: none
     fact_producer: canonical_evaluation_facts
     decision_aggregator: none
-    presentation_generator: governed_model_route
+    presentation_generator: deterministic_template
     state_mutation_authority: none
     presentation_only: true
-    probabilistic_constraints: {candidate_only: true, may_mutate_canonical_state: false, max_additional_model_calls_p0: 0}
-    provenance_required: [evaluation_id, rubric_version, model_route_version, model_version, evidence_refs]
-    sufficiency:
-      evidence_level: design
-      outcome_contract: produce optional learner-facing natural-language explanation from already accepted facts
-      quality_requirement: presentation failure cannot alter scores findings actions or readiness and falls back to structured facts
-      evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md]
-      lower_mode_rejection: deterministic templates remain a valid fallback but cannot cover every useful free-form explanation case
-      empirical_validation_required: true
-      verdict: design_optional_probabilistic_presentation_with_deterministic_fallback
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: render usable P0 learner-facing feedback from accepted structured facts, quality_requirement: presentation failure cannot alter scores findings actions or readiness and no second model call is required, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: REVIEW.MistakeNotebook
     unit_id: review.error_eligibility
@@ -418,7 +415,7 @@ decision_policies:
     decision_aggregator: deterministic_error_eligibility_policy
     presentation_generator: none
     state_mutation_authority: review_domain
-    sufficiency: {evidence_level: design, outcome_contract: decide whether an accepted evidence-backed finding may become a learning error, quality_requirement: no evidence means no canonical error or review card, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: decide whether an accepted evidence-backed finding may become a learning error, quality_requirement: no evidence means no canonical error or review card, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: REVIEW.FSRS
     unit_id: review.card_creation
@@ -432,7 +429,7 @@ decision_policies:
     decision_aggregator: deterministic_card_creation_policy
     presentation_generator: none
     state_mutation_authority: review_domain
-    sufficiency: {evidence_level: design, outcome_contract: create a review card from eligible canonical learning-error facts, quality_requirement: card identity and initial state are reproducible and idempotent, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: create a review card from eligible canonical learning-error facts, quality_requirement: card identity and initial state are reproducible and idempotent, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: REVIEW.FSRS
     unit_id: review.fsrs_transition
@@ -446,7 +443,7 @@ decision_policies:
     decision_aggregator: fsrs_algorithm
     presentation_generator: none
     state_mutation_authority: review_domain
-    sufficiency: {evidence_level: design, outcome_contract: compute the next review state interval and due timestamp, quality_requirement: identical versioned FSRS inputs produce the same transition, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md, blueprint/06-engines.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: compute the next review state interval and due timestamp, quality_requirement: identical versioned FSRS inputs produce the same transition, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md, blueprint/06-engines.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: REVIEW.SmartQueue
     unit_id: review.queue_priority
@@ -460,7 +457,7 @@ decision_policies:
     decision_aggregator: deterministic_queue_policy
     presentation_generator: none
     state_mutation_authority: none
-    sufficiency: {evidence_level: design, outcome_contract: rank due review work without replacing FSRS or evidence state, quality_requirement: queue priority is versioned auditable and resilient to cache failure, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: rank due review work without replacing FSRS or evidence state, quality_requirement: queue priority is versioned auditable and resilient to cache failure, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: PRACTICE.Drill
     unit_id: review.retest_resolution
@@ -474,7 +471,7 @@ decision_policies:
     decision_aggregator: deterministic_retest_policy
     presentation_generator: none
     state_mutation_authority: review_domain
-    sufficiency: {evidence_level: design, outcome_contract: resolve retest and learning-error state from canonical attempt evidence, quality_requirement: completion does not imply mastery without required retest evidence, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: resolve retest and learning-error state from canonical attempt evidence, quality_requirement: completion does not imply mastery without required retest evidence, evidence_refs: [artifacts/engineering/contracts/error-to-review/data-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: OPS.ModelRouting
     unit_id: quality.model_route_selection
@@ -488,7 +485,7 @@ decision_policies:
     decision_aggregator: deterministic_route_policy
     presentation_generator: none
     state_mutation_authority: quality_operations_domain
-    sufficiency: {evidence_level: design, outcome_contract: select only an approved provider-neutral route for a workload, quality_requirement: route selection cannot itself be delegated to an ungoverned model, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: select only an approved provider-neutral route for a workload, quality_requirement: route selection cannot itself be delegated to an ungoverned model, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/engineering/contracts/runtime/llm-routing-context-contract.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: OPS.Quota
     unit_id: quality.quota_decision
@@ -502,7 +499,7 @@ decision_policies:
     decision_aggregator: deterministic_quota_policy
     presentation_generator: none
     state_mutation_authority: quota_domain
-    sufficiency: {evidence_level: design, outcome_contract: reserve charge release or deny quota under exact policy, quality_requirement: model inference can never change entitlement or quota enforcement, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: reserve charge release or deny quota under exact policy, quality_requirement: model inference can never change entitlement or quota enforcement, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: OPS.CostBudget
     unit_id: quality.cost_aggregation
@@ -516,7 +513,7 @@ decision_policies:
     decision_aggregator: deterministic_cost_aggregation
     presentation_generator: none
     state_mutation_authority: quality_operations_domain
-    sufficiency: {evidence_level: design, outcome_contract: aggregate measured usage and cost facts for policy evaluation, quality_requirement: accounting is reproducible from immutable usage facts, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: aggregate measured usage and cost facts for policy evaluation, quality_requirement: accounting is reproducible from immutable usage facts, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: OPS.EvaluationQuality
     unit_id: quality.benchmark_metrics
@@ -530,7 +527,7 @@ decision_policies:
     decision_aggregator: deterministic_metric_calculation
     presentation_generator: none
     state_mutation_authority: quality_operations_domain
-    sufficiency: {evidence_level: design, outcome_contract: compute declared quality and outcome metrics from immutable evidence, quality_requirement: candidate output cannot define its own expected labels or pass state, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/operations/evidence-integrity.yaml], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: compute declared quality and outcome metrics from immutable evidence, quality_requirement: candidate output cannot define its own expected labels or pass state, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/operations/evidence-integrity.yaml], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: GOVERNANCE.ConfidenceScore
     unit_id: quality.confidence_state_derivation
@@ -544,7 +541,7 @@ decision_policies:
     decision_aggregator: versioned_confidence_state_policy
     presentation_generator: none
     state_mutation_authority: evaluation_domain
-    sufficiency: {evidence_level: design, outcome_contract: derive a governed confidence state from validated inference evidence and active policy, quality_requirement: raw confidence cannot self-promote canonical result quality or claim calibrated probability, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: derive a governed confidence state from validated inference evidence and active policy, quality_requirement: raw confidence cannot self-promote canonical result quality or claim calibrated probability, evidence_refs: [artifacts/engineering/contracts/evaluation/evaluation-contract.md, artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: OPS.ReleaseGate
     unit_id: quality.release_gate_decision
@@ -558,7 +555,7 @@ decision_policies:
     decision_aggregator: deterministic_release_gate_policy
     presentation_generator: none
     state_mutation_authority: quality_operations_domain
-    sufficiency: {evidence_level: design, outcome_contract: approve block or roll back from armed policy and validated evidence, quality_requirement: missing threshold or evidence blocks rather than being inferred by a model, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/operations/release-gate.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: approve block or roll back from armed policy and validated evidence, quality_requirement: missing threshold or evidence blocks rather than being inferred by a model, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md, artifacts/operations/release-gate.md], verdict: design_sufficient_for_compute_boundary}
 
   - capability_id: GOVERNANCE.AuditTrail
     unit_id: quality.audit_record
@@ -572,7 +569,7 @@ decision_policies:
     decision_aggregator: none
     presentation_generator: none
     state_mutation_authority: audit_domain
-    sufficiency: {evidence_level: design, outcome_contract: record immutable provenance for a decision without changing that decision, quality_requirement: audit records derive from canonical facts and cannot rewrite them, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
+    sufficiency: {evidence_level: design, constraint_profile: p0_deterministic_domain, outcome_contract: record immutable provenance for a decision without changing that decision, quality_requirement: audit records derive from canonical facts and cannot rewrite them, evidence_refs: [artifacts/engineering/runtime/quality-economics-runtime.md], verdict: design_sufficient_for_compute_boundary}
 
 future_capability_defaults:
   - {capability_id: PERSONAL.Recommendation, tier: B, coarse_disposition: deterministic_first, implementation_authorized: false}
