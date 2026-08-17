@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: implementation-eligibility
@@ -18,6 +18,10 @@ axes:
       - asset_requirements_resolved
       - decision_requirements_resolved
       - required_owner_contracts_approved
+      - compute_decision_units_resolved_for_family
+      - execution_policy_projection_valid
+      - compute_mode_sufficiency_evidence_for_tier_a_or_b
+      - no_unapproved_probabilistic_substitution
       - no_open_critical_or_high_finding_for_family
   implementation_authorization:
     values: [locked, authorized]
@@ -36,6 +40,10 @@ invariants:
   - authorization_is_bound_to_exact_candidate_sha_and_declared_family_scope
   - evidence_that_requires_runtime_is_never_required_to_start_implementation
   - no_unknown_placeholder_or_unapproved_decision_may_be_silently_coerced_to_eligible
+  - execution_policy_is_projection_not_semantic_authority
+  - canonical_decision_units_are_declared_by_domain_owners_not_execution_policy
+  - compute_mode_change_is_governed_architectural_change
+  - probabilistic_executor_cannot_directly_author_canonical_state
 
 current_transition:
   source_mutation_state: locked
