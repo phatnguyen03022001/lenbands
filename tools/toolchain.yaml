@@ -1,5 +1,5 @@
 schema_version: 1
-toolchain_version: 1.10.3
+toolchain_version: 1.11.0
 status: active
 stable_entrypoint: tools/bin/lenbands
 purpose: stable-human-and-automation-command-surface-for-repository-tooling
@@ -89,6 +89,9 @@ public_commands:
     stability: stable
   - command: validate implementation-catalog
     target: tools/commands/validate/implementation-catalog.sh
+    stability: stable
+  - command: validate problem-risks
+    target: tools/commands/validate/problem-risk-coverage.rb
     stability: stable
   - command: verify
     target: tools/commands/verify.sh
