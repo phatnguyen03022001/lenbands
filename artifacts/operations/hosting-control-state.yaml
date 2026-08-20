@@ -1,13 +1,16 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: github-hosting-control-state
 owner: operations
 purpose: record observed external GitHub enforcement state without treating repository prose as host evidence
-observed_at: 2026-08-17
+observed_at: 2026-08-21
 repository: phatnguyen03022001/lenbands
-observed_base_main_sha: 308b8c709b8bf381392d6613cf015947d7bdc8fe
 observation_source: github_connector_live_read
+
+observed_refs:
+  main_sha: 78eb3a394e975c159e2572db9d6b4b96a6b46538
+  dev_sha_at_observation: ea01be6cb0411fd1bfacaf6b6d75c0fcd87628a4
 
 main_branch:
   protection: not_enforced
@@ -16,15 +19,32 @@ main_branch:
   force_push_block: not_verified
   branch_deletion_block: not_verified
 
+dev_branch:
+  protection: not_enforced
+  required_status_checks: not_enforced
+  force_push_block: not_verified
+  branch_deletion_block: not_verified
+  role: long_lived_non_release_integration_ref
+
+commit_identity:
+  observed_dev_head_signature: unsigned
+  rule: unsigned_commit_is_an_observed_fact_not_a_repository_security_claim
+
 review_identity:
   main_codeowners_declared_account: tienphat
   declared_account_repository_permission: none
   independent_codeowner_review_available: false
   candidate_codeowners_fix_effect: does_not_create_independent_review
 
+connector_capability_observation:
+  branch_protection_write_action_available_in_current_session: false
+  rule: repository_files_and_local_hooks_cannot_turn_unprotected_GitHub_refs_into_protected_refs
+
 rules:
   - repository_policy_files_are_not_evidence_of_github_enforcement
+  - local_Claude_hooks_are_not_evidence_of_GitHub_branch_protection
   - repository_ci_success_is_not_branch_protection_evidence
   - external_enforcement_claims_remain_blocked_until_live_host_state_is_verified
   - candidate_verification_can_prove_repository_conformance_without_claiming_host_protection
+  - dev_is_not_release_authority_and_its_branch_name_is_not_candidate_identity
   - this_observed_state_must_be_refreshed_before_any_future_external_enforcement_claim
