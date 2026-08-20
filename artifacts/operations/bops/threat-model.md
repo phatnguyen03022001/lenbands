@@ -2,13 +2,13 @@
 
 Status: **review**. This is a pre-code red-team contract, not evidence that the controls have been implemented.
 
-The model treats **interference** broadly: anything that causes one authority, role, provider, retry, learning mode, data source, or document to contaminate another.
+The model treats **interference** broadly: anything that causes one authority, role, provider, retry, learning mode, data source, browser boundary, authorization signal, or document to contaminate another.
 
 ## Priority findings
 
 | ID | Interference / threat | Failure mode | Required control | Gate |
 |---|---|---|---|---|
-| `RT-01` | split API authority | agents implement different paths/schemas | one canonical OpenAPI + migration-only aliases | P0 |
+| `RT-01` | split API authority | agents implement different paths/schemas | one canonical API owner set; retired split specs absent; zero live aliases | P0 |
 | `RT-02` | persona/role collision | Premium becomes a parallel role and drifts from billing | 5 personas, 3 authenticated product roles; Premium entitlement overlay | P0 |
 | `RT-03` | provider sprawl | solo-founder ops burden creates configuration/security drift | consolidate commodity planes; add provider only for distinct obligation | P0 |
 | `RT-04` | scorer fallback interference | outage silently changes model and learner band | scorer route allow-list; only benchmark-approved fallback | P0 |
@@ -26,8 +26,13 @@ The model treats **interference** broadly: anything that causes one authority, r
 | `RT-16` | unsafe provider consumption | compromised/malformed external API response enters domain | schema validation, timeout, allow-list, SSRF-safe URLs, normalization | P0 |
 | `RT-17` | adaptive tunnel vision | one observed weakness monopolizes learner plan | coverage/exploration guard + uncertainty tracking | P0 |
 | `RT-18` | feedback overload | long feedback reduces action/transfer | mode-specific progressive feedback; measure retest/transfer not text length | P0 |
-| `RT-19` | documentation authority collision | agent selects newer/longer/stale doc | `DOCS.yaml`, one owner, stable document IDs, alias expiry | P0 |
+| `RT-19` | documentation authority collision | agent selects newer/longer/stale doc | `DOCS.yaml`, one owner, zero live aliases, retired-path regression checks | P0 |
 | `RT-20` | alert/provider noise | many vendor signals obscure learner-impacting incidents | symptom/SLO-oriented alerts; dedupe dependency incidents | ops |
+| `RT-21` | browser credential/CSRF interference | stolen persistent bearer or forged cookie mutation changes private state | governed session storage, CSRF/origin defense, rotation/revocation, re-auth | P0 |
+| `RT-22` | stored rendering injection | learner/Colab/generated content executes script or unsafe URL in browser | untrusted-data rendering, sanitization, URL allow-list, CSP | P0 |
+| `RT-23` | payload/parser exhaustion | oversized/deep valid-looking request burns parser/storage/model/cost budget | transport body/depth/collection/semantic field ceilings before side effects | P0 |
+| `RT-24` | readiness-scope overclaim | Writing/narrow evidence serializes as full `target_met` | require every declared TargetProfile requirement and owning readiness scope | P0 |
+| `RT-25` | implementation authorization spoof | external env fields bypass family eligibility or blocking-risk gate | exact HEAD/scope + repository eligibility + blocking-risk check + external refs | P0 |
 
 ## Detailed red-team scenarios
 
@@ -82,6 +87,8 @@ A content author can publish a task but cannot query “who failed my task” at
 
 Ordinary Admin can observe aggregate evaluation governance and operate account state but cannot type a replacement band into a learner result. Corrections occur through versioned evaluator/policy reruns and immutable audit, not manual mutation.
 
+High-impact Admin/Colab mutations additionally require the recent-auth/step-up policy owned by `artifacts/engineering/api/access-control.md`; a role alone is not sufficient proof for a destructive/governance mutation.
+
 ### F. Billing entitlement disorder
 
 Provider webhooks are assumed at-least-once and potentially out of order.
@@ -103,42 +110,114 @@ A generic “server is trusted” assumption is prohibited.
 
 ### H. Documentation retrieval poisoning
 
-Legacy docs may contain provider names, paths or version claims that look authoritative.
+Legacy/history search results may contain provider names, paths or version claims that look authoritative.
 
 Controls:
 
 1. Agent starts at `DOCS.yaml`.
-2. Legacy alias cannot override canonical owner.
-3. Search result snippets are discovery only.
+2. Working tree keeps zero live legacy aliases.
+3. Search result snippets are discovery only and may point at historical commits.
 4. An index/README/generated catalog is never product authority.
-5. Physical rename/delete occurs only after inbound-reference validation.
+5. Retired shadow paths are rejected by validators when split-authority risk exists.
+6. Git history, not live compatibility files, is the archive for completed migrations/review packets.
+
+### I. Browser credential theft / CSRF
+
+Authentication transport is assumed attacker-relevant.
+
+- application code does not persist raw bearer/refresh credentials in its own localStorage/sessionStorage/IndexedDB/URL state;
+- cookie-authenticated mutations use the selected same-origin/CSRF defense and are not defended by CORS alone;
+- session rotation/revocation and re-auth re-run authorization against current state;
+- expired auth preserves acknowledged learner work but does not replay mutations automatically;
+- recent-auth is server/provider verified, never a client boolean.
+
+### J. Stored browser rendering injection
+
+Writing text, fixes, feedback notes, Colab-authored content, provider-normalized strings and generated explanations are untrusted renderable data even after rights/publication/domain validation.
+
+Controls:
+
+- raw HTML is prohibited by default;
+- Markdown/rich text uses an allowlisted maintained renderer plus sanitization;
+- script-capable URL schemes and dangerous DOM sinks are rejected;
+- release configuration includes a CSP with `unsafe-eval` prohibited and inline script disabled by default;
+- sanitization never grants content rights, authorization or evidence validity.
+
+### K. Payload/parser exhaustion
+
+An authenticated request can be syntactically valid but intentionally huge/deep.
+
+Controls execute before expensive side effects:
+
+```text
+transport byte ceiling
+  -> bounded parser depth/collections
+  -> schema validation
+  -> semantic text/content ceiling
+  -> quota/cost reservation
+  -> storage/domain/inference
+```
+
+The server rejects rather than silently truncates, because truncation can change assessment/content semantics.
+
+### L. Target-attainment scope confusion
+
+`TargetFeasibility.target_met` is never inferred from one sampled skill or one Writing result.
+
+- every requirement declared by TargetProfile must have enough admitted evidence under the owning readiness policy;
+- a narrower per-skill requirement may be shown only as that narrower scope;
+- full/overall target attainment is impossible when required skills are missing;
+- closed-pilot Writing evidence cannot create four-skill/overall `target_met`.
+
+### M. External authorization environment spoof
+
+Environment variables are inputs, not proof by themselves.
+
+The Claude write guard requires:
+
+- exact repository HEAD equals authorized baseline SHA;
+- P0 family and source scope are valid;
+- every current pre-code family contract projection is approved/canonical;
+- no unresolved `implementation_blocking` risk affects the family;
+- external founder + implementation attestation refs are present;
+- protected paths remain denied.
+
+A repo file still cannot self-authorize.
 
 ## OWASP API alignment
 
-The generated API test suite must explicitly cover:
+The generated API/security test suite must explicitly cover:
 
 - object-level authorization;
-- authentication/token misuse;
+- authentication/token misuse and session fixation/revocation;
 - property-level over-posting/over-sharing;
-- resource/cost exhaustion;
+- resource/cost exhaustion including oversized/deep payloads;
 - function-level authorization;
-- sensitive flow abuse;
+- sensitive flow abuse and recent-auth/step-up;
+- stored/rendered injection at browser boundaries;
+- CSRF/origin behavior for cookie-authenticated mutations where applicable;
 - SSRF at provider/import boundaries;
-- security misconfiguration;
+- security misconfiguration including CSP/session policy;
 - API inventory/deprecation drift;
 - unsafe consumption of provider APIs.
 
 ## Red-team acceptance
 
-Before the canonical API/BOPS migration can be considered clean:
+Before the canonical API/BOPS boundary can be considered clean:
 
-- one and only one canonical OpenAPI resolves from `DOCS.yaml`;
+- one and only one canonical OpenAPI owner set resolves from `DOCS.yaml`; retired split specs are absent;
 - every operation has role/persona/entitlement/data-class annotations;
 - negative BOLA/BFLA matrix exists for protected operation families;
+- session credential storage/rotation/revocation and cookie-CSRF/origin behavior pass the selected auth mechanism acceptance;
+- recent-auth rejects stale/missing proof for destructive/governance operations;
+- untrusted text/rich-content rendering passes stored-XSS/unsafe-URL/CSP checks;
+- oversized/deep payloads fail before storage/inference/domain side effects while legitimate IELTS-sized input passes;
+- `target_met` cannot be produced for a target whose required evidence scope is incomplete;
 - evaluator fallback cannot escape an approved scorer route;
-- no analytics contract accepts raw C1–C4;
+- no analytics contract accepts raw C1–C4 or credential material;
 - no service/bypass credential is usable by browser code;
 - all durable mutations have replay/idempotency treatment;
 - published assessment/content versions are immutable references;
-- all legacy authority docs are explicitly migration-only or superseded;
+- active family registries contain no retired contract paths or legacy low-confidence failure semantics;
+- source mutation/build commands remain locked when external authorization exists but repository family eligibility does not;
 - same-head repository verification and trust-boundary checks pass.
