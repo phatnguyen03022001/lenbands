@@ -20,16 +20,12 @@ registry = load_yaml.call(registry_path)
 eligibility = load_yaml.call("artifacts/operations/implementation-eligibility.yaml")
 
 errors = []
-
-unless docs.dig("authority", "problem_risk_coverage", "path") == registry_path
-  errors << "DOCS.yaml must register problem_risk_coverage authority at #{registry_path}"
-end
-
+errors << "DOCS.yaml must register problem_risk_coverage authority at #{registry_path}" unless docs.dig("authority", "problem_risk_coverage", "path") == registry_path
 errors << "problem-risk registry root must be a mapping" unless registry.is_a?(Hash)
+
 policy = registry["coverage_policy"] || {}
 categories = registry["categories"] || {}
 risks = registry["risks"] || []
-
 statuses = Set.new(Array(policy["statuses"]))
 severities = Set.new(Array(policy["severities"]))
 phases = Set.new(Array(policy["phases"]))
@@ -73,23 +69,26 @@ Array(risks).each_with_index do |risk, index|
   errors << "#{id}: acceptance_test missing" if risk["acceptance_test"].to_s.empty?
   errors << "#{id}: affected_families contains unknown P0 family" unless families.subset?(p0_families)
 
-  families.each { |family| coverage[category] << family }
+  %w[implementation_blocking release_evidence_required public_scale_control_required].each do |field|
+    errors << "#{id}: #{field} must be boolean" unless [true, false].include?(risk[field])
+  end
 
+  families.each { |family| coverage[category] << family }
   contracts.each do |path|
     next if path.to_s.empty?
     errors << "#{id}: canonical contract does not exist: #{path}" unless File.exist?(File.join(ROOT, path))
   end
 
-  if status == "covered" && contracts.empty?
-    errors << "#{id}: covered risk requires canonical_contracts"
-  end
+  errors << "#{id}: covered risk requires canonical_contracts" if status == "covered" && contracts.empty?
+  errors << "#{id}: covered risk must not remain implementation_blocking" if status == "covered" && risk["implementation_blocking"] == true
+  errors << "#{id}: deferred P0 risk is not allowed" if status == "deferred" && phase == "P0" && !families.empty?
 
   p0_high = phase == "P0" && %w[critical high].include?(severity) && !families.empty?
-  should_block = p0_high && %w[open partial].include?(status)
-  actual_block = risk["implementation_blocking"] == true
-  errors << "#{id}: open/partial P0 #{severity} risk must be implementation_blocking" if should_block && !actual_block
-  errors << "#{id}: covered risk must not remain implementation_blocking" if status == "covered" && actual_block
-  errors << "#{id}: deferred P0 risk is not allowed" if status == "deferred" && phase == "P0" && !families.empty?
+  unresolved = %w[open partial].include?(status)
+  if p0_high && unresolved
+    staged = risk["implementation_blocking"] == true || risk["release_evidence_required"] == true || risk["public_scale_control_required"] == true
+    errors << "#{id}: unresolved P0 #{severity} risk must declare a blocking/evidence stage" unless staged
+  end
 end
 
 categories.each do |category, definition|
@@ -105,8 +104,10 @@ eligibility_requires = Set.new(Array(eligibility.dig("axes", "implementation_eli
 end
 
 if errors.empty?
-  blocking = Array(risks).count { |risk| risk.is_a?(Hash) && risk["implementation_blocking"] == true }
-  puts "problem/risk coverage validation passed (categories=#{categories.length}, risks=#{risks.length}, blocking=#{blocking})"
+  implementation_blocking = Array(risks).count { |risk| risk.is_a?(Hash) && risk["implementation_blocking"] == true }
+  release_evidence = Array(risks).count { |risk| risk.is_a?(Hash) && risk["release_evidence_required"] == true }
+  scale_controls = Array(risks).count { |risk| risk.is_a?(Hash) && risk["public_scale_control_required"] == true }
+  puts "problem/risk coverage validation passed (categories=#{categories.length}, risks=#{risks.length}, implementation_blocking=#{implementation_blocking}, release_evidence=#{release_evidence}, public_scale=#{scale_controls})"
 else
   warn errors.join("\n")
   warn "problem/risk coverage validation failed: #{errors.length} issue(s)"
