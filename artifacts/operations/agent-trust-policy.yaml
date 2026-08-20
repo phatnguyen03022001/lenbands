@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 authority_scope: agent_change_and_anti_bypass_policy
@@ -8,6 +8,8 @@ principles:
   - immutable_evidence_may_be_added_but_not_modified_or_deleted
   - repository_checks_do_not_replace_live_host_control_evidence
   - host_enforcement_claims_are_observed_facts_not_repository_policy_assertions
+  - implementation_authorization_is_family_scoped_and_bound_to_an_exact_reviewed_baseline
+  - repository_files_may_define_authorization_requirements_but_may_not_self_authorize
 
 founder_local_profile:
   path: .claude/settings.local.json
@@ -118,58 +120,63 @@ founder_local_profile:
     - stable_updates_reduce_third_party_endpoint_regression_risk
     - bounded_agents_cannot_mutate_the_local_profile
     - shared_bash_permission_is_fail_closed_by_the_reviewed_pretooluse_command_policy
-    - source_mutation_remains_locked_until_family_scoped_authorization_is_implemented_and_granted
-    - no_application_technology_is_pre_authorized_by_runtime_command_policy
+    - source_mutation_remains_locked_without_external_family_scoped_authorization
+    - no_application_technology_is_pre_authorized_by_repository_presence_alone
     - deprecated_runtime_agent_names_are_non_authorizing_compatibility_surfaces
-    - implementation_authorization_is_family_and_exact_candidate_sha_scoped
-    - shared_permissions_deny_runtime_agents_and_the_implementation_compatibility_skill_while_locked
+    - implementation_authorization_is_family_and_exact_baseline_sha_scoped
+    - shared_permissions_deny_runtime_agents_and_the_implementation_compatibility_skill_without_authorization
     - agent_teams_remain_disabled_until_git_worktree_isolation_exists
     - accept_edits_applies_only_below_shared_denies_sandbox_and_pretooluse_guards
 
 application_builder:
   phase_gate:
-    state: document_convergence
-    compatibility_mode: true
-    authority: non_authoritative_fail_closed_compatibility
+    state: family_scoped_authorization
     source_mutation: locked
-    scope: migration_to_family_scoped_authorization
-    canonical_authorization_contract: artifacts/operations/implementation-eligibility.yaml
+    scope: implementation_family
+    canonical_eligibility_contract: artifacts/operations/implementation-eligibility.yaml
+    canonical_change_governance: artifacts/operations/change-governance.yaml
     locked_source_roots: [apps, services, engines]
-    partial_pack_unlock_allowed: false
-    founder_authorization_ref: null
-    completion_attestation_ref: null
-    unresolved_gap_budget: 0
-    unlock_requires:
-      - all_180_capabilities_semantically_complete_and_traceable
-      - all_roles_permissions_and_user_journeys_complete
-      - all_ielts_controlled_vocabularies_mapped_without_unknown_placeholders
-      - all_product_ux_state_and_accessibility_decisions_approved
-      - all_data_api_event_failure_privacy_and_security_contracts_approved
-      - all_learning_assessment_ai_governance_and_provider_boundaries_approved
-      - all_nfr_observability_operations_recovery_and_release_contracts_approved
-      - no_duplicate_or_ambiguous_canonical_owner
-      - no_draft_or_review_authority_required_by_the_application
-      - external_claims_have_citations_and_rights_or_provenance_state
-      - independent_semantic_and_red_team_audits_have_no_open_critical_or_high_findings
-      - explicit_global_founder_authorization
+    partial_pack_unlock_allowed: true
+    repository_authorization_state: none
+    repository_tree_may_self_authorize: false
+    authorization_source:
+      mode: external_runtime_context
+      repository_persistence: forbidden
+      required_bindings: [family_id, authorization_base_sha, source_scopes, founder_authorization_ref, authorization_attestation_ref]
+      candidate_mutation_rule: authorization_base_sha_identifies_the_reviewed_contract_baseline;_final_implementation_candidate_requires_fresh_verification_and_release_authorization
+      environment_contract:
+        family_id: LENBANDS_IMPLEMENTATION_FAMILY
+        authorization_base_sha: LENBANDS_IMPLEMENTATION_BASE_SHA
+        source_scopes: LENBANDS_IMPLEMENTATION_SOURCE_SCOPES
+        founder_authorization_ref: LENBANDS_FOUNDER_AUTHORIZATION_REF
+        authorization_attestation_ref: LENBANDS_IMPLEMENTATION_AUTHORIZATION_REF
+    unlock_requires_per_family:
+      - family_is_implementation_eligible
+      - exact_authorization_base_sha_matches_repository_head_at_session_start
+      - family_id_is_declared
+      - source_scopes_are_declared_and_within_allowed_workspace
+      - founder_authorization_ref_is_external_and_nonempty
+      - authorization_attestation_ref_is_external_and_nonempty
+      - no_implementation_blocking_risk_for_family
+      - protected_paths_remain_locked
     non_unlocking_signals:
       - source_directories_exist
       - implementation_agents_exist
       - implementation_skill_exists
       - verify_passes
       - toolchain_gate_passes
+      - release_evidence_is_missing
       - p0_contracts_exist
       - prose_claims_document_completeness
-    migration_note: >-
-      This legacy all-application gate remains only as a fail-closed compatibility surface
-      for current shared Claude guards. It is not an implementation authorization model and
-      may not be used to deny or grant eligibility semantics. The canonical authorization
-      model is artifacts/operations/implementation-eligibility.yaml and is family-scoped
-      plus exact-candidate-SHA scoped.
+      - repository_file_claims_founder_authorization
+    rule: >-
+      Family-scoped authorization permits only the declared source scope for the declared implementation
+      family from the exact reviewed baseline. It never authorizes protected governance/evidence paths,
+      never proves release readiness, and is absent by default in repository state.
   source_workspaces:
     application_candidate: apps/web
     legacy_locked_roots: [services, engines]
-    rule: paths_do_not_select_languages_services_or_provider_topology
+    rule: paths_do_not_create_new_service_or_language_topology;_implementation_follows_canonical_architecture_and_sourcing
   orchestrator:
     route: explicit_cli_pro_escalation
     model: deepseek-v4-pro
@@ -190,7 +197,7 @@ application_builder:
     - protected_path_mutation
     - evidence_fabrication
     - unsandboxed_escape
-    - preselected_runtime_topology_before_authorization
+    - unapproved_runtime_topology
 
 required_public_commands:
   - doctor
@@ -212,6 +219,7 @@ required_verify_targets:
   - tools/commands/validate/evidence-integrity.rb
   - tools/commands/validate/data-governance.rb
   - tools/commands/validate/failure-registry.rb
+  - tools/commands/validate/problem-risk-coverage.rb
   - tools/commands/validate/contract-ownership.rb
 
 required_freeze_targets:
@@ -233,6 +241,17 @@ protected_paths:
   - .github/**
   - DOCS.yaml
   - blueprint/**
+  - artifacts/experience/critical-path-usability-contract.yaml
+  - artifacts/experience/critical-path-usability-contract.meta.yaml
+  - artifacts/engineering/data-migration-contract.yaml
+  - artifacts/engineering/data-migration-contract.meta.yaml
+  - artifacts/engineering/api/**
+  - artifacts/engineering/runtime-contract.yaml
+  - artifacts/engineering/runtime-contract.meta.yaml
+  - artifacts/operations/problem-risk-registry.yaml
+  - artifacts/operations/problem-risk-registry.meta.yaml
+  - artifacts/operations/bops/contract.yaml
+  - artifacts/operations/bops/contract.meta.yaml
   - artifacts/operations/architecture-frozen.md
   - artifacts/operations/architecture-frozen.meta.yaml
   - artifacts/operations/build-readiness-matrix.md
@@ -267,9 +286,6 @@ protected_paths:
   - artifacts/operations/implementation-eligibility.meta.yaml
   - artifacts/operations/review-remediation-dispositions.yaml
   - artifacts/operations/review-remediation-dispositions.meta.yaml
-  - artifacts/engineering/api/**
-  - artifacts/engineering/runtime-contract.yaml
-  - artifacts/engineering/runtime-contract.meta.yaml
   - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.md
   - artifacts/engineering/decisions/ADR-0004-composition-first-application-platform.meta.yaml
   - artifacts/engineering/contracts/events/event-ownership-registry.yaml
