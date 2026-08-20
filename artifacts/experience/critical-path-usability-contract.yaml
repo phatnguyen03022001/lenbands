@@ -1,0 +1,84 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: critical-path-usability
+owner: experience + engineering
+purpose: define pre-code accessibility and browser/network recovery semantics for the P0 learner critical path
+
+scope:
+  p0_families: [P0-01, P0-02, P0-03, P0-04, P0-05]
+  critical_surfaces: [auth_and_consent, placement, today_plan, writing_editor, evaluation_feedback, error_fix_retest, review_queue]
+
+accessibility:
+  baseline: WCAG_AA_oriented_product_contract_without_claiming_external_certification
+  requirements:
+    keyboard:
+      - every_interactive_control_is_reachable_and_operable_without_pointer
+      - focus_order_follows_visual_and_semantic_order
+      - no_keyboard_trap_except_intentional_modal_with_escape_or_close_path
+    focus:
+      - visible_focus_indicator_is_never_removed_without_equivalent_replacement
+      - route_state_and_validation_changes_move_or_restore_focus_predictably
+      - async_evaluation_completion_does_not_steal_focus_without_user_action
+    semantics:
+      - headings_landmarks_labels_and_control_names_are_programmatic
+      - icon_only_actions_have_accessible_names
+      - status_and_error_messages_are_associated_with_the_affected_control_or_region
+    screen_reader:
+      - save_submit_processing_delayed_unavailable_and_result_validity_changes_have_non_visual_status_semantics
+      - criterion_feedback_and_evidence_references_have_readable_structure_not_visual_position_only
+    zoom_reflow:
+      - p0_critical_path_remains_operable_at_200_percent_zoom
+      - horizontal_scroll_is_not_required_for_ordinary_text_or_form_completion_except_intrinsically_wide_content
+    visual:
+      - color_is_not_the_only_carrier_of_error_validity_or_progress_meaning
+      - text_and_critical_controls_preserve_readability_under_user_contrast_preferences_where_platform_supports_it
+    motion:
+      - reduced_motion_preference_disables_nonessential_motion
+      - celebration_or_progress_animation_never_blocks_the_next_action
+    editor:
+      - writing_text_entry_works_with_standard_keyboard_editing_and_assistive_technology
+      - word_count_timer_save_state_and_validation_are_available_without_hover_or_color_only_cues
+    timed_flow:
+      - timer_updates_do_not_generate_excessive_live_region_noise
+      - time_pressure_never_removes_a_recovery_or_submit_confirmation_path_required_by_the_assessment_policy
+  release_evidence:
+    - keyboard_only_walkthrough
+    - screen_reader_semantic_walkthrough
+    - focus_and_error_announcement_check
+    - 200_percent_zoom_and_reflow_check
+    - reduced_motion_check
+
+browser_network:
+  support_policy:
+    rule: supported_browser_families_and_minimum_versions_are_a_release_configuration_not_an_architecture_fact
+    p0_design_target: modern_standards_based_desktop_and_mobile_browsers_used_by_the_closed_pilot
+  source_of_truth:
+    rule: browser_local_storage_or_memory_is_never_the_only_canonical_copy_after_server_acknowledgement
+  draft_and_attempt_preservation:
+    writing_draft: preserve_local_work_during_transient_network_failure_when_browser_storage_is_available_then_versioned_sync
+    placement_and_practice: accepted_server_answers_are_idempotent; unacknowledged_local_input_is_preserved_when_feasible_and_never_presented_as_server_saved
+    study_session: retry_state_transition_with_same_semantic_intent_and_version_guard
+  degradation:
+    transient_offline: allow_safe_local_continuation_only_for_flows_whose_evidence_integrity_is_not_changed_by_offline_work
+    provider_outage: preserve_submission_and_show_delayed_or_unavailable_state
+    browser_refresh_or_tab_suspend: restore_from_canonical_server_state_plus_safe_local_unacknowledged_draft_when_present
+    storage_eviction: never_convert_missing_local_cache_into_deleted_server_work
+    duplicate_submit: idempotency_prevents_duplicate_submission_evaluation_charge_or_completion
+  integrity:
+    - learn_mode_local_recovery_may_restore_scaffolding
+    - retest_or_exam_like_mode_restore_must_follow_exposure_and_evidence_validity_policy
+    - no_offline_behavior_may_fabricate_a_server_timestamp_score_or_completed_state
+  release_evidence:
+    - refresh_during_each_p0_mutation_flow
+    - transient_network_timeout_and_reconnect
+    - duplicate_submit_or_retry
+    - browser_tab_suspend_resume_where_relevant
+    - local_storage_unavailable_or_evicted_fallback
+    - supported_browser_smoke_matrix
+
+agent_rules:
+  - accessibility_is_part_of_component_and_state_design_not_a_post_build_theme
+  - do_not_add_custom_keyboard_behavior_when_native_semantics_are_sufficient
+  - do_not_claim_offline_support_beyond_the_specific_preservation_behavior_defined_here
+  - do_not_use_browser_or_device_fingerprinting_as_a_hidden_learning_or_abuse_authority
