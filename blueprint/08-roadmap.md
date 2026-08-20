@@ -20,33 +20,47 @@ P0 is the only canonical scope allowed to receive build-ready Artifacts. It cont
 
 A P0 pack may be coded only when the Build Readiness Matrix reports `ready`; full P0 may launch only when all six packs are `ready`.
 
+P0 principles are fixed:
+
+- deterministic-first implementation;
+- no model/provider as product authority;
+- placement may return insufficient evidence;
+- Writing produces a task-scoped diagnostic result, not an official IELTS Writing score;
+- FSRS schedules only suitable retrievable remediation units;
+- success requires an **independent retest**, not merely a familiar-item repeat;
+- cost is measured against quality and verified learner improvement.
+
 ### P1 (expansion after closed-pilot evidence)
 
-- P1 is candidate scope after P0, not an automatic addition. `REVIEW.SmartQueue` in P1 means cross-skill queue expansion; P0 uses it only for Writing errors. `REVIEW.FSRS` in Expanded MVP is only a candidate for vocabulary; expanding FSRS to grammar/collocation/errors later requires separate evidence.
-- `PERSONAL.NextBestAction`, `COACH.ErrorAnalysis`, and `GOVERNANCE.ConfidenceScore` appear again in P1 only with the **advanced/full** qualifier; their P0 deterministic/error-analysis/confidence baseline remains the earlier canonical scope.
+P1 is candidate scope after P0, not an automatic addition.
+
+- `REVIEW.SmartQueue` expands cross-skill only after P0 evidence.
+- `REVIEW.FSRS` expansion requires proof that the candidate unit is meaningfully retrievable; FSRS never becomes the complex-skill mastery model.
+- `PERSONAL.NextBestAction`, `COACH.ErrorAnalysis`, and `GOVERNANCE.ConfidenceScore` advanced forms must preserve the P0 deterministic/evidence boundaries.
+- Model-based recommendation is not introduced merely because more data exists; it requires measured benefit over the deterministic policy.
+
+Candidate P1 capabilities:
 
 - `STUDY.Session`, `STUDY.SessionSummary`, `STUDY.Continue`, `STUDY.Resume`
 - `BAND.Readiness` (advanced), `BAND.RecommendedNext`, `BAND.ExamReadiness`
 - `PERSONAL.GapAnalysis`, `PERSONAL.NextBestAction`, `PERSONAL.Insights`
 - `COACH.ErrorAnalysis`, `COACH.Recommendation`, `COACH.ListeningCoach`, `COACH.ReadingCoach`, `COACH.DistractorExplanation`
-- `EVAL.Speaking` (advanced), `EVAL.Pronunciation`, `EVAL.Examiner`
-- `LEARN.Speaking` (recording, transcript comparison), `EVAL.RewriteSuggestion` (rewrite loop, draft history, portfolio)
-- `LEARN.Pronunciation` (phoneme, stress, intonation)
+- `EVAL.Speaking` (advanced staged scoring), `EVAL.Pronunciation`, `EVAL.Examiner`
+- `LEARN.Speaking`, `EVAL.RewriteSuggestion`
+- `LEARN.Pronunciation`
 - `PRACTICE.Adaptive`
 - `REVIEW.SmartQueue`
-- `PRACTICE.ExamSimulation` (exam, timed, review mode)
-- `HISTORY.*` (timeline, learning events, portfolio, compare)
+- `PRACTICE.ExamSimulation`
+- `HISTORY.*`
 - `PKM.WordBank`, `PKM.Collections`, `PKM.Import`, `PKM.Export`, `PKM.Sync`, `PKM.Offline`
-- `NOTIF.Preference`, `NOTIF.QuietHours`
-- `NOTIF.SmartDelivery`, `NOTIF.Reengagement`
+- `NOTIF.Preference`, `NOTIF.QuietHours`, `NOTIF.SmartDelivery`, `NOTIF.Reengagement`
 - `CONTENT.Feedback`
-- `SEARCH.*`, `SEARCH.Global`
+- `SEARCH.*`
 - `CONTENT.*` (full management)
 - `SUB.*`, `SUB.Premium`
-- `PROGRESS.Motivation` (basic), `PROGRESS.Achievement`
-- `PROGRESS.Reactivation`, `PROGRESS.Wellbeing`
-- `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.GoldStandardBenchmark`, `GOVERNANCE.DriftDetection`, `GOVERNANCE.AntiGaming`
-- Content taxonomy depth (`CONTENT.AutoTag`, `CONTENT.TagReview`)
+- `PROGRESS.Motivation`, `PROGRESS.Achievement`, `PROGRESS.Reactivation`, `PROGRESS.Wellbeing`
+- `GOVERNANCE.GoldStandardBenchmark`, `GOVERNANCE.DriftDetection`, `GOVERNANCE.AntiGaming`
+- content auto-tag/review only for metadata that feeds a governed decision
 
 ### P2 (nice-to-have, Version 2)
 
@@ -56,142 +70,151 @@ A P0 pack may be coded only when the Build Readiness Matrix reports `ready`; ful
 - `CONTENT.Moderation` (advanced workflow)
 - `ADMIN.Revenue`
 - `ADMIN.AuditLog` (deep view)
-- `REVIEW.FSRS` optimization (tuning per learner)
+- `REVIEW.FSRS` optimization (tuning per learner only after sample sufficiency and measurable benefit)
 - `LOC.LocaleFormat` (advanced), additional languages
-- `GOAL.ExamPlan` (advanced: timeline, anxiety tips)
+- `GOAL.ExamPlan` (advanced)
 
 ## MVP
 
 ### MVP rebaseline — Closed Pilot (canonical launch scope)
 
-The closed pilot does not attempt to prove a "four-skill Knowledge OS." It proves one measurable outcome loop:
+The closed pilot does not attempt to prove a four-skill platform. It proves one measurable outcome/economics loop:
 
 ```text
-Placement / goal
-  → Today action
+Target profile / Placement
+  → evidence state
+  → Today action + Why
   → Writing Task 2
-  → evidence-based evaluation
-  → Error Graph
+  → task-scoped evidence-based evaluation
+  → one evidence-backed error/remediation unit
   → fix drill
-  → FSRS review
-  → retest proof
+  → FSRS review only if suitable
+  → independent retest on sufficiently novel context
+  → evidence update
+  → measured cost per verified improvement
 ```
 
 Canonical capability scope lives in `03-features.md` § P0 Capability Profile Matrix. Only the six packs `P0-01` through `P0-06` may receive build-ready Artifacts in the closed pilot.
 
-**Explicitly deferred:** Listening, Reading, Speaking, Pronunciation, Mock Test, full Content/Colab, subscription/payment launch, advanced analytics, search, notification center, multi-device/offline, and full Exam Readiness. They retain their Blueprint identity and are reintroduced according to evidence after the pilot.
+**Explicitly deferred:** Listening, Reading, Speaking, Pronunciation, Mock Test, full Content/Colab, subscription/payment launch, advanced analytics, search, notification center, multi-device/offline, and full Exam Readiness. They retain Blueprint identity and are reintroduced according to evidence after the pilot.
 
-### Expanded MVP (candidate after the closed pilot proves outcome)
+### Expanded MVP (candidate after closed-pilot outcome proof)
 
-**Goal:** validate the core loop "Placement → Learning → Practice → Evaluation → Review" across four skills while retaining the "4-skill Knowledge OS" identity and removing advanced scope.
+**Goal:** validate the core loop `Diagnose → Understand → Practice → Independent Retest → Transfer` across the announced four-skill scope without abandoning deterministic-first economics.
 
-Includes:
+Includes candidate basic scope:
+
 - Guest preview
 - `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Recovery`
-- `LOC.InterfaceLanguage` (vi/en), `LOC.AIResponseLanguage`
+- `LOC.InterfaceLanguage` (vi/en), `LOC.AIResponseLanguage` compatibility capability
 - `GOAL.Target`, `GOAL.Daily`, `GOAL.Weekly`
 - `PLACE.Test`
-- `LEARN.Path`, `LEARN.QuestionTypes` (core), `LEARN.Listening/Reading/Writing/Speaking` (basic), `KA.*` (basic)
-- `LEARN.Writing` workspace (word count, task timer)
-- `STUDY.DailyPlan`, `STUDY.TodayQueue` (Home)
-- `PRACTICE.*` (basic)
-- `PRACTICE.MockTest`
-- `EVAL.Writing`, `EVAL.Speaking` (basic)
-- `COACH.AnswerExplanation` (L/R basic)
-- `BAND.*` (basic progression)
-- `REVIEW.FSRS` (vocab only)
+- `LEARN.Path`, `LEARN.QuestionTypes`, basic `LEARN.Listening/Reading/Writing/Speaking`, basic `KA.*`
+- `STUDY.DailyPlan`, `STUDY.TodayQueue`
+- basic `PRACTICE.*`
+- `PRACTICE.MockTest` only with score-scope/evidence-validity contract
+- `EVAL.Writing`, basic staged `EVAL.Speaking`
+- deterministic objective scoring for Listening/Reading + `COACH.AnswerExplanation`
+- basic `BAND.*` evidence views
+- `REVIEW.FSRS` (vocabulary/suitable retrievable units only)
 - `PKM.Notes`, `PKM.SavedItems`
 - `PROGRESS.Dashboard`
-- `REVIEW.MistakeNotebook` (basic)
-- `CONTENT.*` (basic management)
-- `ADMIN.User`, `ADMIN.Role` (basic)
+- `REVIEW.MistakeNotebook`
+- basic `CONTENT.*`
+- `ADMIN.User`, `ADMIN.Role`
 
-**Not in MVP** (move to V1): Interactive Examiner dialogue, phoneme-level Pronunciation, FSRS for grammar/collocation, Smart Queue, Insights, Exam Readiness, Offline, Import, Achievement, advanced Governance. MVP still requires baseline `OPS.*`: logging, quota, budget, model routing, release gate, and recovery state.
+**Not in Expanded MVP by default:** interactive examiner dialogue, phoneme-level pronunciation, broad FSRS expansion, advanced Smart Queue, generated Insights, full Exam Readiness, Offline, Import, Achievement, advanced Governance. Baseline `OPS.*` remains mandatory: observability, quota, budget, deterministic/model routing, release gate and recovery/result-validity state.
 
 ## Version 1
 
 High-value advanced capability expansion:
-- `STUDY.Session`, `STUDY.SessionSummary`, `STUDY.Resume`
-- `BAND.ExamReadiness`, `BAND.Readiness` (advanced), `BAND.RecommendedNext`
-- `PERSONAL.GapAnalysis`, `PERSONAL.NextBestAction`, `PERSONAL.Insights`
-- `COACH.*` (full coaching)
-- `EVAL.Examiner`, `EVAL.Pronunciation`, `EVAL.Speaking` (advanced), `EVAL.RewriteSuggestion`
-- `LEARN.Speaking` (recording, transcript comparison), Writing rewrite loop
-- `LEARN.Pronunciation`
-- `PRACTICE.Adaptive`, `REVIEW.SmartQueue`
-- `REVIEW.FSRS` (expanded to grammar, collocation, mistakes)
-- `HISTORY.*` (full)
-- `PRACTICE.ExamSimulation`
-- `SEARCH.*`, `SEARCH.Global`
-- `PROGRESS.Motivation`, `PROGRESS.Achievement`
-- `PKM.*` (full: word bank, collections, import, export, sync, offline)
-- `NOTIF.Preference`, `NOTIF.QuietHours`
-- `CONTENT.Feedback`
-- `GOVERNANCE.*` (full governance backend)
-- Content taxonomy depth (auto-tag)
-- `SUB.*`, `SUB.Premium`
+
+- advanced study/resume orchestration
+- evidence-based Exam Readiness
+- uncertainty-aware personalization and adaptive selection
+- full coaching where reusable/deterministic content is insufficient
+- staged Speaking/Pronunciation/Examiner features
+- Writing rewrite loop as coaching, not mastery evidence
+- adaptive practice with exposure/novelty/coverage controls
+- full History/portfolio/compare
+- Exam Simulation
+- Search
+- healthy motivation/reactivation
+- expanded PKM and notification controls
+- full governed Content feedback/operations
+- full Governance backend
+- subscription/premium with shared semantic truth and scoring-quality floor
 
 ## Version 2
 
 Polish + advanced:
-- `PERSONAL.*` (advanced)
-- `PROGRESS.*` (advanced analytics)
-- `NOTIF.*` (notification center)
-- `CONTENT.Moderation` (advanced)
-- `ADMIN.Revenue`, `ADMIN.AuditLog` (deep)
-- `REVIEW.FSRS` optimization (per-learner tuning)
-- `LOC.*` (locale formatting, additional languages)
-- `GOAL.ExamPlan` (advanced)
+
+- advanced personalization after outcome evidence
+- advanced learning analytics
+- notification center
+- advanced moderation
+- revenue/deep audit views
+- per-learner FSRS tuning if justified
+- additional locales
+- advanced exam-day planning
 
 ## Release
 
-- Each Version releases by milestone rather than a fixed calendar date.
-- Release notes reference capability IDs for traceability back to the Blueprint.
-- Breaking data-model changes require a migration script + version bump.
+- Each version releases by milestone rather than a fixed calendar date.
+- Release notes reference capability IDs for traceability.
+- Breaking data-model changes require migration + version bump.
+- Inference/provider changes affecting evaluation or learner evidence require the appropriate benchmark/release gate even when the HTTP API is unchanged.
 
 ## Deprecation
 
-- A capability is deprecated when replaced by a new capability or removed entirely.
-- Process: mark `deprecated` → retain for 1 version → `retired`.
+- A capability is deprecated when replaced or removed.
+- Process: `deprecated` → retain for one version → `retired`.
 - This parallels content versioning in `05-content.md`.
 
 ## Roadmap notation and exit criteria
 
-- `*` is shorthand for readability, not an implementable capability ID; backlog entries must expand it into concrete IDs.
-- `basic` requires acceptance criteria, while `advanced` requires outcome evidence; these labels must not be used to postpone quality/safety.
-- Every milestone contains capability IDs, dependency graph, owner, capacity estimate, quality gate, cost budget, analytics events, and rollback plan.
+- `*` is shorthand only; implementation backlogs expand concrete IDs.
+- `basic` requires acceptance criteria; `advanced` requires measured outcome evidence.
+- Every milestone contains capability IDs, dependency graph, owner, capacity estimate, quality gate, cost budget, analytics/outcome events, privacy class, fallback and rollback plan.
+- Any inference-using milestone states why deterministic/precomputed mechanisms are insufficient and defines escalation/context limits.
 
 ### Closed-pilot launch gates
 
-The closed pilot may launch only when all six P0 packs in `03-features.md` § P0 Capability Profile Matrix are `ready` in the Build Readiness Matrix and:
+The closed pilot may launch only when all six P0 packs are `ready` and:
 
-1. the learner completes Placement/goal, receives a Today action, and knows the next step on the same day;
-2. a complete **Writing Task 2** loop exists: submit → evidence-based feedback → one fix → FSRS review → retest proof;
-3. Writing evaluation records rubric/model/prompt version, confidence state, token/cost attribution, and timeout recovery;
-4. the task passes rights/content quality gates; if no valid task exists, the system does not generate an arbitrary task;
-5. cost/evaluation, queue latency, error rate, quota, DLQ/retry, and raw-content telemetry have observability under the P0 runtime contract;
-6. Runtime State/Event/Failure contracts are tested for onboarding, draft save, duplicate submit, timeout, network loss, quota exhaustion, worker retry, and app restart;
-7. consent, export/delete boundaries, and ownership are tested end-to-end;
-8. benchmark, prompt/model/rubric route, and release gate contain no unevidenced claims; while evidence is missing, the closed pilot remains `not ready`.
+1. target profile/placement produces a truthful evidence state; insufficient coverage/precision returns insufficient evidence rather than a fabricated estimate;
+2. learner receives one Today action with a structured reason on the same day;
+3. complete Writing Task 2 loop exists: submit → task-scoped evidence-based feedback → one remediation → suitable review → **independent retest**;
+4. Writing evaluation records score scope, rubric/task/scorer-route/prompt-config provenance, result validity, evidence, cost/escalation and timeout recovery;
+5. stronger/second scoring pass runs only for a governed hard/high-risk condition and no unbenchmarked scorer fallback exists;
+6. a missing/invalid task blocks evaluation rather than generating arbitrary assessment content;
+7. cost/evaluation, cost/successful-evaluation, cost/verified-improvement, latency, error, quota, retry/escalation and raw-content telemetry controls are observable;
+8. Runtime State/Event/Failure/result-validity contracts are tested for onboarding, draft save, duplicate submit, timeout, network loss, quota exhaustion, worker retry and app restart;
+9. access tests prove scoped internal workers and no blanket generic service authority;
+10. consent/export/delete/ownership and model-context minimization are tested end-to-end;
+11. benchmark, scorer route, rubric and release gate contain no unevidenced quality claims; while required evidence is missing, the pilot remains `not ready`.
 
 ### Expanded-MVP launch gates
 
 Expanded MVP may launch only after closed-pilot evidence exists and when:
 
-1. the outcome loop `Understand → Practice → Retest → Confirm` has acceptance evidence for Listening, Reading, Writing, and Speaking within the announced scope;
-2. every skill/question-type/band profile uses the controlled coverage framework, calibration status, and appropriate rights/content gate;
-3. notification/engagement has opt-out, quiet hours, frequency caps, and no guilt mechanics;
-4. multi-skill cost/quality/retention impact is benchmarked again rather than inferred from the Writing-only pilot.
+1. `Diagnose → Understand → Practice → Independent Retest → Transfer` has acceptance evidence for each announced skill/scope;
+2. placement/mock/readiness preserve score scope, content coverage, exposure/novelty and insufficient-evidence behavior;
+3. objective Listening/Reading scoring remains deterministic where answer keys suffice;
+4. staged Speaking/speech processing passes quality/privacy/cost gates for the exact announced use;
+5. every activated taxonomy field demonstrably feeds diagnosis, recommendation, evaluation, review, search or governed quality analysis;
+6. notification/engagement has opt-out, quiet hours, frequency caps and no guilt mechanics;
+7. multi-skill cost/quality/verified-learning impact is benchmarked again rather than inferred from the Writing-only pilot.
 
 ### Version 1 gates
 
-V1 expands personalization/engagement only after Expanded MVP demonstrates retest gain, reduced error recurrence, helpfulness, and comeback quality; retention alone is not evidence of product quality.
+V1 expands personalization/engagement only after Expanded MVP demonstrates independent retest/transfer gain, lower error recurrence, useful uncertainty reduction, helpfulness and comeback quality. Retention or model sophistication alone is not evidence of product quality.
 
 ## Phasing principle
 
-- P0 → Closed Pilot (Placement/goal → Today → Writing Task 2 → feedback → fix → review → retest, with baseline quality/cost controls)
-- Expanded MVP → evidence-backed expansion into basic four-skill learning and evaluation within announced scope
-- P1 → Version 1 (higher-level capabilities, governance, full personalization)
-- P2 → Version 2 (polish, advanced analytics, scale)
+- P0 → prove one Writing evidence→intervention→independent-retest loop and its unit economics
+- Expanded MVP → prove the same semantic loop across announced four-skill scope
+- P1/V1 → expand only mechanisms that add measured learner value over simpler policies
+- P2/V2 → polish, deeper analytics and scale after the core evidence/economics system works
 
 This roadmap **may** change according to delivery reality without breaking the Blueprint. The Blueprint (`README` + spokes) is the capability SSOT; the roadmap is the phasing SSOT.
