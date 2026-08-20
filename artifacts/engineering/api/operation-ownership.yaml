@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: web-api-operation-ownership
@@ -42,6 +42,9 @@ operations:
   getWritingSubmission: WRITING.Evaluation
   getWritingEvaluation: WRITING.Evaluation
   submitWritingFeedback: WRITING.Evaluation
+  saveWritingError: REVIEW.ErrorToReview
+  saveWritingErrorFix: REVIEW.ErrorToReview
+  startWritingErrorRetest: REVIEW.ErrorToReview
   getPremiumInsights: PROGRESS.Learning
   createDeepFeedback: COACH.Feedback
   listMockTests: MOCK.ExamSimulation
@@ -72,3 +75,4 @@ rules:
   - every_owner_family_exists_in_capability_family_registry
   - one_operation_has_exactly_one_owner_family
   - capability_manifest_api_operations_are_projections_and_may_not_override_this_registry
+  - internal_function_scope_is_part_of_authorization_not_an_owner_family
