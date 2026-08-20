@@ -1,6 +1,6 @@
 type: operations-contract
 status: review
-version: 1.1.0
+version: 1.2.0
 owner: founder + product + engineering + operations
 representation: yaml
 artifact_id: OPS.ProblemRiskCoverage
@@ -8,3 +8,9 @@ derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
 purpose: classify cross-cutting problem risks and staged implementation release and scale gates
 created_at: 2026-08-20
 updated_at: 2026-08-20
+change_log:
+  - version: 1.2.0
+    date: 2026-08-20
+    changes:
+      - Added risks for false attainment promises, diagnosis-cause misrouting, curriculum dead ends, over-band routing and learner choice overload.
+      - Updated documentation-integrity risk to require zero live legacy aliases.
