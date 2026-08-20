@@ -21,8 +21,8 @@ rescue Lenbands::YamlError => e
 end
 
 # YAML.safe_load accepts duplicate mapping keys by keeping the last value. Every document
-# YAML file must therefore pass the duplicate-key-aware loader, including sidecars and
-# OpenAPI, before metadata/semantic validation can make any readiness claim.
+# YAML file must therefore pass the duplicate-key-aware loader before metadata/semantic
+# validation can make any readiness claim.
 Dir.glob(File.join(root, "{blueprint,artifacts,knowledge-assets}/**/*.{yaml,yml}")).sort.each do |path|
   load_yaml.call(path)
 end
@@ -41,6 +41,9 @@ meta_paths.each do |path|
   if data["status"] == "approved"
     %w[reviewed_by reviewed_at].each { |field| errors << "approved artifact missing #{field}: #{label}" unless data.key?(field) }
   end
+
+  # Metadata is lifecycle/ownership/provenance, not an execution archive or repository dump.
+  errors << "metadata sidecar exceeds 32 KiB noise budget: #{label}" if File.size(path) > 32 * 1024
 end
 
 Dir.glob(File.join(root, "artifacts/**/*.md")).sort.each do |path|
@@ -138,11 +141,13 @@ end
   errors << "legacy artifact top-level folder remains: #{path}" if File.exist?(File.join(root, path))
 end
 
+# Canonical runtime is the shared authority. Subfolder contracts are required only when they
+# add a unique implementation boundary that is not already owned by runtime/API/BOPS.
 required_runtime = %w[
-  artifacts/engineering/contracts/runtime/async-job-worker-contract.md
-  artifacts/engineering/contracts/runtime/cache-contract.md
-  artifacts/engineering/contracts/runtime/api-governance-contract.md
-  artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md
+  artifacts/engineering/runtime-contract.yaml
+  artifacts/engineering/api/openapi.yaml
+  artifacts/engineering/api/schema-contract.yaml
+  artifacts/engineering/api/access-control.md
   artifacts/engineering/contracts/runtime/observability-slo-contract.md
   artifacts/engineering/contracts/runtime/provider-adapter-contract.md
   artifacts/engineering/contracts/runtime/llm-routing-context-contract.md
@@ -158,6 +163,24 @@ required_runtime = %w[
   artifacts/operations/catalogs/capability-index.md
 ]
 required_runtime.each { |path| errors << "missing P0 runtime contract: #{path}" unless File.file?(File.join(root, path)) }
+
+retired_paths = %w[
+  artifacts/engineering/contracts/openapi.yaml
+  artifacts/engineering/contracts/writing-task-2/openapi.yaml
+  artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md
+  artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md
+  artifacts/engineering/contracts/runtime/lifecycle-contract.md
+  artifacts/engineering/contracts/runtime/auth-identity-contract.md
+  artifacts/engineering/contracts/runtime/sre-delivery-security-contract.md
+  artifacts/engineering/contracts/learning-ontology-proposal.md
+  artifacts/engineering/contracts/learning-measurement-traceability-proposal.md
+  artifacts/engineering/contracts/phase-4-target-learning-architecture-proposal.md
+]
+retired_paths.each do |path|
+  errors << "retired shadow/legacy document returned: #{path}" if File.exist?(File.join(root, path))
+  meta = path.sub(/\.md\z/, ".meta.yaml")
+  errors << "retired shadow/legacy metadata returned: #{meta}" if path.end_with?(".md") && File.exist?(File.join(root, meta))
+end
 
 (1..6).each do |number|
   pack = format("P0-%02d", number)
