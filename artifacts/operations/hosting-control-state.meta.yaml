@@ -1,10 +1,17 @@
 type: external-hosting-control-state
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: operations
 representation: yaml
 derived_from: [GOVERNANCE.AuditTrail, OPS.ReleaseGate]
-purpose: observed-github-enforcement-state-not-repository-policy
+purpose: observed-main-and-dev-github-enforcement-state-not-repository-policy
 consumed_by: [operations, validators, founder]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-21
+change_log:
+  - version: 1.1.0
+    date: 2026-08-21
+    changes:
+      - Refreshed live observations for main and dev branch protection/status checks.
+      - Recorded dev as long-lived non-release integration ref and current commit signature state.
+      - Recorded that the current connector exposes no branch-protection write action.
