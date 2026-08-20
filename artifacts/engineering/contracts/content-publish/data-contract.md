@@ -2,13 +2,19 @@
 
 Canonical metadata is in `data-contract.meta.yaml`.
 
-P0 scope: **Writing Task 2 prompt** from Colab draft → published → consumed by the Writing slice. This is P0's largest reverse dependency (P0-04 consumes a published task but no generation spec exists yet).
+P0 scope: Writing Task 2 prompt from Colab draft → reviewed → published → consumed by the Writing slice.
 
-### Authoring-side and learner-side schema boundary
+This contract owns authoring/publishing semantics for the P0 content boundary. Learner-facing HTTP payloads are owned by `artifacts/engineering/api/openapi.yaml` and `artifacts/engineering/api/schema-contract.yaml`.
 
-The `target_band_range` and `rights` fields belong to the authoring side, used for the Colab rights/content gate and not as learner-facing API output. `openapi.yaml` is the learner-side projection, so it exposes only the required prompt, controlled `task_type`, and minimal metadata. The two schemas intentionally have different boundaries; do not copy internal rights/provenance into the API.
+## Boundary
 
-`origin.source/license` is KA sidecar schema metadata; `rights.origin` in this authoring entity is a separate rights-classification enum. The two boundaries do not share a representation.
+Authoring metadata and learner-facing payloads intentionally differ.
+
+- rights/provenance/reviewer fields stay on the authoring/governance side;
+- learner API exposes only fields required to render/use the task safely;
+- target-band routing is **not** a content-authoring truth;
+- challenge/learning-stage metadata is optional until an active planner consumer and validation policy exist;
+- a Writing Task 2 prompt is authentic task content, not a promise that it is "Band 5" or "Band 8" material.
 
 ## Lifecycle
 
@@ -16,90 +22,127 @@ The `target_band_range` and `rights` fields belong to the authoring side, used f
 draft → in_review → published → deprecated → retired
 ```
 
-- `draft`: Colab authoring, AI-assisted auto-tag proposal.
-- `in_review`: Colab submit, moderation queue (founder review P0).
-- `published`: live and consumable by learners.
-- `deprecated`: still accessible by direct link (already used by learners), not used in recommendations.
-- `retired`: fully hidden.
-
-P0 moderation: **manual founder review** (no complex tool required). P1: full Colab tool.
+- `draft`: authoring state.
+- `in_review`: correctness/rights/task-type review.
+- `published`: learner-eligible when all active gates pass.
+- `deprecated`: historical/direct references remain valid; not selected for new work.
+- `retired`: hidden from new learner selection while historical evidence keeps exact version refs.
 
 ## Entity: WritingTask (authoring side)
 
 ```yaml
-task_id: string               # uuid, stable across versions
-version: integer              # bump on edit
+task_id: string
+version: integer
 status: draft | in_review | published | deprecated | retired
-exam_module: academic | general_training
-task_type: W_task2_opinion | W_task2_discussion | W_task2_advantages_disadvantages | W_task2_problem_solution | W_task2_two_part (from writing-task-framework.md)
-prompt_text: string           # full prompt
-prompt_word_count_target: integer   # 250 (Task 2)
-prompt_hash: string           # hash prompt_text to detect duplicates
+exam_module: academic | general_training | shared
+task_type: W_task2_opinion | W_task2_discussion | W_task2_advantages_disadvantages | W_task2_problem_solution | W_task2_two_part
+prompt_text: string
+minimum_words: 250
+prompt_hash: string
 rights:
-  origin: first_party | licensed | cambridge_pattern | generated | public_domain
-  origin_ref: string          # source URL/ref if not first_party
-  license_evidence_ref: string  # path/hash evidence if licensed (immutable in operations/evidence)
-target_band_range: [5.0, 9.0]
+  origin: first_party | licensed | generated | public_domain
+  source_ref: string | null
+  license_evidence_ref: string | null
+  review_state: needs_review | approved | blocked
+routing:
+  learning_stage: foundation | developing | target | advanced | precision | null
+  calibration_status: unknown | provisional | calibrated
+  prerequisite_refs: []
+  note: optional_routing_metadata_not_an_ielts_band_claim
 tags:
-  topic: [t_education, t_technology, ...]   # from vocab-collocation-topic.md
-  microskill_ref: [W_position_clarity, ...] # suggested, not required
-colab_author_id: string
-reviewed_by: string           # founder id (P0)
+  topic: []
+  microskill_ref: []
+colab_author_ref: string
+reviewed_by_ref: string | null
 reviewed_at: timestamp | null
 published_at: timestamp | null
 created_at: timestamp
 updated_at: timestamp
 ```
 
-## Rights gate (hard rule)
+### Routing metadata rule
 
-Task is not `published` when:
-- `rights.origin` is outside the enum → reject.
-- `rights.origin = licensed` lacks `license_evidence_ref` → reject.
-- `rights.origin = cambridge_pattern` (written in a Cambridge pattern, not original Cambridge material) → OK but must be stated clearly.
-- If provenance is unclear, Colab keeps the entity in `draft` and does not emit `rights.origin`; do not assign `link_only` or a license automatically.
+`routing.learning_stage` may exist only when an active planning/content-selection consumer uses it. It is not equivalent to an IELTS band and cannot be converted into `target_band_range` by author/model judgment.
 
-P0: founder decides rights during authoring. Immutable evidence is in `operations/evidence/` (hash + provenance).
+`calibration_status=calibrated` requires governed evidence. Without it, the planner uses prerequisites, TargetProfile, supported diagnosis cause, task authenticity, exposure policy and minimum-sufficient-challenge rules rather than fabricated numeric difficulty.
 
-## Author → Review → Publish flow (P0)
+## Rights gate
+
+A task cannot become `published` when:
+
+- `rights.review_state != approved`;
+- `rights.origin=licensed` and `license_evidence_ref` is missing;
+- source/provenance is unclear;
+- prompt reproduces protected third-party assessment material without permission;
+- branding/source wording could misrepresent first-party/generated material as official IELTS/Cambridge/other third-party material.
+
+Generated or first-party content is still reviewed for rights, correctness and misleading provenance. "Generated" does not mean automatically rights-safe or exam-authentic.
+
+## Author → Review → Publish flow
 
 ```text
-1. Colab/Founder authors the draft (WritingTask entity)
+1. Author creates draft
    ↓
-2. Auto-tag (CONTENT.AutoTag) proposes: task_type, topic, target_band_range
-   - P0: deterministic rules + prompt pattern match, no LLM required
+2. Deterministic validation
+   - schema / task_type / module
+   - prompt hash / duplicate check
+   - required provenance fields
    ↓
-3. Founder review (in_review → moderation queue)
-   - Check: prompt is not duplicated (prompt_hash), rights are valid, band range is reasonable
-   - P0: minimal UI (admin tool, no full Colab shell required)
+3. Optional metadata suggestion
+   - only fields with active consumers
+   - no target-band guessing
    ↓
-4. Approved → published (status flip, published_at set)
+4. Review
+   - task correctness/authenticity
+   - rights/provenance
+   - misleading source/trademark language
+   - active routing metadata if present
    ↓
-5. Writing slice consume GET /writing/tasks/{task_id}
+5. Publish audited immutable version
+   ↓
+6. Canonical Writing API serves learner projection
 ```
 
-## Anti-pattern
+P0 does not need a complex Colab shell; one trusted operator may hold author/reviewer/publisher permissions, but each transition remains explicit and audited.
 
-- Hosting original Cambridge material without a license → rights violation, reject.
-- Generate a random prompt for the learner when no task is published → violation ("do not create a random task" — Writing slice rule).
-- Publish without review → moderation-gate violation.
-- Change `prompt_text` after publishing without bumping version → learner-facing immutability violation.
+## Curriculum sufficiency integration
+
+Publishing one prompt does not prove that a learner path is complete.
+
+For any activated diagnosis/remediation family, the content system must separately prove governed coverage from intervention to independent verification/retest according to `blueprint/05-content.md`.
+
+If coverage is missing, the planner returns `content_gap`; it must not:
+
+- manufacture a task at runtime;
+- reuse a revealed source prompt as independent transfer proof;
+- route to harder/higher-band material merely because another suitable task is unavailable.
+
+## Anti-patterns
+
+- Hosting protected third-party assessment material without permission.
+- Labeling a first-party/generated task as official or third-party-authored.
+- Generating a random assessment task because no published task exists.
+- Publishing without rights/correctness review.
+- Editing `prompt_text` in place after publication.
+- Inventing `target_band_range`, difficulty or time-to-band from author/model intuition.
+- Treating harder vocabulary/grammar/prompt complexity as automatically better preparation.
 
 ## Versioning
 
-- Edit `prompt_text`: bump version and retain the old version (learners who used it still reference it correctly).
-- Edit metadata without semantic change (tag): patch, no version bump.
-- Retire: status flip + reason note.
+- material prompt/task change → new immutable version;
+- assessment-relevant routing/exposure/evaluation-policy change → impact review/version as required by the owning content/evidence contract;
+- optional non-semantic metadata may be patched only when it cannot alter historical evidence interpretation;
+- retire/deprecate preserves historical attempt references.
 
-## Cross-refs
+## Canonical references
 
-- Writing slice (consumer): `experience/specs/vertical-slices/writing-task-2.md` §4 (entry condition: a published task is required).
-- Licensing matrix: `business/legal/licensing-matrix.md`.
-- OpenAPI WritingTask schema: `engineering/contracts/writing-task-2/openapi.yaml` (WritingTask).
-- Knowledge Asset lifecycle: `blueprint/05-content.md` § Versioning.
+- learner API: `artifacts/engineering/api/openapi.yaml`;
+- learner payload semantics: `artifacts/engineering/api/schema-contract.yaml`;
+- content/curriculum/challenge policy: `blueprint/05-content.md`;
+- Writing consumer: `artifacts/experience/specs/vertical-slices/writing-task-2.md`;
+- rights/legal evidence: current business/legal artifacts selected through `DOCS.yaml` and release governance.
 
 ## P0 vs later
 
-- P0: Writing Task 2 prompt only, founder manual review, minimal admin UI.
-- P1: full Colab tool, LLM-assisted AutoTag, multiple content types (Reading passage, Listening audio, Speaking cue card).
-- P2: Advanced moderation workflow, blueprint update batch.
+- P0: Writing Task 2 prompts, explicit review, minimum required metadata, rights/provenance, enough intervention/retest coverage for activated Writing paths.
+- Later: broader skill assets and richer routing metadata only after active consumers and outcome/quality evidence justify their authoring cost.
