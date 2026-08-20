@@ -1,23 +1,29 @@
 # Engineering Contracts
 
-An engineering contract is an implementation agreement derived from a Blueprint capability ID and a runtime contract. Do not create a contract until a specific build-ready boundary exists.
+Engineering contracts are **scoped implementation agreements derived from canonical product/domain/runtime owners**. They are not a second architecture layer.
 
-| Contract | Create when | Required references |
+Before adding a contract, read `DOCS.yaml` and ask whether an existing canonical owner already owns the field. If yes, deepen that owner or add only a narrow derived specialization with an explicit consumer.
+
+| Contract kind | Create only when | Canonical authority it consumes |
 |---|---|---|
-| OpenAPI | HTTP boundary/service is approved | capability ID, event/failure behavior, version |
-| Event schema | event producer/consumer is approved | `blueprint/03-features.md` Event Contract |
-| Failure schema | service failure behavior is approved | `blueprint/06-engines.md` Failure Contract |
-| Data contract | entity lifecycle/storage boundary is approved | capability ID, privacy class, migration strategy |
-| Prompt specification | AI workflow is approved | workflow ID, evaluation/quality gate, cost budget |
-| Runtime job / worker | asynchronous side effect or Go → Python boundary is approved | job identity, idempotency, retry/DLQ, owner, cost/privacy scope |
-| Cache | data/result is cached | source of truth, key scope, TTL, invalidation, failure behavior |
-| API governance | multiple HTTP contracts share one lifecycle | auth, error envelope, versioning, rate limit, compatibility |
-| Outbox / reconciliation | a domain write must trigger async work | atomic dispatch, deduplication, replay, repair |
-| Observability / SLO | a learner outcome depends on runtime reliability | redaction, traces, SLO, alert, runbook |
-| Provider adapter | a provider may be replaced or dual-run | neutral interface, timeout, circuit/fallback, audit version |
-| Runtime slice specification | a capability needs multiple contracts connected into an implementable flow | actors, orchestration, state machine, recovery, entity relation, acceptance IDs |
-| Multi-skill practice runtime | Listening/Reading/Speaking/Pronunciation/Mock share an attempt but differ in scoring/input | practice modes, stimulus/audio/session state, evaluation boundary, recovery, acceptance |
+| HTTP/API specialization | never as a second OpenAPI; add operations/schemas to canonical API | `artifacts/engineering/api/` |
+| Event schema | a concrete producer/consumer boundary exists | capability + owning domain lifecycle + privacy/runtime rules |
+| Failure specialization | a slice needs recovery behavior beyond shared taxonomy | `runtime/failure-taxonomy-contract.md` + API failure projection |
+| Data contract | a concrete entity/storage/evidence boundary exists | capability + retention + migration + runtime |
+| Prompt/scorer specification | inference is materially required and quality can be validated | evaluation contract + benchmark + provider adapter |
+| Durable-operation specialization | a concrete operation must outlive request lifetime | `artifacts/engineering/runtime-contract.yaml` |
+| Observability specialization | generic signals cannot express a concrete learner-critical boundary | runtime + BOPS + observability derived contract |
+| Runtime slice specification | several existing contracts must be connected into one implementable vertical flow | canonical API/runtime/domain contracts |
 
-P0 runtime contracts are in `runtime/`. They are the shared foundation for vertical slices; each slice only adds its own extension and must not create conflicting semantics.
+## Rules
 
-Runnable Go/Python/Next.js implementations and actual tests belong to Source Code when the implementation plane is created. This folder only holds shared contracts/specifications, not a competing implementation.
+- No Go/Python/Redis/queue/cache/service topology is assumed by this folder. Mechanisms are selected by sourcing/runtime evidence.
+- A cache, queue, worker or dedicated service requires a measured/semantic need; the presence of a historical contract path is not justification.
+- Do not create another cross-entity lifecycle authority. Operation lifecycle, result validity, retention and family-specific states remain with their registered owners.
+- Do not create another access/auth scope vocabulary. `artifacts/engineering/api/access-control.md` owns web/internal authorization semantics.
+- Do not create another OpenAPI or request/response schema registry.
+- Model/provider output is candidate data until adapter/domain validation; prompts/providers never own product truth.
+- A derived contract should be deleted when its unique semantic/implementation purpose is absorbed by a canonical owner and no executable consumer remains.
+- Git history is the archive for retired proposal/migration/review packets.
+
+Source implementation and executable tests belong in the application workspace once the target family is implementation-eligible and externally authorized. This folder exists to reduce implementation invention, not to maximize document count.
