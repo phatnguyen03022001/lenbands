@@ -1,10 +1,10 @@
 type: documentation-architecture
 status: review
-version: 1.0.0
+version: 1.2.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability]
-purpose: stable document identities naming rules aliases and documentation noise budget
-consumed_by: [business, experience, engineering, operations]
+purpose: stable document identities retirement rules naming aliases and documentation noise budget
+consumed_by: [business, experience, engineering, operations, agents]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
