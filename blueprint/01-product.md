@@ -187,7 +187,7 @@ Evaluation / speech / recommendation adapters
 ### Quality promise
 
 - Feedback states the evidence, meaning/criterion, one high-leverage action, and how to verify improvement.
-- Every score stores rubric version, scorer route/model version, task version, timestamp, quality state, and evidence provenance required by the evaluation contract.
+- Every evaluation result stores task/rubric/scorer-route provenance, timestamp, domain-owned `result_validity`, and evidence provenance required by the evaluation contract; provider/model execution identity is retained in the governed audit/runtime boundary when applicable rather than trusted from generated output.
 - Invalid, insufficient/limited-evidence, or integrity-review results do not feed readiness as ordinary accepted results.
 - Learner-facing uncertainty uses calibrated language; raw model confidence percentages are not shown as scientific certainty without empirical validation.
 
