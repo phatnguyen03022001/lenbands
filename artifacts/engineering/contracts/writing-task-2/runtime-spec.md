@@ -1,328 +1,341 @@
 # P0-04 Writing Evaluation Runtime Specification
 
-## 0. Status and scope
+## 0. Status and authority
 
-This is the first runtime slice to implement in the closed pilot. In the repository taxonomy, Writing Evaluation is **P0-04**, not P0-01; P0-01 is Identity.
+This contract owns the P0 Writing Task 2 processing order, durable state transitions, component responsibilities, recovery and acceptance boundary.
 
-This artifact specifies **processing order, state transitions, ownership, recovery, and the acceptance boundary**. It does not replace the Blueprint, Data Contract, OpenAPI, Event Contract, Failure Contract, Prompt Specification, or Runtime Foundation Contracts. When those files define their own vocabulary/schema, this runtime must consume them.
+Status: `review`. It is not build-ready until the benchmark route, rights-approved tasks, acceptance tests and runtime evidence exist.
 
-Status: `review`. It is not considered build-ready because source code, gold corpus, benchmark runs, and real acceptance evidence are missing.
+Canonical dependencies:
 
-## 1. Runtime objective
+- product/capabilities: `blueprint/01-product.md`, `blueprint/03-features.md`;
+- experience: `artifacts/experience/specs/vertical-slices/writing-task-2.md`;
+- canonical HTTP operations: `artifacts/engineering/api/openapi.yaml`;
+- canonical request/response semantics: `artifacts/engineering/api/schema-contract.yaml`;
+- runtime invariants: `artifacts/engineering/runtime-contract.yaml`;
+- scoped data/evaluation contracts: sibling `data-contract.md` and `evaluation-contract.md`;
+- failure taxonomy: canonical runtime failure contract/registry;
+- evaluation route/governance: `blueprint/06-engines.md` + activated benchmark/release evidence.
 
-For an authenticated learner with consent, the system must:
+Legacy `artifacts/engineering/contracts/**/openapi.yaml` files are migration-only and are not implementation/codegen authorities.
 
-1. read exactly one published Writing Task 2;
-2. save a draft version without data loss;
-3. create exactly one submission for each logical submit;
-4. evaluate asynchronously with auditable rubric/prompt/model versions;
-5. return evidence-linked feedback or a safe state when evidence is insufficient;
-6. create `LearningError` only after the learner confirms a finding;
-7. continue through fix, review, and retest without creating a second source of truth.
+## 1. Learner outcome
 
-The runtime does not promise an official IELTS score. `band_estimate` is always an estimate.
+The slice proves one loop:
 
-## 2. Actors and component boundary
+```text
+published Writing Task 2
+  -> durable draft
+  -> immutable submission
+  -> staged evidence-based diagnostic evaluation
+  -> one priority finding
+  -> smallest useful fix
+  -> retrievable review when appropriate
+  -> sufficiently novel retest
+  -> verified improvement or explicit remaining gap
+```
 
-| Actor/component | Responsibility | Must not |
+A Writing Task 2 result is a `diagnostic_estimate` for this task. It is never presented as an official IELTS Writing section score.
+
+## 2. Component boundary
+
+| Component | Owns | Must not |
 |---|---|---|
-| Learner | write, save, submit, view feedback, confirm errors, perform fix/retest | access another learner's resources |
-| Writing API | authz, input validation, idempotency, response projection | call a provider directly |
-| Submission service | snapshot the draft, quota preflight, create submission + outbox | evaluate the essay itself |
-| Evaluation worker | receive the job, call the adapter, normalize, persist the result | retry outside the worker contract |
-| Provider adapter | map provider-neutral request/response, timeout, usage | decide domain state or event name |
-| Evaluation normalizer | validate structured output, create `WritingEvaluation` + `FeedbackFinding` | invent evidence or a band |
-| Review service | learner-confirmed error, fix, FSRS, retest transition | turn an unconfirmed finding into a saved error |
-| Notification/read projection | report status and expose the learner-owned read model | become the source of truth |
+| Learner | own draft, submit intent, feedback confirmation, fix/retest | access another learner's objects |
+| Writing API | authz, validation, idempotency, typed projection | call model/provider directly |
+| Submission service | immutable snapshot, quota reservation, durable operation creation | perform scoring judgment |
+| Evaluation orchestrator | stage order, deadlines, bounded escalation, route provenance | author readiness/mastery |
+| Deterministic precheck | task/word/language/basic format facts | infer rubric band |
+| Primary scorer adapter | bounded rubric judgment | write domain entities directly |
+| Evidence validator/normalizer | schema, rubric, evidence and result-validity admission | invent unsupported evidence |
+| Escalation scorer | independent stronger/specialist pass for hard cases only | run on every submission |
+| Feedback mapper | evidence-backed finding → framework error/remediation candidate | publish framework IDs not already valid |
+| Review service | confirmed error, fix, FSRS scheduling where suitable, retest | equate review maturity with Writing mastery |
+| Read projection/notification | learner-safe status/results | become SSOT |
 
-There is no human examiner in P0. No scheduler is required; async execution uses the existing job/worker contract.
+There is no runtime human examiner dependency. Models/providers/prompts are mechanisms, not principals or product authority.
 
-## 3. Canonical source map
-
-| Runtime concern | Canonical contract |
-|---|---|
-| Capability and scope | `blueprint/03-features.md` — `P0-04`, `EVAL.Writing` |
-| Learner flow | `artifacts/experience/specs/vertical-slices/writing-task-2.md` |
-| HTTP interface | `artifacts/engineering/contracts/writing-task-2/openapi.yaml` |
-| Entity ownership/schema | `artifacts/engineering/contracts/writing-task-2/data-contract.md` |
-| Evaluation semantics | `artifacts/engineering/contracts/writing-task-2/evaluation-contract.md` |
-| Prompt | `artifacts/engineering/contracts/writing-task-2/writing_evaluation_v1.md` |
-| Events | `artifacts/engineering/contracts/writing-task-2/event-contract.md` |
-| Failure mapping | `artifacts/engineering/contracts/writing-task-2/failure-contract.md` |
-| Async delivery | `artifacts/engineering/contracts/runtime/async-job-worker-contract.md` |
-| Outbox | `artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md` |
-| Provider boundary | `artifacts/engineering/contracts/runtime/provider-adapter-contract.md` |
-| HTTP lifecycle | `artifacts/engineering/contracts/runtime/api-governance-contract.md` |
-
-If the runtime needs semantics missing from the source map, implementation must stop at `blocked` and create a decision/spec change; do not invent an enum or transition.
-
-## 4. Entity ownership and relationships
+## 3. Canonical entities
 
 ```text
-Published WritingTask
-        ↓ task_ref + task_version
-WritingDraft (learner-owned, versioned)
-        ↓ immutable draft_version
-WritingSubmission (system-owned for learner)
-        ↓ one or more bounded evaluation attempts
-WritingEvaluation (immutable accepted quality result)
-        ↓ 0..n normalized findings
-FeedbackFinding (evaluation-owned, immutable)
-        ↓ learner confirmation only
-LearningError (learner-owned lifecycle)
-        ↓ 0..1 active error review card
-ReviewCard (learner-owned, FSRS lifecycle)
-        ↓ 0..n
-RetestAttempt (learner-owned evidence of improvement)
+WritingTask(versioned published content)
+  -> WritingDraft(versioned learner work)
+  -> WritingSubmission(immutable snapshot reference)
+  -> DurableEvaluationOperation(operation state)
+  -> WritingEvaluation(result validity + rubric evidence)
+  -> FeedbackFinding(normalized learner-safe finding)
+  -> learner confirmation
+  -> LearningError
+  -> optional ReviewCard
+  -> RetestAttempt
 ```
 
-### Required identity/integrity rules
+Rules:
 
-- `WritingSubmission` references exactly one immutable `draft_id + draft_version` and one published `task_ref + task_version`.
-- A retry never creates a new submission; it creates a new bounded evaluation attempt for the same submission.
-- Only one evaluation result can be the current accepted result for a submission. A recalibration creates a new version and points to the superseded result.
-- `FeedbackFinding` belongs to one evaluation and is immutable after persistence.
-- `LearningError` references `source_finding_id` and `source_evaluation_id`; it is created only from a learner-confirmed finding.
-- A `ReviewCard` with `content_type=error` must reference exactly one `source_error_id`.
-- A `RetestAttempt` uses new content with the same `error_pattern`; it must not reuse the source submission or prompt.
-- Learner text stays behind learner-scoped storage/service boundaries. Events, logs, queues and gap/benchmark metadata contain opaque references only.
+- retries do not create duplicate submissions or duplicate charges;
+- published task/rubric/prompt versions referenced by evidence remain immutable;
+- an evaluation result is immutable; governed re-evaluation creates another result/version;
+- raw essay text never enters general telemetry, queue metadata or analytics;
+- `LearningError` is created only from a learner-confirmed actionable finding;
+- retest content must satisfy the configured novelty/exposure rule.
 
-## 5. State machines
+## 4. State model
 
-### 5.1 Draft
+Transport/processing state and result trustworthiness are separate axes.
+
+### 4.1 Draft state
 
 ```text
-drafting
-  ├─ local_save → drafting
-  ├─ sync_started → syncing
-  ├─ sync_succeeded → drafting
-  ├─ sync_failed → local_only
-  ├─ version_conflict → conflict
-  └─ submit_valid_version → submitted
-
-local_only ── retry_sync ──> syncing
-conflict ── learner_reconcile ──> drafting
+drafting <-> syncing
+  -> local_only | conflict
+  -> submitted_snapshot
 ```
 
-`local_only` and `conflict` are recovery/UI states; the server must not delete local text.
+`local_only`/`conflict` preserve learner text and provide recovery; they are not evaluation states.
 
-### 5.2 Submission
+### 4.2 Submission state
+
+Submission reflects durable acceptance, not score quality:
 
 ```text
-submitted
-  ├─ job_started → processing
-  ├─ validation_rejected → not_created
-  └─ quota_denied → not_created
-
-processing
-  ├─ accepted_result → scored
-  ├─ low_confidence_result → low_confidence
-  ├─ insufficient_or_invalid → unavailable
-  ├─ retryable_timeout → delayed
-  └─ terminal_failure → unavailable
-
-delayed ── bounded_retry ──> processing | unavailable
-unavailable ── explicit_retry ──> processing | unavailable
-scored ──> terminal_for_current_attempt
-low_confidence ──> terminal_for_current_attempt
+submitted -> processing
+processing -> completed | delayed | unavailable
 ```
 
-`anti_gaming_review` is an evaluation state, not a public submission state. When the adapter returns `anti_gaming_status=action_required`, the runtime permits at most one recheck route; if it does not clear, the submission is `unavailable` and the score is not exposed.
+A completed operation may contain an accepted or limited result according to result validity. Do not add `low_confidence`/`invalid` as submission lifecycle states.
 
-### 5.3 Evaluation
+### 4.3 Durable evaluation operation
+
+Canonical runtime states:
 
 ```text
-submitted → processing
-
-processing
-  ├─ clear + valid evidence → scored / quality_status=accepted
-  ├─ low confidence → low_confidence / quality_status=low_confidence
-  ├─ insufficient evidence → invalid / quality_status=insufficient_evidence
-  ├─ schema/domain invalid → failed / quality_status=invalid
-  └─ anti-gaming signal → anti_gaming_review
-
-anti_gaming_review
-  ├─ recheck_clear → processing
-  └─ recheck_failed → failed
+accepted -> processing -> succeeded | delayed | unavailable | failed | cancelled
 ```
 
-There is no transition from `low_confidence`, `invalid`, or `failed` to accepted through manual editing. Only a new evaluation attempt can create a new result.
+Provider timeout/outage affects operation state. It does not manufacture an evaluation result.
 
-### 5.4 FeedbackFinding and LearningError
+### 4.4 Result validity
 
 ```text
-FeedbackFinding: persisted → immutable
-
-LearningError:
-candidate (not yet a learner-owned entity)
-  └─ learner_confirm → open
-
-open → in_review → improved
-  ├─ fix_evidence_saved → in_review
-  ├─ retest_passed + resolve_when met → improved
-  ├─ learner_dismissed → dismissed
-  └─ recurrence_after_improved → in_review
+accepted
+limited_evidence
+insufficient_evidence
+invalid
+integrity_review
 ```
 
-`improved` must not be set by an arbitrary endpoint; a versioned `resolve_when` rule must determine it from retest/review evidence. Without evidence, do not create a `ReviewCard`.
+Only result states admitted by the evaluation/evidence policy may feed learner state/readiness. Raw model confidence does not define this state by itself.
 
-### 5.5 ReviewCard and RetestAttempt
-
-FSRS is the authority for card transitions:
+## 5. Exact evaluation pipeline
 
 ```text
-new → learning → review
-             └→ relearning → review
+immutable submission snapshot
+  -> deterministic precheck
+  -> scorer route selection
+  -> primary structured scorer
+  -> schema + rubric + evidence validation
+  -> uncertainty/disagreement/risk policy
+       -> ordinary case: normalize
+       -> hard case: independent stronger/specialist scorer
+  -> reconciliation / result-validity admission
+  -> immutable WritingEvaluation
+  -> deterministic/framework-valid finding mapping
+  -> optional learner-facing wording/detail generation
 ```
 
-The `again | hard | good | easy` ratings are processed by the FSRS implementation with `algorithm_version`. The runtime only validates input, persists the transition idempotently, and emits the event after the durable write.
+### Stage A — deterministic precheck
+
+Before paid inference:
+
+- verify task status/version/module;
+- verify submission ownership/idempotency;
+- compute deterministic word count and basic input integrity;
+- reject empty/invalid/unsupported input;
+- reserve/check quota/budget;
+- create bounded compact context only if evaluation requires it.
+
+Do not call an LLM for facts already available from schema/rules.
+
+### Stage B — primary scorer
+
+The primary scorer receives only the task, essay snapshot, rubric/version and minimum bounded context required by the scorer contract.
+
+It returns structured criterion judgments + evidence candidates; it does not write band/readiness/history directly.
+
+### Stage C — validation
+
+The domain validates:
+
+- output schema/version;
+- criterion enum;
+- band value/range/rounding policy;
+- evidence references actually resolve to learner submission spans/features;
+- score scope=`writing_task_2` / label=`diagnostic_estimate`;
+- required provenance;
+- unsupported/hallucinated findings;
+- integrity signals.
+
+Invalid structure/evidence cannot become an ordinary result.
+
+### Stage D — escalation policy
+
+A stronger/second scorer runs only when a versioned policy marks the case high-risk/high-uncertainty/disagreement-worthy and budget allows the approved route.
+
+Escalation is not a generic retry. It is independently metered and has a hard maximum.
+
+### Stage E — result admission
+
+Reconciliation produces one immutable normalized result with a separate `result_validity`.
+
+No scorer/model writes learner readiness/mastery directly. Downstream evidence admission remains domain-owned.
+
+### Stage F — feedback
+
+Default feedback is progressive:
 
 ```text
-created → submitted → processing → completed
-                                  └→ unavailable
+evidence
+  -> meaning/criterion
+  -> one highest-leverage fix
+  -> verification/retest
+  -> optional deeper explanation
 ```
 
-`completed` updates `LearningError` only after the retest evaluation and `resolve_when` have been checked.
+Reusable remediation/explanations are precomputed/cached when semantically safe. Runtime generation is reserved for genuinely personalized wording/analysis.
 
-## 6. Happy path — exact orchestration
+## 6. Submission orchestration
 
-### A. Read task
+1. Learner saves/version-controls draft.
+2. Submit validates ownership, task version, input and quota.
+3. One transaction writes submission snapshot reference + idempotency result + durable evaluation operation/outbox handoff.
+4. Return accepted operation/submission reference only after durable commit.
+5. Worker/orchestrator claims the operation and executes staged pipeline.
+6. Result + findings + usage/cost provenance are committed before success acknowledgement/event.
+7. Outbox/events reconcile after canonical domain state; duplicate delivery is harmless.
 
-1. The API authenticates the bearer subject.
-2. The task service returns only a task with `status=published` and the current `task_version`.
-3. The task response includes `task_ref`, `task_version`, task type, prompt, `min_word_count`, and estimated time.
-4. A missing/retired task returns user-safe `404`/`CONTENT_UNAVAILABLE`; do not select another task automatically.
+No internal failure may charge the learner twice for one logical evaluation.
 
-### B. Save draft
+## 7. Learner result behavior
 
-1. The client sends `PUT /v1/writing/drafts/{draftId}` with text and optimistic `version`.
-2. The API checks ownership, max length, and version.
-3. The server writes the new version; the old version is not overwritten in content.
-4. Retrying the same request returns the same semantic result; conflict returns `409 version_conflict`.
-5. The autosave event contains only `draft_id`, `task_ref`, version, and outcome; it contains no text.
+The UI/API exposes truthful state:
 
-### C. Submit
+- `processing` / `delayed` when no result exists yet;
+- `unavailable` when no approved result can be produced;
+- accepted task-scoped estimate when admitted;
+- scoped wording such as `limited evidence` / `insufficient evidence` when appropriate;
+- no scientific-looking raw confidence percentage unless separately validated for learner interpretation.
 
-1. The API checks authz, consent, published task, draft ownership/version, and `word_count >= 250`.
-2. Check quota before inference.
-3. In one transaction: write `WritingSubmission`, write the idempotency result, and write the `writing_evaluation` outbox job.
-4. The relay publishes the job after commit. Do not enqueue directly before commit.
-5. Emit `writing_submission_accepted` after durable submission; the evaluation orchestrator emits `evaluation_submitted` when the attempt starts.
-6. Return `202` with the same `submission_id`, `status=submitted`, no `evaluation_ref` yet, and `request_id`.
-7. Retrying with the same idempotency key returns the same submission; a different body with the same key returns `409 idempotency_key_reused`.
+Learner-facing copy says what the estimate represents before numeric precision.
 
-### D. Evaluate
+## 8. Error → remediation → review → retest
 
-1. The worker claims the job, checks idempotency and deadline, and moves the submission/evaluation attempt to `processing`.
-2. The worker calls the provider adapter at most once per attempt, with opaque `submission_ref`, rubric/task version, and deadline.
-3. The normalizer parses the Evaluation Contract; a schema error is terminal failure, and no partial score is stored.
-4. The normalizer checks criterion enum, band range, confidence range, evidence refs, anti-gaming status, and required versions.
-5. In one transaction: write immutable `WritingEvaluation`, normalized `FeedbackFinding`, current result pointer, usage/cost reference, and idempotency effect.
-6. Ack the job and emit `evaluation_scored` or a failure event only after commit.
-7. `LearningError` is not created automatically. The learner must confirm a finding through `POST /v1/writing/errors`.
+1. Normalizer creates immutable `FeedbackFinding` with evidence.
+2. Learner confirms/selects an actionable finding.
+3. Service resolves controlled `error_pattern` and remediation mapping; unresolved required mapping does not invent a taxonomy ID.
+4. Persist `LearningError`.
+5. Select the smallest useful intervention.
+6. Create an FSRS card only when the remediation unit is meaningfully retrievable (grammar form, phrase, rule/error concept, etc.).
+7. FSRS controls review timing only.
+8. Retest uses sufficiently novel eligible content for the same underlying error/construct.
+9. `improved` requires the versioned retest/evidence rule; repeated/revealed success alone is insufficient.
+10. Complex Writing mastery/readiness is updated only through its owning evidence policy, not card maturity.
 
-### E. Read result
+## 9. Integrity / anti-gaming
 
-- `GET /v1/writing/submissions/{id}` always returns the lifecycle projection.
-- `GET /v1/writing/submissions/{id}/evaluation` returns `200` when a quality result exists.
-- When no result exists, the endpoint returns `202` with state `submitted|processing|delayed` and a retry hint; do not create a fake evaluation.
-- When the quality result is low-confidence/insufficient/invalid, the response must show the state and evidence limitation, not only a band.
-- The client need not maintain an infinite polling loop: retry/backoff follows `Retry-After`; the learner can leave the screen and receive a notification/read projection.
+P0 integrity handling is risk-based, not detector-as-proof.
 
-### F. Confirm error → fix → review → retest
+Prefer deterministic/provenance signals where available:
 
-1. The learner selects a finding with evidence and calls `POST /v1/writing/errors`.
-2. The service checks that the finding belongs to the learner's evaluation, the evidence ref exists, the pattern/criterion resolves, and idempotency holds.
-3. Persist `LearningError(status=open)`; emit `learning_error_saved`.
-4. The review service creates the card after the error is saved; the card must have `source_error_id`.
-5. The fix endpoint stores learner-generated fix evidence; it does not mark the error improved.
-6. Persist the FSRS rating transition; emit `review_completed` after the durable write.
-7. Retest creates a new prompt with the same error pattern; emit `learning_error_resolved` only when the retest + resolve rule passes.
+- known-sample similarity;
+- copied prompt/passage overlap;
+- exposure/provenance anomalies;
+- impossible/invalid submission behavior.
 
-## 7. API behavior contract
+AI-generated-text detection, if used, is a weak signal only. It cannot alone declare cheating or permanently suppress a score. Material unresolved cases use `result_validity=integrity_review` and a neutral resubmission/recovery path.
 
-OpenAPI is the canonical schema. The runtime must implement the following operations and must not add polling/streaming variants:
+## 10. API boundary
 
-| Operation | Success | Required failure behavior |
-|---|---|---|
-| `GET /v1/writing/tasks/{taskId}` | `200 WritingTask` | unpublished/unknown → `404` |
-| `PUT /v1/writing/drafts/{draftId}` | `200 WritingDraft` | version conflict → `409`; network failure preserves local text |
-| `POST /v1/writing/submissions` | `202 WritingSubmission` | invalid/quota/idempotency → `400/403/409/422/429` |
-| `GET /v1/writing/submissions/{id}` | `200 WritingSubmission` | cross-user → `404` |
-| `POST /v1/writing/submissions/{id}/retry` | `202 WritingSubmission` | delayed/unavailable only; scored → `409` |
-| `GET /v1/writing/submissions/{id}/evaluation` | `200 WritingEvaluation` or `202 EvaluationPending` | cross-user → `404` |
-| `POST /v1/writing/submissions/{id}/feedback` | `201 FeedbackReceipt` | invalid label → `400`; cross-user → `404`; duplicate → `409` (idempotent) |
-| `POST /v1/writing/errors` | `201 LearningError` | unconfirmed/invalid evidence → `400/422` |
-| `POST /v1/writing/errors/{id}/fixes` | `201 FixEvidence` | wrong owner/state → `404/409` |
-| `POST /v1/writing/errors/{id}/retest` | `202 Retest` | no eligible error → `409` |
-| `POST /v1/review/cards/{id}/ratings` | `200 ReviewCardRating` | duplicate/conflict → idempotent result/`409` |
+Canonical operation IDs and schemas are owned by `artifacts/engineering/api/*`.
 
-All mutations use `Idempotency-Key`; all responses use `X-Request-Id`; the error envelope contains no raw essay/provider payload/stack trace.
+This slice must consume, not redefine, the canonical operations for:
 
-## 8. Failure and recovery matrix
+- get Writing task;
+- save Writing draft;
+- create/get Writing submission;
+- get Writing evaluation;
+- submit learner feedback;
+- create/fix/retest learner error where those operations are active;
+- rate review item where active.
 
-| Failure | Durable state | Learner state | Retry |
-|---|---|---|---|
-| Draft sync network | local draft retained | `processing`/local-only | background retry |
-| Draft version conflict | both versions retained | `action_required` | explicit reconcile |
-| Submit network timeout | idempotency lookup decides | draft retained | same key |
-| Quota denied | no submission/eval job | `action_required` | no auto retry |
-| Worker crash before commit | submission retained | `processing`/delayed | reclaim same job safely |
-| Provider timeout | submission retained, no score | `delayed` | max bounded retry |
-| Provider/schema terminal error | submission retained, failed attempt | `unavailable` | explicit new attempt |
-| Low confidence | immutable flagged result retained | `low_confidence` | no score promotion |
-| Anti-gaming unresolved | no learner-visible score | `unavailable` | one recheck only |
-| Event publish failure | domain result retained; outbox pending | result readable | reconciliation |
-| Duplicate delivery | idempotency record/effect exists | unchanged | ack after lookup |
+All durable mutations use the canonical idempotency contract. Cross-user object access fails closed. API errors contain no essay/provider payload/stack trace.
 
-No recovery path deletes the original draft or accepted evaluation. No retry path charges quota twice.
+If the canonical schema still carries a legacy combined `state`/`quality_status`, implementation eligibility remains blocked until schema-contract migration separates `operation_state` and `result_validity`.
 
-## 9. Required runtime evidence
+## 11. Cost policy
 
-Each implementation run must be able to create the following observations, but they are not considered real evidence until executed:
+Each evaluation records at least:
 
 ```yaml
-submission_id:
-evaluation_id:
-attempt:
-task_version:
-rubric_version:
-prompt_template_id:
-prompt_hash:
-model_version:
-evaluation_state:
-quality_status:
-criterion_results:
-evidence_coverage:
-latency_ms:
-provider_usage_ref:
-cost_ref:
-redaction_result:
-idempotency_result:
+cost:
+  primary_route_units:
+  escalation_route_units:
+  feedback_generation_units:
+  retries:
+  total_cost_units:
+  cost_policy_version:
 ```
 
-The benchmark runner consumes these observations/results; the runtime does not claim to meet the threshold. The threshold and corpus are in `artifacts/operations/benchmark/`.
+Policies:
 
-## 10. P0-04 acceptance cases
+- no inference before deterministic eligibility checks;
+- no automatic second pass for ordinary cases;
+- default to concise actionable feedback;
+- expensive deep feedback is on-demand and quota-bound;
+- reusable remediation content is precomputed;
+- retry ceilings are hard;
+- measure `cost_per_accepted_evaluation` and downstream `cost_per_verified_improvement`;
+- cheaper route cannot bypass benchmark quality floor.
 
-These IDs match `artifacts/operations/acceptance/p0-acceptance-manifest.yaml`:
+## 12. Privacy and observability
 
-| ID | Given / When / Then | Evidence to record |
-|---|---|---|
-| `WR-01-published-task-only` | unpublished/retired task → submission is rejected; published task → submission is accepted | request/response + authorization/task fixture |
-| `WR-02-draft-preserved` | autosave, reload, or failed submit → owner can still read text/version | storage/read-back + privacy result |
-| `WR-03-duplicate-submit-idempotency` | submit twice with the same key → one submission, one charge/job effect | two requests + IDs + effect count |
-| `WR-04-evaluation-state-recovery` | timeout/worker crash → safe delayed or unavailable state; retry does not duplicate the result | fault injection + state/event trace |
-| `WR-05-evidence-linked-feedback` | accepted result → every learner-visible finding has an evidence ref; missing evidence → insufficient state | response + finding/evidence mapping |
-| `WR-06-redaction` | event/log/job/telemetry inspection → no essay, finding text, or provider payload | redaction scan |
-| `WR-07-low-confidence-withheld` | low-confidence/anti-gaming → do not promote score/readiness; learner sees a safe state | result + readiness query + UI/API projection |
+Allowed general telemetry: opaque IDs, stage name, route/version, timing, failure/result-validity class, usage/cost units and derived aggregate quality metrics.
 
-The acceptance run remains `not_run` until source code and runtime fixtures create immutable evidence. Test IDs are not proof that tests have passed.
+Forbidden general telemetry: raw essay, transcript, private notes, prompt body containing learner content, provider full response, secrets/tokens.
 
-## 11. Implementation stopping rules
+Benchmark/research access uses its own function-scoped principal and approved de-identified/reference corpus; it does not inherit arbitrary learner-content access.
 
-- Do not add a scheduler, compiler, graph database, or policy engine to implement this slice.
-- Do not add an endpoint without a corresponding user action or acceptance case.
-- Do not add an entity when the relationship can be represented by a reference to an existing canonical entity.
-- Do not put business rules in the generator; runtime rules belong in the contract/domain implementation and must be tested.
-- If implementation encounters an enum, ownership, or transition not defined in the canonical source, mark it `blocked` and create a decision/spec change before coding.
+## 13. Required acceptance cases
+
+Build readiness requires executable proof for at least:
+
+1. published/right-approved task only;
+2. autosave/network recovery without text loss;
+3. duplicate submit → one submission/charge;
+4. deterministic invalid input → zero scorer calls;
+5. primary accepted route → immutable task-scoped diagnostic result;
+6. malformed/hallucinated evidence → invalid/insufficient result, not score promotion;
+7. hard-case escalation executes at most configured maximum;
+8. provider timeout → durable delayed/unavailable with submission preserved;
+9. no unbenchmarked scorer fallback;
+10. raw learner content absent from general telemetry;
+11. learner A cannot read learner B submission/evaluation;
+12. finding requires resolvable evidence before learner can save error;
+13. FSRS card only for suitable retrievable remediation unit;
+14. retest cannot reuse disallowed exposed source prompt;
+15. repeated/revealed success does not count as independent transfer;
+16. result validity controls downstream evidence admission;
+17. cost attribution separates primary/escalation/deep-feedback work;
+18. no model/provider output can update readiness/entitlement directly.
+
+## 14. Release boundary
+
+This slice remains `not ready` while any of the following is missing:
+
+- rights-approved Writing Task 2 content;
+- canonical API/schema alignment;
+- benchmark-approved scorer route;
+- evaluation/result-validity evidence policy;
+- bounded cost/quota configuration;
+- privacy/idempotency/recovery tests;
+- independent retest content/policy;
+- acceptance evidence from the same candidate commit.
