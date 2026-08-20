@@ -2,13 +2,11 @@ openapi: 3.1.0
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: LenBands Web API
-  version: 0.1.0
+  version: 0.2.0
   description: >-
-    Single canonical HTTP contract for the LenBands web product, designed against
-    OpenAPI 3.1.2 semantics. Five web personas are guest, learner,
-    premium_learner, colab and admin. premium_learner is the learner role plus a
-    premium entitlement, not a separate security role. Authentication itself is
-    provider-owned; LenBands verifies identity and enforces product authorization.
+    Single canonical HTTP contract for LenBands. Web personas are guest, learner,
+    premium_learner, colab and admin. Premium is an entitlement overlay on learner.
+    Internal callbacks/jobs are function-scoped principals rather than web roles.
 servers:
   - url: /api
 security:
@@ -35,7 +33,7 @@ x-lenbands:
     premium_learner: {role: learner, entitlements: [premium]}
     colab: {role: colab, entitlements: []}
     admin: {role: admin, entitlements: []}
-  non_web_principals: [service]
+  internal_function_scopes: [evaluation_worker, workflow_callback, billing_webhook, content_job, notification_job, research_benchmark_job]
   data_classes:
     C0_public: public/non-sensitive
     C1_account: account, PII and billing identifiers
@@ -58,6 +56,7 @@ paths:
       x-data-classes: [C0_public]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/public/catalog:
     get:
       operationId: getPublicCatalog
@@ -70,11 +69,12 @@ paths:
       x-data-classes: [C0_public]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/public/pricing:
     get:
       operationId: getPublicPricing
       tags: [Public]
-      summary: Read public plans and localized pricing presentation.
+      summary: Read public plans/pricing presentation.
       security: []
       x-web-personas: [guest, learner, premium_learner, colab, admin]
       x-required-roles: []
@@ -106,6 +106,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '401': {$ref: '#/components/responses/Unauthorized'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/me/entitlements:
     get:
       operationId: getMyEntitlements
@@ -117,6 +118,7 @@ paths:
       x-data-classes: [C1_account, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '401': {$ref: '#/components/responses/Unauthorized'}}
+
   /v1/me/consents:
     post:
       operationId: recordConsent
@@ -130,6 +132,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/me/export:
     post:
       operationId: requestMyExport
@@ -142,11 +145,12 @@ paths:
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}}
+
   /v1/me/deletion:
     post:
       operationId: requestMyDeletion
       tags: [Me]
-      summary: Request account deletion under the retention/recovery policy.
+      summary: Request account deletion under retention/recovery policy.
       x-web-personas: [learner, premium_learner, colab, admin]
       x-required-roles: [learner, colab, admin]
       x-required-entitlements: []
@@ -154,11 +158,12 @@ paths:
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}}
+
   /v1/me/goal:
     get:
       operationId: getMyGoal
       tags: [Me]
-      summary: Read learner IELTS goal.
+      summary: Read learner TargetProfile/study goal.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -168,7 +173,7 @@ paths:
     put:
       operationId: putMyGoal
       tags: [Me]
-      summary: Create or replace learner IELTS goal.
+      summary: Create or replace learner TargetProfile/study goal.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -191,6 +196,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}}
+
   /v1/placement/{attemptId}/responses:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     post:
@@ -205,12 +211,13 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /v1/placement/{attemptId}/submit:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     post:
       operationId: submitPlacement
       tags: [Placement]
-      summary: Finish placement or return an insufficient-evidence state.
+      summary: Finish placement or return insufficient evidence.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -218,12 +225,13 @@ paths:
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}, '422': {$ref: '#/components/responses/Unprocessable'}}
+
   /v1/placement/{attemptId}:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     get:
       operationId: getPlacementAttempt
       tags: [Placement]
-      summary: Read own placement attempt and diagnostic state.
+      summary: Read own placement attempt/diagnostic state.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -235,13 +243,14 @@ paths:
     get:
       operationId: getTodayPlan
       tags: [Study]
-      summary: Read today's plan and recommendation reasons.
+      summary: Read today's deterministic reasoned plan.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/today/check-in:
     post:
       operationId: recordTodayCheckIn
@@ -255,6 +264,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/study/sessions:
     post:
       operationId: startStudySession
@@ -268,6 +278,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}}
+
   /v1/study/sessions/{sessionId}:
     parameters: [{name: sessionId, in: path, required: true, schema: {type: string}}]
     patch:
@@ -294,17 +305,19 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/practice/sets:
     get:
       operationId: listPracticeSets
       tags: [Practice]
-      summary: List practice sets eligible for the learner.
+      summary: List eligible practice sets.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C0_public, C2_learning]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}}
+
   /v1/practice/attempts:
     post:
       operationId: createPracticeAttempt
@@ -318,6 +331,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}}
+
   /v1/practice/attempts/{attemptId}/answers:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     post:
@@ -332,12 +346,13 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}}
+
   /v1/practice/attempts/{attemptId}/submit:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     post:
       operationId: submitPracticeAttempt
       tags: [Practice]
-      summary: Submit an attempt for deterministic or governed evaluation.
+      summary: Submit attempt for deterministic/governed evaluation.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -345,18 +360,20 @@ paths:
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}}
+
   /v1/practice/attempts/{attemptId}:
     parameters: [{name: attemptId, in: path, required: true, schema: {type: string}}]
     get:
       operationId: getPracticeAttempt
       tags: [Practice]
-      summary: Read own attempt and score scope.
+      summary: Read own attempt and score/result scope.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /v1/review/queue:
     get:
       operationId: getReviewQueue
@@ -368,6 +385,7 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}}
+
   /v1/review/items/{itemId}/rating:
     parameters: [{name: itemId, in: path, required: true, schema: {type: string}}]
     post:
@@ -382,6 +400,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/history/attempts:
     get:
       operationId: listMyAttempts
@@ -393,6 +412,7 @@ paths:
       x-data-classes: [C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}}
+
   /v1/progress/summary:
     get:
       operationId: getProgressSummary
@@ -404,6 +424,7 @@ paths:
       x-data-classes: [C2_learning, C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/search:
     get:
       operationId: searchLearningResources
@@ -422,13 +443,14 @@ paths:
     get:
       operationId: getWritingTask
       tags: [Writing]
-      summary: Read immutable published Writing task version.
+      summary: Read immutable rights-approved published Writing task version.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C0_public]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /v1/writing/drafts/{draftId}:
     parameters: [{name: draftId, in: path, required: true, schema: {type: string}}]
     put:
@@ -443,11 +465,12 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/writing/submissions:
     post:
       operationId: createWritingSubmission
       tags: [Writing]
-      summary: Submit an immutable draft snapshot for governed evaluation.
+      summary: Submit immutable draft snapshot for governed staged evaluation.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -456,36 +479,39 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}, '422': {$ref: '#/components/responses/Unprocessable'}}
+
   /v1/writing/submissions/{submissionId}:
     parameters: [{name: submissionId, in: path, required: true, schema: {type: string}}]
     get:
       operationId: getWritingSubmission
       tags: [Writing]
-      summary: Read submission lifecycle state.
+      summary: Read submission/operation lifecycle without conflating result validity.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /v1/writing/submissions/{submissionId}/evaluation:
     parameters: [{name: submissionId, in: path, required: true, schema: {type: string}}]
     get:
       operationId: getWritingEvaluation
       tags: [Writing]
-      summary: Read task-scoped diagnostic evaluation; never imply an official IELTS score.
+      summary: Read task-scoped diagnostic result with explicit result validity.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
       x-data-classes: [C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '202': {$ref: '#/components/responses/ObjectAccepted'}, '404': {$ref: '#/components/responses/NotFound'}}
+
   /v1/writing/submissions/{submissionId}/feedback:
     parameters: [{name: submissionId, in: path, required: true, schema: {type: string}}]
     post:
       operationId: submitWritingFeedback
       tags: [Writing]
-      summary: Report helpfulness/correctness issue without directly overwriting a score.
+      summary: Report helpfulness/correctness issue without overwriting score.
       x-web-personas: [learner, premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: []
@@ -494,6 +520,50 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}}
+
+  /v1/writing/errors:
+    post:
+      operationId: saveWritingError
+      tags: [Writing]
+      summary: Save one learner-confirmed evidence-backed Writing error for remediation.
+      x-web-personas: [learner, premium_learner]
+      x-required-roles: [learner]
+      x-required-entitlements: []
+      x-data-classes: [C2_learning, C3_assessment]
+      x-idempotency: required
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
+      responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '422': {$ref: '#/components/responses/Unprocessable'}}
+
+  /v1/writing/errors/{errorId}/fixes:
+    parameters: [{name: errorId, in: path, required: true, schema: {type: string}}]
+    post:
+      operationId: saveWritingErrorFix
+      tags: [Writing]
+      summary: Save learner-produced fix evidence without marking the error improved.
+      x-web-personas: [learner, premium_learner]
+      x-required-roles: [learner]
+      x-required-entitlements: []
+      x-data-classes: [C2_learning, C3_assessment]
+      x-idempotency: required
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
+      responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/Conflict'}}
+
+  /v1/writing/errors/{errorId}/retests:
+    parameters: [{name: errorId, in: path, required: true, schema: {type: string}}]
+    post:
+      operationId: startWritingErrorRetest
+      tags: [Writing]
+      summary: Start an exposure-eligible retest for one learner error.
+      x-web-personas: [learner, premium_learner]
+      x-required-roles: [learner]
+      x-required-entitlements: []
+      x-data-classes: [C2_learning, C3_assessment]
+      x-idempotency: required
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
+      responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}, '404': {$ref: '#/components/responses/NotFound'}, '409': {$ref: '#/components/responses/Conflict'}, '422': {$ref: '#/components/responses/Unprocessable'}}
 
   /v1/insights:
     get:
@@ -506,19 +576,22 @@ paths:
       x-data-classes: [C2_learning, C3_assessment, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/evaluations/{evaluationId}/deep-feedback:
     parameters: [{name: evaluationId, in: path, required: true, schema: {type: string}}]
     post:
       operationId: createDeepFeedback
       tags: [Premium]
-      summary: Request deeper feedback on an accepted evaluation.
+      summary: Request optional deeper feedback on an admitted evaluation.
       x-web-personas: [premium_learner]
       x-required-roles: [learner]
       x-required-entitlements: [premium]
       x-data-classes: [C3_assessment]
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'202': {$ref: '#/components/responses/ObjectAccepted'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/mock-tests:
     get:
       operationId: listMockTests
@@ -530,6 +603,7 @@ paths:
       x-data-classes: [C0_public]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/mock-tests/{testId}/attempts:
     parameters: [{name: testId, in: path, required: true, schema: {type: string}}]
     post:
@@ -542,6 +616,7 @@ paths:
       x-data-classes: [C3_assessment]
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '403': {$ref: '#/components/responses/Forbidden'}}
 
   /v1/colab/content/items:
@@ -567,6 +642,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'201': {$ref: '#/components/responses/ObjectCreated'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/colab/content/items/{itemId}:
     parameters: [{name: itemId, in: path, required: true, schema: {type: string}}]
     get:
@@ -591,6 +667,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/colab/content/items/{itemId}/submit-review:
     parameters: [{name: itemId, in: path, required: true, schema: {type: string}}]
     post:
@@ -603,7 +680,9 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/colab/content/items/{itemId}/publish:
     parameters: [{name: itemId, in: path, required: true, schema: {type: string}}]
     post:
@@ -616,7 +695,9 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/colab/content/items/{itemId}/retire:
     parameters: [{name: itemId, in: path, required: true, schema: {type: string}}]
     post:
@@ -629,7 +710,9 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: required
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/colab/content/reports:
     get:
       operationId: listContentReports
@@ -641,6 +724,7 @@ paths:
       x-data-classes: [C2_learning, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}}
+
   /v1/colab/content/reports/{reportId}:
     parameters: [{name: reportId, in: path, required: true, schema: {type: string}}]
     patch:
@@ -655,6 +739,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/colab/content/tag-suggestions:
     post:
       operationId: suggestContentTags
@@ -680,12 +765,13 @@ paths:
       x-data-classes: [C1_account, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/admin/users/{subjectId}/status:
     parameters: [{name: subjectId, in: path, required: true, schema: {type: string}}]
     patch:
       operationId: setUserStatus
       tags: [Admin]
-      summary: Suspend or reactivate account status; never override an evaluation score.
+      summary: Suspend/reactivate account status; never overwrite evaluation score.
       x-web-personas: [admin]
       x-required-roles: [admin]
       x-required-entitlements: []
@@ -694,6 +780,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/admin/config:
     get:
       operationId: getSystemConfig
@@ -717,6 +804,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '409': {$ref: '#/components/responses/Conflict'}}
+
   /v1/admin/audit:
     get:
       operationId: listAuditRecords
@@ -728,33 +816,36 @@ paths:
       x-data-classes: [C4_security, C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ListOK'}}
+
   /v1/admin/governance/evaluations:
     get:
       operationId: getEvaluationGovernance
       tags: [Admin]
-      summary: Read aggregate scorer quality/drift/confidence metrics without raw essays.
+      summary: Read aggregate scorer quality/drift/uncertainty metrics without raw essays.
       x-web-personas: [admin]
       x-required-roles: [admin]
       x-required-entitlements: []
       x-data-classes: [C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/admin/usage:
     get:
       operationId: getUsageOverview
       tags: [Admin]
-      summary: Read provider-neutral usage and cost metrics.
+      summary: Read provider-neutral usage/cost/outcome economics metrics.
       x-web-personas: [admin]
       x-required-roles: [admin]
       x-required-entitlements: []
       x-data-classes: [C5_derived]
       x-idempotency: not_required
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}}
+
   /v1/admin/release-gates/evaluate:
     post:
       operationId: evaluateReleaseGate
       tags: [Admin]
-      summary: Evaluate a release from immutable evidence references.
+      summary: Evaluate release from immutable evidence references.
       x-web-personas: [admin]
       x-required-roles: [admin]
       x-required-entitlements: []
@@ -763,6 +854,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '403': {$ref: '#/components/responses/Forbidden'}}
+
   /v1/admin/billing/overview:
     get:
       operationId: getBillingOverview
@@ -779,18 +871,18 @@ paths:
     post:
       operationId: receivePaddleWebhook
       tags: [Webhooks]
-      summary: Receive a signed billing lifecycle event at the adapter boundary.
+      summary: Receive a signed billing lifecycle event at adapter boundary.
       security: [{BillingWebhookSignature: []}]
       x-web-personas: []
-      x-required-roles: [service]
+      x-required-roles: []
+      x-internal-function-scope: billing_webhook
       x-required-entitlements: []
       x-data-classes: [C1_account, C5_derived]
       x-idempotency: provider_event_id
       description: >-
-        Verify the provider signature against the raw body, deduplicate by event_id,
-        reason about occurred_at rather than arrival order, update only the
-        provider-neutral billing/entitlement ledger, and reconcile missed events.
-        Learning and assessment payloads are prohibited.
+        Verify signature against raw body, deduplicate by event_id, reason about
+        occurred_at rather than arrival order, and update only the provider-neutral
+        billing/entitlement ledger. Learning/assessment payloads are prohibited.
       requestBody: {$ref: '#/components/requestBodies/JsonObject'}
       responses: {'200': {$ref: '#/components/responses/ObjectOK'}, '401': {$ref: '#/components/responses/Unauthorized'}}
 
@@ -810,7 +902,7 @@ components:
       name: Idempotency-Key
       in: header
       required: true
-      schema: {type: string, minLength: 8, maxLength: 200}
+      schema: {type: string, minLength: 16, maxLength: 128}
   requestBodies:
     JsonObject:
       required: true
@@ -823,7 +915,7 @@ components:
     ObjectCreated: {description: Created, content: {application/json: {schema: {$ref: '#/components/schemas/JsonObject'}}}}
     ObjectAccepted: {description: Accepted or processing, content: {application/json: {schema: {$ref: '#/components/schemas/JsonObject'}}}}
     Unauthorized: {description: Authentication failed, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
-    Forbidden: {description: Role, entitlement or object authorization denied, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Forbidden: {description: Role, entitlement, function or object authorization denied, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
     NotFound: {description: Resource not found or not visible to caller, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
     Conflict: {description: State, version or idempotency conflict, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
     Unprocessable: {description: Semantically invalid input or insufficient evidence, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
@@ -832,9 +924,9 @@ components:
       type: object
       additionalProperties: true
       description: >-
-        Domain-specific schemas are progressively tightened before implementation.
-        This v0.1 authority first freezes operation identity, access, data class,
-        idempotency and lifecycle ownership across all five web personas.
+        Authoring placeholder only. The generated/resolved OpenAPI binds each
+        operationId to the exact schema in schema-contract.yaml; generic payloads
+        are forbidden in the resolved codegen surface.
     Problem:
       type: object
       required: [type, title, status]
