@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: data-retention-registry
@@ -10,12 +10,13 @@ policy:
   raw_c1_to_c4_data_must_have_an_explicit_entity_entry
   c5_may_outlive_source_only_when_irreversibly_aggregated_or_deidentified_under_review
   deletion_is_fail_closed_when_legal_hold_or_integrity_dependency_is_unknown
+  implementation_requires_entity_mapping_but_end_to_end_delete_export_execution_is_release_evidence
 
 entities:
   account_profile:
     data_class: C1_account
     owner: identity
-    purpose: account_access_and_profile
+    purpose: account_access_profile_locale_and_user_preferences
     retention: account_lifetime_subject_to_approved_recovery_window
     export: include
     deletion: delete_or_irreversibly_anonymize_after_approved_recovery_and_legal_checks
@@ -29,7 +30,7 @@ entities:
   learner_goal:
     data_class: C2_learning
     owner: learning
-    purpose: personalize_plan_and_target
+    purpose: target_profile_and_plan_constraints
     retention: account_lifetime_or_subject_delete
     export: include
     deletion: delete_with_subject
@@ -40,6 +41,27 @@ entities:
     retention: account_lifetime_or_subject_delete_unless_separate_research_consent_exists
     export: include
     deletion: delete_raw_attempt_and_subject_linked_results
+  placement_result:
+    data_class: C3_assessment
+    owner: assessment
+    purpose: scoped_diagnostic_estimate_and_evidence_coverage
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_subject_linked_result_and_evidence_refs
+  check_in:
+    data_class: C2_learning
+    owner: study
+    purpose: learner_selected_time_and_energy_input_for_daily_action
+    retention: shortest_period_needed_for_plan_history_and_outcome_analysis_or_subject_delete
+    export: include
+    deletion: delete_with_subject
+  daily_plan_snapshot:
+    data_class: C2_learning
+    owner: study
+    purpose: explainable_derived_next_action_and_resume_context
+    retention: shortest_period_needed_for_plan_history_or_subject_delete
+    export: include
+    deletion: delete_with_subject; may_be_recomputed_from_remaining_canonical_state_only_when_policy_allows
   study_session:
     data_class: C2_learning
     owner: learning
@@ -54,6 +76,13 @@ entities:
     retention: account_lifetime_or_subject_delete
     export: include
     deletion: delete_raw_attempt_and_subject_linked_results
+  learning_error:
+    data_class: C2_learning
+    owner: review
+    purpose: evidence_backed_error_remediation_and_resolution_state
+    retention: while_source_evidence_and_learning_need_exist_or_subject_delete
+    export: include
+    deletion: delete_with_source_or_subject
   review_item:
     data_class: C2_learning
     owner: review
@@ -61,6 +90,20 @@ entities:
     retention: while_source_evidence_exists_and_account_is_active
     export: include
     deletion: delete_with_source_or_subject
+  review_card:
+    data_class: C2_learning
+    owner: review
+    purpose: retrieval_schedule_for_reviewable_remediation_unit
+    retention: while_source_learning_error_or_remediation_unit_is_active_or_subject_delete
+    export: include
+    deletion: delete_with_source_or_subject
+  retest_attempt:
+    data_class: C3_assessment
+    owner: review + assessment
+    purpose: independent_or_novel_evidence_for_error_resolution
+    retention: account_lifetime_or_subject_delete
+    export: include
+    deletion: delete_raw_attempt_and_subject_linked_result
   writing_draft:
     data_class: C3_assessment
     owner: writing
@@ -75,6 +118,13 @@ entities:
     retention: account_lifetime_or_subject_delete_unless_separate_research_consent_exists
     export: include
     deletion: delete_raw_snapshot_and_subject_linked_copy_after_integrity_reconciliation
+  durable_evaluation_operation:
+    data_class: C3_assessment
+    owner: evaluation
+    purpose: durable_processing_idempotency_recovery_and_audit_linkage
+    retention: while_required_for_result_history_recovery_quota_and_audit_or_subject_delete
+    export: include_status_and_refs_without_internal_provider_secret_fields
+    deletion: delete_subject_linked_operation_payload_refs_after_result_and_integrity_reconciliation
   evaluation_result:
     data_class: C3_assessment
     owner: evaluation
@@ -82,6 +132,27 @@ entities:
     retention: account_lifetime_or_subject_delete
     export: include
     deletion: delete_subject_linked_result_and_evidence_refs
+  feedback_finding:
+    data_class: C3_assessment
+    owner: evaluation
+    purpose: evidence_linked_feedback_and_error_candidate
+    retention: with_parent_evaluation_or_subject_delete
+    export: include
+    deletion: delete_with_parent_or_subject
+  evaluation_feedback_report:
+    data_class: C3_assessment
+    owner: evaluation + support
+    purpose: learner_report_of_helpfulness_correctness_or_clarity_issue
+    retention: while_needed_for_case_resolution_regression_triage_or_subject_delete
+    export: include
+    deletion: delete_or_deidentify_with_subject_according_to_case_integrity_policy
+  support_case:
+    data_class: C1_account
+    owner: operations
+    purpose: track_score_content_quota_billing_or_privacy_dispute_state_using_minimum_refs
+    retention: policy_and_legal_requirement_bound
+    export: include_minimum_subject_view
+    deletion: remove_subject_link_when_no_longer_required; raw_C3_is_not_embedded_by_default
   entitlement_ledger:
     data_class: C1_account
     owner: billing
@@ -89,6 +160,13 @@ entities:
     retention: provider_and_legal_requirement_bound
     export: include_minimum_subject_view
     deletion: remove_product_copy_when_no_longer_legally_or_operationally_required
+  content_report:
+    data_class: C2_learning
+    owner: content
+    purpose: report_content_quality_or_rights_issue_with_minimum_learner_context
+    retention: until_resolved_plus_approved_audit_window_or_subject_delete_when_subject_link_is_not_required
+    export: include_when_subject_link_remains
+    deletion: delete_or_deidentify_subject_link_after_case_resolution_policy
   security_audit_record:
     data_class: C4_security
     owner: security
@@ -104,6 +182,12 @@ entities:
     export: only_when_subject_link_remains
     deletion: delete_subject_linked_events_or_irreversibly_deidentify
 
+research_and_benchmark_rule:
+  production_submission_default: not_research_corpus
+  promotion_to_benchmark_requires: separate_approved_corpus_policy_provenance_rights_and_consent_or_other_approved_basis
+  deletion_rule: research_or_benchmark_exception_must_be_explicit_and_may_not_be_inferred_from_product_use
+
 forbidden_general_telemetry_fields: [essay, essay_text, learner_content, audio, audio_data, transcript, raw_answer, error_text, prompt, prompt_body, provider_payload, access_token, authorization_header, email, display_name]
 
 coverage_rule: every_api_schema_or_runtime_entity_that_can_store_C1_C2_C3_or_C4_must_resolve_to_exactly_one_registry_entity_before_implementation_eligibility
+release_evidence_rule: end_to_end_export_delete_and_backup_aging_behavior_must_be_exercised_before_public_release_where_applicable
