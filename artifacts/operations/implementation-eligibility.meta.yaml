@@ -1,10 +1,10 @@
 type: implementation-eligibility-contract
 status: review
-version: 1.0.0
+version: 1.2.0
 owner: engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
-purpose: separate-scope-eligibility-authorization-and-release-readiness
+purpose: separate scope implementation eligibility exact-family authorization release readiness and public-scale readiness
 consumed_by: [engineering, operations, agents, tooling]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
