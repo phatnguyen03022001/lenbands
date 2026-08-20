@@ -1,9 +1,9 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: critical-path-usability
 owner: experience + engineering
-purpose: define pre-code accessibility and browser/network recovery semantics for the P0 learner critical path
+purpose: define accessibility navigation and browser-network recovery semantics for the P0 learner critical path
 
 scope:
   p0_families: [P0-01, P0-02, P0-03, P0-04, P0-05]
@@ -49,6 +49,48 @@ accessibility:
     - 200_percent_zoom_and_reflow_check
     - reduced_motion_check
 
+navigation:
+  shell:
+    default_authenticated_destination: today
+    primary_destination_rule: today_resolves_the_next_learning_decision
+    secondary_destinations: [progress_history, account]
+    phase_gated_destinations: [library_explore]
+    contextual_destinations: [placement, active_task, evaluation_status, feedback, error_fix, review, retest, mock_exam_when_activated]
+    rule: capability_inventory_must_not_become_top_level_navigation_inventory
+  primary_action:
+    required_visible_elements: [one_primary_action, one_reason, one_verification_rule]
+    maximum_competing_lighter_alternatives: 1
+    rule: internal_candidate_count_is_not_learner_choice_count
+  back_and_exit:
+    browser_or_system_back_is_semantic_no_op_for_domain_truth: true
+    leaving_resumable_session_does_not_imply_completion_or_abandonment: true
+    leave_warning_only_when_unacknowledged_work_has_real_loss_risk: true
+  resume:
+    today_exposes_resume_when_active_session_is_valid: true
+    refresh_restores_acknowledged_canonical_state: true
+    cross_device_resume_when_activated_uses_versioned_server_state: true
+  deep_link:
+    authorize_before_render: true
+    resolve_current_resource_version_and_eligibility: true
+    stale_action_must_not_execute_superseded_plan: true
+    missing_or_ineligible_resource_returns_one_useful_recovery_action: true
+  submission_integrity:
+    accepted_submission_cannot_return_to_editable_pre_submit_state_via_navigation: true
+    navigation_or_refresh_cannot_duplicate_submission_evaluation_charge_evidence_or_completion: true
+  dialog_policy:
+    allowed_primary_uses: [consent, bounded_confirmation, destructive_decision]
+    nested_primary_workflow_dialogs: prohibited
+  release_evidence:
+    - authenticated_shell_today_entry_walkthrough
+    - back_from_each_p0_contextual_flow
+    - resume_after_leaving_active_session
+    - refresh_after_each_acknowledged_p0_mutation
+    - deep_link_owned_resource_authorization_and_state_resolution
+    - stale_daily_action_link_replacement
+    - unsaved_writing_navigation_preservation_or_real_loss_warning
+    - accepted_submission_back_navigation_integrity
+    - mobile_and_desktop_destination_hierarchy_consistency
+
 browser_network:
   support_policy:
     rule: supported_browser_families_and_minimum_versions_are_a_release_configuration_not_an_architecture_fact
@@ -79,6 +121,9 @@ browser_network:
 
 agent_rules:
   - accessibility_is_part_of_component_and_state_design_not_a_post_build_theme
+  - navigation_is_part_of_state_correctness_not_cosmetic_routing
+  - today_remains_the_default_next_decision_surface_unless_a_phase_specific_contract_explicitly_changes_it
+  - do_not_add_top_level_navigation_for_capability_domains_without_measured_repeated_direct_entry_value
   - do_not_add_custom_keyboard_behavior_when_native_semantics_are_sufficient
   - do_not_claim_offline_support_beyond_the_specific_preservation_behavior_defined_here
   - do_not_use_browser_or_device_fingerprinting_as_a_hidden_learning_or_abuse_authority
