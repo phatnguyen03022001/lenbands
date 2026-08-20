@@ -1,6 +1,6 @@
 type: web-api-schema-contract
 status: review
-version: 0.2.1
+version: 0.2.2
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
@@ -20,6 +20,7 @@ rules:
   - operation_or_submission_lifecycle_is_separate_from_result_validity
   - model_or_provider_identity_is_not_required_in_learner_facing_score_payloads
   - learner_target_is_a_target_profile_not_one_universal_band_value
+  - learner_local_calendar_uses_persisted_iana_timezone
   - optional_content_taxonomy_never_becomes_required_without_an_active_consumer_decision
   - learner_error_input_references_source_finding_and_never_accepts_client_authored_score_or_confidence_truth
   - retest_novelty_and_result_validity_are_server_owned_derived_fields
@@ -120,11 +121,12 @@ schemas:
       display_price: "string"
 
   Profile:
-    required: [subject_id, role, locale, account_status, version]
+    required: [subject_id, role, locale, timezone, account_status, version]
     properties:
       subject_id: "string"
       role: "learner|colab|admin"
       locale: "string"
+      timezone: "iana_timezone"
       account_status: "active|suspended|deletion_pending"
       display_name: "string|null"
       version: "integer"
@@ -134,6 +136,7 @@ schemas:
     properties:
       display_name: "string|null"
       locale: "string|null"
+      timezone: "iana_timezone|null"
       version: "integer"
 
   EntitlementSet:
@@ -231,16 +234,22 @@ schemas:
       version: "integer"
 
   PlacementResult:
-    required: [score_label, score_scope, calibration_status, confidence_state, termination_reason, evidence_coverage]
+    required: [result_id, attempt_id, score_label, score_scope, result_validity, calibration_status, termination_reason, evidence_coverage, configuration_version, policy_version, created_at]
     properties:
+      result_id: "string"
+      attempt_id: "string"
       score_label: "diagnostic_estimate"
       score_scope: "placement"
+      result_validity: "accepted|limited_evidence|insufficient_evidence|invalid"
       current_band: "half_band_0_9|null"
       skill_estimates: "SkillEstimateMap"
       calibration_status: "provisional|calibrated|unavailable"
-      confidence_state: "unknown|provisional|stronger_evidence"
       termination_reason: "precision_and_coverage_met|max_burden_reached|learner_stopped|insufficient_evidence|invalid_configuration"
       evidence_coverage: "EvidenceCoverage"
+      learner_uncertainty_copy: "string|null"
+      configuration_version: "string"
+      policy_version: "string"
+      created_at: "timestamp"
 
   SkillEstimateMap:
     properties:
@@ -263,21 +272,25 @@ schemas:
       energy: "low|normal|high|skipped"
 
   DailyPlan:
-    required: [plan_id, plan_version, plan_state, actions, generated_at, expires_at]
+    required: [plan_id, plan_version, evidence_state_version, target_profile_version, plan_state, actions, generated_at, expires_at]
     properties:
       plan_id: "string"
       plan_version: "string"
+      evidence_state_version: "string"
+      target_profile_version: "integer"
       plan_state: "ready|fallback_offered|no_plan|plan_stale|plan_unavailable|plan_replaced"
       actions: "array<DailyAction>"
       generated_at: "timestamp"
       expires_at: "timestamp"
 
   DailyAction:
-    required: [action_id, capability_id, reason_code, estimated_minutes]
+    required: [action_id, capability_id, intent, reason_code, source_evidence_refs, estimated_minutes]
     properties:
       action_id: "string"
       capability_id: "string"
-      reason_code: "string"
+      intent: "CONTINUE|REVIEW_DUE|RETEST|REMEDIATE|COLLECT_EVIDENCE|GOAL_COVERAGE|FALLBACK"
+      reason_code: "resume_active_session|due_review|eligible_retest|admitted_error|evidence_gap|target_coverage_gap|deterministic_fallback"
+      source_evidence_refs: "array<string>"
       estimated_minutes: "integer"
 
   StudySessionStart:
@@ -495,7 +508,7 @@ schemas:
       rubric_version: "string"
       scorer_route_version: "string"
       result_validity: "accepted|limited_evidence|insufficient_evidence|invalid|integrity_review"
-      overall_band: "half_band_0_9|null"
+      overall_band_estimate: "half_band_0_9|null"
       learner_uncertainty_copy: "string|null"
       criteria: "CriterionResultMap"
       created_at: "timestamp"
@@ -508,9 +521,9 @@ schemas:
       grammar: "CriterionResult"
 
   CriterionResult:
-    required: [band, evidence_refs]
+    required: [band_estimate, evidence_refs]
     properties:
-      band: "half_band_0_9|null"
+      band_estimate: "half_band_0_9|null"
       evidence_refs: "array<string>"
       finding_refs: "array<string>"
 
@@ -566,7 +579,7 @@ schemas:
       preferred_task_ref: "string|null"
 
   WritingErrorRetest:
-    required: [retest_id, source_error_id, task_ref, task_version, novelty_state, operation_state, created_at]
+    required: [retest_id, source_error_id, task_ref, task_version, exposure_policy_version, novelty_state, operation_state, created_at]
     properties:
       retest_id: "string"
       source_error_id: "string"
