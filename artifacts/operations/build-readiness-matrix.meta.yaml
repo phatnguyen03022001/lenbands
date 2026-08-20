@@ -1,6 +1,6 @@
 type: build-readiness-matrix
 status: draft
-version: 0.2.6
+version: 0.3.0
 owner: product
 representation: markdown
 derived_from:
@@ -10,6 +10,6 @@ derived_from:
   - EVAL.Writing
   - REVIEW.FSRS
   - OPS.ReleaseGate
-purpose: founder-agent-build-governance
+purpose: report implementation eligibility and release evidence separately for P0 families
 created_at: 2026-08-06
-updated_at: 2026-08-07
+updated_at: 2026-08-20
