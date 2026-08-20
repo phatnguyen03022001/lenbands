@@ -29,19 +29,21 @@ Rules:
 - P0 plan generation performs `max_llm_calls: 0`.
 - Completion of an action is not mastery/readiness evidence by itself.
 
-## Candidate intents
+## Candidate intents and reason codes
 
-The planner generates eligible candidates before ranking them.
+The planner generates eligible candidates before ranking them. P0 keeps one closed reason code per primary intent so analytics, UI copy and acceptance tests do not infer meaning from free text.
 
-| Intent | Eligible when | Must not mean |
-|---|---|---|
-| `CONTINUE` | a resumable learner-owned session exists and is still valid | unfinished work is always highest priority regardless of state/expiry |
-| `REVIEW_DUE` | a retrievable ReviewCard is due and source evidence remains valid | FSRS maturity proves IELTS mastery |
-| `RETEST` | an active error has a governed retest path and exposure/novelty gate is eligible | reuse the source prompt after feedback exposure |
-| `REMEDIATE` | admitted evidence supports a specific actionable error and remediation mapping exists | infer a weakness from missing data |
-| `COLLECT_EVIDENCE` | a target-relevant construct is under-observed and an eligible diagnostic/practice action can reduce uncertainty | label the learner weak before observation |
-| `GOAL_COVERAGE` | target-relevant practice is eligible and recent plans would otherwise over-concentrate elsewhere | optimize content completion for its own sake |
-| `FALLBACK` | no higher-value eligible candidate or planner dependency is degraded | fabricate personalization |
+| Intent | Reason code | Eligible when | Must not mean |
+|---|---|---|---|
+| `CONTINUE` | `resume_active_session` | a resumable learner-owned session exists and is still valid | unfinished work is always highest priority regardless of state/expiry |
+| `REVIEW_DUE` | `due_review` | a retrievable ReviewCard is due and source evidence remains valid | FSRS maturity proves IELTS mastery |
+| `RETEST` | `eligible_retest` | an active error has a governed retest path and exposure/novelty gate is eligible | reuse the source prompt after feedback exposure |
+| `REMEDIATE` | `admitted_error` | admitted evidence supports a specific actionable error and remediation mapping exists | infer a weakness from missing data |
+| `COLLECT_EVIDENCE` | `evidence_gap` | a target-relevant construct is under-observed and an eligible diagnostic/practice action can reduce uncertainty | label the learner weak before observation |
+| `GOAL_COVERAGE` | `target_coverage_gap` | target-relevant practice is eligible and recent plans would otherwise over-concentrate elsewhere | optimize content completion for its own sake |
+| `FALLBACK` | `deterministic_fallback` | no higher-value eligible candidate or planner dependency is degraded | fabricate personalization |
+
+Changing this vocabulary is an API/analytics contract change, not a copy tweak. Learner-facing prose is rendered from these codes and may be localized without changing routing semantics.
 
 A candidate that fails authorization, content rights/status, exposure/novelty, quota/cost, required evidence, or session-state constraints is removed before ranking.
 
@@ -80,7 +82,7 @@ daily_plan_snapshot:
     - action_id: string
       capability_id: string
       intent: CONTINUE | REVIEW_DUE | RETEST | REMEDIATE | COLLECT_EVIDENCE | GOAL_COVERAGE | FALLBACK
-      reason_code: string
+      reason_code: resume_active_session | due_review | eligible_retest | admitted_error | evidence_gap | target_coverage_gap | deterministic_fallback
       source_evidence_refs: [string]
       estimated_minutes: integer
   generated_at: timestamp
@@ -106,7 +108,7 @@ The only HTTP authority is `artifacts/engineering/api/openapi.yaml`; typed paylo
 | `startStudySession` | `POST /v1/study/sessions` | selected action must belong to a valid current snapshot |
 | `updateStudySession` | `PATCH /v1/study/sessions/{sessionId}` | versioned/idempotent pause/resume/complete/abandon transition |
 
-Do not consult migration-only OpenAPI files for implementation behavior.
+Retired split OpenAPI files are not implementation inputs and must not reappear as authorities.
 
 ## Failure/recovery
 
@@ -133,6 +135,7 @@ Before P0-03 becomes implementation-eligible/ready as applicable:
 
 - [ ] same versioned inputs produce the same candidate eligibility/ranking result;
 - [ ] missing evidence never produces a weakness label;
+- [ ] every returned action carries one valid closed intent/reason-code pair;
 - [ ] due review cannot consume the entire study plan under the configured coverage/load policy;
 - [ ] repeated/revealed content cannot qualify as novel retest/transfer evidence;
 - [ ] completing a session cannot directly change IELTS readiness/mastery;
