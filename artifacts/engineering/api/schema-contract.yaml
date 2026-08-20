@@ -1,6 +1,6 @@
 type: web-api-schema-contract
 status: review
-version: 0.2.0
+version: 0.2.1
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
@@ -21,6 +21,8 @@ rules:
   - model_or_provider_identity_is_not_required_in_learner_facing_score_payloads
   - learner_target_is_a_target_profile_not_one_universal_band_value
   - optional_content_taxonomy_never_becomes_required_without_an_active_consumer_decision
+  - learner_error_input_references_source_finding_and_never_accepts_client_authored_score_or_confidence_truth
+  - retest_novelty_and_result_validity_are_server_owned_derived_fields
 
 operation_contracts:
   getPublicConfig: {request: none, response: PublicConfig}
@@ -59,6 +61,9 @@ operation_contracts:
   getWritingSubmission: {request: none, response: WritingSubmission}
   getWritingEvaluation: {request: none, response: EvaluationResult}
   submitWritingFeedback: {request: EvaluationFeedbackInput, response: EvaluationFeedbackReceipt}
+  saveWritingError: {request: WritingErrorInput, response: WritingError}
+  saveWritingErrorFix: {request: WritingErrorFixInput, response: WritingErrorFixReceipt}
+  startWritingErrorRetest: {request: WritingErrorRetestInput, response: WritingErrorRetest}
   getPremiumInsights: {request: none, response: InsightList}
   createDeepFeedback: {request: DeepFeedbackInput, response: AsyncRequest}
   listMockTests: {request: none, response: MockTestList}
@@ -520,6 +525,59 @@ schemas:
     properties:
       feedback_id: "string"
       recorded_at: "timestamp"
+
+  WritingErrorInput:
+    required: [source_finding_ref, source_evaluation_ref]
+    properties:
+      source_finding_ref: "string"
+      source_evaluation_ref: "string"
+
+  WritingError:
+    required: [error_id, source_finding_ref, source_evaluation_ref, error_pattern, criterion, status, reviewability_state, resolve_policy_version, created_at]
+    properties:
+      error_id: "string"
+      source_finding_ref: "string"
+      source_evaluation_ref: "string"
+      error_pattern: "string"
+      criterion: "task_response|coherence_cohesion|lexical_resource|grammar"
+      status: "open|in_review|improved|dismissed"
+      remediation_unit_ref: "string|null"
+      retest_family_ref: "string|null"
+      reviewability_state: "reviewable|not_reviewable|unknown"
+      resolve_policy_version: "string"
+      review_card_ref: "string|null"
+      created_at: "timestamp"
+
+  WritingErrorFixInput:
+    required: [fix_text]
+    properties:
+      fix_text: "string"
+
+  WritingErrorFixReceipt:
+    required: [fix_id, error_id, accepted, created_at]
+    properties:
+      fix_id: "string"
+      error_id: "string"
+      accepted: "boolean"
+      created_at: "timestamp"
+
+  WritingErrorRetestInput:
+    properties:
+      preferred_task_ref: "string|null"
+
+  WritingErrorRetest:
+    required: [retest_id, source_error_id, task_ref, task_version, novelty_state, operation_state, created_at]
+    properties:
+      retest_id: "string"
+      source_error_id: "string"
+      task_ref: "string"
+      task_version: "string"
+      exposure_policy_version: "string"
+      novelty_state: "eligible|familiar|invalid|unknown"
+      operation_state: "accepted|processing|succeeded|delayed|unavailable|failed|cancelled"
+      result_validity: "accepted|limited_evidence|insufficient_evidence|invalid|integrity_review|null"
+      evaluation_ref: "string|null"
+      created_at: "timestamp"
 
   DeepFeedbackInput:
     properties:
