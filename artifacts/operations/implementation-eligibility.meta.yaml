@@ -1,6 +1,6 @@
 type: implementation-eligibility-contract
 status: review
-version: 1.2.0
+version: 1.3.0
 owner: engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
