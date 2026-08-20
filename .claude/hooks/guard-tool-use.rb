@@ -25,9 +25,41 @@ end
 phase_gate = policy.dig("application_builder", "phase_gate")
 LenbandsClaudeHook.deny!("application phase gate is missing or malformed") unless phase_gate.is_a?(Hash)
 
+# A repository-side authorization is impossible by policy. A privileged launcher may inject
+# exact-baseline/family/scope references, but the hook still independently checks conservative
+# repository eligibility and blocking-risk state before it permits source mutation or build tools.
+def repository_family_implementation_eligible?(root, family)
+  manifest_path = File.join(root, "artifacts/operations/capability-manifest.yaml")
+  risk_path = File.join(root, "artifacts/operations/problem-risk-registry.yaml")
+  manifest = Lenbands::YamlLoader.load_file(manifest_path, mapping: true)
+  risks = Lenbands::YamlLoader.load_file(risk_path, mapping: true)
+
+  family_row = Array(manifest["capability_families"]).find { |row| row.is_a?(Hash) && row["family_id"] == family }
+  return false unless family_row
+
+  # This is intentionally conservative: implementation can start only after every current
+  # pre-code contract projection for the family has been promoted to approved/canonical.
+  artifacts = Array(family_row["artifacts_current"])
+  return false if artifacts.empty?
+  return false unless artifacts.all? do |entry|
+    entry.is_a?(Hash) && %w[approved canonical].include?(entry["status"].to_s)
+  end
+
+  unresolved_blocker = Array(risks["risks"]).any? do |risk|
+    next false unless risk.is_a?(Hash)
+    next false unless Array(risk["affected_families"]).include?(family)
+    next false unless risk["implementation_blocking"] == true
+    %w[open partial deferred].include?(risk["status"].to_s)
+  end
+  !unresolved_blocker
+rescue Lenbands::YamlError, SystemCallError, StandardError
+  false
+end
+
 # Repository policy defines the requirements but never contains an active authorization.
 # A privileged launcher may inject a bounded external authorization context. The hook
-# validates it against the exact repository HEAD and the single canonical P0 source workspace.
+# validates it against exact HEAD, the single canonical P0 source workspace, repository
+# implementation eligibility, and unresolved implementation-blocking risks.
 def implementation_authorization(root, policy, phase_gate)
   return nil unless phase_gate["state"] == "family_scoped_authorization"
   return nil unless phase_gate["source_mutation"] == "locked"
@@ -45,6 +77,7 @@ def implementation_authorization(root, policy, phase_gate)
 
   head, status = Open3.capture2("git", "rev-parse", "HEAD", chdir: root)
   return nil unless status.success? && head.strip == base_sha
+  return nil unless repository_family_implementation_eligible?(root, family)
 
   canonical_workspace = policy.dig("application_builder", "source_workspaces", "application_candidate").to_s
   return nil if canonical_workspace.empty?
@@ -55,7 +88,13 @@ def implementation_authorization(root, policy, phase_gate)
       (scope == canonical_workspace || scope.start_with?(canonical_workspace + "/"))
   end
 
-  {"family_id" => family, "base_sha" => base_sha, "source_scopes" => scopes, "founder_ref" => founder_ref, "authorization_ref" => auth_ref}
+  {
+    "family_id" => family,
+    "base_sha" => base_sha,
+    "source_scopes" => scopes,
+    "founder_ref" => founder_ref,
+    "authorization_ref" => auth_ref
+  }
 rescue StandardError
   nil
 end
@@ -74,7 +113,7 @@ when "Write", "Edit", "NotebookEdit"
   source_roots = Array(phase_gate["locked_source_roots"])
   source_root = source_roots.find { |path| relative == path.to_s || relative.start_with?(path.to_s + "/") }
   if source_root && !source_authorized.call(relative)
-    LenbandsClaudeHook.deny!("source mutation requires external family-scoped authorization for the exact reviewed baseline: #{relative}")
+    LenbandsClaudeHook.deny!("source mutation requires externally authorized, repository-eligible family scope for the exact reviewed baseline: #{relative}")
   end
 
   patterns = Array(policy["protected_paths"]) + Array(policy["immutable_append_only_paths"])
@@ -97,7 +136,7 @@ when "Bash"
   ]
   runtime_allowed = LenbandsRuntimeCommandPolicy.allowed?(command)
   if runtime_allowed && LenbandsRuntimeCommandPolicy.implementation?(command) && authorization.nil?
-    LenbandsClaudeHook.deny!("runtime implementation command requires external family-scoped authorization")
+    LenbandsClaudeHook.deny!("runtime implementation command requires externally authorized, repository-eligible family scope for the exact reviewed baseline")
   end
   unless public_read_only.any? { |pattern| command.match?(pattern) } || runtime_allowed
     LenbandsClaudeHook.deny!("Bash is restricted to registered LenBands checks and reviewed workspace-native commands; shell chaining, arbitrary interpreters and unscoped commands are denied.")
