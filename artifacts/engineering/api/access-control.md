@@ -43,11 +43,11 @@ For a solo-founder/early-stage environment the same trusted person may hold mult
 
 ## Separation-of-duty rules
 
-- Learner owns only their account, learning state, drafts, submissions, attempts, reviews and private knowledge.
+- Learner owns only their account, learning state, drafts, submissions, evaluations exposed to them, learner-confirmed errors/fixes/retests, reviews and private knowledge.
 - Colab owns content workflow. Colab cannot read arbitrary learner essays/audio, score learner work, change entitlements, or administer accounts.
 - Admin operates accounts, configuration, release gates, billing overview and aggregate governance. Admin does not author learner scores and has no product control to manually overwrite an evaluation result.
 - A support/admin workflow that needs learner-specific sensitive content requires a separately audited break-glass policy; it is not granted by the ordinary admin role.
-- Evaluation workers access a submission by opaque job/resource reference and minimum required scope, not by broad learner-table privileges.
+- Evaluation workers access a submission/retest by opaque job/resource reference and minimum required scope, not by broad learner-table privileges.
 - Billing webhooks may update a provider-neutral entitlement ledger only; they cannot touch learning/assessment state.
 - Research/benchmark access is separate from ordinary Admin/Colab access and must use an approved corpus/data policy rather than production-table browsing.
 - Model/provider credentials never confer LenBands authorization; server-side code decides what minimum payload may be sent.
@@ -59,8 +59,9 @@ For a solo-founder/early-stage environment the same trusted person may hold mult
 | public config/catalog/pricing | R | R | R | R | R |
 | own profile/privacy | - | RW | RW | own only | own only |
 | goal/placement/today/study | - | RW | RW | - | - |
-| learning/practice/review/history/progress | - | RW | RW | - | aggregate governance only |
+| learning/practice/review/history/progress | - | own RW | own RW | - | aggregate governance only |
 | Writing draft/submission/evaluation | - | own RW | own RW | - | aggregate governance only |
+| learner-confirmed Writing error/fix/retest | - | own RW | own RW | - | aggregate governance only |
 | advanced insights/deep feedback/mock | - | - | RW | - | aggregate governance only |
 | content draft workspace | - | - | - | permission-scoped RW | audit only |
 | content review/publish/retire | - | - | - | permission-scoped | audit/release policy only |
@@ -86,6 +87,18 @@ authenticated principal / signed internal caller
 
 Every step is deny-by-default.
 
+## Learner remediation ownership rules
+
+For `saveWritingError`, `saveWritingErrorFix` and `startWritingErrorRetest`:
+
+1. the source evaluation/finding/error must resolve to the authenticated learner;
+2. the client cannot supply a different learner ID or authoritative score/confidence/taxonomy value;
+3. `saveWritingError` derives criterion/error/remediation policy from the owned normalized finding and framework, not arbitrary client fields;
+4. `saveWritingErrorFix` may write learner-authored fix content only under the owned error and must not mark it `improved`;
+5. `startWritingErrorRetest` chooses/validates an exposure-eligible task server-side; a requested candidate task never bypasses novelty/exposure policy;
+6. retest evaluation uses the same function-scoped evaluation boundary as ordinary Writing evaluation;
+7. quota/entitlement controls may limit paid evaluation depth/count but must not change score/evidence semantics.
+
 ## Database policy
 
 Managed Postgres RLS is defense in depth, not a replacement for application authorization.
@@ -108,7 +121,7 @@ The following require explicit audit events and stronger abuse/rate controls:
 - release-gate decisions;
 - subscription/entitlement changes;
 - privacy export/deletion;
-- mock/evaluation submission that incurs material provider cost;
+- mock/evaluation/retest submission that incurs material provider cost;
 - benchmark-corpus import/access/promotion;
 - any future break-glass access to raw learner assessment content.
 
@@ -125,4 +138,7 @@ A generated access test matrix must prove for every OpenAPI operation:
 7. internal function A cannot use its credentials/path to perform internal function B's domain operation;
 8. evaluation/content/billing jobs cannot enumerate unrelated learner resources;
 9. Colab publish permission can be removed independently from Colab author access;
-10. model/provider callbacks cannot become an authorization bypass.
+10. model/provider callbacks cannot become an authorization bypass;
+11. learner A cannot save/fix/retest learner B's finding/error by guessing IDs;
+12. client-provided taxonomy/score/confidence fields cannot override server-derived remediation/evidence semantics;
+13. a preferred retest task that violates exposure policy is rejected even when learner-owned.
