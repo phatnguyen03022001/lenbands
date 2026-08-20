@@ -1,4 +1,4 @@
-schema_version: 1.2.0
+schema_version: 1.3.0
 status: review
 source_of_truth: true
 contract_id: implementation-eligibility
@@ -65,7 +65,10 @@ invariants:
   - deferred_risk_is_not_equivalent_to_covered
   - synthetic_or_fixture_implementation_does_not_authorize_real_learner_data_collection
 
-current_transition:
-  source_mutation_state: locked
-  reason: existing_agent_runtime_still_enforces_global_document_convergence_until_validator_and_agent_policy_migration_is_completed
-  rule: this_contract_does_not_unlock_source_by_itself
+current_state:
+  repository_authorization_state: none
+  source_mutation_default: locked
+  authorization_model: external_exact_baseline_sha_plus_family_plus_source_scope
+  rule: >
+    This contract defines eligibility/readiness semantics but never self-authorizes source mutation.
+    A bounded implementation session requires the external authorization described by agent-trust-policy.yaml.
