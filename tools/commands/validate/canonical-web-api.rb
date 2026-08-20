@@ -38,11 +38,13 @@ errors << "DOCS web_api_type_system path drifted" unless docs.dig("authority", "
 errors << "DOCS web_api_operation_ownership path drifted" unless docs.dig("authority", "web_api_operation_ownership", "path") == "artifacts/engineering/api/operation-ownership.yaml"
 
 legacy = docs["legacy_aliases"] || {}
-%w[artifacts/engineering/contracts/openapi.yaml artifacts/engineering/contracts/writing-task-2/openapi.yaml].each do |path|
-  entry = legacy[path]
-  errors << "legacy OpenAPI alias missing: #{path}" unless entry.is_a?(Hash)
-  errors << "legacy OpenAPI alias #{path} must be migration_only" unless entry&.dig("status") == "migration_only"
-  errors << "legacy OpenAPI alias #{path} must resolve to canonical API" unless entry&.dig("canonical") == "artifacts/engineering/api/openapi.yaml"
+retired_openapi_paths = %w[
+  artifacts/engineering/contracts/openapi.yaml
+  artifacts/engineering/contracts/writing-task-2/openapi.yaml
+]
+retired_openapi_paths.each do |path|
+  errors << "retired OpenAPI must not remain in DOCS aliases: #{path}" if legacy.key?(path)
+  errors << "retired OpenAPI must be physically removed: #{path}" if File.exist?(File.join(root, path))
 end
 
 errors << "authoring OpenAPI must remain 3.1.x" unless openapi["openapi"].to_s.start_with?("3.1.")
