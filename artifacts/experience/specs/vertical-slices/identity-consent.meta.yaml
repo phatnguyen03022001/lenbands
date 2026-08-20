@@ -1,20 +1,22 @@
 type: vertical-slice-spec
-status: draft
-version: 0.2.4
+status: review
+version: 0.3.0
 owner: product
 representation: markdown
 derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
 purpose: p0-identity-consent-and-privacy-request-behavior
 consumed_by: [P0 Experience Contract, engineering, operations, source-code]
 created_at: 2026-08-06
-updated_at: 2026-08-11
+updated_at: 2026-08-21
 change_log:
+  - version: 0.3.0
+    date: 2026-08-21
+    changes:
+      - Removed references to the retired auth-identity shadow contract.
+      - Rebased learner flow on canonical API, access-control, runtime and retention owners.
+      - Separated UX states from Profile, ConsentRecord and privacy AsyncRequest persisted state.
+      - Kept provider/legal approval as release evidence rather than a duplicate pre-code flow contract.
   - version: 0.2.4
     date: 2026-08-11
     changes:
       - Translated the remaining consent-transition annotation to English without changing persisted identity states or UX-only states.
-  - version: 0.2.3
-    date: 2026-08-10
-    changes:
-      - Added admin:governance to P0 permission scope note (learner-facing list omits admin scope; now clarified per auth contract)
-      - Convergence audit M8 resolution
