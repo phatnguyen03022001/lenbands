@@ -37,10 +37,10 @@ This is a semantic improvement, **not readiness evidence**. All affected P0 pack
 | Pack | Current semantic state | Main remaining blockers | Build state |
 |---|---|---|---|
 | `P0-01 Identity` | access model improved; Premium entitlement and scoped internal principals defined | provider/DPA activation, privacy/export/delete end-to-end tests, generated access matrix | **not ready** |
-| `P0-02 Diagnosis` | TargetProfile + coverage/termination/insufficient-data principles exist | placement schemas/contracts must fully consume TargetProfile; calibration/precision policy and acceptance evidence missing | **not ready** |
-| `P0-03 Daily action` | deterministic multi-objective recommendation is canonical | daily-action implementation contract/manifest must prove uncertainty/coverage/exposure/load handling; acceptance/outcome run missing | **not ready** |
-| `P0-04 Writing evaluation` | staged deterministic-first runtime/evaluation/data/experience contracts updated; canonical API schema migrated | generated OpenAPI/consumers/manifest/event/failure contracts must be revalidated; scorer benchmark route, rights-approved tasks, acceptance evidence missing | **not ready** |
-| `P0-05 Error-to-review` | FSRS boundary + independent/novel retest semantics now canonical | existing error-to-review contracts must be reconciled with retrievable-unit suitability + exposure/novelty/result-validity semantics; executable verified-improvement run missing | **not ready** |
+| `P0-02 Diagnosis` | TargetProfile + coverage/termination/insufficient-data principles exist | placement contracts/consumers still require TargetProfile reconciliation; calibration/precision policy and acceptance evidence missing | **not ready** |
+| `P0-03 Daily action` | deterministic multi-objective recommendation is canonical | daily-action implementation contract must fully consume uncertainty/coverage/exposure/load semantics; acceptance/outcome run missing | **not ready** |
+| `P0-04 Writing evaluation` | staged deterministic-first runtime/evaluation/data/experience contracts + canonical API schema are aligned at authority level | generated OpenAPI/validators and remaining event/failure/prompt consumers must be revalidated; scorer benchmark route, rights-approved tasks, acceptance evidence missing | **not ready** |
+| `P0-05 Error-to-review` | FSRS reviewability + independent/novel retest semantics aligned; canonical save-error/fix/retest operations are now registered in OpenAPI, schema and operation ownership | generated API/access tests must be revalidated; executable reviewability/novel-retest/verified-improvement acceptance run missing | **not ready** |
 | `P0-06 Quality & economics` | cost routing + deterministic/inference boundary + metadata economics + cost/verified improvement defined | real benchmark corpus/run, armed cost ceilings, provider procurement, outcome-cost measurement and rollback evidence missing | **not ready** |
 
 ## Global gates
@@ -96,6 +96,15 @@ confirmed evidence-backed error
   -> evidence admission
   -> improved or remains active
 ```
+
+Canonical P0-05 mutation identities are now:
+
+- `saveWritingError`;
+- `saveWritingErrorFix`;
+- `startWritingErrorRetest`;
+- plus `getReviewQueue` / `rateReviewItem` for review scheduling.
+
+These operation identities being present is **not** acceptance evidence. Generator/schema/access/idempotency tests must still prove them.
 
 A review rating/card maturity or success on the revealed source item is not sufficient evidence of improvement/transfer.
 
