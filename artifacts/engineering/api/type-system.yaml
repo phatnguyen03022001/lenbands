@@ -1,4 +1,4 @@
-schema_version: 1.3.0
+schema_version: 1.4.0
 status: review
 source_of_truth: true
 contract_id: web-api-type-system
@@ -30,10 +30,13 @@ aliases:
   placement: {type: string, const: placement}
   scalar_or_structured_answer:
     oneOf: [{type: string}, {type: number}, {type: boolean}, {type: array, items: {type: string}}, {type: object, additionalProperties: true}]
+    x-lenbands-limit-profile: bounded_assessment_answer
   structured_content:
     type: object
     additionalProperties: true
     x-lenbands-data-class: C2_learning
+    x-lenbands-limit-profile: bounded_structured_content
+    x-lenbands-rendering: untrusted_structured_data
   governed_config_map:
     type: object
     propertyNames:
@@ -41,6 +44,7 @@ aliases:
     additionalProperties:
       oneOf: [{type: string}, {type: number}, {type: integer}, {type: boolean}, {type: 'null'}]
     x-lenbands-rule: web_admin_config_must_not_carry_secrets
+    x-lenbands-limit-profile: bounded_governed_map
   governed_aggregate_map: {type: object, additionalProperties: {type: [string, number, integer, boolean, 'null']}}
   provider_neutral_usage_map: {type: object, additionalProperties: {type: [number, integer, string, 'null']}}
   aggregate_map: {type: object, additionalProperties: {type: [number, integer, string, 'null']}}
@@ -48,12 +52,46 @@ aliases:
     type: object
     additionalProperties: true
     x-lenbands-trust-boundary: signature_verified_before_normalization
+    x-lenbands-limit-profile: bounded_provider_payload
   provider_or_config: {type: string, enum: [provider, config]}
 
 transport_policy:
   idempotency_key: {type: string, minLength: 16, maxLength: 128}
   webhook_signature_input: raw_request_body
   webhook_normalization_order: [verify_signature, deduplicate_event_id, parse_and_normalize, apply_provider_neutral_ledger_effect]
+  request_limits:
+    enforcement_order: [reject_transport_body_over_limit, parse_with_depth_and_collection_limits, validate_schema, apply_semantic_field_limits, reserve_expensive_work]
+    max_json_body_bytes: 262144
+    max_json_depth: 16
+    max_object_properties: 256
+    max_array_items: 1000
+    semantic_profiles:
+      learner_assessment_text: {max_characters: 30000, fields: [WritingDraftInput.text, WritingErrorFixInput.fix_text]}
+      human_note: {max_characters: 4000, fields: [EvaluationFeedbackInput.note, ContentReportPatch.resolution_note, LifecycleTransitionInput.reason]}
+      short_display_text: {max_characters: 512, fields: [ProfilePatch.display_name, TargetProfile.purpose]}
+      bounded_assessment_answer: {max_serialized_bytes: 65536, max_depth: 8, max_array_items: 256, max_object_properties: 128}
+      bounded_structured_content: {max_serialized_bytes: 262144, max_depth: 16, max_array_items: 1000, max_object_properties: 256}
+      bounded_governed_map: {max_serialized_bytes: 65536, max_depth: 8, max_object_properties: 128}
+      bounded_provider_payload: {max_serialized_bytes: 262144, max_depth: 16, max_array_items: 1000, max_object_properties: 256}
+    rule: oversized_or_overdeep_input_is_rejected_before_storage_inference_logging_or_domain_side_effect
+  browser_session:
+    persistent_raw_bearer_storage_in_application_controlled_browser_storage: prohibited
+    credentials_in_url_query_fragment_logs_analytics_or_cache_keys: prohibited
+    cookie_authenticated_mutation_requires_origin_or_csrf_defense: true
+    expired_or_revoked_session_reauthorizes_before_resume: true
+    recent_auth_is_server_or_provider_verified_not_client_boolean: true
+  browser_rendering:
+    learner_colab_provider_and_generated_text_are_untrusted_data: true
+    raw_html_rendering_default: prohibited
+    markdown_or_rich_text_requires_allowlisted_renderer_and_sanitization: true
+    executable_url_schemes: prohibited
+    allowed_link_schemes: [https, http, mailto]
+    javascript_data_vbscript_urls: prohibited
+    dangerous_dom_sinks_without_reviewed_sanitizer: prohibited
+    content_security_policy_required_for_release: true
+    csp_unsafe_eval: prohibited
+    csp_unsafe_inline_script_default: prohibited
+    rule: sanitization_is_a_rendering_boundary_not_a_content_truth_or_authorization_mechanism
   public_failure_codes:
     - EVALUATION_DELAYED
     - EVALUATION_UNAVAILABLE
@@ -82,3 +120,5 @@ compiler_rules:
   - resolved_openapi_is_the_only_codegen_input
   - canonical_openapi_operation_set_equals_schema_contract_operation_set_equals_operation_ownership_set
   - public_failure_codes_resolve_to_failure_taxonomy_public_projection
+  - request_limit_profiles_are_security_contracts_even_when_a_field_uses_a_primitive_schema_token
+  - untrusted_renderable_content_never_implies_html_trust
