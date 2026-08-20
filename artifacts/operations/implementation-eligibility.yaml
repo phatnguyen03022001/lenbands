@@ -1,4 +1,4 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: implementation-eligibility
@@ -18,6 +18,8 @@ axes:
       - asset_requirements_resolved
       - decision_requirements_resolved
       - required_owner_contracts_approved
+      - problem_risk_coverage_assessed
+      - no_blocking_problem_risk
       - no_open_critical_or_high_finding_for_family
   implementation_authorization:
     values: [locked, authorized]
@@ -28,6 +30,16 @@ axes:
     evaluated_per: release_scope
     requires: [runtime_acceptance, evidence_integrity, privacy_security_quality_cost_gates]
 
+risk_coverage_binding:
+  registry: artifacts/operations/problem-risk-registry.yaml
+  rule: >
+    Every category applicable to a capability family must have an explicit risk entry. Any P0
+    critical/high risk marked open or partial with implementation_blocking=true keeps that family
+    blocked even when feature prose appears complete.
+  non_rule: >
+    A covered risk does not prove runtime acceptance or release readiness; those remain separate
+    evidence gates.
+
 invariants:
   - ACTIVE_does_not_mean_implementation_authorized
   - implementation_eligibility_does_not_mean_release_ready
@@ -36,6 +48,8 @@ invariants:
   - authorization_is_bound_to_exact_candidate_sha_and_declared_family_scope
   - evidence_that_requires_runtime_is_never_required_to_start_implementation
   - no_unknown_placeholder_or_unapproved_decision_may_be_silently_coerced_to_eligible
+  - risk_status_covered_is_not_runtime_evidence
+  - deferred_risk_is_not_equivalent_to_covered
 
 current_transition:
   source_mutation_state: locked
