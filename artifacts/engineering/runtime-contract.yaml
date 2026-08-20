@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 status: review
 source_of_truth: true
 contract_id: platform-runtime
@@ -14,6 +14,7 @@ principles:
   - durable_domain_effects_are_idempotent
   - raw_learner_content_is_never_general_telemetry
   - unmeasured_optimizations_are_disabled_by_default
+  - absolute_time_and_local_calendar_semantics_are_not_interchangeable
 
 execution_modes:
   request_response:
@@ -52,6 +53,10 @@ persistence:
   search_or_vector_index:
     default_state: disabled
     enable_only_if: measured_retrieval_requirement_cannot_be_met_by_primary_store_or_managed_search
+
+schema_change:
+  canonical_contract: artifacts/engineering/data-migration-contract.yaml
+  rule: schema_backfill_or_projection_changes_follow_the_data_migration_contract_and_may_not_be_inferred_from_orm_diff_alone
 
 async_handoff:
   semantic_owner: durable_operation
@@ -111,6 +116,35 @@ provider_boundary:
   no_approved_scoring_route: delayed_or_unavailable_not_silent_substitution
   minimum_context_rule: send_only_operation_required_payload_plus_bounded_relevant_learner_state
 
+time_semantics:
+  absolute_instant:
+    storage: UTC_timestamp
+    applies_to: [created_at, updated_at, due_at, deadline_at, evaluated_at, provider_event_occurred_at, audit_time]
+    rule: compare_absolute_instants_in_UTC_not_server_local_time
+  local_calendar:
+    timezone_identifier: IANA_timezone_id
+    applies_to: [today_plan_day, quiet_hours, local_day_summary, exam_countdown_display]
+    rule: local_calendar_logic_uses_the_learner_timezone_effective_for_that_decision
+  date_only:
+    examples: [target_exam_date]
+    rule: a_date_only_value_is_not_coerced_to_midnight_UTC
+  timezone_change:
+    rule: changing_timezone_never_rewrites_historical_absolute_instants
+    daily_plan: invalidate_or_replace_future_local_day_projection_without_duplicate_completion
+    review_due: preserve_absolute_due_instant_unless_the_review_policy_explicitly_reschedules
+  DST:
+    rule: use_timezone_database_rules_not_fixed_offsets_for_local_calendar_behavior
+  agent_rule: if_the_product_has_no_persisted_timezone_source_for_a_local_calendar_feature_report_a_schema_gap_instead_of_using_server_timezone
+
+reproducibility:
+  levels: [exact, semantic, audit_only]
+  exact: same_immutable_inputs_rubric_prompt_route_and_executable_model_provider_version_remain_available
+  semantic: exact_provider_or_model_is_unavailable_but_a_governed_route_can_rerun_the_same_task_rubric_and_score_scope_semantics
+  audit_only: historical_result_is_attributable_to_immutable_inputs_and_version_identities_but_faithful_rerun_is_not_available
+  required_audit_identity: [task_version, rubric_version, prompt_hash, scorer_route_version, model_id, provider_id, assessment_mode]
+  rule: provider_or_model_retirement_never_rewrites_a_historical_result
+  reevaluation_rule: governed_reevaluation_creates_a_new_result_with_prior_result_reference_and_its_own_route_provenance
+
 configuration:
   activated_values_source: artifacts/engineering/contracts/runtime/runtime-baseline-config.yaml
   rule: candidate_values_are_not_runtime_defaults_until_explicitly_armed
@@ -137,3 +171,5 @@ acceptance_invariants:
   - internal_function_a_cannot_perform_internal_function_b_domain_operation_by_credential_reuse_alone
   - model_output_cannot_change_readiness_without_domain_evidence_admission
   - cheaper_routing_cannot_bypass_the_required_evaluation_quality_floor
+  - timezone_change_cannot_duplicate_or_erase_completed_daily_actions_or_review_effects
+  - historical_evaluation_remains_attributable_after_route_or_provider_retirement
