@@ -51,11 +51,16 @@ unless paths.is_a?(Hash)
   errors << "canonical OpenAPI paths must be a mapping"
   paths = {}
 end
+
 allowed_personas = Set.new(%w[guest learner premium_learner colab admin])
-allowed_roles = Set.new(%w[learner colab admin service])
+allowed_roles = Set.new(%w[learner colab admin])
+expected_internal_scopes = Set.new(%w[evaluation_worker workflow_callback billing_webhook content_job notification_job research_benchmark_job])
+allowed_internal_scopes = Set.new(Array(openapi.dig("x-lenbands", "internal_function_scopes")))
 allowed_data = Set.new(%w[C0_public C1_account C2_learning C3_assessment C4_security C5_derived])
 seen_personas = Set.new
 operations = []
+
+errors << "canonical internal function-scope registry drift" unless allowed_internal_scopes == expected_internal_scopes
 
 paths.each do |path, path_item|
   next unless path_item.is_a?(Hash)
@@ -65,45 +70,69 @@ paths.each do |path, path_item|
       errors << "#{method.upcase} #{path}: operation must be a mapping"
       next
     end
+
     op_id = operation["operationId"]
     operations << op_id
     errors << "#{method.upcase} #{path}: operationId missing" if op_id.to_s.empty?
+
     personas = operation["x-web-personas"]
     roles = operation["x-required-roles"]
     entitlements = operation["x-required-entitlements"]
     data_classes = operation["x-data-classes"]
     idem = operation["x-idempotency"]
+    function_scope = operation["x-internal-function-scope"]
+
     errors << "#{op_id}: x-web-personas must be an array" unless personas.is_a?(Array)
     errors << "#{op_id}: x-required-roles must be an array" unless roles.is_a?(Array)
     errors << "#{op_id}: x-required-entitlements must be an array" unless entitlements.is_a?(Array)
     errors << "#{op_id}: x-data-classes must be non-empty" unless data_classes.is_a?(Array) && !data_classes.empty?
     errors << "#{op_id}: x-idempotency missing" if idem.to_s.empty?
-    personas = Array(personas); roles = Array(roles); entitlements = Array(entitlements); data_classes = Array(data_classes)
+
+    personas = Array(personas)
+    roles = Array(roles)
+    entitlements = Array(entitlements)
+    data_classes = Array(data_classes)
     seen_personas.merge(personas)
+
     errors << "#{op_id}: unknown persona" unless personas.to_set.subset?(allowed_personas)
     errors << "#{op_id}: unknown role" unless roles.to_set.subset?(allowed_roles)
     errors << "#{op_id}: unknown data class" unless data_classes.to_set.subset?(allowed_data)
+
+    if function_scope
+      errors << "#{op_id}: unknown internal function scope #{function_scope.inspect}" unless allowed_internal_scopes.include?(function_scope)
+      errors << "#{op_id}: web persona operation may not also use internal function scope" unless personas.empty?
+      errors << "#{op_id}: internal function-scoped operation may not require web role" unless roles.empty?
+    elsif personas.empty? && path.start_with?("/v1/webhooks/")
+      errors << "#{op_id}: webhook missing x-internal-function-scope"
+    end
+
     if personas.include?("guest")
       errors << "#{op_id}: guest operation must disable bearer security" unless operation["security"] == []
       errors << "#{op_id}: guest operation may expose only C0_public" unless data_classes.to_set.subset?(Set.new(%w[C0_public]))
     end
+
     if entitlements.include?("premium")
       errors << "#{op_id}: premium entitlement requires learner role" unless roles == ["learner"]
       errors << "#{op_id}: premium-only operation admits base learner" if personas.include?("learner")
     end
+
     if path.start_with?("/v1/colab/")
-      errors << "#{op_id}: Colab surface access drift" unless personas == ["colab"] && roles == ["colab"]
+      errors << "#{op_id}: Colab surface access drift" unless personas == ["colab"] && roles == ["colab"] && function_scope.nil?
       errors << "#{op_id}: Colab may not expose C1/C3/C4" unless (data_classes.to_set & Set.new(%w[C1_account C3_assessment C4_security])).empty?
     end
+
     if path.start_with?("/v1/admin/")
-      errors << "#{op_id}: Admin surface access drift" unless personas == ["admin"] && roles == ["admin"]
+      errors << "#{op_id}: Admin surface access drift" unless personas == ["admin"] && roles == ["admin"] && function_scope.nil?
       errors << "#{op_id}: Admin may not expose raw C3" if data_classes.include?("C3_assessment")
     end
+
     if path.start_with?("/v1/webhooks/")
       errors << "#{op_id}: webhook must have no web persona" unless personas.empty?
-      errors << "#{op_id}: webhook must use service role" unless roles == ["service"]
+      errors << "#{op_id}: webhook must not use web role" unless roles.empty?
+      errors << "#{op_id}: webhook must use billing_webhook function scope" unless function_scope == "billing_webhook"
       errors << "#{op_id}: webhook may not accept C2/C3/C4" unless (data_classes.to_set & Set.new(%w[C2_learning C3_assessment C4_security])).empty?
     end
+
     if %w[post put patch delete].include?(method) && !path.start_with?("/v1/webhooks/")
       errors << "#{op_id}: durable mutation must require idempotency" unless idem == "required"
       params = Array(operation["parameters"])
@@ -111,16 +140,19 @@ paths.each do |path, path_item|
     end
   end
 end
+
 errors << "operationId duplicated" unless operations.compact.uniq.length == operations.compact.length
-errors << "canonical API must contain exactly 60 operations" unless operations.length == 60
+errors << "canonical API must contain exactly 63 operations" unless operations.length == 63
 errors << "canonical API persona coverage drift" unless seen_personas == allowed_personas
 
 contracts = schema_contract["operation_contracts"]
 schemas = schema_contract["schemas"]
 unless contracts.is_a?(Hash) && schemas.is_a?(Hash)
   errors << "schema contract must contain operation_contracts and schemas mappings"
-  contracts = {}; schemas = {}
+  contracts = {}
+  schemas = {}
 end
+
 openapi_ids = operations.compact.to_set
 errors << "schema operation set differs from OpenAPI" unless contracts.keys.to_set == openapi_ids
 errors << "ownership operation set differs from OpenAPI" unless (ownership["operations"] || {}).keys.to_set == openapi_ids
@@ -138,22 +170,34 @@ errors.concat(resolve_errors)
 errors.concat(Lenbands::ApiSchemaCompiler.validate_resolved(openapi: resolved, schema_contract: schema_contract, type_system: type_system))
 errors << "compiled schema count differs from semantic schema count" unless compiled.length == schemas.length
 
-%w[PlacementResult EvaluationResult AttemptSummary].each { |name| errors << "critical score schema missing #{name}" unless schemas.key?(name) }
+%w[TargetProfile PlacementResult EvaluationResult WritingError WritingErrorRetest AttemptSummary].each do |name|
+  errors << "critical schema missing #{name}" unless schemas.key?(name)
+end
+
 eval_props = schemas.dig("EvaluationResult", "properties") || {}
-%w[score_label score_scope scorer_route_version quality_status confidence_state criteria].each { |field| errors << "EvaluationResult missing #{field}" unless eval_props.key?(field) }
+%w[score_label score_scope scorer_route_version result_validity criteria].each do |field|
+  errors << "EvaluationResult missing #{field}" unless eval_props.key?(field)
+end
+errors << "EvaluationResult must not require learner-facing raw confidence" if eval_props.key?("overall_confidence") || eval_props.key?("confidence_state") || eval_props.key?("quality_status")
+
+writing_error_input = schemas.dig("WritingErrorInput", "properties") || {}
+%w[score confidence error_pattern user_id].each do |forbidden|
+  errors << "WritingErrorInput may not accept client-authored #{forbidden}" if writing_error_input.key?(forbidden)
+end
+
 config_alias = type_system.dig("aliases", "governed_config_map") || {}
 errors << "Admin config type must block secret-like keys" unless config_alias.dig("propertyNames", "not", "pattern").to_s.include?("secret")
 
 bops_personas = Set.new(Array(bops.dig("scope", "web_personas")))
 bops_roles = Set.new(Array(bops.dig("scope", "authorization_roles")))
 errors << "BOPS persona set differs from API" unless bops_personas == allowed_personas
-errors << "BOPS authenticated role set drift" unless bops_roles == Set.new(%w[learner colab admin])
+errors << "BOPS authenticated role set drift" unless bops_roles == allowed_roles
 
 problem = openapi.dig("components", "schemas", "Problem")
 errors << "RFC9457 Problem source schema missing" unless problem.is_a?(Hash) && Array(problem["required"]).to_set.superset?(Set.new(%w[type title status]))
 
 if errors.empty?
-  puts "canonical web API validation passed (operations=60, typed_contracts=#{contracts.length}, compiled_schemas=#{compiled.length}, generic_build_payloads=0)"
+  puts "canonical web API validation passed (operations=63, typed_contracts=#{contracts.length}, compiled_schemas=#{compiled.length}, generic_build_payloads=0)"
 else
   warn errors.join("\n")
   warn "canonical web API validation failed: #{errors.length} issue(s)"
