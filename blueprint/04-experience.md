@@ -6,15 +6,16 @@ This file describes the learner's **experience and journeys** — how the learne
 
 ## UX principles
 
-1. **Experience-centric, not feature-centric** — users think in journeys ("I want Band 7 → what should I study today?"), not features ("I want to use Practice").
-2. **Progressive Disclosure** — lower-band learners see less and higher-band learners see more; do not expose Advanced Analytics/Rubric/Calibration all at once. UI depth expands with readiness.
-3. **Always know the next step** — every surface ends by answering one question: "what is the next step?" (`PERSONAL.NextBestAction`).
-4. **Delight at moments of progress, not through gamification** — celebrate when Band Readiness improves, not through XP/leaderboards.
-5. **Recovery before panic** — when evaluation fails, the network drops, or a session times out, the system recovers gracefully and the user does not lose data.
-6. **Context-aware** — AI always knows the user's current context (passage/question/skill) so it can respond in context (`COACH.Tutor`).
-7. **Energy-aware** — the system asks about available time and energy today and proposes an appropriate session instead of always pushing the same workload.
-8. **Trust before persuasion** — scoring status, limitations, data use, and recommendation rationale must be understandable; retention must never be purchased with dark patterns.
-9. **One clear next step** — each surface has one primary action; secondary choices sit behind progressive disclosure to reduce cognitive load.
+1. **Experience-centric, not feature-centric** — users think in journeys ("I need Band 7 with Writing ≥ 6.5 → what should I study today?"), not features ("I want to use Practice").
+2. **Progressive Disclosure** — learners see only the depth that helps the current task; advanced rubric/analytics/governance detail is not dumped onto every learner.
+3. **Always know the next step** — every primary learner surface ends by answering: "what is the next useful step and why?" (`PERSONAL.NextBestAction`).
+4. **Evidence before celebration** — delight follows demonstrated progress, reduced uncertainty, successful retest/transfer, or meaningful completion; never manufacture progress from clicks/cards alone.
+5. **Recovery before panic** — evaluation/network/session failures preserve work and expose an actionable recovery state.
+6. **Minimum relevant context** — contextual coaching receives the smallest passage/question/task/evidence context required; it does not require unrestricted learner history.
+7. **Energy-aware** — the system accounts for available time/energy and does not always push the same workload.
+8. **Trust before persuasion** — score scope, evidence limits, data use, recommendation rationale, and uncertainty must be understandable; retention must never be purchased with dark patterns.
+9. **One clear next step** — each surface has one primary action; secondary choices use progressive disclosure.
+10. **No false precision** — if evidence is insufficient, the UI says so instead of showing a precise band/readiness percentage.
 
 ## Home (most frequently opened)
 
@@ -22,166 +23,181 @@ Home orchestrates `STUDY.*`; it is not a new feature.
 
 ```text
 ┌───────────────────────────────────┐
-│  Greeting + Streak                │  ← PROGRESS.Motivation
+│  Greeting + optional streak       │  ← PROGRESS.Motivation
 ├───────────────────────────────────┤
-│  Today's Goal (progress bar)      │  ← GOAL.Daily
+│  Today's Goal / capacity          │  ← GOAL.Daily / STUDY.CheckIn
 ├───────────────────────────────────┤
 │  ▶ Continue (resume session)      │  ← STUDY.Resume / STUDY.Continue
 ├───────────────────────────────────┤
 │  Today's Plan                     │  ← STUDY.DailyPlan
-│    • Today's Review (N due)       │     REVIEW.SmartQueue
-│    • Today's Practice             │     PRACTICE.*
-│    • Today's Lesson               │     LEARN.Path
+│    • Review due                   │     REVIEW.SmartQueue
+│    • Evidence / practice action   │     PRACTICE.*
+│    • Lesson / remediation         │     LEARN.Path
 ├───────────────────────────────────┤
-│  Insight of the day               │  ← PERSONAL.Insights
-│  ("Matching Headings is weak")   │
+│  Evidence-backed insight          │  ← PERSONAL.Insights
+│  ("Paraphrase evidence is weak") │
 ├───────────────────────────────────┤
-│  Next Best Action                 │  ← PERSONAL.NextBestAction
+│  Next Best Action + Why           │  ← PERSONAL.NextBestAction
 └───────────────────────────────────┘
 ```
 
-Empty state for a new learner: Home shows "Start Placement Test" (`PLACE.Test`) instead of Today's Plan.
+Empty state for a new learner: Home shows "Start Placement" (`PLACE.Test`) instead of pretending that a personalized plan already exists.
 
 ## 8 User Journeys
 
 ### 01. First Day (Onboarding)
 
-The first experience must answer: "does this system understand me?"
+The first experience must answer: "does this system understand my target, and does it know what it does not know about me yet?"
 
 ```text
 Who are you? (basic profile)
    ↓
-Current band? (self-report or quick test)
+IELTS module? Academic / General Training
    ↓
-Target band?             ┐
-   ↓                     │
-How long until the exam? │ → GOAL.Target, GOAL.ExamPlan (horizon; not active in P0)
-   ↓                     │
-Daily study time?        │ → GOAL.Daily (horizon; P0 uses daily budget in the placement contract)
-   ↓                     │
-Placement Test           │ → PLACE.Test (if there is no reliable band yet)
-   ↓                     │
-Gap Detection            │ → PLACE.GapDetection
-   ↓                     │
-Create personal plan     │ → PLACE.InitialPath + STUDY.DailyPlan
+Target overall + optional per-skill minima
+   ↓
+Target date / purpose              ← GOAL.Target
+   ↓
+Current level? self-report / prior official result / quick start
+   ↓
+Daily study capacity               ← GOAL.Daily / STUDY.CheckIn
+   ↓
+Placement Test                     ← PLACE.Test (when reliable evidence is missing)
+   ↓
+Evidence coverage + gap/uncertainty← PLACE.SkillDiagnosis / PLACE.GapDetection
+   ↓
+Create initial plan                ← PLACE.InitialPath + STUDY.DailyPlan
    ↓
 First Home (Today's Plan appears)
 ```
 
-**Emotional goal:** "the system understands me, gives me a clear path, and does not overwhelm me."
+Placement may legitimately end with `insufficient evidence`; reaching a time/item cap is not permission to fabricate a band estimate.
+
+**Emotional goal:** "the system understands my real target, knows what evidence it has, and gives me a clear first action without overwhelming me."
 
 ### 02. Daily Study
 
-The daily loop must answer: "where do I start today, and how do I know I improved after studying?"
+The daily loop must answer: "where do I start today, why this, and what evidence would show that it helped?"
 
 ```text
 Open app → Home (Today's Plan)     ← STUDY.DailyPlan
    ↓
-Choose "Continue" or an item in Today
+Choose Continue / primary Today action
    ↓
-Study Session (timer, goal)        ← STUDY.Session
+Study Session                      ← STUDY.Session
    ↓
-Learn / Practice / Review (according to plan)
+Learn / Practice / Review / collect evidence
    ↓
-Session Summary                    ← STUDY.SessionSummary
-   ("42 minutes, 18 Reading questions, 6 new words, 3 Grammar errors")
+Outcome Summary                    ← STUDY.SessionSummary
+   - action completed
+   - evidence produced (if any)
+   - error/remediation state
+   - what is still uncertain
    ↓
-Streak / Goal updated              ← PROGRESS.Motivation, PROGRESS.GoalTracking
-   ↓
-Next Best Action for tomorrow      ← PERSONAL.NextBestAction
+Next Best Action                   ← PERSONAL.NextBestAction
 ```
 
-**Emotional goal:** "I completed something, achieved a small win, and know what to do tomorrow."
+Activity metrics such as minutes/questions support the summary but are not the primary definition of improvement.
+
+**Emotional goal:** "I know what I achieved, what changed in the evidence, and what should happen next."
 
 ### 03. Mock Test
 
-The mock-test experience should resemble the real exam while remaining safe: mistakes are allowed and can be understood afterward.
+The mock-test experience should resemble the real exam and preserve score scope/integrity.
 
 ```text
 Choose Mock Test                  ← PRACTICE.MockTest
    ↓
 Exam Mode (timed, no hints)       ← PRACTICE.ExamSimulation
    ↓
-[Interrupt: incoming call]        ← STUDY.Resume (restore timer and state)
+[Interrupt according to valid resume policy]
    ↓
-Resume at the exact position
+Resume without invalidating evidence context
    ↓
 Submit
    ↓
-Band Score + Result Analysis      ← PRACTICE.MockTest, EVAL.*
+Exam-simulation estimate + analysis ← PRACTICE.MockTest, EVAL.*
    ↓
-Compare with previous attempt     ← HISTORY.Compare
+Compare equivalent evidence/context ← HISTORY.Compare
    ↓
-Exam Readiness updated            ← BAND.ExamReadiness
+Exam Readiness updates only if evidence policy admits the result ← BAND.ExamReadiness
 ```
 
-**Emotional goal:** appropriate exam-like tension without panic; after scoring, the learner understands where they are and what remains missing.
+**Emotional goal:** appropriate exam-like tension without panic; after scoring, the learner knows what the estimate represents and what remains uncertain.
 
 ### 04. Wrong Answer
 
-This is one of the easiest moments for a learner to become discouraged; the experience must convert failure into learning.
+The experience converts an error into a traceable learning loop rather than a one-off explanation.
 
 ```text
 Get a Reading/Listening question wrong
    ↓
-Answer explanation                 ← COACH.AnswerExplanation
+Show answer evidence/explanation        ← COACH.AnswerExplanation
    ↓
-Distractor explanation             ← COACH.DistractorExplanation
+Show distractor rationale when governed ← COACH.DistractorExplanation
    ↓
-[Optional] ask a contextual question ← COACH.Tutor (context-aware)
+[Optional] contextual question          ← COACH.Tutor
    ↓
-Save to Mistake Notebook           ← REVIEW.MistakeNotebook
+Save evidence-backed error              ← REVIEW.MistakeNotebook
    ↓
-Auto-add to FSRS queue              ← REVIEW.FSRS
+Map to remediation unit if one exists
+   ├─ retrievable unit → FSRS card       ← REVIEW.FSRS
+   └─ complex skill → practice/retest only
    ↓
-Reappear in Smart Queue             ← REVIEW.SmartQueue
+Independent / novel retest               ← REVIEW.SmartQueue / PRACTICE.*
    ↓
-Retest when due                     ← REVIEW.SmartQueue (Exam/Priority Queue)
+Update learner evidence only after valid result
 ```
 
-**Emotional goal:** move from "I'm bad at this" to "I understand why I was wrong, and I will remember next time."
+Do not auto-create an FSRS card when no meaningful retrievable unit exists.
+
+**Emotional goal:** move from "I got this wrong" to "I know the cause, how to fix it, and how the system will verify that the improvement transfers."
 
 ### 05. Review (Spaced Repetition)
 
-The review loop should be light, fast, and visibly progressive.
+The review loop is light and fast, but it does not pretend card maturity equals IELTS skill mastery.
 
 ```text
-Notification "X items are due today" ← NOTIF.SRS
+Notification "X review units are due" ← NOTIF.SRS
    ↓
-Open Today's Queue                 ← REVIEW.SmartQueue
+Open Today's Queue                    ← REVIEW.SmartQueue
    ↓
-Review card (FSRS)                 ← REVIEW.FSRS
-   Rating: Again/Hard/Good/Easy
+Retrieve before reveal                ← REVIEW.FSRS
    ↓
-FSRS updates stability/difficulty/due
+Rating: Again/Hard/Good/Easy
    ↓
-7-day forecast                     ← REVIEW.FSRS
+FSRS updates scheduling state
    ↓
-Retention rate                     ← REVIEW.FSRS
+Forecast due load
 ```
 
-**Emotional goal:** "review quickly, remember for longer, and avoid overload."
+A successful review may maintain a retrievable unit; complex-skill readiness still requires authentic independent/transfer evidence.
+
+**Emotional goal:** "review efficiently without confusing memorization progress with exam readiness."
 
 ### 06. Before Exam
 
-The final preparation stage must answer: "am I ready, what is missing, and what should I prioritize?"
+The final preparation stage must answer: "what evidence supports readiness, what is missing, and what has the highest value now?"
 
 ```text
 Countdown displayed               ← GOAL.ExamPlan
    ↓
 Exam Readiness check              ← BAND.ExamReadiness
-   (Overall + per-skill + Confidence + Risk)
+   - scope / module / target minima
+   - evidence coverage
+   - per-skill state
+   - uncertainty / blockers
    ↓
-Insight: "Task Response is the remaining gap" ← PERSONAL.Insights
+Evidence-backed priority insight  ← PERSONAL.Insights
    ↓
-Prioritize weak-skill review      ← REVIEW.SmartQueue (Weak Skill/Exam Queue)
+Priority practice/retest          ← REVIEW.SmartQueue / PRACTICE.*
    ↓
-Last-minute Review Plan           ← GOAL.ExamPlan
-   ↓
-Mock Test Readiness Check         ← PRACTICE.MockTest
+Last-minute plan                  ← GOAL.ExamPlan
 ```
 
-**Emotional goal:** confidence from knowing current readiness and focus from knowing what deserves priority.
+Do not display a naked readiness percentage when required constructs/skills are under-measured.
+
+**Emotional goal:** confidence from justified evidence, not manufactured certainty.
 
 ### 07. Exam Day
 
@@ -203,142 +219,164 @@ Test Day Anxiety Tips             ← GOAL.ExamPlan
 
 ### 08. After Exam
 
-After the real exam, update targets, adjust the path, and celebrate appropriately.
+After the real exam, close the loop without silently treating one self-entered result as gold-standard training data.
 
 ```text
-Enter real exam result            ← IDENTITY.Profile (optional)
+Enter official exam result        ← IDENTITY.Profile (optional + source scope)
    ↓
-Compare actual vs predicted       ← HISTORY.Compare (vs EVAL.BandPrediction)
+Compare actual vs prior scoped estimates ← HISTORY.Compare
    ↓
-Recalibrate (feed Governance)     ← GOVERNANCE.GoldStandardBenchmark
+Optionally contribute to governed calibration/research only under consent/provenance policy
    ↓
-Set a new target (if needed)      ← GOAL.Target
+Set a new target if needed        ← GOAL.Target
    ↓
-Celebrate if achieved             ← PROGRESS.Motivation
+Celebrate appropriately          ← PROGRESS.Motivation
    ↓
-Adjust Learning Path              ← LEARN.Path + PERSONAL.NextBestAction
+Adjust Learning Path             ← LEARN.Path + PERSONAL.NextBestAction
 ```
 
-**Emotional goal:** close the loop, reflect on progress, and have a clear next direction.
+**Emotional goal:** close the loop, reflect on evidence, and have a clear next direction.
 
 ## Delight Moments
 
-These are not gamification mechanics (no XP/leaderboard). They are celebrations at moments of genuine progress:
+Delight follows meaningful progress and never upgrades readiness by animation alone.
 
 | Moment | Trigger | Delight |
 |---|---|---|
-| Band Readiness increases | `BAND.Readiness` rises by 0.5+ | "You reached Band Readiness 6.5 — Task Response is the remaining gap" (`PERSONAL.Insights`) |
-| Daily goal almost complete | <15 minutes remain | "Only 12 minutes remain to complete today's goal" |
-| Streak milestone | 7/30/100 days | Lightweight celebration + recap |
-| 100 Reviews | `REVIEW.FSRS` reaches 100 | Lightweight achievement badge (`PROGRESS.Achievement`) |
-| Band improvement | `HISTORY.BandTimeline` increases | "Reading improved from 6.0 → 6.5 in 3 weeks" |
-| Comeback | Return after absence | "Welcome back — you retained 85% of your vocabulary" (`PROGRESS.Motivation` comeback nudge) |
+| Novel retest succeeds | valid independent retest improves an error pattern | "You fixed this pattern on a new task." |
+| Transfer demonstrated | same construct succeeds in a new context | "This skill held up in a different context." |
+| Uncertainty decreases | new independent evidence resolves an under-measured construct | "We now have stronger evidence for this skill." |
+| Daily goal almost complete | <15 useful minutes remain | lightweight completion nudge |
+| Review milestone | meaningful review count | lightweight milestone; explicitly a review milestone, not Band readiness |
+| Scoped estimate improves | comparable valid attempts improve | show scope/context and evidence, not a naked band claim |
+| Comeback | meaningful return after absence | short recap + one high-impact comeback action |
 
 ## Error Recovery
 
-When something goes wrong, the user must never be left at a dead end; every failure needs a clear recovery path.
+When something goes wrong, the learner must never be left at a dead end.
 
-| Failure | Recovery | Capability |
+| Failure / validity state | Recovery | Capability |
 |---|---|---|
-| Evaluation error / timeout | Show "scoring again" and deliver the result later; never lose the submission | `EVAL.*` + `GOVERNANCE.ConfidenceScore` flag |
-| Writing/Speaking upload fails | Auto-retry + save locally; "will submit when connection returns" | `PKM.Drafts` + `PKM.Offline` |
-| Network loss during session | Auto-save state; resume at the exact position when connected | `STUDY.Resume` + `PKM.Sync` |
-| Session timeout (Mock Test) | Restore timer; preserve answered questions | `STUDY.Resume` |
-| Low-confidence score | Flag in backend (invisible); pipeline may request another scoring pass through calibration flow | `GOVERNANCE.ConfidenceScore` |
-| Anti-gaming flag | If a submission is suspected to be a sample/AI-generated answer, provide a restrained notice and guidance | `GOVERNANCE.AntiGaming` |
+| Evaluation timeout/provider failure | Preserve submission; show `processing`/`delayed`/`unavailable`; retry only through governed route | `EVAL.*` + failure contract |
+| Writing/Speaking upload fails | Auto-retry where safe + preserve draft/local state | `PKM.Drafts` + `PKM.Offline` |
+| Network loss during session | Auto-save checkpoint; resume according to evidence-validity policy | `STUDY.Resume` + `PKM.Sync` |
+| Session timeout (Mock Test) | Preserve answers; restore only when exam-evidence policy permits valid resume | `STUDY.Resume` |
+| Limited/insufficient evidence | Explain that more evidence is needed; suggest one appropriate retest/evidence action | `GOVERNANCE.ConfidenceScore` + `PERSONAL.NextBestAction` |
+| Integrity-risk flag | Neutral notice; no cheating accusation; permit governed resubmission/retest path | `GOVERNANCE.AntiGaming` |
 
-These recovery paths must map to the Failure Contract in `06-engines.md`: user-facing states use only `processing`, `delayed`, `unavailable`, or `action_required`; technical failure codes must never replace actionable guidance.
+Technical failure codes, trace IDs, provider identity, and raw model confidence do not replace learner-facing guidance.
 
 ## Empty States
 
-Every empty surface for a new learner must include inline onboarding rather than remaining blank.
+Every empty surface includes an honest onboarding action rather than a fabricated state.
 
 | Surface | Empty state | Capability anchor |
 |---|---|---|
-| Home | "Start the Placement Test to create your plan" | `PLACE.Test` |
-| Dashboard | "Complete your first test to see progress" | `PRACTICE.MockTest` |
-| Mistake Notebook | "No errors yet — incorrect answers will appear here" | `REVIEW.MistakeNotebook` |
-| Word Bank | "Add words while studying Vocabulary or from Reading passages" | `PKM.WordBank` |
-| Assessment History | "No attempts yet — results will appear here" | `HISTORY.Attempts` |
+| Home | "Start Placement to create your first plan" | `PLACE.Test` |
+| Dashboard | "Complete a valid diagnostic/practice result to see evidence-based progress" | `PLACE.*` / `PRACTICE.*` |
+| Mistake Notebook | "No saved evidence-backed errors yet" | `REVIEW.MistakeNotebook` |
+| Word Bank | "Add words while learning or reading" | `PKM.WordBank` |
+| Assessment History | "No attempts yet — scoped results will appear here" | `HISTORY.Attempts` |
 
-## Progressive Disclosure by Band
+## Progressive Disclosure by learner need
 
-The UI does not expose all information at once; depth expands according to learner readiness.
+Band/learning bucket can influence presentation, but it is not the only dimension. Target profile, evidence coverage, learning mode, task and learner preference also matter.
 
-| Band | Show | Hide |
+| Typical learner state | Prioritize | Avoid by default |
 |---|---|---|
-| 3.0–4.5 | Core Learning, Practice, Mistake Notebook, simple Dashboard | Advanced Analytics, detailed Band Rubric, Calibration metrics, Exam Readiness risk |
-| 5.0–6.5 | + Band Framework, Insights, Exam Readiness, Smart Queue | Governance dashboard, Raw calibration data |
-| 7.0+ | + Advanced Analytics, full Rubric, deeper Compare attempts | Almost nothing |
+| Foundation / limited evidence | one action, simple explanation, scaffolded practice, evidence collection | dense analytics, raw rubric/governance metrics |
+| Developing / target range | criterion/micro-skill insight, independent retest, plan rationale | raw calibration internals |
+| Advanced / precision | nuanced comparison, deeper rubric evidence, transfer/consistency analysis | unnecessary beginner scaffolding |
 
-Principle: lower-band learners primarily need to know "what should I learn next?"; higher-band learners need to know "why have I not reached the next band yet?"
+Principle: lower-level learners often need clearer scaffolding; higher-level learners often need precision. Neither group benefits from false certainty.
 
 ## Context Awareness
 
-`COACH.Tutor` and other Coaches always know the user's current context so they can respond correctly:
+`COACH.Tutor` and model-assisted coaches receive **minimum relevant context**, not unrestricted history.
 
-| User context | AI context available | Example response |
+| User context | Minimum useful context | Example response |
 |---|---|---|
-| Reading Passage 2, Q18, Matching Heading | passage, question, type, prior errors on this type | "For this Matching Heading question, you chose B because the keyword matched, but D is correct because of the paraphrase..." |
-| Writing Task 2, active draft | draft content, task | "Paragraph 2 needs a clearer topic sentence" |
-| Speaking Part 2, recording just completed | transcript, cue card | "You used 'I suppose' appropriately, but /θ/ pronunciation needs work" |
+| Reading Passage 2, Q18 | relevant passage segment, question/options, question type, answer/evidence state, relevant prior error summary if needed | explain the evidence and distractor pattern |
+| Writing Task 2 active draft | task snapshot, draft, requested feedback scope | explain one criterion/action using text evidence |
+| Speaking Part 2 attempt | cue card, transcript/approved audio-derived features, relevant pronunciation evidence | explain a supported fluency/pronunciation issue |
 
-Implementation is defined in `06-engines.md` through context injection into the prompt.
+Implementation details and context-minimization rules live in `06-engines.md`.
 
 ## Healthy retention loop
 
-Retention is designed as a value loop, not a loop that pressures users to reopen the app:
+Retention is a value loop, not a pressure loop:
 
 ```text
 Open app
   ↓
-Check available time + energy             ← STUDY.CheckIn
+Check time + energy                   ← STUDY.CheckIn
   ↓
-Choose Micro / Standard / Deep Session    ← STUDY.MicroSession / STUDY.Session
+Choose Micro / Standard / Deep        ← STUDY.MicroSession / STUDY.Session
   ↓
-Complete one outcome loop                 ← Understand → Practice → Retest → Confirm
+Complete one useful learning action
   ↓
-See evidence of progress                  ← PROGRESS.WeeklyRecap / PROGRESS.Motivation
+Independent retest / evidence when appropriate
   ↓
-Choose an appropriate return schedule     ← NOTIF.Preference / NOTIF.SmartDelivery
+See what evidence changed             ← PROGRESS.WeeklyRecap / PROGRESS.Motivation
+  ↓
+Choose an appropriate return schedule ← NOTIF.Preference / NOTIF.SmartDelivery
 ```
 
 ### Retention rules
 
-- Never reset progress when the learner takes a break; move them to a short `comeback plan` (`PROGRESS.Reactivation`).
-- Never show a huge backlog immediately after return; prioritize one high-impact action.
+- Never reset progress when the learner takes a break; use a short comeback plan.
+- Never dump a huge backlog immediately after return; prioritize one high-impact action.
 - Streak is optional information, never an unlock condition, and notifications must not threaten streak loss.
-- Every notification has a frequency cap, quiet hours, a clear unsubscribe path, and a reason for being sent.
-- Measure `meaningful study days`, retest gain, and error recurrence; do not optimize retention around minutes, clicks, or notification count.
+- Every notification has frequency cap, quiet hours, unsubscribe path, and a reason.
+- Measure meaningful study days, independent retest/transfer gain, uncertainty reduction and error recurrence; do not optimize around minutes/clicks/notification count alone.
 
 ## Quality loop in the experience
 
-Every feedback item must contain four parts:
+Every meaningful feedback item follows:
 
-1. **Evidence** — which sentence, audio segment, answer, or behavior supports the feedback.
-2. **Meaning** — which rubric criterion or skill is affected.
-3. **Action** — one specific lesson, drill, or rewrite.
-4. **Verification** — a retest or attempt comparison that lets the learner see improvement.
+1. **Evidence** — sentence/audio segment/answer/behavior that supports the claim.
+2. **Meaning** — rubric criterion/skill/remediation concept affected.
+3. **Action** — one high-leverage next intervention.
+4. **Verification** — how an independent retest/attempt will verify improvement.
 
-If evaluation is not complete, the UI must show `processing`, `delayed`, `low_confidence`, or `unavailable`; it must not pretend a result exists and must not generate insights from invalid data.
+Processing state and result validity are separate:
+
+- operation UI: `processing`, `delayed`, `unavailable`, `action_required` where applicable;
+- result UI: accepted estimate/evidence, `limited evidence`, `insufficient evidence`, invalid/integrity-review recovery language according to policy.
+
+Never show a score/insight as ordinary evidence when result validity does not permit it. Never expose raw uncalibrated model-confidence percentages as scientific certainty.
 
 ## Cost-aware experience
 
-- Allow the learner to choose feedback depth: `Quick`, `Standard`, `Deep`; default to the minimum depth that is still actionable.
-- Surface cached transcript, explanation, and insight immediately when available; deeper analysis may run in the background.
-- On weak networks or low quota, prioritize saving the draft, basic scoring/status, and queued retry; never lose learner data.
-- Do not expose model/provider identity in the UI, but clearly expose usage limits, expected waiting time, and result state.
+- Offer `Quick`, `Standard`, `Deep` feedback depth where useful; default to the least expensive depth that remains actionable.
+- Reuse versioned/precomputed explanations and mappings when they answer the learner's need; generation is not inherently better.
+- Show immediately available deterministic/approved reusable facts first; optional deeper model-assisted explanation may follow.
+- On weak networks or low quota, prioritize preserving learner work, valid basic status/result, and governed retry.
+- Premium may buy more depth/volume, but free/premium must share score semantics and minimum evaluation-quality floor.
+- Do not expose provider identity as pedagogy; do expose usage limits, state and recovery honestly.
 
 ## Experience measurement
 
 | Moment | Event to measure | Outcome |
 |---|---|---|
-| First day | `placement_completed`, `first_meaningful_session_completed` | activation and time-to-first-value |
-| Wrong answer | `explanation_viewed`, `practice_started`, `retest_completed` | lower error recurrence |
-| Evaluation | `writing_feedback_viewed`, `practice_started`, `evaluation_submitted`, `retest_completed` | feedback helpfulness and score improvement |
+| First day | `placement_completed`, `first_meaningful_session_completed` | activation, time-to-first-useful-diagnosis/action |
+| Wrong answer | `explanation_viewed`, `practice_started`, `retest_completed` | independent error-recurrence reduction / transfer |
+| Evaluation | `writing_feedback_viewed`, `practice_started`, `evaluation_submitted`, `retest_completed` | feedback helpfulness + independent improvement |
+| Recommendation | `next_best_action_shown`, `next_best_action_taken`, later retest | action usefulness, not click-through alone |
 | Comeback | `comeback_plan_started`, `comeback_plan_completed` | return quality, not merely login |
-| Notification | delivered/opened/dismissed/opted_out | incremental value and notification fatigue |
+| Notification | delivered/opened/dismissed/opted_out | incremental value and fatigue |
 
 ## UX quality gates
 
-Before releasing a new journey, verify that the first meaningful action takes ≤ 3 steps, the primary action is clear, keyboard/screen-reader use works, offline/retry paths are real, copy is guilt-free, event tracking is complete, and the cost budget stays within threshold.
+Before releasing a new journey, verify that:
+
+- the first meaningful action is easy to reach without unnecessary steps;
+- time-to-first-useful-feedback/diagnosis is measured;
+- the primary action and `Why this?` rationale are clear;
+- keyboard/screen-reader use works;
+- retry/offline/recovery paths are real;
+- score scope and uncertainty cannot be mistaken for official certainty;
+- copy is guilt-free;
+- event tracking measures outcomes rather than clicks alone;
+- model context is minimized;
+- the cost budget stays within threshold without degrading the required quality floor.
