@@ -1,14 +1,20 @@
 type: vertical-slice-spec
 status: review
-version: 0.3.0
+version: 0.4.0
 owner: product
 representation: markdown
 derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
-purpose: p0-identity-consent-and-privacy-request-behavior
+purpose: p0-identity-consent-browser-session-step-up-and-privacy-request-behavior
 consumed_by: [P0 Experience Contract, engineering, operations, source-code]
 created_at: 2026-08-06
 updated_at: 2026-08-21
 change_log:
+  - version: 0.4.0
+    date: 2026-08-21
+    changes:
+      - Added auth-expiry/re-auth resume semantics that preserve acknowledged and safe unacknowledged learner work.
+      - Added recent-auth/step-up UX for deletion and sensitive export without client-authored authorization truth.
+      - Added session credential leakage and re-auth acceptance cases.
   - version: 0.3.0
     date: 2026-08-21
     changes:
@@ -16,7 +22,3 @@ change_log:
       - Rebased learner flow on canonical API, access-control, runtime and retention owners.
       - Separated UX states from Profile, ConsentRecord and privacy AsyncRequest persisted state.
       - Kept provider/legal approval as release evidence rather than a duplicate pre-code flow contract.
-  - version: 0.2.4
-    date: 2026-08-11
-    changes:
-      - Translated the remaining consent-transition annotation to English without changing persisted identity states or UX-only states.
