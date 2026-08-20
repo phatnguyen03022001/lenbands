@@ -38,12 +38,12 @@ errors << "DOCS web_api_type_system path drifted" unless docs.dig("authority", "
 errors << "DOCS web_api_operation_ownership path drifted" unless docs.dig("authority", "web_api_operation_ownership", "path") == "artifacts/engineering/api/operation-ownership.yaml"
 
 legacy = docs["legacy_aliases"] || {}
+errors << "DOCS legacy aliases must remain empty" unless legacy.empty?
 retired_openapi_paths = %w[
   artifacts/engineering/contracts/openapi.yaml
   artifacts/engineering/contracts/writing-task-2/openapi.yaml
 ]
 retired_openapi_paths.each do |path|
-  errors << "retired OpenAPI must not remain in DOCS aliases: #{path}" if legacy.key?(path)
   errors << "retired OpenAPI must be physically removed: #{path}" if File.exist?(File.join(root, path))
 end
 
@@ -172,7 +172,7 @@ errors.concat(resolve_errors)
 errors.concat(Lenbands::ApiSchemaCompiler.validate_resolved(openapi: resolved, schema_contract: schema_contract, type_system: type_system))
 errors << "compiled schema count differs from semantic schema count" unless compiled.length == schemas.length
 
-%w[TargetProfile PlacementResult EvaluationResult WritingError WritingErrorRetest AttemptSummary DailyAction Profile].each do |name|
+%w[TargetProfile TargetFeasibility DiagnosisCause PlacementResult EvaluationResult WritingError WritingErrorRetest AttemptSummary DailyAction Profile].each do |name|
   errors << "critical schema missing #{name}" unless schemas.key?(name)
 end
 
@@ -183,25 +183,51 @@ errors << "ProfilePatch must allow explicit timezone change" unless schemas.dig(
 timezone_alias = type_system.dig("aliases", "iana_timezone") || {}
 errors << "IANA timezone alias must require runtime timezone-database validation" unless timezone_alias["x-lenbands-rule"] == "validate_against_runtime_iana_timezone_database_not_pattern_alone"
 
+feasibility_props = schemas.dig("TargetFeasibility", "properties") || {}
+feasibility_required = Set.new(Array(schemas.dig("TargetFeasibility", "required")))
+%w[state blocker_codes policy_version].each do |field|
+  errors << "TargetFeasibility missing required #{field}" unless feasibility_required.include?(field) && feasibility_props.key?(field)
+end
+errors << "TargetFeasibility vocabulary drifted" unless feasibility_props["state"] == "insufficient_evidence|on_track|at_risk|current_constraints_insufficient|target_met"
+errors << "TargetFeasibility must not expose success probability" if feasibility_props.keys.any? { |key| key.match?(/probability|chance|guarantee|weeks_to_band|hours_to_band/) }
+
+cause_props = schemas.dig("DiagnosisCause", "properties") || {}
+cause_required = Set.new(Array(schemas.dig("DiagnosisCause", "required")))
+%w[cause_class evidence_refs affected_construct_refs].each do |field|
+  errors << "DiagnosisCause missing required #{field}" unless cause_required.include?(field) && cause_props.key?(field)
+end
+errors << "DiagnosisCause vocabulary drifted" unless cause_props["cause_class"] == "english_foundation|ielts_technique|integrated_performance|mixed|evidence_needed"
+
 placement_props = schemas.dig("PlacementResult", "properties") || {}
 placement_required = Set.new(Array(schemas.dig("PlacementResult", "required")))
-%w[result_id attempt_id score_label score_scope result_validity calibration_status termination_reason evidence_coverage configuration_version policy_version created_at].each do |field|
+%w[result_id attempt_id score_label score_scope result_validity diagnosis_causes target_feasibility calibration_status termination_reason evidence_coverage configuration_version policy_version created_at].each do |field|
   errors << "PlacementResult missing required #{field}" unless placement_required.include?(field) && placement_props.key?(field)
 end
 errors << "PlacementResult must not use legacy confidence_state" if placement_props.key?("confidence_state")
 errors << "PlacementResult result_validity drifted" unless placement_props["result_validity"] == "accepted|limited_evidence|insufficient_evidence|invalid"
+errors << "PlacementResult must expose diagnosis cause array" unless placement_props["diagnosis_causes"] == "array<DiagnosisCause>"
+errors << "PlacementResult must expose target feasibility" unless placement_props["target_feasibility"] == "TargetFeasibility"
 
+learner_goal_props = schemas.dig("LearnerGoal", "properties") || {}
+errors << "LearnerGoal response must expose derived target feasibility" unless learner_goal_props["target_feasibility"] == "TargetFeasibility|null"
+errors << "LearnerGoalInput must not accept client-authored target feasibility" if (schemas.dig("LearnerGoalInput", "properties") || {}).key?("target_feasibility")
+
+daily_plan_props = schemas.dig("DailyPlan", "properties") || {}
 daily_plan_required = Set.new(Array(schemas.dig("DailyPlan", "required")))
-%w[evidence_state_version target_profile_version].each do |field|
-  errors << "DailyPlan missing source-version binding #{field}" unless daily_plan_required.include?(field)
+%w[evidence_state_version target_profile_version target_feasibility_state plan_state primary_action_id].each do |field|
+  errors << "DailyPlan missing source/planning binding #{field}" unless daily_plan_required.include?(field) && daily_plan_props.key?(field)
 end
+errors << "DailyPlan must support content_gap" unless daily_plan_props["plan_state"].to_s.split("|").include?("content_gap")
+errors << "DailyPlan target feasibility drifted" unless daily_plan_props["target_feasibility_state"] == "insufficient_evidence|on_track|at_risk|current_constraints_insufficient|target_met|null"
+
 daily_action_props = schemas.dig("DailyAction", "properties") || {}
 daily_action_required = Set.new(Array(schemas.dig("DailyAction", "required")))
-%w[intent reason_code source_evidence_refs].each do |field|
+%w[intent reason_code diagnosis_cause source_evidence_refs verification_rule_ref].each do |field|
   errors << "DailyAction missing controlled routing field #{field}" unless daily_action_required.include?(field) && daily_action_props.key?(field)
 end
 errors << "DailyAction intent vocabulary drifted" unless daily_action_props["intent"] == "CONTINUE|REVIEW_DUE|RETEST|REMEDIATE|COLLECT_EVIDENCE|GOAL_COVERAGE|FALLBACK"
 errors << "DailyAction reason vocabulary must be closed" unless daily_action_props["reason_code"] == "resume_active_session|due_review|eligible_retest|admitted_error|evidence_gap|target_coverage_gap|deterministic_fallback"
+errors << "DailyAction diagnosis cause drifted" unless daily_action_props["diagnosis_cause"] == "english_foundation|ielts_technique|integrated_performance|mixed|evidence_needed|null"
 
 eval_props = schemas.dig("EvaluationResult", "properties") || {}
 %w[score_label score_scope scorer_route_version result_validity criteria overall_band_estimate].each do |field|
