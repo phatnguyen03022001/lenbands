@@ -1,27 +1,26 @@
 # P0-04 Writing Evaluation Runtime Specification
 
-## 0. Status and authority
+## Status and authority
 
-This contract owns the P0 Writing Task 2 processing order, durable state transitions, component responsibilities, recovery and acceptance boundary.
+This scoped contract connects the P0 Writing Task 2 processing order, domain entities, recovery behavior and verification boundary. It does not own HTTP operations, shared runtime lifecycle, access control, retention or release policy.
 
-Status: `review`. It is not build-ready until the benchmark route, rights-approved tasks, acceptance tests and runtime evidence exist.
+Status: `review`. The design may be implemented against fixtures once the family satisfies canonical implementation eligibility and exact-SHA authorization. Rights, benchmark, privacy/recovery and real runtime evidence remain release gates rather than circular pre-code prerequisites.
 
 Canonical dependencies:
 
 - product/capabilities: `blueprint/01-product.md`, `blueprint/03-features.md`;
 - experience: `artifacts/experience/specs/vertical-slices/writing-task-2.md`;
-- canonical HTTP operations: `artifacts/engineering/api/openapi.yaml`;
-- canonical request/response semantics: `artifacts/engineering/api/schema-contract.yaml`;
-- runtime invariants: `artifacts/engineering/runtime-contract.yaml`;
-- scoped data/evaluation contracts: sibling `data-contract.md` and `evaluation-contract.md`;
-- failure taxonomy: canonical runtime failure contract/registry;
-- evaluation route/governance: `blueprint/06-engines.md` + activated benchmark/release evidence.
+- HTTP + typed API: `artifacts/engineering/api/`;
+- runtime: `artifacts/engineering/runtime-contract.yaml`;
+- access: `artifacts/engineering/api/access-control.md`;
+- scoped data/evaluation/failure/event contracts: sibling files;
+- failure taxonomy: `artifacts/engineering/contracts/runtime/failure-taxonomy-contract.md`;
+- provider execution: `artifacts/engineering/contracts/runtime/provider-adapter-contract.md`;
+- evaluation route/governance: `blueprint/06-engines.md` + benchmark/release policy.
 
-Legacy `artifacts/engineering/contracts/**/openapi.yaml` files are migration-only and are not implementation/codegen authorities.
+Retired split OpenAPI/lifecycle/topology/worker documents are not implementation inputs and must not reappear as authorities.
 
-## 1. Learner outcome
-
-The slice proves one loop:
+## Learner outcome
 
 ```text
 published Writing Task 2
@@ -35,27 +34,27 @@ published Writing Task 2
   -> verified improvement or explicit remaining gap
 ```
 
-A Writing Task 2 result is a `diagnostic_estimate` for this task. It is never presented as an official IELTS Writing section score.
+A Writing Task 2 result is a `diagnostic_estimate` for this task. It is never an official IELTS Writing section score.
 
-## 2. Component boundary
+## Component boundary
 
 | Component | Owns | Must not |
 |---|---|---|
 | Learner | own draft, submit intent, feedback confirmation, fix/retest | access another learner's objects |
-| Writing API | authz, validation, idempotency, typed projection | call model/provider directly |
-| Submission service | immutable snapshot, quota reservation, durable operation creation | perform scoring judgment |
-| Evaluation orchestrator | stage order, deadlines, bounded escalation, route provenance | author readiness/mastery |
-| Deterministic precheck | task/word/language/basic format facts | infer rubric band |
-| Primary scorer adapter | bounded rubric judgment | write domain entities directly |
+| Application/API boundary | authz, validation, idempotency, typed projection | treat client/provider data as authority |
+| Submission domain | immutable snapshot, quota reservation, durable operation creation | perform rubric judgment |
+| Evaluation orchestration | stage order, deadline, bounded escalation, provenance binding | author readiness/mastery |
+| Deterministic precheck | task/version/rights/word/input facts | infer rubric band |
+| Provider adapter | execute one bounded approved provider call | write domain result or self-author provenance |
 | Evidence validator/normalizer | schema, rubric, evidence and result-validity admission | invent unsupported evidence |
-| Escalation scorer | independent stronger/specialist pass for hard cases only | run on every submission |
-| Feedback mapper | evidence-backed finding → framework error/remediation candidate | publish framework IDs not already valid |
-| Review service | confirmed error, fix, FSRS scheduling where suitable, retest | equate review maturity with Writing mastery |
-| Read projection/notification | learner-safe status/results | become SSOT |
+| Escalation route | independent approved pass for governed hard cases only | run on every submission |
+| Feedback mapper | admitted finding → controlled remediation candidate | invent framework IDs |
+| Review/retest domain | confirmed error, retrievable review timing, novel retest | equate review maturity with Writing mastery |
+| Read projection/notification | learner-safe status/result rendering | become SSOT |
 
-There is no runtime human examiner dependency. Models/providers/prompts are mechanisms, not principals or product authority.
+There is no runtime human examiner dependency. Models/providers/prompts are replaceable mechanisms, not principals or product authority.
 
-## 3. Canonical entities
+## Canonical entities
 
 ```text
 WritingTask(versioned published content)
@@ -72,18 +71,16 @@ WritingTask(versioned published content)
 
 Rules:
 
-- retries do not create duplicate submissions or duplicate charges;
+- retries cannot create duplicate submissions/domain effects/logical charges;
 - published task/rubric/prompt versions referenced by evidence remain immutable;
-- an evaluation result is immutable; governed re-evaluation creates another result/version;
-- raw essay text never enters general telemetry, queue metadata or analytics;
-- `LearningError` is created only from a learner-confirmed actionable finding;
-- retest content must satisfy the configured novelty/exposure rule.
+- governed re-evaluation creates a new evaluation/result reference rather than rewriting history;
+- raw essay text never enters general telemetry or transport metadata;
+- `LearningError` is created only from an owned actionable admitted finding under the learner remediation policy;
+- retest content must satisfy configured exposure/novelty rules.
 
-## 4. State model
+## State model
 
-Transport/processing state and result trustworthiness are separate axes.
-
-### 4.1 Draft state
+### Draft
 
 ```text
 drafting <-> syncing
@@ -91,251 +88,188 @@ drafting <-> syncing
   -> submitted_snapshot
 ```
 
-`local_only`/`conflict` preserve learner text and provide recovery; they are not evaluation states.
+Local recovery state preserves learner text and is not evaluation truth.
 
-### 4.2 Submission state
-
-Submission reflects durable acceptance, not score quality:
+### Submission projection
 
 ```text
-submitted -> processing
-processing -> completed | delayed | unavailable
+submitted -> processing -> completed | delayed | unavailable
 ```
 
-A completed operation may contain an accepted or limited result according to result validity. Do not add `low_confidence`/`invalid` as submission lifecycle states.
+Submission state reflects durable learner operation progress, never score confidence/validity.
 
-### 4.3 Durable evaluation operation
+### Durable evaluation operation
 
-Canonical runtime states:
+Canonical shared states:
 
 ```text
 accepted -> processing -> succeeded | delayed | unavailable | failed | cancelled
 ```
 
-Provider timeout/outage affects operation state. It does not manufacture an evaluation result.
-
-### 4.4 Result validity
+### Result validity
 
 ```text
-accepted
-limited_evidence
-insufficient_evidence
-invalid
-integrity_review
+accepted | limited_evidence | insufficient_evidence | invalid | integrity_review
 ```
 
-Only result states admitted by the evaluation/evidence policy may feed learner state/readiness. Raw model confidence does not define this state by itself.
+Provider timeout/outage affects operation state. Evidence insufficiency/integrity affects result validity. Raw model confidence owns neither axis.
 
-## 5. Exact evaluation pipeline
+## Evaluation pipeline
 
 ```text
 immutable submission snapshot
   -> deterministic precheck
-  -> scorer route selection
-  -> primary structured scorer
-  -> schema + rubric + evidence validation
-  -> uncertainty/disagreement/risk policy
+  -> approved scorer-route selection
+  -> primary provider adapter call
+  -> candidate schema + rubric + evidence validation
+  -> uncertainty/disagreement/integrity policy
        -> ordinary case: normalize
-       -> hard case: independent stronger/specialist scorer
-  -> reconciliation / result-validity admission
-  -> immutable WritingEvaluation
+       -> governed hard case: independent approved escalation
+  -> immutable WritingEvaluation with result_validity
   -> deterministic/framework-valid finding mapping
   -> optional learner-facing wording/detail generation
 ```
 
-### Stage A — deterministic precheck
+### Deterministic precheck
 
 Before paid inference:
 
-- verify task status/version/module;
-- verify submission ownership/idempotency;
-- compute deterministic word count and basic input integrity;
-- reject empty/invalid/unsupported input;
-- reserve/check quota/budget;
-- create bounded compact context only if evaluation requires it.
+- resolve owner, task/version/module/status/rights;
+- validate idempotency/submission state;
+- compute word count/basic input integrity;
+- reject unsupported/invalid input;
+- reserve/check quota/cost policy;
+- create deterministic evidence-span references;
+- build only minimum operation-required context.
 
-Do not call an LLM for facts already available from schema/rules.
+### Primary scorer
 
-### Stage B — primary scorer
+The scorer receives task, immutable essay snapshot, rubric/version and minimum bounded context. It returns candidate rubric judgments and supplied evidence references according to `evaluation-contract.md`; it does not return authoritative provider provenance or `result_validity`.
 
-The primary scorer receives only the task, essay snapshot, rubric/version and minimum bounded context required by the scorer contract.
+### Validation and provenance binding
 
-It returns structured criterion judgments + evidence candidates; it does not write band/readiness/history directly.
+The domain/runtime validates:
 
-### Stage C — validation
-
-The domain validates:
-
-- output schema/version;
-- criterion enum;
-- band value/range/rounding policy;
-- evidence references actually resolve to learner submission spans/features;
-- score scope=`writing_task_2` / label=`diagnostic_estimate`;
-- required provenance;
+- candidate schema/version/criterion/value rules;
+- evidence references resolve to deterministically supplied learner-owned spans/features;
+- score scope=`writing_task_2` and score label=`diagnostic_estimate`;
+- task/rubric/prompt/route/provider/model provenance is complete and independently bound by runtime;
 - unsupported/hallucinated findings;
-- integrity signals.
+- insufficiency/integrity signals.
 
-Invalid structure/evidence cannot become an ordinary result.
+Invalid evidence cannot be silently removed while preserving the same confident claim.
 
-### Stage D — escalation policy
+### Escalation
 
-A stronger/second scorer runs only when a versioned policy marks the case high-risk/high-uncertainty/disagreement-worthy and budget allows the approved route.
+A second/stronger/specialist route executes only when the versioned policy identifies a material hard case. It has a hard maximum and independent cost/provenance. No approved compatible route means preserve the operation/submission and expose delayed/unavailable rather than silently lowering quality.
 
-Escalation is not a generic retry. It is independently metered and has a hard maximum.
+### Result admission
 
-### Stage E — result admission
+Domain normalization creates one immutable `WritingEvaluation` using `band_estimate`/`overall_band_estimate` and separate `result_validity`. Only downstream evidence policy can update readiness/mastery.
 
-Reconciliation produces one immutable normalized result with a separate `result_validity`.
-
-No scorer/model writes learner readiness/mastery directly. Downstream evidence admission remains domain-owned.
-
-### Stage F — feedback
-
-Default feedback is progressive:
+### Feedback
 
 ```text
 evidence
-  -> meaning/criterion
-  -> one highest-leverage fix
+  -> criterion meaning
+  -> one highest-leverage action
   -> verification/retest
   -> optional deeper explanation
 ```
 
-Reusable remediation/explanations are precomputed/cached when semantically safe. Runtime generation is reserved for genuinely personalized wording/analysis.
+Reusable remediation content is versioned/precomputed where possible. Optional generated prose cannot mutate score/evidence truth.
 
-## 6. Submission orchestration
+## Durable submission orchestration
 
-1. Learner saves/version-controls draft.
-2. Submit validates ownership, task version, input and quota.
-3. One transaction writes submission snapshot reference + idempotency result + durable evaluation operation/outbox handoff.
-4. Return accepted operation/submission reference only after durable commit.
-5. Worker/orchestrator claims the operation and executes staged pipeline.
-6. Result + findings + usage/cost provenance are committed before success acknowledgement/event.
-7. Outbox/events reconcile after canonical domain state; duplicate delivery is harmless.
+1. Save/version learner draft.
+2. Validate submit ownership/task/input/quota/idempotency.
+3. Commit immutable submission snapshot reference + stable idempotency effect + durable evaluation operation using the selected managed transactional/durable mechanism.
+4. Return accepted references only after canonical state is durable.
+5. Orchestration executes the staged evaluation through the approved provider adapter.
+6. Commit result/findings/usage-cost provenance before marking the durable operation succeeded.
+7. Any event/notification projection is emitted/reconciled from canonical state and remains replay-safe.
 
-No internal failure may charge the learner twice for one logical evaluation.
+The exact queue/workflow/provider mechanism is replaceable. No custom outbox, Redis stream, worker fleet, Go service or Python service is required by this contract.
 
-## 7. Learner result behavior
+## Learner result behavior
 
 The UI/API exposes truthful state:
 
-- `processing` / `delayed` when no result exists yet;
-- `unavailable` when no approved result can be produced;
+- `processing` / `delayed` when no admitted result exists;
+- `unavailable` when no approved route can produce a valid result;
 - accepted task-scoped estimate when admitted;
-- scoped wording such as `limited evidence` / `insufficient evidence` when appropriate;
-- no scientific-looking raw confidence percentage unless separately validated for learner interpretation.
+- explicit `limited evidence` / `insufficient evidence` wording when appropriate;
+- no raw-confidence percentage unless separately validated for learner interpretation.
 
-Learner-facing copy says what the estimate represents before numeric precision.
+Scope/meaning is presented before numeric precision.
 
-## 8. Error → remediation → review → retest
+## Error → remediation → review → retest
 
-1. Normalizer creates immutable `FeedbackFinding` with evidence.
-2. Learner confirms/selects an actionable finding.
-3. Service resolves controlled `error_pattern` and remediation mapping; unresolved required mapping does not invent a taxonomy ID.
+1. Normalizer creates immutable `FeedbackFinding` with resolvable evidence.
+2. Learner selects/confirms an actionable owned finding.
+3. Server derives controlled criterion/error/remediation mapping; unresolved taxonomy is not invented.
 4. Persist `LearningError`.
-5. Select the smallest useful intervention.
-6. Create an FSRS card only when the remediation unit is meaningfully retrievable (grammar form, phrase, rule/error concept, etc.).
+5. Select smallest useful intervention.
+6. Create FSRS card only for meaningfully retrievable remediation units.
 7. FSRS controls review timing only.
-8. Retest uses sufficiently novel eligible content for the same underlying error/construct.
-9. `improved` requires the versioned retest/evidence rule; repeated/revealed success alone is insufficient.
-10. Complex Writing mastery/readiness is updated only through its owning evidence policy, not card maturity.
+8. Retest uses exposure-eligible sufficiently novel content for the same underlying error/construct.
+9. `improved` requires the versioned retest/evidence rule; repeated/revealed success is insufficient.
+10. Writing readiness/mastery remains owned by its broader evidence policy.
 
-## 9. Integrity / anti-gaming
+## Integrity
 
-P0 integrity handling is risk-based, not detector-as-proof.
+Prefer deterministic/provenance signals: known-sample similarity, copied prompt/passage overlap, exposure history and invalid interaction provenance where reliable. AI-generated-text detectors, if used, are weak supporting signals only. They cannot alone label cheating or permanently suppress history. Material unresolved cases use `result_validity=integrity_review` plus neutral recovery/resubmission.
 
-Prefer deterministic/provenance signals where available:
+## API boundary
 
-- known-sample similarity;
-- copied prompt/passage overlap;
-- exposure/provenance anomalies;
-- impossible/invalid submission behavior.
+This slice consumes canonical operation IDs/schemas/access annotations from `artifacts/engineering/api/`; it never redefines them. Durable mutations use canonical idempotency. Cross-user access fails closed. Public failures use RFC9457 and contain no raw essay/provider payload/stack trace.
 
-AI-generated-text detection, if used, is a weak signal only. It cannot alone declare cheating or permanently suppress a score. Material unresolved cases use `result_validity=integrity_review` and a neutral resubmission/recovery path.
+The canonical API validator must prove Writing score field/result-validity semantics before implementation eligibility is claimed.
 
-## 10. API boundary
+## Cost policy
 
-Canonical operation IDs and schemas are owned by `artifacts/engineering/api/*`.
+Each logical evaluation attributes primary, escalation, optional feedback-generation, retry waste and policy version separately. Rules:
 
-This slice must consume, not redefine, the canonical operations for:
-
-- get Writing task;
-- save Writing draft;
-- create/get Writing submission;
-- get Writing evaluation;
-- submit learner feedback;
-- create/fix/retest learner error where those operations are active;
-- rate review item where active.
-
-All durable mutations use the canonical idempotency contract. Cross-user object access fails closed. API errors contain no essay/provider payload/stack trace.
-
-If the canonical schema still carries a legacy combined `state`/`quality_status`, implementation eligibility remains blocked until schema-contract migration separates `operation_state` and `result_validity`.
-
-## 11. Cost policy
-
-Each evaluation records at least:
-
-```yaml
-cost:
-  primary_route_units:
-  escalation_route_units:
-  feedback_generation_units:
-  retries:
-  total_cost_units:
-  cost_policy_version:
-```
-
-Policies:
-
-- no inference before deterministic eligibility checks;
-- no automatic second pass for ordinary cases;
-- default to concise actionable feedback;
-- expensive deep feedback is on-demand and quota-bound;
+- zero paid inference before deterministic eligibility;
+- no unconditional second pass;
+- default concise actionable feedback;
+- deep feedback is on-demand/quota-bound;
 - reusable remediation content is precomputed;
-- retry ceilings are hard;
-- measure `cost_per_accepted_evaluation` and downstream `cost_per_verified_improvement`;
-- cheaper route cannot bypass benchmark quality floor.
+- retry/escalation ceilings are bounded;
+- cheaper routes cannot bypass benchmark quality floor;
+- measure accepted-evaluation economics and downstream cost per verified improvement.
 
-## 12. Privacy and observability
+## Privacy and observability
 
-Allowed general telemetry: opaque IDs, stage name, route/version, timing, failure/result-validity class, usage/cost units and derived aggregate quality metrics.
+General telemetry may carry opaque IDs, stage, route/version, timings, failure/result-validity class and usage/cost aggregates. It must not carry raw essay, private note, prompt body containing learner content, full provider response, secret/token or hidden reasoning.
 
-Forbidden general telemetry: raw essay, transcript, private notes, prompt body containing learner content, provider full response, secrets/tokens.
+Benchmark/research access uses a separately scoped principal and approved corpus; ordinary admin/colab access does not imply production learner-assessment browsing.
 
-Benchmark/research access uses its own function-scoped principal and approved de-identified/reference corpus; it does not inherit arbitrary learner-content access.
+## Implementation verification boundary
 
-## 13. Required acceptance cases
+Before source implementation is called eligible, repository-level contracts/validators must prove at least:
 
-Build readiness requires executable proof for at least:
+- canonical API/schema/access/operation ownership agree;
+- Writing candidate vs admitted-result field/provenance semantics agree;
+- operation state and result validity remain separate;
+- no implementation-blocking risk remains for the family;
+- the scoped owner contracts are sufficient to avoid inventing behavior.
 
-1. published/right-approved task only;
-2. autosave/network recovery without text loss;
-3. duplicate submit → one submission/charge;
-4. deterministic invalid input → zero scorer calls;
-5. primary accepted route → immutable task-scoped diagnostic result;
-6. malformed/hallucinated evidence → invalid/insufficient result, not score promotion;
-7. hard-case escalation executes at most configured maximum;
-8. provider timeout → durable delayed/unavailable with submission preserved;
-9. no unbenchmarked scorer fallback;
-10. raw learner content absent from general telemetry;
-11. learner A cannot read learner B submission/evaluation;
-12. finding requires resolvable evidence before learner can save error;
-13. FSRS card only for suitable retrievable remediation unit;
-14. retest cannot reuse disallowed exposed source prompt;
-15. repeated/revealed success does not count as independent transfer;
-16. result validity controls downstream evidence admission;
-17. cost attribution separates primary/escalation/deep-feedback work;
-18. no model/provider output can update readiness/entitlement directly.
+These are design/repository checks, not claims that learner-facing quality works in production.
 
-## 14. Release boundary
+## Release evidence boundary
 
-This slice remains `not ready` while any of the following is missing:
+Candidate-bound executable evidence is additionally required before real learner release, including as applicable:
 
-- rights-approved Writing Task 2 content;
-- canonical API/schema alignment;
-- benchmark-approved scorer route;
-- evaluation/result-validity evidence policy;
-- bounded cost/quota configuration;
-- privacy/idempotency/recovery tests;
-- independent retest content/policy;
-- acceptance evidence from the same candidate commit.
+- rights-approved tasks;
+- autosave/network/idempotency/cross-user/privacy tests;
+- approved benchmark corpus + required quality/fairness slices;
+- benchmark-approved primary/escalation route;
+- evidence/result-validity admission tests;
+- provider outage/recovery behavior;
+- independent retest content/policy and verified-improvement run;
+- accessibility/network critical-path acceptance;
+- armed cost/quota thresholds and rollback/disable path;
+- legal/processing/provider eligibility for real learner data.
+
+Absence of post-code evidence keeps release `not ready`; it does not force implementation to invent an alternate architecture.
