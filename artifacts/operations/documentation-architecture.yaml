@@ -1,17 +1,18 @@
 type: documentation-architecture
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability]
 purpose: make repository navigation deterministic and suppress documentation noise
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
 
 principles:
   - semantic identity is document_id, not filename
   - one semantic owner per field
   - indexes navigate; they do not restate contracts
+  - risk registry classifies coverage and blockers; referenced canonical contracts own controls
   - generated files are projections, never authorities
   - migration aliases expire; parallel authorities do not
   - rename only after inbound references have a machine-readable successor
@@ -77,13 +78,15 @@ noise_budget:
   maximum_readme_authority: 0
   maximum_provider_specific_docs_in_agent_default_read_path: 0
   maximum_parallel_openapi_authorities: 1
-  maximum_web_authorization_roles: 4
+  maximum_web_authorization_roles: 3
   web_personas: 5
+  risk_registry_policy: one_registry_only_controls_remain_in_existing_owners
   rule: a new document needs a new semantic owner or it belongs inside an existing document
 
 migration_gate:
   - DOCS.yaml resolves every new canonical authority
   - legacy paths are marked migration_only or historical_input
   - validators consume canonical paths before legacy paths are removed
+  - risk registry references canonical controls instead of duplicating their semantics
   - no unresolved inbound references before physical rename/delete
   - same-head repository verify and trust-boundary gate pass
