@@ -57,7 +57,8 @@ cost_budget = read.call("artifacts/operations/cost-budget.md")
   errors << "unknown cost boundary ID: #{bucket}" unless cost_budget.include?("`#{bucket}`")
 end
 
-# Knowledge Asset payloads use one target-range representation at the payload boundary.
+# Knowledge Asset payloads retain their existing payload boundary until the asset reset is executed.
+# This validates syntax only; a payload band_range is not TargetProfile/attainment truth.
 Dir.glob(File.join(root, "knowledge-assets", "**", "*.md")).each do |path|
   text = File.read(path)
   match = text.match(/\A---\s*\n(.*?)\n---\s*(?:\n|\z)/m)
@@ -73,7 +74,13 @@ Dir.glob(File.join(root, "knowledge-assets", "**", "*.md")).each do |path|
     errors << "#{path.delete_prefix("#{root}/")}: invalid YAML (#{e.message})"
   end
 end
-errors << "authoring contract must use target_band_range" unless read.call("artifacts/engineering/contracts/content-publish/data-contract.md").include?("target_band_range: [5.0, 9.0]")
+
+# Content authoring may not invent an IELTS target-band range as routing truth.
+authoring_contract = read.call("artifacts/engineering/contracts/content-publish/data-contract.md")
+errors << "content authoring contract must not restore target_band_range heuristic" if authoring_contract.include?("target_band_range:")
+errors << "content authoring contract must expose learning-stage routing boundary" unless authoring_contract.include?("learning_stage:")
+errors << "content authoring contract must expose calibration status" unless authoring_contract.include?("calibration_status:")
+errors << "content authoring contract must reference canonical API" unless authoring_contract.include?("artifacts/engineering/api/openapi.yaml") && authoring_contract.include?("artifacts/engineering/api/schema-contract.yaml")
 
 # Generated YAML projections must declare generation state in both payload and sidecar.
 %w[dependency-graph learning-outcome-index].each do |name|
@@ -86,7 +93,7 @@ errors << "authoring contract must use target_band_range" unless read.call("arti
   errors << "#{name} sample projection must not claim generated" unless payload["generation_state"] == "sample_not_generated"
 end
 
-# P0 capability manifest is the typed seed for future graph/compiler work.
+# P0 capability manifest is the typed seed for compiler/build context.
 manifest_path = File.join(root, "artifacts/operations/capability-manifest.yaml")
 if File.file?(manifest_path)
   manifest = Lenbands::YamlLoader.load_file(manifest_path, mapping: true)
@@ -103,7 +110,7 @@ if File.file?(manifest_path)
 
   features = read.call("blueprint/03-features.md")
   capability_ids = features.scan(/`([A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*)`/).flatten.to_set
-  canonical_events = features.scan(/`([a-z][a-z0-9_]*[a-z0-9])`/).flatten.to_set
+  registered_events = features.scan(/`([a-z][a-z0-9_]*[a-z0-9])`/).flatten.to_set
   event_pack_text = read.call("artifacts/engineering/contracts/events/event-schema-pack.md")
   event_pack_events = event_pack_text.scan(/`([a-z][a-z0-9_]*[a-z0-9])`/).flatten.to_set
   cost_budget_text = read.call("artifacts/operations/cost-budget.md")
@@ -112,19 +119,22 @@ if File.file?(manifest_path)
 
   families.each do |family|
     id = family["family_id"]
-    %w[family_id capability_ids owner phase user_outcome inputs outputs states events_published data_entities metrics cost_boundary privacy_class artifacts_required artifacts_current evidence_required readiness_state readiness_blockers].each do |field|
+    %w[family_id capability_ids owner phase user_outcome inputs outputs events_published data_entities metrics cost_boundary privacy_class artifacts_required artifacts_current evidence_required readiness_state readiness_blockers].each do |field|
       errors << "#{id}: missing manifest field #{field}" unless family.key?(field)
+    end
+    unless family.key?("states") || family.key?("state_axes")
+      errors << "#{id}: manifest must declare states or state_axes"
     end
     Array(family["capability_ids"]).each do |capability|
       errors << "#{id}: unknown capability #{capability}" unless capability_ids.include?(capability)
     end
     Array(family["events_published"]).each do |event|
-      unless canonical_events.include?(event) || event_pack_events.include?(event)
+      unless registered_events.include?(event) || event_pack_events.include?(event)
         errors << "#{id}: event is not registered in Blueprint or event schema pack: #{event}"
       end
     end
     Array(family["events_consumed"]).each do |event|
-      unless canonical_events.include?(event) || event_pack_events.include?(event)
+      unless registered_events.include?(event) || event_pack_events.include?(event)
         errors << "#{id}: consumed event is not registered in Blueprint or event schema pack: #{event}"
       end
     end
@@ -156,6 +166,31 @@ if File.file?(manifest_path)
         errors << "#{id}: ready evaluation family has unarmed threshold policy" unless threshold_policy["armed"] == true && threshold_policy["approval_state"] == "approved"
       end
     end
+  end
+
+  p002 = families.find { |family| family["family_id"] == "P0-02" } || {}
+  errors << "P0-02 target feasibility vocabulary drift" unless Array(p002["planning_states"]) == %w[insufficient_evidence on_track at_risk current_constraints_insufficient target_met]
+  errors << "P0-02 diagnosis cause vocabulary drift" unless Array(p002["diagnosis_causes"]) == %w[english_foundation ielts_technique integrated_performance mixed evidence_needed]
+  errors << "P0-02 must include curriculum coverage dependency" unless Array(p002["dependencies"]).include?("curriculum_coverage_projection")
+
+  p003 = families.find { |family| family["family_id"] == "P0-03" } || {}
+  policy = p003["deterministic_policy"] || {}
+  errors << "P0-03 must expose exactly one primary action" unless policy["primary_action_count"] == 1
+  errors << "P0-03 may expose at most one lighter alternative" unless policy["max_lighter_alternatives"] == 1
+  errors << "P0-03 must prohibit LLM direct action selection" unless policy["llm_direct_action_selection"] == "prohibited"
+  errors << "P0-03 must prohibit unjustified over-band routing" unless policy["unjustified_over_band_routing"] == "prohibited"
+  errors << "P0-03 must prohibit automatic target-met progression" unless policy["target_met_auto_progression"] == "prohibited"
+  errors << "P0-03 fallback still encodes multi-choice overload" if p003["fallback"].to_s.include?("three")
+  errors << "P0-03 must model content gap" unless Array(p003["states"]).include?("content_gap")
+
+  p005 = families.find { |family| family["family_id"] == "P0-05" } || {}
+  review_policy = p005["review_policy"] || {}
+  errors << "P0-05 must require cause-appropriate intervention" unless review_policy["cause_appropriate_intervention_required"] == true
+  errors << "P0-05 must prohibit unjustified over-band routing" unless review_policy["unjustified_over_band_routing"] == "prohibited"
+
+  p006 = families.find { |family| family["family_id"] == "P0-06" } || {}
+  %w[curriculum_coverage_acceptance one_action_usability_acceptance no_over_band_acceptance feasibility_claim_review].each do |evidence|
+    errors << "P0-06 missing learner-path release evidence #{evidence}" unless Array(p006["evidence_required"]).include?(evidence)
   end
 else
   errors << "missing typed P0 capability manifest: artifacts/operations/capability-manifest.yaml"
