@@ -9,7 +9,7 @@ This projection answers two different questions for closed-pilot P0:
 
 It does not redefine product/API/risk/release authority.
 
-## Rebaseline — 2026-08-20
+## Rebaseline — 2026-08-21
 
 Canonical design now includes:
 
@@ -18,12 +18,13 @@ Canonical design now includes:
 - TargetProfile + planning `TargetFeasibility`;
 - evidence-bound diagnosis causes: English foundation / IELTS technique / integrated performance / mixed / evidence-needed;
 - one-action-first learner path;
+- Today-first app shell with explicit Back/refresh/deep-link/resume semantics;
 - curriculum sufficiency + `content_gap`;
 - minimum-sufficient-challenge / no-over-band routing;
 - staged Writing evaluation and separate operation/result validity;
 - independent retest/transfer boundary;
 - cost per verified improvement;
-- explicit risk/data-migration/accessibility/network/recovery controls;
+- explicit risk/data-migration/accessibility/navigation/network/recovery controls;
 - honest outcome-claim policy: process guarantee, no guaranteed official band from adherence alone.
 
 `problem-risk-registry.yaml` owns risk classification. `implementation-eligibility.yaml` owns lifecycle/authorization distinction.
@@ -32,12 +33,12 @@ Canonical design now includes:
 
 | Pack | Contract/design state | Implementation state | Release evidence still missing | Release state |
 |---|---|---|---|---|
-| `P0-01 Identity` | auth/access/privacy/retention/support boundaries defined | **blocked pending contract approval + verification/authorization** | provider DPA/activation, legal pilot eligibility, export/delete, access and accessibility/network acceptance | **not ready** |
-| `P0-02 Diagnosis` | TargetProfile + deterministic placement + evidence coverage + diagnosis cause + target feasibility + one-priority initial path defined | **blocked pending contract approval + verification/authorization** | calibration/coverage run, cause-classification usefulness/false-positive review, rights evidence, legal pilot eligibility, accessibility/network acceptance | **not ready** |
-| `P0-03 Daily action` | deterministic ranking + feasibility/cause/content coverage + one primary action + verification + no-over-band + zero-LLM defined | **blocked pending contract approval + verification/authorization** | deterministic acceptance, content-gap behavior, choice-compression usability, timezone-boundary and accessibility/network runs | **not ready** |
-| `P0-04 Writing evaluation` | staged scorer/runtime/API/data/failure/benchmark/support/reproducibility semantics defined | **blocked pending contract approval + verification/authorization** | rights-approved tasks, authorized corpus, benchmark slices, privacy/idempotency/evidence/dispute/accessibility runs, legal pilot eligibility | **not ready** |
-| `P0-05 Error-to-review` | reviewability/FSRS + cause-aware remediation + independent retest + canonical mutations defined | **blocked pending contract approval + verification/authorization** | governed remediation + independent-retest coverage for activated families, generated API/access/idempotency checks, verified-improvement and accessibility/network runs | **not ready** |
-| `P0-06 Quality & economics` | release/risk/benchmark/migration/recovery/cost + learner-path integrity controls defined | **blocked pending contract approval + verification/authorization** | real benchmark, armed cost thresholds, cost/outcome measurement, curriculum coverage evidence, restore drill, incident tabletop, legal pilot eligibility, rollback evidence | **not ready** |
+| `P0-01 Identity` | auth/access/privacy/retention/support + shell handoff boundaries defined | **blocked pending contract approval + verification/authorization** | provider DPA/activation, legal pilot eligibility, export/delete, access and accessibility/navigation/network acceptance | **not ready** |
+| `P0-02 Diagnosis` | TargetProfile + deterministic placement + evidence coverage + diagnosis cause + target feasibility + one-priority initial path defined | **blocked pending contract approval + verification/authorization** | calibration/coverage run, cause-classification usefulness/false-positive review, rights evidence, legal pilot eligibility, accessibility/navigation/network acceptance | **not ready** |
+| `P0-03 Daily action` | deterministic ranking + feasibility/cause/content coverage + one primary action + verification + no-over-band + Today-first shell + zero-LLM defined | **blocked pending contract approval + verification/authorization** | deterministic acceptance, content-gap behavior, choice-compression/navigation usability, timezone-boundary and accessibility/network runs | **not ready** |
+| `P0-04 Writing evaluation` | staged scorer/runtime/API/data/failure/benchmark/support/reproducibility + contextual navigation/recovery semantics defined | **blocked pending contract approval + verification/authorization** | rights-approved tasks, authorized corpus, benchmark slices, privacy/idempotency/evidence/dispute/accessibility/navigation/network runs, legal pilot eligibility | **not ready** |
+| `P0-05 Error-to-review` | reviewability/FSRS + cause-aware remediation + independent retest + canonical mutations + contextual handoff defined | **blocked pending contract approval + verification/authorization** | governed remediation + independent-retest coverage for activated families, API/access/idempotency checks, verified-improvement and accessibility/navigation/network runs | **not ready** |
+| `P0-06 Quality & economics` | release/risk/benchmark/migration/recovery/cost + learner-path/navigation integrity controls defined | **blocked pending contract approval + verification/authorization** | real benchmark, armed cost thresholds, cost/outcome measurement, curriculum coverage evidence, restore drill, incident tabletop, legal pilot eligibility, rollback evidence | **not ready** |
 
 No row becomes implementation-eligible merely because prose is coherent. Canonical contracts remain in review, exact-head verification is a separate fact, and implementation authorization is exact-SHA/family scoped.
 
@@ -53,11 +54,30 @@ A family becomes implementation-eligible only when:
 6. stored sensitive entities have retention mapping;
 7. schema changes follow `data-migration-contract.yaml`;
 8. no unresolved critical/high finding exists outside governed tracking;
-9. the learner path does not require undefined cause/feasibility/content/challenge behavior.
+9. the learner path does not require undefined cause/feasibility/content/challenge/navigation behavior.
 
 Post-code benchmark/calibration/cost/outcome/restore/accessibility/legal evidence is not a circular implementation prerequisite.
 
 ## Learner-path design invariants
+
+### P0 app shell
+
+```text
+authenticated learner
+  -> Today
+  -> one contextual action/session
+  -> outcome / resume / evidence-needed / content-gap
+  -> Today recomputes the next decision
+```
+
+Block implementation that:
+
+- maps the capability catalog into top-level navigation;
+- requires the learner to visit Progress/History/Library before receiving a next action;
+- treats Back navigation as complete/abandon;
+- allows refresh/deep-link/retry to duplicate semantic effects;
+- returns an accepted immutable submission to an editable pre-submit state;
+- executes stale Daily Action links without revalidating current state.
 
 ### P0-02 diagnosis
 
@@ -125,6 +145,9 @@ Closed-pilot release additionally requires candidate-bound evidence for applicab
 
 - negative role/entitlement/function/object access;
 - idempotency/replay/network recovery;
+- authenticated Today-first shell and one-action-first navigation;
+- Back/refresh/deep-link/resume/accepted-submission/unsaved-work navigation integrity;
+- mobile/desktop destination hierarchy consistency;
 - retention/export/delete and telemetry privacy;
 - authorized rights/provenance for released content/benchmark assets;
 - benchmark-approved scoring route and critical slices;
@@ -155,8 +178,11 @@ A complete four-skill learner-solution claim requires, for every announced skill
 4. independent retest/verification path;
 5. transfer/maintenance policy where applicable;
 6. score/readiness scope integrity;
-7. usable one-action learner path;
-8. quality/privacy/cost evidence.
+7. usable one-action learner path and Today handoff;
+8. skill-specific state/recovery plus Back/refresh/deep-link/resume behavior;
+9. accessibility for the modality-specific interaction;
+10. quality/privacy/cost evidence;
+11. an implementation-facing vertical slice satisfying the Roadmap Skill Activation Template.
 
 ## Outcome-claim gate
 
