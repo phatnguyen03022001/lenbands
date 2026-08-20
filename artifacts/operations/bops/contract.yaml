@@ -1,6 +1,6 @@
 type: bops-contract
 status: review
-version: 1.2.0
+version: 1.3.0
 owner: operations + engineering + security
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability, ADMIN.GovernanceDashboard, IDENTITY.Privacy, CONTENT.Publish, SUB.Payment]
@@ -38,7 +38,7 @@ operating_domains:
     required_controls: [DPA_terms_region_review, cost_budget, data_class_allowance, exit_export, credential_scope, incident_contact]
   incident_support:
     owner: operations
-    required_controls: [severity_classification, learner_impact_assessment, single_incident_owner, communication_decision, recovery_verification, post_incident_action]
+    required_controls: [severity_classification, incident_classification, learner_impact_assessment, single_incident_owner, communication_decision, recovery_verification, post_incident_action]
 
 runbook_contract:
   rule: each activated operating domain/provider has one short executable runbook before public release
@@ -148,7 +148,7 @@ iam:
     - research_benchmark_job_uses_only_approved_corpus_scope
     - elevated_provider_credentials_are_scoped_and_server_only
     - model_or_provider_credentials_do_not_grant_lenbands_authorization
-    - break_glass_access_requires_separate_future_contract_and_is_absent_by_default
+    - break_glass_access_is_disabled_by_default_and_never_inferred_from_admin_role
 
 evaluation:
   score_identities: [official_ielts_score, exam_simulation_estimate, diagnostic_estimate, criterion_evidence, learning_mastery]
@@ -195,38 +195,71 @@ privacy_retention:
   legal_hold: absent_by_default_until_a_separate_approved_policy_exists
 
 backup_recovery:
-  canonical_database:
-    minimum: managed_backup_plus_tested_logical_export_before_public_release
-    rpo_rto: targets_remain_unarmed_until_plan_SLA_procedure_are_selected_and_exercised
-  storage:
-    minimum: versioned_or_immutable_references_for_published_or_assessment_critical_assets_plus_export_procedure
-  provider_config:
-    minimum: version_controlled_non_secret_configuration_and_reproducible_setup_checklist
-  recovery_test:
-    before_public_release: restore_or_export_import_drill_with_timestamped_evidence
-  rule: design_targets_are_not_runtime_evidence
+  implementation_design:
+    canonical_database: managed_backup_plus_logical_export_path
+    object_storage: exportable_private_objects_with_immutable_or_versioned_assessment_references
+    provider_config: version_controlled_non_secret_configuration_plus_reproducible_setup_checklist
+    domain_rule: restore_reconciles_from_canonical_state_and_does_not_treat_workflow_cache_or_analytics_as_truth
+  release_evidence:
+    rpo_rto: numeric_targets_must_be_armed_before_public_release_not_invented_by_agent
+    restore_test: restore_or_export_import_drill_with_timestamped_evidence
+    consistency_check: database_object_references_and_entitlement_reconciliation_are_verified_after_restore
+  rule: absence_of_runtime_restore_evidence_blocks_release_not_source_code_when_the_design_contract_is_already_defined
 
 incident_management:
+  classes: [security, privacy, billing, scoring_integrity, data_loss, provider_dependency, availability]
   severities:
     sev0: security_or_data_integrity_compromise_or_systemic_score_corruption
     sev1: major_auth_billing_assessment_or_data_unavailability
     sev2: degraded_noncritical_capability_or_subset_failure
     sev3: minor_defect_without_material_outcome_risk
+  response_phases: [detect, contain, preserve_evidence, assess_learner_impact, recover_or_disable, communicate, verify_recovery, follow_up]
   rules:
     - one_incident_owner
     - preserve_evidence_before_destructive_recovery
     - scorer_integrity_incident_can_disable_scoring_without_disabling_saved_submissions
-    - security_incident_rotation_and_containment_follow_provider_and_key_scope
+    - privacy_or_security_incident_prioritizes_containment_and_credential_or_access_scope_review
+    - billing_incident_does_not_mutate_learning_or_score_state_as_a_repair_shortcut
+    - data_loss_recovery_uses_backup_export_and_canonical_reconciliation_not_manual_hidden_rows
     - status_copy_reflects_known_learner_impact_not_vendor_jargon
     - incident_closes_only_after_recovery_verification_and_follow_up_owner
+  release_evidence: tabletop_scenarios_cover_each_material_p0_incident_class
 
 support_boundary:
   default_access: metadata_and_opaque_refs_only
-  raw_learner_assessment_access: prohibited_without_future_break_glass_contract
-  score_dispute: preserve_original_and_rerun_governed_evaluator_when_policy_allows_never_manual_band_edit
-  content_report: routed_to_colab_with_minimum_learner_fields
-  billing_case: routed_by_provider_subject_and_local_entitlement_ref_without_learning_payload
+  raw_learner_assessment_access: prohibited_by_default
+  dispute_types: [score, feedback, content, quota, billing, privacy]
+  dispute_states: [opened, triaged, evidence_preserved, action_pending, resolved, rejected]
+  rules:
+    - every_case_has_case_ref_owner_subject_ref_type_and_audit_timestamps
+    - preserve_original_result_content_version_quota_and_operation_refs_before_remediation
+    - score_or_feedback_dispute_may_trigger_governed_re_evaluation_but_never_manual_band_edit
+    - re_evaluation_creates_a_new_versioned_result_or_operation_and_preserves_prior_history
+    - content_dispute_routes_minimum_report_to_content_workflow_without_exposing_arbitrary_learner_history
+    - quota_dispute_reconciles_reservation_charge_and_semantic_effect_without_fabricating_evaluation_success
+    - billing_case_uses_provider_subject_and_local_entitlement_ref_without_learning_payload
+    - learner_receives_truthful_status_or_resolution_reason_without_internal_provider_or_security_secrets
+  break_glass:
+    p0_default: disabled
+    rule: ordinary_admin_and_support_paths_must_work_without_raw_C3_access
+    enabling_requires: [separate_policy, explicit_case_and_purpose, minimum_field_scope, independent_authorization, expiry, audit_event, post_access_review]
+    non_rule: absence_of_break_glass_is_not_permission_to_grant_broad_admin_read_access
   research_access: approved_benchmark_corpus_only_not_arbitrary_production_browsing
+
+experimentation:
+  p0_default: no_experiment_may_change_semantic_truth
+  experimentable_surfaces: [copy, layout, non_semantic_ordering, optional_feedback_depth_within_quality_floor]
+  invariant_surfaces:
+    - authorization_and_privacy
+    - entitlement_truth
+    - score_identity_and_scope
+    - rubric_and_benchmark_approved_scorer_route
+    - result_validity_and_evidence_admission
+    - content_rights_and_version_truth
+    - quota_accounting_semantics
+    - release_and_quality_gates
+  metric_guardrail: experiment_success_cannot_be_declared_from_engagement_when_verified_learning_or_safety_guardrail_regresses
+  rule: feature_flag_or_experiment_configuration_is_not_a_domain_authority
 
 observability:
   allowed: [C5_derived, opaque_refs, operationId, duration, status_or_problem_code, model_route_version, cost_units, escalation_flag, result_validity]
@@ -235,9 +268,9 @@ observability:
   alerts: actionable_symptom_or_threshold_only; dependency_events_are_deduplicated_into_incident_signals
   dashboards:
     product: [activation, time_to_first_useful_value, verified_progress, error_recurrence, independent_retest_or_transfer_outcomes, uncertainty_reduction]
-    evaluation: [route_health, result_validity_mix, benchmark_agreement, uncertainty_calibration, drift, latency, cost, escalation_rate]
+    evaluation: [route_health, result_validity_mix, benchmark_agreement, benchmark_slice_health, uncertainty_calibration, drift, latency, cost, escalation_rate]
     platform: [availability, error_rate, workflow_backlog, database_health, provider_dependency_health]
-    operations: [privacy_request_age, entitlement_reconciliation, content_report_age, incident_state]
+    operations: [privacy_request_age, entitlement_reconciliation, content_report_age, support_dispute_state, incident_state]
 
 cost:
   routing_order: [deterministic_rule_library_or_sql, versioned_precomputed_result, bounded_small_or_specialist_model, benchmark_approved_stronger_route, safe_degraded_state_or_retry]
@@ -274,20 +307,27 @@ release_gate:
     - BOLA_BFLA_negative_tests_for_every_protected_operation_family
     - internal_function_scope_negative_tests
     - privacy_telemetry_lint
+    - retention_entity_coverage_and_export_delete_evidence
     - idempotency_replay_tests
     - provider_exit_and_degraded_state_design
-    - evaluation_benchmark_for_any_learner_visible_scoring_route
+    - evaluation_benchmark_and_required_slice_results_for_any_learner_visible_scoring_route
     - result_validity_and_evidence_admission_tests
     - deterministic_vs_inference_boundary_review_for_costly_capabilities
-    - recovery_or_export_import_design_and_required_pre_release_evidence
+    - assessment_content_and_benchmark_rights_provenance_approved
+    - recovery_design_plus_required_restore_or_export_import_evidence
+    - material_schema_migration_rehearsal_when_applicable
+    - accessibility_and_network_degradation_acceptance_for_p0_critical_path
+    - generic_incident_tabletop_evidence
+    - approved_pilot_eligibility_jurisdiction_and_provider_processing_decisions_before_real_learner_data
     - same_head_CI_and_trust_boundary_pass
   blocked_if:
     - two_canonical_API_authorities
     - raw_C1_C4_in_general_analytics
-    - unbenchmarked_scorer_fallback
+    - unbenchmarked_or_failed_required_slice_scorer_route
     - premium_implemented_as_divergent_role_hierarchy
     - generic_service_identity_grants_blanket_domain_access
     - model_output_can_directly_set_readiness_or_entitlement
+    - experiment_changes_scoring_evidence_security_privacy_or_entitlement_truth
     - service_key_exposed_to_browser
     - content_or_task_version_mutable_after_it_has_evaluation_evidence
     - privacy_retention_registry_missing_for_activated_C1_C4_entity
