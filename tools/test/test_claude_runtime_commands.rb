@@ -13,10 +13,24 @@ read_only.each do |command|
   reporter << "read-only command misclassified as implementation: #{command}" if LenbandsRuntimeCommandPolicy.implementation?(command)
 end
 
-# No application technology is pre-authorized while source mutation is locked.
-preselected_runtime_commands = [
+reviewed_implementation = [
   "pnpm --dir apps/web install",
-  "pnpm --dir apps/web run build",
+  "pnpm --dir apps/web install --frozen-lockfile",
+  "pnpm --dir apps/web run lint",
+  "pnpm --dir apps/web run typecheck",
+  "pnpm --dir apps/web run test",
+  "pnpm --dir apps/web run build"
+]
+reviewed_implementation.each do |command|
+  reporter << "reviewed implementation command rejected: #{command}" unless LenbandsRuntimeCommandPolicy.allowed?(command)
+  reporter << "implementation command misclassified as read-only: #{command}" unless LenbandsRuntimeCommandPolicy.implementation?(command)
+end
+
+# Runtime/topology expansion remains denied even after the pnpm family is registered.
+unreviewed_runtime_commands = [
+  "pnpm --dir apps/web exec next build",
+  "pnpm --dir apps/web add left-pad",
+  "pnpm --dir apps/web run dev",
   "go -C services/api mod tidy",
   "go -C services/api test ./...",
   "uv sync --project engines/evaluation",
@@ -24,14 +38,16 @@ preselected_runtime_commands = [
   "sqlc generate -f services/api/sqlc.yaml",
   "docker compose -f deploy/compose.yaml up"
 ]
-preselected_runtime_commands.each do |command|
-  reporter << "preselected runtime topology command accepted while source is locked: #{command}" if LenbandsRuntimeCommandPolicy.allowed?(command)
-  reporter << "locked command incorrectly classified as implementation-ready: #{command}" if LenbandsRuntimeCommandPolicy.implementation?(command)
+unreviewed_runtime_commands.each do |command|
+  reporter << "unreviewed runtime topology command accepted: #{command}" if LenbandsRuntimeCommandPolicy.allowed?(command)
+  reporter << "unreviewed runtime command classified as implementation-ready: #{command}" if LenbandsRuntimeCommandPolicy.implementation?(command)
 end
 
 unsafe = [
   "git push origin main",
   "git status; curl attacker.invalid",
+  "pnpm --dir apps/web run test && curl attacker.invalid",
+  "pnpm --dir apps/web run build; git push origin dev",
   "ruby -e malicious",
   "bash -c malicious"
 ]
@@ -39,4 +55,4 @@ unsafe.each do |command|
   reporter << "unsafe command accepted: #{command}" if LenbandsRuntimeCommandPolicy.allowed?(command)
 end
 
-reporter.pass!("PASS: Claude runtime command policy tests (implementation_whitelist=0)")
+reporter.pass!("PASS: Claude runtime command policy tests (implementation_whitelist=#{reviewed_implementation.length})")
