@@ -2,98 +2,187 @@
 
 ## Outcome and scope
 
-The learner creates/restores a session, understands what the consent grants, and can request export/delete without unintended exposure or loss of data.
+The learner can authenticate, understand and record consent, maintain a minimal profile, and request export/deletion without cross-user exposure, duplicate effects, or accidental loss of current learning work.
 
-**In scope:** `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy`; authenticated session, consent record, minimal account profile, export/delete request state. **Out of scope:** payment identity, role admin UI, provider selection/DPA approval, actual data export file delivery.
+**In scope:** `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy`; authenticated learner session, profile, consent record, export/deletion request lifecycle and recovery.
 
-## Roles, entry and state
+**Out of scope:** payment identity, role-admin UI, provider selection/DPA approval, support break-glass, and delivery-format details of a completed export. Provider/legal approvals are release evidence, not learner-flow semantics.
 
-| Role | Permission |
-|---|---|
-| Guest | start sign-in, view disclosure before consent |
-| Learner | read/edit their profile, consent, request export/delete |
-| Service | write immutable consent request/state; do not open private data cross-user automatically |
+## 1. Authority boundary
 
-The canonical persisted identity state is defined in `auth-identity-contract.md`:
-`guest → authenticated → consent_pending → active`, plus `deletion_requested → deletion_processing → deleted`.
+This slice does not own a second persisted identity state machine.
 
-The states below are a UX-flow view; `authenticating`, `export_requested`, `export_ready`, and `deletion_cancelled` are UX/screen states, not persisted identity states:
+Canonical owners are:
+
+- `artifacts/engineering/api/openapi.yaml` + `schema-contract.yaml` — HTTP operations/payloads;
+- `artifacts/engineering/api/access-control.md` — authentication, role/function/object authorization;
+- `artifacts/engineering/runtime-contract.yaml` — idempotency, durable operation and failure/recovery semantics;
+- `artifacts/operations/data-retention-registry.yaml` — purpose, retention, export and deletion behavior.
+
+Managed-auth provider state is an adapter concern. Provider subject/claims do not become the canonical learner identity or authorization truth.
+
+## 2. Primary learner flow
 
 ```text
-guest → authenticating (UX only) → consent_pending → active
-guest ← auth_failed (UX only)
-consent_pending → active (after consent)
-active → export_requested (UX only) → export_ready (UX only)
-active → deletion_requested → deletion_processing → deleted | deletion_cancelled (UX only)
+Unauthenticated
+   ↓
+Sign in / sign up
+   ↓
+Authenticated learner
+   ↓
+Required consent decision when applicable
+   ├─ declined -> only scopes/features that remain permitted
+   └─ consented -> continue
+   ↓
+Minimal profile
+   ↓
+Target / placement flow
 ```
 
-- `authenticating`, `auth_failed`, `export_requested`, `export_ready`, and `deletion_cancelled` are UX/screen states; persisted state uses the canonical values from `auth-identity-contract.md`.
-- Auth failure returns to `guest` with retry; do not expose provider technical details.
-- If consent is declined, serve only features that do not require that scope; do not silently assume consent.
-- Delete is always a request with state/recovery window under the privacy policy, not an instant hard-delete UI action.
+Privacy management is an account-side branch, not a competing primary onboarding journey:
 
-## Experience inventory
+```text
+Account & privacy
+   ├─ review/change optional consent
+   ├─ request export -> queued/processing/completed|failed
+   └─ request deletion -> account deletion_pending + governed processing/recovery
+```
 
-| Surface | Primary action | Required states |
+The learner should not need to understand provider names, token claims, data-store topology, worker topology or internal role machinery.
+
+## 3. UX states versus persisted state
+
+Screen states such as `authenticating`, `auth_failed`, `consent_saving`, `export_requested`, `deletion_confirming` and `retrying` are UX projections only.
+
+Canonical API state remains compact:
+
+- `Profile.account_status`: `active | suspended | deletion_pending`;
+- `ConsentRecord.decision`: `consented | declined` with policy/version/timestamp;
+- privacy `AsyncRequest.state`: `queued | processing | completed | failed`.
+
+Do not invent provider-specific or migration-era persisted identity enums in the UI contract.
+
+## 4. Sign-in experience
+
+| State | UI behavior | Rule |
 |---|---|---|
-| Sign in | Continue | loading, invalid, unavailable |
-| Consent disclosure | Agree / Manage | required, declined, saved |
-| Account & privacy | Export or request deletion | processing, ready, failed |
+| default | one clear sign-in method group | no learning dashboard behind an unauthenticated shell |
+| authenticating | disable duplicate submit while preserving recovery | no duplicate account/session side effect |
+| invalid | concise actionable error | never expose token/provider internals |
+| unavailable | retry; safe public preview only if separately supported | do not fake an authenticated session |
 
-## Screen behavior detail
+After successful authentication, server-side authorization derives the learner subject from validated authentication context. Client-provided user IDs, roles, entitlements or ownership claims are never trusted.
 
-### Sign in
+## 5. Consent experience
 
-| State | UI behavior | Copy rule | Event/side effect |
-|---|---|---|---|
-| default | One sign-in method group, no dashboard behind it | Explain that sign-in saves the learning path and writing | none |
-| loading | Disable duplicate submit, keep provider choice visible | "Connecting..." | none |
-| invalid | Inline error after submit/blur only | Do not state the provider's technical reason | none |
-| unavailable | Offer retry and guest preview if available | Explain that the system is not ready | log safe failure |
+Before first processing that requires a governed consent scope, show:
 
-### Consent disclosure
+- purpose;
+- relevant data class;
+- whether the choice is required for that feature or optional;
+- applicable retention/data-use reference;
+- ability to change an optional choice later where policy permits.
 
-| State | UI behavior | Copy rule | Event/side effect |
-|---|---|---|---|
-| required | Show required processing for Writing evaluation before first submission | purpose, data class, retention reference | none |
-| optional | Optional toggles default off | "You can change this later" | none |
-| declined | Continue only with features not requiring that scope | No guilt/persuasion | `consent_recorded` with declined scope |
-| saved | Show effective scopes and timestamp | "Choice saved" | `consent_recorded` |
+Behavior:
 
-### Account & privacy
+| State | UI behavior | Side effect |
+|---|---|---|
+| required | one clear consent decision before gated processing | none until submitted |
+| optional | optional choices default according to canonical policy, never dark-patterned | none until submitted |
+| declined | continue only where permitted | immutable/versioned `consent_recorded` fact |
+| saved | show effective decision and timestamp | one idempotent `consent_recorded` effect |
 
-| State | UI behavior | Copy rule | Event/side effect |
-|---|---|---|---|
-| default | Profile, consent, export/delete entry | Separate account settings from learning task | none |
-| export_requested | Show request status, not raw private data inline | expected processing state | `privacy_export_requested` |
-| deletion_requested | Confirmation + recovery window | Explain impact on drafts/evaluations/reviews | `privacy_deletion_requested` |
-| failed | Retry/contact path | Do not blame the user | safe failure event |
+Consent never changes score semantics, recommendation truth or ownership.
 
-## Runtime boundary and contracts
+## 6. Profile experience
 
-| Entity | Write authority | Privacy | Event |
-|---|---|---|---|
-| AccountProfile | learner/service | account | `account_created` |
-| ConsentRecord | service, learner request | account | `consent_recorded` |
-| PrivacyRequest | learner request/service state | account | `privacy_export_requested`, `privacy_deletion_requested` |
+Profile remains intentionally small in P0.
 
-- HTTP mutation follows API Governance: authenticated ownership, idempotency, correlation ID and user-safe errors.
-- Authenticated means a validated issuer/audience/expiry token mapped to an opaque server-side subject; client-provided user IDs, roles or plans are never trusted for ownership.
-- P0 permission scopes are `learner:read`, `learner:write`, `privacy:export` and `privacy:delete` (learner-facing; `admin:governance` is in the auth contract for the founder/admin governance surface). Missing scope is `403`, cross-subject resource lookup is `404`.
-- Export/delete work uses async job/outbox only after a dedicated privacy worker contract exists; this spec does not authorize raw data movement.
-- Auth provider subject is mapping data, never the canonical learner identity.
+Learner-facing editable values may include display name, locale and IANA timezone according to canonical schema. `TargetProfile` is owned by `GOAL.Target`, not `IDENTITY.Profile`.
 
-## Quality, privacy and acceptance
+Changing locale/timezone must not rewrite historical evidence timestamps, prior results or TargetProfile truth.
 
-- Default deny for optional processing; disclosure explains purpose, data class and retention reference before first Writing submission.
-- Duplicate request/retry creates one active privacy request.
-- [ ] Learner A cannot read/change Learner B profile/consent/request by opaque ID.
-- [ ] Declined consent does not silently enable scoped processing.
-- [ ] Export/delete request survives refresh/retry and exposes progress safely.
-- [ ] Account creation/consent events contain no raw profile content.
-- [ ] First Writing submit cannot proceed until required consent is recorded.
-- [ ] User can change optional consent without losing active draft/session.
+## 7. Privacy request experience
+
+### Export
+
+```text
+Request export
+  -> queued
+  -> processing
+  -> completed | failed
+```
+
+- duplicate request/retry must not create duplicate semantic work;
+- UI shows status/recovery, not raw private data inline merely because an export exists;
+- delivery/download mechanics follow the governed implementation and retention policy.
+
+### Deletion
+
+```text
+Request deletion
+  -> confirm material consequences
+  -> profile/account becomes deletion_pending when accepted
+  -> governed deletion processing
+  -> account no longer serves normal learner access when completed
+```
+
+The UI must explain effects on drafts, evaluations, review history and any legally/operationally retained records without promising an impossible instantaneous purge.
+
+A failed/deferred deletion operation exposes a governed recovery/support path; it never silently restores ordinary processing permissions.
+
+## 8. Canonical API
+
+Use only canonical operations:
+
+- `getMe`;
+- `updateMe`;
+- `recordConsent`;
+- `requestMyExport`;
+- `requestMyDeletion`.
+
+Authentication/session establishment is handled through the selected managed-auth boundary and canonical access-control rules; this slice does not create a duplicate auth API contract.
+
+All learner mutations are owner-scoped and idempotent where the canonical API requires it.
+
+## 9. Recovery and integrity
+
+| Condition | Learner behavior |
+|---|---|
+| duplicate sign-in/consent/privacy mutation | one semantic effect |
+| auth provider unavailable | retry/unavailable state; no fake session |
+| consent save fails | preserve learner choice locally only as unacknowledged input; do not claim server consent |
+| profile update conflict | reload/reconcile version; do not overwrite newer state silently |
+| export request fails | preserve request/error state and retry path |
+| deletion processing delayed/failed | keep governed `deletion_pending`/operation state and explain recovery |
+| cross-user object attempt | deny without exposing another learner's resource |
+
+Browser/local storage is never the sole canonical copy after server acknowledgement.
+
+## 10. Accessibility and anti-overload
+
+- sign-in, consent and privacy controls are keyboard-operable with visible focus;
+- validation/status changes have programmatic semantics;
+- consent copy is concise first, detail available progressively;
+- deletion confirmation is explicit but not manipulative;
+- one primary CTA per state;
+- account/privacy management does not interrupt the daily learning flow unless action is required.
+
+Critical-path accessibility/network requirements remain owned by `artifacts/experience/critical-path-usability-contract.yaml`.
+
+## 11. Acceptance evidence
+
+- [ ] Learner A cannot read/change Learner B profile, consent or privacy request.
+- [ ] Client-provided role/user/entitlement fields cannot grant ownership or access.
+- [ ] Declined required consent blocks only the processing that requires it; no silent consent assumption.
+- [ ] Optional consent can be changed without corrupting active draft/session state.
+- [ ] Duplicate consent/export/delete requests produce one semantic effect.
+- [ ] Profile timezone persists as a valid IANA timezone and does not rewrite historical instants.
+- [ ] Export/delete request survives refresh/retry with truthful state.
+- [ ] First Writing submission cannot invoke gated processing before required consent is effective.
+- [ ] General analytics events contain no raw profile/private assessment content.
+- [ ] Keyboard/screen-reader/network recovery acceptance passes for this slice.
 
 ## Readiness
 
-The auth/provider boundary contract exists at `runtime/auth-identity-contract.md` but remains in `review`; the permission/data-retention API and privacy-worker failure/recovery contract/evidence are still missing. **Ready for Source Code: no.**
+The learner-flow semantics are aligned with the canonical API/access/runtime/retention owners. Release still requires provider/legal/privacy and executable acceptance evidence from the Build Readiness Matrix; missing post-code evidence does not create a second pre-code identity contract.
