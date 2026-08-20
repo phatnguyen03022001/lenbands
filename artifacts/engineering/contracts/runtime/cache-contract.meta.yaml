@@ -1,9 +1,0 @@
-type: cache-contract
-status: review
-version: 0.1.1
-owner: engineering
-representation: markdown
-derived_from: [EVAL.Writing, STUDY.DailyPlan, REVIEW.FSRS, OPS.Observability]
-purpose: p0-cache-scope-invalidation-and-failure-semantics
-created_at: 2026-08-06
-updated_at: 2026-08-07
