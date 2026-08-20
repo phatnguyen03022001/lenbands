@@ -51,7 +51,7 @@ This line exists only because the bounded-contributor validator still checks the
 ```bash
 tools/bin/lenbands context
 tools/bin/lenbands doctor
-tools/bin/lenbands validate problem-risks
+ruby tools/commands/validate/problem-risk-coverage.rb
 tools/bin/lenbands verify
 tools/bin/lenbands gate toolchain
 tools/bin/lenbands gate p0
