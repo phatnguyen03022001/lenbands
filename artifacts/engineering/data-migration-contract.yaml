@@ -1,0 +1,84 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: data-migration
+owner: engineering + operations
+purpose: make schema changes, backfills and projection rebuilds safe and deterministic for agent implementation
+
+principles:
+  - canonical_source_state_is_preserved_before_derived_state
+  - migrations_are_forward_compatible_before_destructive_cleanup
+  - backfills_are_idempotent_and_resume_safe
+  - derived_projections_are_rebuildable_from_canonical_state
+  - rollback_does_not_require_rewriting_valid_historical_evidence
+  - active_clients_workers_and_durable_operations_are_considered_during_transition
+
+change_classes:
+  additive:
+    examples: [new_nullable_column, new_table, new_index, new_enum_side_table]
+    default: preferred
+  expand_contract:
+    examples: [field_rename, representation_change, state_machine_change]
+    rule: expand_reader_writer_compatibility_then_backfill_then_contract_after_old_consumers_are_gone
+  destructive:
+    examples: [drop_column, delete_history, incompatible_enum_removal, rewrite_primary_identity]
+    default: prohibited_in_the_same_release_that_introduces_the_replacement
+    requires: [explicit_migration_plan, inbound_consumer_proof, backup_or_export_reference, rollback_or_forward_fix_plan]
+
+migration_plan_required_fields:
+  - migration_id
+  - affected_entities
+  - canonical_source_of_truth
+  - old_reader_compatibility
+  - old_writer_compatibility
+  - new_reader_compatibility
+  - backfill_strategy
+  - idempotency_key_or_unique_guard
+  - validation_query_or_invariant
+  - rollback_or_forward_fix
+  - projection_rebuild_rule
+  - privacy_retention_effect
+  - estimated_lock_or_runtime_impact
+
+backfill:
+  rules:
+    - operate_in_bounded_batches_when_dataset_size_can_materially_affect_runtime
+    - checkpoint_progress_without_using_checkpoint_state_as_domain_truth
+    - rerun_of_the_same_batch_is_semantically_idempotent
+    - never_invent_missing_assessment_or_learning_evidence
+    - invalid_or_ambiguous_rows_are_quarantined_or_reported_not_silently_coerced
+    - write_version_or_migration_provenance_when_semantics_change
+
+compatibility:
+  api_rule: canonical_api_schema_and_runtime_contract_define_supported_transition_not_database_shape_alone
+  durable_operation_rule: an_operation_started_under_old_code_must_either_finish_under_compatible_semantics_or_be_truthfully_failed_reconciled
+  event_rule: consumers_must_tolerate_the_declared_transition_window_or_use_versioned_payloads
+  enum_rule: do_not_remove_a_persisted_value_until_all_canonical_rows_and_consumers_have_migrated
+
+projection_rebuild:
+  derived_examples: [daily_plan_snapshot, learner_evidence_projection, cost_aggregate, search_projection, analytics_aggregate]
+  rule: derived_state_must_be_recomputable_or_have_an_explicit_non_rebuildable_justification
+  prohibited: derived_projection_becomes_the_only_copy_of_learner_evidence
+
+rollback_and_forward_fix:
+  prefer_forward_fix_when: rolling_back_code_would_make_already_written_valid_new_state_unreadable
+  rollback_allowed_when: old_code_remains_schema_compatible_and_no_valid_new_semantics_would_be_lost
+  never: mutate_or_delete_a_valid_historical_evaluation_to_make_old_code_pass
+
+acceptance_boundary:
+  before_first_p0_schema_implementation:
+    - representative_migration_fixture_exists
+    - additive_or_expand_contract_path_is_selected
+    - backfill_replay_is_idempotent
+    - projection_rebuild_can_run_from_canonical_fixture_state
+  before_release_of_a_material_migration:
+    - migration_rehearsal_completed_on_representative_snapshot
+    - validation_invariants_pass
+    - rollback_or_forward_fix_is_exercised_or_explicitly_proven
+    - privacy_retention_registry_remains_complete
+
+agent_rules:
+  - do_not_generate_a_destructive_migration_from_a_model_guess
+  - do_not_use_live_production_rows_as_the_only_migration_specification
+  - do_not_couple_feature_semantics_to_provider_specific_migration_tools
+  - if_a_change_cannot_preserve_or_reconstruct_canonical_evidence_stop_and_report_data_migration_blocker
