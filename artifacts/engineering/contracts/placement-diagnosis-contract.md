@@ -4,7 +4,7 @@ Canonical metadata is in the sibling `placement-diagnosis-contract.meta.yaml`.
 
 P0-02 creates a learner TargetProfile, collects a bounded baseline under a published placement configuration, and produces only the diagnostic claims that available evidence supports.
 
-Status: `review`. No real calibration/acceptance run exists, so the contract is not build-ready or evidence that LenBands placement is accurate.
+Status: `review`. Implementation eligibility is governed separately from release evidence. Real calibration/acceptance evidence is required before a `calibrated` or learner-accuracy claim, but its absence is not a circular prerequisite for implementing this deterministic contract against fixtures/right-approved pilot content.
 
 ## 1. Product boundary
 
@@ -193,7 +193,7 @@ P0-02 operations:
 | `submitPlacement` | request diagnosis/termination under the configured policy |
 | `getPlacementAttempt` | read attempt + scoped result projection |
 
-Legacy scoped/root OpenAPI files are migration-only and cannot override these operations.
+Retired split OpenAPI files are not implementation inputs and must not reappear as authorities.
 
 ## 10. Idempotency/recovery
 
@@ -240,6 +240,8 @@ Costs are primarily:
 Do not add model inference for placement explanation/routing until deterministic templated copy/rules demonstrably fail learner outcome requirements.
 
 ## 14. Acceptance evidence required
+
+The contract may be implemented with deterministic fixtures before these release runs exist. Promotion to calibrated learner-facing use requires applicable evidence below:
 
 - [ ] TargetProfile supports module + optional overall/per-skill minima without forcing one target band.
 - [ ] Target values do not alter scoring observations.
