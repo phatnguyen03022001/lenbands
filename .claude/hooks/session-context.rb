@@ -24,4 +24,13 @@ unless status.success?
 end
 
 puts stdout
-puts "Claude document-convergence mode: all application source workspaces and runtime implementation commands are globally locked."
+family = ENV["LENBANDS_IMPLEMENTATION_FAMILY"].to_s
+base_sha = ENV["LENBANDS_IMPLEMENTATION_BASE_SHA"].to_s
+scopes = ENV["LENBANDS_IMPLEMENTATION_SOURCE_SCOPES"].to_s
+founder_ref = ENV["LENBANDS_FOUNDER_AUTHORIZATION_REF"].to_s
+auth_ref = ENV["LENBANDS_IMPLEMENTATION_AUTHORIZATION_REF"].to_s
+if [family, base_sha, scopes, founder_ref, auth_ref].all? { |value| !value.empty? }
+  puts "Claude family-scoped authorization context detected for #{family}; PreToolUse guard must validate exact baseline and source scope before any source mutation."
+else
+  puts "Claude family-scoped authorization mode: no external implementation authorization is active; application source remains locked."
+end
