@@ -1,10 +1,10 @@
 type: data-retention-registry
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: privacy + operations
 representation: yaml
 derived_from: [IDENTITY.Privacy, OPS.Observability, GOVERNANCE.AuditTrail]
-purpose: entity-purpose-retention-export-deletion-coverage
+purpose: complete P0 entity purpose retention export deletion and telemetry coverage
 consumed_by: [privacy, operations, engineering, security]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
