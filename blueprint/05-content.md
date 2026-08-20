@@ -16,6 +16,8 @@ It does **not** require every possible taxonomy field on every asset. Content me
 6. **Learning content and assessment evidence are different pools.** Familiar/revealed items may teach; they do not automatically provide fresh diagnostic/transfer evidence.
 7. **No calibration by prose.** `band`, `difficulty`, `estimated_time`, mastery/readiness or score-related metadata is provisional until governed evidence promotes it.
 8. **Rights before usefulness.** An excellent item with unknown rights/provenance is not publishable.
+9. **Curriculum sufficiency before recommendation.** A planner may recommend a learning gap only when an eligible intervention exists and the intended improvement can be verified by an eligible independent/retest path; otherwise the system reports a content gap.
+10. **Minimum sufficient challenge.** Content should meet the learner at the lowest challenge level that can produce the target-relevant learning/evidence outcome. Harder or higher-band content is not inherently better.
 
 ## 2. Knowledge Assets
 
@@ -82,7 +84,8 @@ Required only when an active capability consumes it:
 - `practice_unit`;
 - answer-normalization rules;
 - exposure/novelty policy;
-- remediation/retest mapping.
+- remediation/retest mapping;
+- prerequisite/learning-stage eligibility when it changes routing.
 
 **Tier C — calibrated routing metadata**
 
@@ -170,6 +173,7 @@ learning_design_profile:
   skill: listening | reading | writing | speaking | pronunciation
   exam_module: academic | general_training | shared
   learning_stage: foundation | developing | target | advanced | precision
+  cause_fit: english_foundation | ielts_technique | integrated_performance | mixed | any
   learner_outcome: <observable outcome>
   evaluation_rule: <answer/rubric/evidence policy ref>
   review_mapping: <review/remediation policy ref or n/a>
@@ -195,6 +199,7 @@ The learner's `TargetProfile` belongs to Goal Management, not content metadata. 
 
 ```text
 TargetProfile
+  -> diagnosis identifies evidence/cause
   -> planner chooses eligible content
   -> content declares what it can teach/measure
   -> evidence policy decides what the result supports
@@ -202,7 +207,61 @@ TargetProfile
 
 Do not encode learner-specific goals into shared Knowledge Assets.
 
-## 8. Exposure and evidence pools
+## 8. Curriculum sufficiency contract
+
+A content library is not sufficient because it contains many lessons. It is sufficient for an **active target path** only when the required chain exists.
+
+For each activated target-relevant gap/cause family, maintain a machine-checkable coverage state equivalent to:
+
+```yaml
+curriculum_coverage:
+  target_or_construct_ref: string
+  cause_class: english_foundation | ielts_technique | integrated_performance | mixed
+  teach_or_explain_refs: [string]
+  guided_practice_refs: [string]
+  independent_practice_refs: [string]
+  retest_or_verification_refs: [string]
+  rights_ready: boolean
+  module_eligible: boolean
+  coverage_state: complete | partial | missing
+```
+
+Rules:
+
+- `complete` requires at least one governed path from diagnosis to an independent verification action appropriate to the construct;
+- FSRS is optional and only required when the remediation unit is meaningfully retrievable;
+- a large quantity of learning assets cannot compensate for missing independent verification/retest content;
+- a retest pool must preserve exposure/novelty policy and cannot simply reuse the revealed source item;
+- if `coverage_state=missing`, the planner returns `content_gap` instead of recommending unrelated material;
+- P0 checks only activated Writing/placement/remediation families; it does not require complete four-skill coverage before the closed pilot;
+- expanded four-skill claims require corresponding coverage to become complete before launch.
+
+## 9. No-over-band / challenge-fit policy
+
+“Band” is an assessment scale, not a content difficulty ladder that should always increase.
+
+The planner/content selector chooses the **minimum sufficient challenge** consistent with:
+
+- supported diagnosis cause;
+- prerequisites;
+- learner evidence state;
+- TargetProfile;
+- required exam authenticity;
+- transfer/maintenance need;
+- time/energy when pedagogically acceptable.
+
+Content above the learner's demonstrated prerequisite level or beyond the target is excluded by default.
+
+It becomes eligible only when:
+
+1. it is a required bridge to the target;
+2. authentic IELTS stimulus/task complexity cannot be simplified without changing the construct;
+3. a governed transfer/robustness check intentionally uses a harder/new context;
+4. the learner has already demonstrated the lower requirement and the next level is target-relevant.
+
+Do not use advanced vocabulary, complex grammar, harder prompts or denser analytics as a proxy for quality. A learner targeting Band 6.5 should not be routed through Band-8-style enrichment unless one of the rules above justifies it.
+
+## 10. Exposure and evidence pools
 
 Every assessment-capable item/prompt declares an exposure policy appropriate to its activated phase.
 
@@ -219,7 +278,7 @@ Rules:
 - A repeated item may still be useful learning/review evidence but is not automatically transfer evidence.
 - Exposure history is deterministic runtime state; do not ask an LLM whether an item is "novel enough" when the system already has exposure facts.
 
-## 9. Content workflow and separation of duties
+## 11. Content workflow and separation of duties
 
 ```text
 Create
@@ -240,7 +299,7 @@ Permissions are functional:
 - the same person may hold multiple permissions in P0, but actions remain separate/audited;
 - evaluation workers and learner scoring are outside the Colab authority boundary.
 
-## 10. Auto-tagging policy
+## 12. Auto-tagging policy
 
 `CONTENT.AutoTag` is a cost-reduction assistant, not a publishing authority.
 
@@ -254,7 +313,7 @@ Routing order:
 
 Do not run a large model synchronously merely to populate optional metadata. Batch suggestions when learner-visible latency is irrelevant.
 
-## 11. Versioning and immutability
+## 13. Versioning and immutability
 
 Lifecycle:
 
@@ -276,7 +335,7 @@ At minimum, changes to these fields require impact review/versioning when refere
 
 Historical attempts keep the exact content/task/rubric versions they used.
 
-## 12. Provenance, rights and quality gate
+## 14. Provenance, rights and quality gate
 
 Every published learner-serving asset has:
 
@@ -291,7 +350,7 @@ Every published learner-serving asset has:
 
 Generated content is not automatically rights-safe, authentic IELTS material or calibrated merely because a model produced it.
 
-## 13. Calibration boundary
+## 15. Calibration boundary
 
 The following claims require evidence rather than author judgment/model output:
 
@@ -300,11 +359,12 @@ The following claims require evidence rather than author judgment/model output:
 - band-routing accuracy;
 - diagnostic information value;
 - score/readiness implications;
-- claim that a tag improves recommendation/learning outcome.
+- claim that a tag improves recommendation/learning outcome;
+- claim that a target can be achieved in a stated duration/hours.
 
 A field may remain provisional indefinitely if it is useful for lightweight routing but must be labeled/protected accordingly.
 
-## 14. Content economics
+## 16. Content economics
 
 Content operations must measure the cost of metadata, not only model tokens.
 
@@ -316,16 +376,18 @@ Track where practical:
 - percentage of suggested tags changed/rejected;
 - percentage of metadata fields actually queried by active decisions;
 - content defect/report rate;
+- curriculum-coverage gaps by activated target/cause family;
 - downstream retest/transfer lift by remediation/content family.
 
 A metadata dimension should be removed, deferred or made optional when its maintenance cost is material and it does not improve correctness, diagnosis, recommendation, retrieval, governance or verified learner outcome.
 
-## 15. P0 closed-pilot scope
+## 17. P0 closed-pilot scope
 
 P0 content work is limited to what supports:
 
 ```text
 TargetProfile / placement
+  -> supported diagnosis cause or evidence gap
   -> Today action
   -> published Writing Task 2
   -> staged evaluation
@@ -335,9 +397,11 @@ TargetProfile / placement
   -> independent/novel retest
 ```
 
+P0 content readiness requires the activated Writing remediation families to have enough governed intervention + retest coverage that the planner does not dead-end after identifying a real gap.
+
 Do not build full cross-skill taxonomy tooling, bulk auto-tagging, advanced search metadata or calibrated difficulty infrastructure merely because the full Blueprint contains those future capabilities.
 
-## 16. Framework integration
+## 18. Framework integration
 
 Framework IDs remain controlled vocabulary. Missing IDs fail closed only when the active capability truly requires the ID; otherwise retain an explicit unknown/deferred value.
 
@@ -350,4 +414,4 @@ Primary references:
 - `framework/review-mapping.md` — error → remediation/review semantics;
 - `framework/exam-module-differences.md` — module/format/scoring boundary.
 
-Content can organize learning. It cannot manufacture IELTS scoring truth, learner mastery or readiness.
+Content can organize learning. It cannot manufacture IELTS scoring truth, learner mastery, target feasibility probability or readiness.
