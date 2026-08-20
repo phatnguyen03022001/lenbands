@@ -1,219 +1,266 @@
 # 07 — Conventions
 
-This file contains **cross-cutting conventions** that apply to all preceding files: naming, icons, accessibility, localization, and privacy. These are shared rules, not features.
+This file owns cross-cutting naming, interaction, accessibility, localization, privacy and runtime conventions. It does not redefine product capability semantics, API payloads, evaluation policy or runtime topology.
 
-## 1. UI Naming & Icon Convention (No-AI-label)
+## 1. UI naming and technology disclosure
 
 ### Principle
 
-Documentation uses the term "AI" on capabilities so developers understand their technical origin (calibration, model, engine). The **end-user UI** does not use the word "AI" and does not use AI-themed icons. Users see plain functional names and do not need to care about the underlying technology as long as outcomes are clear.
+Primary learner UI uses functional language rather than implementation branding. Learners should understand what a feature does, what a result means and what happens to their data without needing to understand model/provider architecture.
 
-This rule applies only to primary product labels. Privacy, Help, consent, evaluation details, and error states must transparently explain that results are produced by an automated system, what confidence limitations exist, and how data is handled.
+Rules:
 
-### Rules
+- do not prefix normal labels, buttons, menus or tabs with `AI`;
+- do not use sparkle/robot/brain imagery as a generic quality signal;
+- use functional labels such as Writing Evaluation, Feedback, Tutor, Next Step and Review;
+- privacy, consent and assessment disclosures must truthfully state when automated systems process learner work;
+- provider/model identity is audit/governance metadata unless disclosure is required for trust, policy or support;
+- no UI copy may imply that an automated estimate is an official IELTS score.
 
-- Do not prefix labels, buttons, menus, or tab names with "AI"
-- Do not use AI-symbol icons such as sparkle ✨, robot 🤖, or brain 🧠
-- Use functional icons such as pen, microphone, score sheet, tutor, or light bulb
-- Documentation retains "AI Writing Evaluation (sole scorer)" at the capability-definition level; UI displays "Writing Evaluation"
+### Capability to learner-label examples
 
-### Mapping docs capability → UI label
-
-| Capability id | UI display |
+| Capability | Learner label |
 |---|---|
 | `EVAL.Writing` | Writing Evaluation |
 | `EVAL.Speaking` | Speaking Evaluation |
 | `EVAL.Pronunciation` | Pronunciation Evaluation |
-| `EVAL.Examiner` | Examiner |
+| `EVAL.Examiner` | Examiner / Speaking Practice |
 | `COACH.AnswerExplanation` | Answer Explanation |
-| `COACH.VocabularyExplanation` | Vocabulary Explanation |
-| `COACH.DistractorExplanation` | Distractor Explanation |
-| `COACH.ListeningCoach` | Listening Coach |
-| `COACH.ReadingCoach` | Reading Coach |
+| `COACH.DistractorExplanation` | Why this option is wrong |
 | `COACH.Feedback` | Feedback |
 | `COACH.ErrorAnalysis` | Error Analysis |
-| `COACH.Recommendation` | Recommendation |
 | `COACH.Tutor` | Tutor |
-| `EVAL.BandPrediction` | Band Prediction |
-| `EVAL.RewriteSuggestion` | Rewrite Suggestion |
+| `PERSONAL.NextBestAction` | Next Step |
 | `PERSONAL.Insights` | Insights |
-| `PERSONAL.NextBestAction` | Next Step (localized equivalent may be used) |
-| `GOVERNANCE.*` | invisible — not shown to the user |
+| `GOVERNANCE.*` | normally invisible to learner |
 
-### Icon examples
+## 2. Navigation and interaction conventions
 
-| Capability | Icon |
-|---|---|
-| Writing Evaluation | pencil / graded paper |
-| Speaking Evaluation | microphone |
-| Examiner | interviewer / headset |
-| Tutor | tutor / light bulb |
-| Band Prediction | chart / target |
-| FSRS review | flashcard / loop |
+Navigation follows `04-experience.md`; the capability catalog never maps one-to-one to top-level navigation.
 
-## 2. Accessibility (a11y)
+### Destination hierarchy
 
-Accessibility is cross-cutting and is not a separate feature.
+- **Today** is the default authenticated next-decision surface.
+- **Progress / History** is secondary inspection, not a prerequisite for receiving the next action.
+- **Account** is a utility destination.
+- **Library / Explore** is phase-gated and appears only when meaningful direct browsing value exists.
+- Placement, skill tasks, feedback, fixes, review, retest and mock/exam flows are contextual destinations unless evidence justifies permanent top-level entry.
 
-### Listening
+### Interaction rules
 
-- Transcript is always available
-- Subtitles synchronized with audio
-- Complete keyboard navigation
-- Playback speed (0.75x–1.5x)
-- Keyboard shortcuts for play/pause/seek
+- one primary CTA per primary state; at most one lighter alternative may compete with it;
+- browser/system Back never mutates domain truth by itself;
+- refresh after acknowledged mutation is a semantic no-op;
+- a resumable active session remains resumable when the learner navigates away; navigation does not imply completion or abandonment;
+- show leave confirmation only when unacknowledged work is actually at risk;
+- deep links authorize ownership/entitlement and resolve current resource/version state before rendering;
+- stale action links never execute a superseded plan; recompute/recover from canonical state;
+- dialogs are for bounded confirmation, consent and destructive decisions, not nested primary workflows;
+- phase-gated destinations are absent rather than disabled placeholders;
+- mobile and desktop navigation may differ visually but preserve the same hierarchy and semantics.
 
-### Reading
+## 3. Accessibility
 
-- Keyboard-accessible highlight and underline
-- Dark mode
-- Adjustable font size
-- Sufficient contrast (WCAG AA)
-
-### Writing
-
-- Autosave so drafts are not lost
-- Real-time word count
-- Keyboard-friendly editor
-
-### Speaking
-
-- Recording has a visual indicator
-- Transcript after recording
-- Adjustable playback speed
+Accessibility is part of component/state design, not a post-build feature.
 
 ### General
 
-- Every action has a keyboard equivalent
-- Screen-reader friendly through semantic HTML / ARIA
-- Color is never the only information channel
-- Visible focus
-- Touch target ≥ 44px
-- Reduced motion and pause/stop controls for animation, audio, and notifications
-- Do not use countdowns, red color, or sound to create pressure outside exam mode
+- every interactive control is keyboard operable;
+- focus is visible and follows semantic order;
+- semantic HTML is preferred over custom ARIA recreation;
+- color is never the only information channel;
+- critical touch targets are at least 44px where practical;
+- reduced-motion preference disables nonessential motion;
+- route/status/error changes provide appropriate non-visual semantics;
+- critical P0 paths remain usable at 200% zoom/reflow;
+- countdown pressure, red danger styling and sound are reserved for authentic exam contexts, not engagement pressure.
 
-## 3. Localization
+### Listening
+
+- transcript availability follows content/assessment policy;
+- audio controls are keyboard accessible;
+- playback speed and seek controls are operable without pointer;
+- timer/audio updates do not generate excessive screen-reader announcements.
+
+### Reading
+
+- passage navigation, highlight/annotation controls and answer selection are keyboard accessible;
+- text supports readable reflow and user font/contrast preferences where platform support exists.
+
+### Writing
+
+- editor supports standard keyboard/assistive-technology text editing;
+- autosave/recovery, word count, timer and validation status are available without hover or color-only cues;
+- accidental keyboard submit is prevented by explicit submit confirmation when policy requires it.
+
+### Speaking
+
+- recording state has visual and non-visual indication;
+- playback controls are accessible;
+- transcript and pronunciation evidence are structured for reading where policy permits them.
+
+The canonical P0 release acceptance boundary remains `artifacts/experience/critical-path-usability-contract.yaml`.
+
+## 4. Localization
 
 ### Scope
 
-- **UI** is multilingual: labels, menus, buttons, messages
-- **AI responses** are multilingual: answer explanations, Writing/Speaking feedback, knowledge explanations
-- **IELTS content** always remains in its original English and is NOT translated: audio, passage, question, writing task, speaking prompt
+- UI labels/messages are localized;
+- coaching/explanations may be localized;
+- IELTS source content remains in the language/form required by the assessment/content contract and is not silently translated when translation would alter task semantics.
 
-### Languages
+### Initial languages
 
-- Default: Vietnamese
-- Initial: Vietnamese + English
-- Later: expand according to demand
+- default: Vietnamese;
+- initial supported UI: Vietnamese + English;
+- expansion follows learner demand and quality evidence.
 
-### Locale formatting
+### Locale and timezone
 
-- Date formatting follows locale
-- Decimal formatting follows locale
-- 12h/24h time follows locale
+- locale controls date/number/presentation formatting;
+- persisted IANA timezone controls learner-local calendar semantics;
+- locale/timezone changes never rewrite historical UTC instants or date-scoped evidence truth;
+- date-only values such as exam date remain date-only according to canonical runtime rules.
 
-### AI response language
+### Explanation language
 
-- Follows `user.preferred_language`
-- Does not affect scoring; band score remains aligned to the IELTS rubric
-- Helps learners understand feedback in a familiar language
-- Preserves necessary IELTS terminology; use a glossary rather than mistranslating band/rubric terms
-- Provides an explicit language fallback when a response is not localized
+- follows the learner's selected language where supported;
+- never changes scoring/rubric/evidence semantics;
+- preserves essential IELTS terminology with glossary support rather than mistranslation;
+- falls back explicitly when localized content is unavailable.
 
-## 4. Data Privacy
+## 5. Data privacy and trust
 
 ### Principles
 
-- Users own their data and can export and delete it
-- AI data usage is transparent
-- Consent is explicit
+- learner data has an explicit purpose and governing retention behavior;
+- consent is recorded where required;
+- optional processing is not enabled through dark patterns;
+- export/delete requests expose truthful operation state;
+- general telemetry never contains raw essays, recordings, private notes, credentials or unrestricted provider payloads;
+- benchmark/research use requires its own provenance, rights and processing basis; production learner submissions do not silently become a research corpus.
 
-### Capability
+### Evaluation disclosure
 
-| id | Description |
-|---|---|
-| `IDENTITY.Privacy` | Export Data, Delete Data, Consent, AI Data Usage |
-| `IDENTITY.DeleteAccount` | Delete account |
-| `PKM.Export` | Export learning data (notes, word bank, history) |
+Before first applicable submission, explain:
 
-### AI Data Usage disclosure
+- what learner input is processed;
+- for what purpose;
+- what result scope means;
+- relevant retention/data-use behavior;
+- how to recover/dispute when the system cannot produce an ordinary valid result.
 
-- Users are informed that submission data may be used to improve models when consent exists
-- Users can opt out
-- Gold-standard benchmark data is de-identified
+A result should expose understandable `How this was assessed` information such as rubric/scope/evidence and limitation language. Raw provider confidence or hidden model reasoning is not required learner output.
 
-### Data retention
+## 6. Naming and state conventions
 
-- Drafts/Recordings: retained according to user policy until account deletion
-- Assessment History: retained for portfolio/timeline according to the governing retention policy
-- Review logs (FSRS): retained according to the policy required for optimization
-- Account deletion: delete PII; aggregated anonymous benchmark data may remain only when consent and policy allow it
+- **Capability ID:** `{DOMAIN}.{Capability}` such as `EVAL.Writing`.
+- **Mutable canonical filename:** lower-kebab-case except approved special names/numbered Blueprint paths.
+- **UI action label:** concise verb-first action where appropriate.
+- **Persisted enum/status:** snake_case.
+- **Event:** past-tense fact, snake_case.
+- **Failure code:** uppercase namespace + reason, e.g. `EVAL_TIMEOUT`, `QUOTA_EXCEEDED`.
+- **Versioned contract/event/failure semantics:** use explicit version and preserve migration/replay behavior where applicable.
 
-### Trust and evaluation disclosure
+### Evaluation axes
 
-- Before the first submission, users are told which inputs are processed, for what purpose, and for what retention period.
-- Every result provides a "How this was assessed" path showing rubric, evidence, confidence state, and model/rubric version in understandable terms.
-- Do not use "official score" for anything other than a real official test result; use "estimated band" or "practice result".
-- An anti-gaming flag is a state requiring handling, not a default conclusion of misconduct.
-- Users can export/delete data according to policy; the UI must display processing state rather than merely making a button disappear.
+Operation lifecycle and result trustworthiness remain separate:
 
-## 5. Naming convention (cross-cutting)
+```text
+operation_state:
+  accepted | processing | succeeded | delayed | unavailable | failed | cancelled
 
-- **Capability id**: `{DOMAIN}.{Capability}` (PascalCase) — e.g. `EVAL.Writing`, `REVIEW.SmartQueue`
-- **Docs file**: `NN-name.md` (snake or kebab according to team convention)
-- **UI label**: clear; verb-first for actions ("Evaluate Writing"), noun-first for entities ("Writing Portfolio")
-- **Status value**: snake_case — `published`, `in_review`, `deprecated`
-- **Evaluation state**: the learner aggregate may be `none`, `submitted`, `processing`, `scored`, `low_confidence`, `invalid`, `anti_gaming_review`, or `failed`. The persisted `Evaluation` entity and its HTTP projection start at `submitted` and therefore intentionally omit aggregate-only `none`.
-- **Quality status**: `accepted`, `low_confidence`, `insufficient_evidence`, `invalid`; this is a quality axis and must not be merged into lifecycle state.
-- **Runtime state**: snake_case within each axis — `active`, `inactive`, `paused`, `at_risk`, `achieved`; do not collapse the axes into a single enum
-- **Event name**: past-tense fact, snake_case — `placement_completed`, `retest_completed`, `session_abandoned`
-- **Event envelope SSOT**: `blueprint/03-features.md` § Event Contract; projections must use `event_type`, semver `event_version`, `trace_id`, `user_id_hash`, `schema_version`, and `privacy_class`.
-- **Event `privacy_class`**: `account | learning | assessment | audio | billing | system | derived`.
-- **Failure code**: uppercase namespace + reason — `EVAL_TIMEOUT`, `QUOTA_EXCEEDED`, `SYNC_CONFLICT`
-- **Contract version**: increment `event_version`/`failure_version` when schema or semantics change; preserve backward compatibility during migration
-- **Experiment/feature flag**: snake_case with owner, start/end date, cohort, and rollback condition
-
-## Notification convention
-
-- Every notification has `reason`, `priority`, `channel`, `quiet_hours`, `frequency_cap`, `unsubscribe_action`, and `expected_value`.
-- Do not send notifications merely to create opens/clicks; each must relate to a due item, result, goal, or comeback action.
-- Do not use guilt ("you're falling behind", "you'll lose your streak") or false scarcity.
-
-## Performance and cost convention
-
-- Every AI-backed interaction defines a latency target, timeout, retry limit, fallback, and cost budget.
-- Prefer cache, batch, precompute, and smaller models; use larger models only when risk/value justifies them.
-- Display waiting and delayed-result states honestly; do not block an entire journey because of one AI call.
-- Quality regression and cost regression are both release blockers when committed thresholds are exceeded.
-
-## Runtime contract convention
-
-- P0 backend jobs use Redis Streams consumer groups; changing queue technology requires a Decision Artifact plus migration/exit exercise and must not be a silent refactor.
-- An HTTP mutation requires `Idempotency-Key` unless it is read-only or the contract explicitly documents an exclusion.
-- APIs return correlation IDs, versioned error envelopes, and `Retry-After` when the client can retry.
-- Cache key/TTL/invalidation/revalidation behavior is defined in a Cache Contract; semantics must not exist only as hard-coded implementation behavior.
-- Worker/job contracts define producer, consumer, payload classification, retry/DLQ/replay, concurrency, cancellation, and idempotent effect.
-- Request/response and telemetry must not contain raw essays, recordings, provider payloads, or hidden reasoning outside the approved data scope.
-
-## Blueprint change control
-
-| Change | Record in | Minimum approval | Required impact |
-|---|---|---|---|
-| Change invariant, scope, or role boundary | Blueprint + ADR when multiple domains are affected | Founder | Review affected Artifacts/roadmap |
-| Add/change Capability ID | `03-features.md` | Founder | Update dependency, event, quality/cost profile |
-| Change runtime state/event/failure semantics | Blueprint + engineering contract | Founder + engineering review | Version/migration/rollback |
-| Change UI wording or design representation | Artifact Design | Product review | Capability identity remains unchanged |
-| Change implementation/provider | Artifact Decision/Contract | Engineering review | Quality/cost regression gate |
+result_validity:
+  accepted | limited_evidence | insufficient_evidence | invalid | integrity_review
+```
 
 Rules:
 
-- Do not edit the Blueprint merely to reflect temporary implementation details.
-- A published Capability ID must not change meaning; semantic replacement requires a new capability or a deprecated capability with migration.
-- An `approved` Artifact affected by a Blueprint change returns to `review` before further use.
-- Every change with privacy, quality, or legal impact references the appropriate decision/evidence.
+- do not reintroduce `low_confidence` or `quality_status` as persisted workflow state;
+- raw model/provider confidence is internal telemetry unless separately calibrated for a governed interpretation;
+- an aggregate UI may have `none/not_started`, but that must not be injected into persisted entity enums merely for presentation convenience;
+- each domain owns its own state axes; do not collapse target feasibility, operation lifecycle, result validity, content lifecycle and learner progress into one universal state enum.
+
+### Target and recommendation vocabulary
+
+- target is `TargetProfile`, not one universal scalar `target_band`;
+- feasibility: `insufficient_evidence | on_track | at_risk | current_constraints_insufficient | target_met`;
+- diagnosis cause: `english_foundation | ielts_technique | integrated_performance | mixed | evidence_needed`;
+- missing evidence is never a synonym for weakness;
+- `on_track` is not a success probability or guarantee;
+- recommendations use minimum sufficient challenge and may return `content_gap` rather than harder/unrelated content.
+
+## 7. Notification convention
+
+Every notification has a governed reason, priority, channel, quiet-hours behavior, frequency cap, unsubscribe path and expected learner value.
+
+- send only for a useful due/result/goal/comeback state;
+- no guilt, streak-loss threat or false scarcity;
+- notification open/click is not learner-outcome evidence;
+- notifications do not override Today/planner semantics.
+
+## 8. Performance and cost convention
+
+For every inference-backed interaction, define:
+
+- latency/deadline behavior;
+- retry ownership and bound;
+- safe fallback/degraded state;
+- cost attribution;
+- quality floor and escalation policy.
+
+Rules:
+
+- deterministic rules/library/SQL/precomputed content precede model inference when sufficient;
+- stronger/more expensive routes are bounded escalation, not the default status symbol;
+- reusable content/explanations may be cached/precomputed only when freshness/invalidation semantics are safe;
+- cheaper is not better if the required quality floor fails;
+- optimize cost per verified improvement where the capability claims learning outcome, not only cost/request.
+
+## 9. Runtime convention
+
+Canonical runtime topology is owned by `artifacts/engineering/runtime-contract.yaml` and sourcing decisions. This Blueprint does not require Redis, Kafka, a standalone worker service, Go, Python or any other topology by default.
+
+Rules:
+
+- durable mutations require idempotency unless the canonical API explicitly documents an exclusion;
+- accepted learner work is preserved before optional downstream inference/retry;
+- retry has one owning layer, bounded attempts/deadline and idempotent effect;
+- queue/cache/background execution mechanisms are implementation choices only when a measured need and owned contract justify them;
+- cache is never a source of semantic truth;
+- client/browser state never becomes the only canonical copy after server acknowledgement;
+- internal execution uses minimum function/object/data scope, never a generic model/service super-role;
+- provider errors, trace IDs and implementation details do not replace learner-safe recovery behavior;
+- request/response/telemetry boundaries follow canonical API/privacy contracts rather than ad-hoc provider schemas.
+
+## 10. Blueprint change control
+
+| Change | Record in | Minimum review | Required impact |
+|---|---|---|---|
+| Product invariant, scope or semantic owner | owning Blueprint + ADR when genuinely cross-domain | founder/product | review affected contracts/roadmap |
+| Capability ID/meaning | `03-features.md` | founder/product | update profiles/dependencies/events as needed |
+| Learner journey/navigation invariant | `04-experience.md` | product | update affected vertical slices/acceptance |
+| Content eligibility/coverage semantics | `05-content.md` | product/content | update planner/publish/rights controls |
+| Engine/evidence algorithm boundary | `06-engines.md` | product/engineering | update runtime/benchmark contracts |
+| Shared UI/runtime convention | `07-conventions.md` | product/engineering | update affected implementation contracts |
+| Delivery phase | `08-roadmap.md` | founder/product | update build/readiness projections |
+
+Rules:
+
+- do not edit Blueprint merely to mirror temporary provider/framework details;
+- semantic replacement requires migration/deprecation rather than silently changing a published identifier;
+- an affected approved artifact returns to review before reuse when its owned semantics materially change;
+- privacy, quality, legal and release implications reference their canonical operational owners;
+- repository verification is required before claiming exact-head convergence.
 
 ## Cross-references
 
-- Sole-evaluator principle: `01-product.md`
-- Complete capability IDs: `03-features.md`
-- Engine (calibration, model): `06-engines.md`
+- Product promise/outcomes: `01-product.md`
+- Architecture boundaries: `02-architecture.md`
+- Capability identities: `03-features.md`
+- Learner shell/journeys: `04-experience.md`
+- Content/coverage: `05-content.md`
+- Learning engines: `06-engines.md`
+- Delivery phases: `08-roadmap.md`
+- Runtime: `artifacts/engineering/runtime-contract.yaml`
+- P0 usability/recovery: `artifacts/experience/critical-path-usability-contract.yaml`
