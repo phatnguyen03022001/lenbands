@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Shared Bash policy while application source mutation is locked.
-# Runtime implementation commands are intentionally empty: selecting pnpm, Go, Python,
-# sqlc, a worker runtime, or any other build tool before sourcing + family authorization
-# would silently freeze implementation topology.
+# Shared Bash policy while application source mutation is locked by default.
+# The command family below is reviewed but remains unusable until guard-tool-use.rb
+# verifies external exact-baseline authorization plus repository family eligibility.
 module LenbandsRuntimeCommandPolicy
   READ_ONLY_COMMANDS = [
     /\Aruby --version\z/,
@@ -12,8 +11,16 @@ module LenbandsRuntimeCommandPolicy
     /\Agit diff(?: --check| --stat| --name-only)?\z/
   ].freeze
 
-  IMPLEMENTATION_COMMANDS = [].freeze
-  COMMANDS = READ_ONLY_COMMANDS.freeze
+  IMPLEMENTATION_COMMANDS = [
+    /\Apnpm --dir apps\/web install\z/,
+    /\Apnpm --dir apps\/web install --frozen-lockfile\z/,
+    /\Apnpm --dir apps\/web run lint\z/,
+    /\Apnpm --dir apps\/web run typecheck\z/,
+    /\Apnpm --dir apps\/web run test\z/,
+    /\Apnpm --dir apps\/web run build\z/
+  ].freeze
+
+  COMMANDS = (READ_ONLY_COMMANDS + IMPLEMENTATION_COMMANDS).freeze
 
   module_function
 
@@ -21,7 +28,7 @@ module LenbandsRuntimeCommandPolicy
     COMMANDS.any? { |pattern| command.match?(pattern) }
   end
 
-  def implementation?(_command)
-    false
+  def implementation?(command)
+    IMPLEMENTATION_COMMANDS.any? { |pattern| command.match?(pattern) }
   end
 end
