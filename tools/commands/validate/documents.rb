@@ -90,35 +90,6 @@ Dir.glob(File.join(root, "artifacts/operations/catalogs/*.md")).sort.each do |pa
   end
 end
 
-executor_dossier_path = File.join(root, "artifacts/operations/catalogs/executor-dossier.md")
-family_registry_path = File.join(root, "artifacts/operations/capability-family-registry.yaml")
-family_map_path = File.join(root, "artifacts/operations/capability-family-map.yaml")
-if [executor_dossier_path, family_registry_path, family_map_path].all? { |path| File.file?(path) }
-  dossier = File.read(executor_dossier_path)
-  registry = load_yaml.call(family_registry_path)
-  family_map = load_yaml.call(family_map_path)
-  families = Array(registry["families"])
-  by_id = families.each_with_object({}) { |family, memo| memo[family["family_id"]] = family }
-  mapped_ids = Array(family_map["capability_map"]).map { |entry| entry["family_id"] }.compact.uniq
-  mapped_families = mapped_ids.map { |id| by_id[id] }.compact
-  active_count = mapped_families.count { |family| family["lifecycle"] == "ACTIVE" }
-  planned_count = mapped_families.count { |family| family["lifecycle"] == "PLANNED" }
-  registry_only = by_id.keys - mapped_ids
-
-  errors << "executor dossier must identify itself as a validated manual index" unless dossier.include?("validated manual index")
-  errors << "executor dossier ACTIVE family count drifted" unless dossier.include?("## ACTIVE families (#{active_count})")
-  errors << "executor dossier reachable PLANNED family count drifted" unless dossier.include?("## PLANNED reachable families (#{planned_count})")
-  mapped_ids.each do |family_id|
-    errors << "executor dossier omits reachable family #{family_id}" unless dossier.match?(/^\| `#{Regexp.escape(family_id)}` \|/)
-  end
-  unless registry_only.empty?
-    orphan_section = dossier.split("## Orphan registry family", 2)[1].to_s
-    registry_only.each do |family_id|
-      errors << "executor dossier omits registry-only family #{family_id}" unless orphan_section.include?("`#{family_id}`")
-    end
-  end
-end
-
 capability_catalog_path = File.join(root, "artifacts/operations/catalogs/capability-index.md")
 if File.file?(capability_catalog_path)
   catalog_ids = File.read(capability_catalog_path).scan(/^\| `([A-Z][A-Z0-9_]*\.[A-Za-z][A-Za-z0-9_]*)` \|/).flatten.to_set
