@@ -1,10 +1,17 @@
 type: candidate-change-governance
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, GOVERNANCE.AuditTrail]
-purpose: exact-candidate-proof-and-external-authorization-contract
+purpose: exact-candidate-dev-integration-proof-and-external-authorization-contract
 consumed_by: [engineering, operations, validators, founder]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-21
+change_log:
+  - version: 1.1.0
+    date: 2026-08-21
+    changes:
+      - Defined dev as long-lived non-release integration state.
+      - Bound candidate identity to exact commit/tree rather than branch name.
+      - Made missing GitHub host enforcement an explicit non-self-attestable boundary.
