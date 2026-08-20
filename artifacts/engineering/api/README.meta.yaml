@@ -1,10 +1,17 @@
 type: api-governance
 status: review
-version: 1.1.0
+version: 1.2.0
 owner: engineering + security
 representation: markdown
-derived_from: [IDENTITY.Auth, OPS.ReleaseGate, OPS.Observability]
-purpose: govern-canonical-api-composition-resolved-codegen-versioning-errors-idempotency-and-migration
+derived_from: [IDENTITY.Auth, GOAL.Target, OPS.ReleaseGate, OPS.Observability]
+purpose: govern-canonical-api-composition-resolved-codegen-versioning-session-security-request-limits-target-scope-and-retirement
 consumed_by: [engineering, operations, tooling]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-21
+change_log:
+  - version: 1.2.0
+    date: 2026-08-21
+    changes:
+      - Replaced stale migration-alias wording with zero-live-alias retirement semantics.
+      - Added browser-session, request-limit and safe-rendering boundaries.
+      - Bound target_met to all declared target requirements and prohibited Writing-only overall attainment.
