@@ -1,4 +1,4 @@
-schema_version: 1.4.0
+schema_version: 1.5.0
 status: review
 source_of_truth: true
 contract_id: web-api-type-system
@@ -80,6 +80,15 @@ transport_policy:
     cookie_authenticated_mutation_requires_origin_or_csrf_defense: true
     expired_or_revoked_session_reauthorizes_before_resume: true
     recent_auth_is_server_or_provider_verified_not_client_boolean: true
+    recent_auth_required_operations:
+      - requestMyDeletion
+      - requestMyExport
+      - publishContentItem
+      - retireContentItem
+      - setUserStatus
+      - putSystemConfig
+      - evaluateReleaseGate
+    recent_auth_rule: role_object_entitlement_and_state_authorization_are_rechecked_after_step_up_before_side_effect
   browser_rendering:
     learner_colab_provider_and_generated_text_are_untrusted_data: true
     raw_html_rendering_default: prohibited
@@ -106,6 +115,15 @@ result_validity_policy:
   rule: result_validity_is_a_success_payload_domain_field_not_a_public_failure_code
   learner_uncertainty_rule: raw_model_confidence_is_not_exposed_as_correctness_probability_without_calibration
 
+target_feasibility_policy:
+  values: [insufficient_evidence, on_track, at_risk, current_constraints_insufficient, target_met]
+  target_met_requires_all_declared_target_requirements: true
+  narrower_per_skill_satisfaction_must_remain_explicitly_scoped: true
+  missing_required_skill_or_construct_evidence_cannot_be_coerced_to_target_met: true
+  p0_writing_only_overall_or_four_skill_target_met: prohibited
+  official_exam_attainment_inference_from_target_met: prohibited
+  rule: target_met_is_a_scoped_readiness_planning_state_not_an_official_score_or_exam_guarantee
+
 compiler_rules:
   - schema_names_resolve_before_aliases
   - array_angle_syntax_is_recursive
@@ -122,3 +140,5 @@ compiler_rules:
   - public_failure_codes_resolve_to_failure_taxonomy_public_projection
   - request_limit_profiles_are_security_contracts_even_when_a_field_uses_a_primitive_schema_token
   - untrusted_renderable_content_never_implies_html_trust
+  - recent_auth_operation_registry_is_machine_readable_and_client_cannot_self_assert_step_up
+  - target_met_scope_policy_is_machine_readable_and_cannot_expand_narrow_evidence_into_full_ielts_attainment
