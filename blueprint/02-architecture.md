@@ -1,6 +1,6 @@
 # 02 — System Architecture
 
-This document owns LenBands system boundaries, domain map, architecture invariants and runtime-state model. Provider selection belongs to `artifacts/business/decisions/platform-sourcing.md`; HTTP operations belong to the canonical OpenAPI contract.
+This document owns LenBands system boundaries, domain map, architecture invariants, runtime-state model, and the deterministic-versus-intelligence boundary. Provider selection belongs to `artifacts/business/decisions/platform-sourcing.md`; HTTP operations belong to the canonical OpenAPI contract.
 
 ## Domain map
 
@@ -45,7 +45,7 @@ Next.js web + same-origin application API
    +--> managed identity
    +--> managed Postgres / object storage
    +--> durable managed workflow for long-running jobs
-   +--> governed model-provider gateway/adapter
+   +--> governed model/speech provider adapters
    +--> managed email/billing/analytics adapters
 ```
 
@@ -56,9 +56,10 @@ The provider-neutral design rule is:
 LenBands builds the parts that form differentiated product IP:
 
 - IELTS taxonomy/rubric/evidence semantics;
+- target-profile semantics;
 - content and assessment versioning;
-- learner evidence/transfer/retention model;
-- adaptive/recommendation policy;
+- learner evidence/uncertainty/transfer/retention model;
+- remediation and recommendation policy;
 - evaluation normalization, score scope and benchmark policy;
 - thin application orchestration;
 - product authorization/RLS policy;
@@ -85,6 +86,7 @@ Every durable side effect is idempotent because workflows, provider callbacks an
 - Row-level/database policies provide defense in depth; application authorization remains required for sensitive operations.
 - No Redis, Kafka, vector database or secondary search system exists until measured requirements justify one.
 - Search begins with Postgres-native search.
+- A model provider response, embedding index, cache entry or workflow payload is never canonical learner state.
 
 ### Identity and access
 
@@ -96,11 +98,13 @@ Security identity is intentionally smaller:
 - `learner`;
 - `colab`;
 - `admin`;
-- internal service principal for provider/workflow callbacks.
+- function-scoped internal service principals for callbacks/workflows/jobs.
 
 Premium Learner is a learner with a `premium` entitlement, not a separate role.
 
 Colab and Admin are separate duties. Neither is an implicit super-role over learner assessment content. Admin does not manually override learner scores; Colab does not score learner work.
+
+A production implementation must not treat one generic `service` credential as blanket authorization. Evaluation workers, billing/webhook handlers, content jobs and workflow callbacks receive the minimum function/data scope required for their contract even when the underlying identity mechanism is shared.
 
 Canonical details live in `artifacts/engineering/api/access-control.md`.
 
@@ -114,6 +118,65 @@ Legacy split OpenAPI files are migration-only and cannot receive new authority. 
 
 Every API operation declares persona, role, entitlement, data class and idempotency policy.
 
+## Deterministic domain core and intelligence boundary
+
+LenBands is **deterministic-first**, not model-first.
+
+A capability must use the cheapest and most testable mechanism that satisfies its correctness/quality contract. Model/speech inference is permitted only for the portion that requires semantic judgment, open-ended language generation, transcription, or acoustic analysis that deterministic mechanisms cannot adequately provide.
+
+Default decision ladder:
+
+```text
+Typed rule / formula / state machine / answer key / SQL
+  ↓ insufficient for required outcome
+Precomputed or governed reusable knowledge
+  ↓ insufficient
+Bounded small/specialist model
+  ↓ insufficient confidence or high-risk judgment
+Benchmark-approved stronger/specialist model
+  ↓ unavailable / invalid
+Safe degraded state or durable retry
+```
+
+Deterministic/domain-owned by default:
+
+- authorization, RLS policy, entitlement and billing reconciliation;
+- IELTS score arithmetic and score-scope rules;
+- Listening/Reading answer-key scoring and answer normalization where an objective key exists;
+- word count, timers, autosave, idempotency and runtime state;
+- FSRS scheduling;
+- item exposure tracking and evidence-admission rules;
+- readiness policy and the conditions under which evidence may update readiness;
+- P0 Next Best Action candidate generation/ranking when explicit rules satisfy the contract;
+- notification quiet hours/frequency caps;
+- content schema validation, controlled vocabulary, lifecycle and publish gates;
+- analytics aggregation, cost accounting and quota enforcement.
+
+Model/speech-assisted only where justified:
+
+- Writing rubric judgment that cannot be derived deterministically;
+- Speaking discourse/rubric judgment;
+- speech-to-text and specialist pronunciation/acoustic analysis;
+- contextual tutor/open-ended explanations when reusable content is insufficient;
+- bounded rewrite/generation;
+- offline auto-tag suggestions subject to content review;
+- natural-language rendering of already-derived facts when templating is insufficient.
+
+### Authority rule
+
+A model/speech adapter may produce a typed **observation**, **feature**, **candidate judgment**, or **generated explanation**. The owning domain contract decides whether that output is valid, admissible evidence, and allowed to change learner state.
+
+```text
+provider output
+  -> schema validation
+  -> provenance/version binding
+  -> domain evidence/quality validation
+  -> accepted observation/result OR rejected/limited state
+  -> governed learner-state transition
+```
+
+A prompt, agent, provider, or raw confidence value may never directly authorize access, publish content, grant entitlement, define curriculum truth, or declare readiness/mastery.
+
 ## Evaluation boundary
 
 Evaluation is a high-risk product domain.
@@ -121,22 +184,26 @@ Evaluation is a high-risk product domain.
 ```text
 submission snapshot
   -> durable workflow
+  -> deterministic pre-check/features
   -> scorer route version
-  -> model/provider adapter
+  -> model/speech provider adapter(s)
   -> structured output normalization
   -> rubric/evidence validation
-  -> quality state
+  -> quality/evidence state
   -> immutable evaluation result
 ```
 
 A model-provider outage cannot silently change score semantics. Learner-visible scoring may fall back only to a model/provider combination benchmark-approved for the same scorer route version. Otherwise the evaluation remains delayed/unavailable.
+
+Writing/Speaking/Pronunciation should be **staged pipelines** where the construct benefits from separable evidence. One opaque model call must not collapse distinguishable evidence such as transcript, timing/fluency features, acoustic pronunciation evidence, rubric judgment and result validation when those distinctions materially affect auditability or quality.
 
 The following identities never collapse:
 
 - official IELTS score;
 - LenBands exam-simulation estimate;
 - partial/task diagnostic estimate;
-- learner-model mastery.
+- criterion/micro-skill evidence;
+- learner-model mastery/readiness state.
 
 ## Learning evidence boundary
 
@@ -154,6 +221,8 @@ Diagnose
 
 Repeated/revealed items may support learning but do not create independent transfer evidence. FSRS schedules review; it is not a universal mastery model.
 
+A recommendation engine cannot convert model-generated narrative into mastery. Mastery/readiness updates require admissible evidence under the learner-evidence policy.
+
 ## Runtime state model
 
 Learner runtime state is multi-axis, not one giant status enum:
@@ -161,12 +230,21 @@ Learner runtime state is multi-axis, not one giant status enum:
 ```text
 Lifecycle:  new -> diagnosed -> active <-> inactive -> reactivated
 Session:    none -> active <-> paused -> completed | abandoned
-Evaluation: none -> submitted -> processing -> scored | low_confidence |
-            insufficient_evidence | invalid | failed
+Operation:  none -> accepted -> processing -> succeeded | delayed |
+            unavailable | failed | cancelled
 Goal:       no_goal -> goal_set -> on_track | at_risk -> achieved | expired
 ```
 
-Skill/evidence state is tracked separately per construct and includes uncertainty, evidence independence, transfer and maintenance where applicable.
+Evaluation result validity is separate from operation state:
+
+```text
+Result validity:
+  accepted | limited_evidence | insufficient_evidence | invalid | integrity_review
+```
+
+This separation prevents transport/processing state from being confused with whether a result is trustworthy enough for readiness/history.
+
+Skill/evidence state is tracked separately per construct and includes uncertainty, evidence independence, exposure, transfer and maintenance where applicable.
 
 ## Reliability invariants
 
@@ -174,10 +252,12 @@ Skill/evidence state is tracked separately per construct and includes uncertaint
 - mutations with durable side effects are idempotent;
 - external callbacks and workflows are treated as replayable;
 - task/content versions referenced by assessment evidence are immutable;
-- cache/analytics/workflow state never authorizes access or replaces canonical state;
+- cache/analytics/workflow/provider state never authorizes access or replaces canonical state;
 - raw learner assessment content never enters general logs or analytics;
 - every provider boundary has timeout, schema validation, minimum-data transfer, cost attribution and user-safe degradation;
-- provider names never enter capability IDs, domain event names or score meaning.
+- provider names never enter capability IDs, domain event names or score meaning;
+- model context is minimized to the task plus the smallest relevant learner-state snapshot required for the operation;
+- retry happens in one owning layer only and cannot duplicate learner-visible effects or charges.
 
 ## Build-versus-buy change gate
 
@@ -189,7 +269,20 @@ A new custom runtime/service/platform component requires evidence for at least o
 4. the capability has become demonstrably differentiating IP;
 5. provider lock-in cannot be contained by the existing adapter/export contract.
 
-“More control”, anticipated scale, or developer preference alone is not sufficient.
+“More control”, anticipated scale, developer preference, or “AI needs its own service” alone is not sufficient.
+
+## Cost architecture invariants
+
+Cost is optimized against learner outcome and required quality, not raw request count.
+
+- compute deterministic facts once and reuse them;
+- precompute reusable curriculum/explanation/mapping outputs when versionable;
+- batch noninteractive model work;
+- escalate models only when uncertainty/risk justifies the marginal cost;
+- degrade optional feedback depth before evaluation integrity;
+- keep context bounded and privacy-minimized;
+- measure `cost_per_evaluation`, `cost_per_active_learner`, and `cost_per_verified_improvement` together with quality/learning outcomes;
+- a cheaper route that reduces verified learning value or scoring quality is not an optimization.
 
 ## Canonical cross-references
 
