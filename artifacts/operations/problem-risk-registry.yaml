@@ -1,4 +1,4 @@
-schema_version: 1.2.0
+schema_version: 1.3.0
 status: review
 source_of_truth: true
 contract_id: problem-risk-coverage
@@ -686,6 +686,111 @@ risks:
     canonical_contracts: [blueprint/04-experience.md, artifacts/engineering/contracts/daily-action-contract.md, artifacts/experience/specs/vertical-slices/daily-action.md]
     required_control: 'Primary learner surfaces expose one action, one reason, one verification statement and at most one lighter alternative; internal candidates remain secondary.'
     acceptance_test: 'Critical-path usability shows learners can identify the next action and why without browsing parallel recommendation, queue, insight or path surfaces.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-044
+    category: identity_authorization
+    title: Browser session credential theft CSRF or stale authentication mutates private state
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: security + engineering
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/access-control.md, artifacts/engineering/api/type-system.yaml, artifacts/experience/critical-path-usability-contract.yaml]
+    required_control: 'Keep persistent raw credentials out of application-controlled browser storage, defend cookie mutations against CSRF/origin abuse, rotate/revoke sessions and re-authorize after expiry.'
+    acceptance_test: 'Credential leakage checks, session expiry/revocation, selected CSRF/origin negative cases and legitimate re-auth/resume controls pass on the release candidate.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-045
+    category: identity_authorization
+    title: Destructive or governance operation relies on stale ordinary authentication
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-06]
+    owner: security + engineering + operations
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/access-control.md, artifacts/operations/bops/threat-model.md]
+    required_control: 'Require provider/server-verified recent-auth or step-up for deletion, sensitive export and activated destructive/governance mutations, then re-run role/object authorization.'
+    acceptance_test: 'Stale or missing recent-auth causes no side effect; a legitimate fresh challenge succeeds without widening role or object scope.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-046
+    category: security_abuse_fraud
+    title: Stored learner Colab provider or generated content executes browser script or unsafe URL
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-03, P0-04, P0-05, P0-06]
+    owner: security + engineering + experience
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/type-system.yaml, artifacts/experience/critical-path-usability-contract.yaml, artifacts/operations/bops/threat-model.md]
+    required_control: 'Treat all renderable content as untrusted, prohibit raw HTML by default, sanitize allowed rich text/Markdown, reject script-capable URLs and ship CSP.'
+    acceptance_test: 'Stored-XSS and unsafe-URL fixtures render inert while legitimate IELTS text/formatting remains usable; CSP smoke check passes.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-047
+    category: security_abuse_fraud
+    title: Oversized or deeply nested valid-looking payload exhausts parser storage inference or cost budget
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: security + engineering + operations
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/type-system.yaml, artifacts/operations/bops/threat-model.md]
+    required_control: 'Enforce transport byte, parser depth/collection and semantic text/content ceilings before storage/inference/domain side effects; reject rather than silently truncate.'
+    acceptance_test: 'Pathological byte/depth/collection/text cases fail before side effects while legitimate IELTS-sized requests remain accepted.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-048
+    category: measurement_psychometrics
+    title: Narrow Writing or incomplete skill evidence is serialized as full target_met attainment
+    phase: P0
+    severity: critical
+    affected_families: [P0-02, P0-03, P0-06]
+    owner: product + evaluation + engineering
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/README.md, artifacts/engineering/contracts/placement-diagnosis-contract.md, artifacts/operations/build-readiness-matrix.md]
+    required_control: 'target_met requires admitted readiness evidence for every requirement declared by TargetProfile; narrower per-skill satisfaction remains explicitly scoped.'
+    acceptance_test: 'Writing-only/incomplete coverage cannot produce overall or four-skill target_met, while a future fully covered target can use the state without implying an official exam score.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-049
+    category: documentation_agent_integrity
+    title: External authorization environment bypasses family eligibility or implementation-blocking risk
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: engineering + operations
+    status: covered
+    canonical_contracts: [artifacts/operations/agent-trust-policy.yaml, artifacts/operations/implementation-eligibility.yaml, .claude/hooks/guard-tool-use.rb]
+    required_control: 'Treat external refs as necessary but insufficient; require exact HEAD/scope, approved-or-canonical current family contracts and no unresolved implementation-blocking risk before source mutation/build commands.'
+    acceptance_test: 'Fake external refs at exact HEAD still fail while family contracts remain review, and registered implementation commands remain unavailable without the complete bounded authorization.'
+    implementation_blocking: false
+    release_evidence_required: false
+    public_scale_control_required: false
+
+  - risk_id: RISK-050
+    category: documentation_agent_integrity
+    title: Unprotected GitHub refs allow host-side writes to bypass repository and local enforcement
+    phase: OPS
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: founder + operations
+    status: open
+    canonical_contracts: [artifacts/operations/hosting-control-state.yaml, artifacts/operations/change-governance.yaml, artifacts/operations/agent-trust-policy.yaml]
+    required_control: 'Enable live GitHub branch/ruleset enforcement for required same-head verification and force-push/deletion blocking before claiming host-enforced promotion controls.'
+    acceptance_test: 'Live GitHub read proves required verification enforcement and ref protection; repository files alone never satisfy this risk.'
     implementation_blocking: false
     release_evidence_required: true
     public_scale_control_required: false
