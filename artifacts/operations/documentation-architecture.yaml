@@ -1,6 +1,6 @@
 type: documentation-architecture
 status: review
-version: 1.2.0
+version: 1.3.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability]
@@ -14,9 +14,10 @@ principles:
   - indexes navigate; they do not restate contracts
   - risk registry classifies coverage and blockers; referenced canonical contracts own controls
   - generated files are projections, never authorities
-  - migration aliases expire; parallel authorities do not
+  - zero_live_legacy_aliases_in_working_tree
   - git_history_is_archive_for_retired_review_migration_and_execution_snapshots
-  - rename_or_delete_only_after_inbound_executable_and_canonical_consumers_are_resolved
+  - physical_retirement_follows_consumer_migration_and_validator_update
+  - do_not_keep_dead_pointers_only_for_historical_traceability
 
 filename_policy:
   mutable_canonical: lower-kebab-case
@@ -27,6 +28,7 @@ filename_policy:
 
 metadata_policy:
   purpose: lifecycle_ownership_provenance_and_small_change_history_only
+  maximum_sidecar_bytes: 32768
   prohibited_payloads:
     - repository_wide_source_inventory
     - bulk_execution_trace
@@ -43,32 +45,31 @@ folder_policy:
   artifacts/operations: quality_security_release_evidence_and_runtime_operations
   knowledge-assets: learner_serving_content
 
-active_migrations:
-  - from: artifacts/operations/bops-contract-pack.md
-    to: artifacts/operations/bops/contract.yaml
-    mode: normalize
-    reason: separate machine controls from prose threat analysis
-  - from: artifacts/business/decisions/build-buy-register.md
-    to: artifacts/business/decisions/platform-sourcing.md
-    mode: supersede
-    reason: sourcing decision should be capability/platform oriented
-  - from: artifacts/business/decisions/managed-platform-baseline-decision.md
-    to: artifacts/business/decisions/platform-sourcing.md
-    mode: supersede
-    reason: one sourcing authority
-  - from: artifacts/engineering/technology-stack-recommendations.md
-    to: artifacts/business/decisions/platform-sourcing.md
-    mode: reduce
-    reason: avoid library catalog becoming architecture authority
+active_migrations: []
 
 completed_migrations:
+  archive: git_history
   retired_from_working_tree:
     - artifacts/engineering/contracts/openapi.yaml
     - artifacts/engineering/contracts/writing-task-2/openapi.yaml
     - artifacts/engineering/contracts/openapi/
     - artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md
-  canonical: artifacts/engineering/api/openapi.yaml
-  archive: git_history
+    - artifacts/engineering/contracts/runtime/async-job-worker-contract.md
+    - artifacts/engineering/contracts/runtime/cache-contract.md
+    - artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md
+    - artifacts/engineering/contracts/runtime/cloud-topology-contract.md
+    - artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md
+    - artifacts/engineering/contracts/runtime/lifecycle-contract.md
+    - artifacts/engineering/contracts/runtime/auth-identity-contract.md
+    - artifacts/engineering/contracts/runtime/sre-delivery-security-contract.md
+    - artifacts/operations/bops-contract-pack.md
+    - artifacts/business/decisions/build-buy-register.md
+    - artifacts/business/decisions/managed-platform-baseline-decision.md
+    - artifacts/engineering/technology-stack-recommendations.md
+    - artifacts/engineering/contracts/learning-ontology-proposal.md
+    - artifacts/engineering/contracts/learning-measurement-traceability-proposal.md
+    - artifacts/engineering/contracts/phase-4-target-learning-architecture-proposal.md
+  current_authority_entrypoint: DOCS.yaml
 
 blueprint_display_names:
   blueprint/01-product.md: product
@@ -81,9 +82,9 @@ blueprint_display_names:
   blueprint/08-roadmap.md: roadmap
 
 note: >
-  Numbered Blueprint filenames remain physical paths because they still have extensive validator and artifact
-  references. DOCS.yaml supplies stable semantic document IDs. Physical rename is permitted only when current
-  consumers are migrated and validation proves no unresolved executable/canonical reference.
+  Numbered Blueprint filenames remain physical paths because current validators and artifacts reference them.
+  DOCS.yaml supplies stable semantic document IDs. A physical rename is permitted only after current consumers
+  migrate and exact-head validation proves no executable/canonical inbound reference remains.
 
 noise_budget:
   maximum_canonical_docs_per_semantic_concern: 1
@@ -93,7 +94,9 @@ noise_budget:
   maximum_web_authorization_roles: 3
   web_personas: 5
   risk_registry_policy: one_registry_only_controls_remain_in_existing_owners
+  legacy_alias_policy: zero_live_aliases_git_history_is_archive
   manual_snapshot_policy: retire_when_current_registry_or_generator_supersedes_it
+  learner_path_policy: internal_capability_depth_must_not_create_parallel_primary_learner_navigation
   rule: a new document needs a new semantic owner or executable/evidence boundary; otherwise update the existing owner
 
 retirement_gate:
@@ -105,8 +108,9 @@ retirement_gate:
 
 migration_gate:
   - DOCS.yaml resolves every active canonical authority
-  - remaining legacy paths are explicitly transitional or historical
-  - validators consume canonical paths before a legacy path is removed
-  - risk registry references canonical controls instead of duplicating their semantics
-  - no unresolved canonical_or_executable inbound references before physical rename/delete
-  - same-head repository verify and trust-boundary gate pass before readiness claims
+  - DOCS.yaml_legacy_aliases_is_empty
+  - validators_consume_current_canonical_paths
+  - risk_registry_references_canonical_controls_instead_of_duplicating_semantics
+  - no_unresolved_canonical_or_executable_inbound_references_before_physical_rename_or_delete
+  - retired_path_reintroduction_fails_validation_when_it_would_recreate_shadow_authority
+  - same_head_repository_verify_and_trust_boundary_gate_pass_before_readiness_claims
