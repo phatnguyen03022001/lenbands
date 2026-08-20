@@ -1,16 +1,24 @@
-schema_version: 1.0.0
+schema_version: 1.1.0
 status: review
 source_of_truth: true
 contract_id: candidate-change-governance
 owner: founder + engineering + operations
-purpose: govern protected candidate construction verification authorization and main-ref update without self-attestation
+purpose: govern protected candidate construction verification authorization dev integration and main-ref update without self-attestation
 
 change_model:
-  target_ref: refs/heads/main
+  release_authority_ref: refs/heads/main
+  development_integration_ref:
+    ref: refs/heads/dev
+    long_lived: true
+    authoritative_for_release: false
+    purpose: integrate reviewed documentation contract tooling and future bounded implementation changes before an exact candidate is promoted
+    direct_write_caveat: repository_and_local_hooks_cannot_prove_or_prevent_all_GitHub_host_writes_when_branch_protection_is_not_enforced
+    rule: dev_state_is_working_integration_state_not_external_approval_CI_or_release_evidence
   temporary_candidate_ref:
-    allowed_for_verification_only: true
+    allowed_for_isolated_verification: true
     authoritative: false
     must_be_deleted_after_disposition: true
+    optional_when_exact_dev_commit_is_the_candidate: true
   main_update:
     mode: fast_forward_only
     force_update: forbidden
@@ -44,6 +52,14 @@ candidate_declaration:
     - external_review_completed
   rule: candidate_tree_may_describe_itself_but_may_not_authorize_or_verify_itself
 
+candidate_selection:
+  allowed_sources: [exact_dev_commit, isolated_temporary_candidate_commit]
+  exact_sha_required: true
+  mutation_after_selection_invalidates_prior_proof: true
+  dirty_worktree_candidate: prohibited
+  branch_name_is_not_candidate_identity: true
+  rule: verification_and_authorization_bind_commit_and_tree_not_the_word_dev_or_main
+
 pre_ref_proof:
   exact_candidate_checkout_required: true
   exact_candidate_sha_assertion_required: true
@@ -68,6 +84,16 @@ external_authorization:
   candidate_mutation_invalidates_authorization: true
   repository_file_must_not_claim_authorization: true
 
+host_enforcement_boundary:
+  repository_policy_is_not_branch_protection: true
+  local_Claude_hooks_are_not_GitHub_write_enforcement: true
+  observed_host_state_owner: artifacts/operations/hosting-control-state.yaml
+  desired_before_main_promotion:
+    - required_same_head_verification_status
+    - block_force_push
+    - block_branch_deletion
+  rule: if_host_controls_are_absent_the_candidate_may_be_repository_valid_but_host_enforcement_must_be_reported_unverified_or_not_enforced
+
 post_ref_verification:
   required: true
   exact_main_sha_must_equal_authorized_candidate_sha: true
@@ -77,3 +103,4 @@ post_ref_verification:
 readiness_separation:
   repository_convergence_pass_does_not_imply_p0_readiness: true
   repository_convergence_pass_does_not_imply_production_readiness: true
+  dev_ahead_of_main_does_not_imply_candidate_authorized: true
