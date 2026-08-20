@@ -1,6 +1,6 @@
 type: web-api-schema-contract
 status: review
-version: 0.2.2
+version: 0.3.0
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
@@ -21,6 +21,10 @@ rules:
   - model_or_provider_identity_is_not_required_in_learner_facing_score_payloads
   - learner_target_is_a_target_profile_not_one_universal_band_value
   - learner_local_calendar_uses_persisted_iana_timezone
+  - target_feasibility_is_a_planning_state_not_an_exam_success_probability
+  - diagnosis_cause_separates_english_foundation_ielts_technique_integrated_performance_and_missing_evidence
+  - daily_plan_exposes_one_primary_action_and_server_keeps_candidate_ranking_internal
+  - recommendation_must_not_outpace_curriculum_or_independent_verification_coverage
   - optional_content_taxonomy_never_becomes_required_without_an_active_consumer_decision
   - learner_error_input_references_source_finding_and_never_accepts_client_authored_score_or_confidence_truth
   - retest_novelty_and_result_validity_are_server_owned_derived_fields
@@ -186,6 +190,22 @@ schemas:
       writing: "half_band_0_9|null"
       speaking: "half_band_0_9|null"
 
+  TargetFeasibility:
+    required: [state, blocker_codes, policy_version]
+    properties:
+      state: "insufficient_evidence|on_track|at_risk|current_constraints_insufficient|target_met"
+      blocker_codes: "array<string>"
+      policy_version: "string"
+      learner_copy: "string|null"
+
+  DiagnosisCause:
+    required: [cause_class, evidence_refs, affected_construct_refs]
+    properties:
+      cause_class: "english_foundation|ielts_technique|integrated_performance|mixed|evidence_needed"
+      evidence_refs: "array<string>"
+      affected_construct_refs: "array<string>"
+      intervention_family_ref: "string|null"
+
   LearnerGoalInput:
     required: [target_profile, daily_minutes]
     properties:
@@ -198,6 +218,7 @@ schemas:
       goal_id: "string"
       target_profile: "TargetProfile"
       daily_minutes: "integer_5_480"
+      target_feasibility: "TargetFeasibility|null"
       version: "integer"
 
   PlacementStart:
@@ -234,7 +255,7 @@ schemas:
       version: "integer"
 
   PlacementResult:
-    required: [result_id, attempt_id, score_label, score_scope, result_validity, calibration_status, termination_reason, evidence_coverage, configuration_version, policy_version, created_at]
+    required: [result_id, attempt_id, score_label, score_scope, result_validity, diagnosis_causes, target_feasibility, calibration_status, termination_reason, evidence_coverage, configuration_version, policy_version, created_at]
     properties:
       result_id: "string"
       attempt_id: "string"
@@ -243,6 +264,8 @@ schemas:
       result_validity: "accepted|limited_evidence|insufficient_evidence|invalid"
       current_band: "half_band_0_9|null"
       skill_estimates: "SkillEstimateMap"
+      diagnosis_causes: "array<DiagnosisCause>"
+      target_feasibility: "TargetFeasibility"
       calibration_status: "provisional|calibrated|unavailable"
       termination_reason: "precision_and_coverage_met|max_burden_reached|learner_stopped|insufficient_evidence|invalid_configuration"
       evidence_coverage: "EvidenceCoverage"
@@ -272,25 +295,29 @@ schemas:
       energy: "low|normal|high|skipped"
 
   DailyPlan:
-    required: [plan_id, plan_version, evidence_state_version, target_profile_version, plan_state, actions, generated_at, expires_at]
+    required: [plan_id, plan_version, evidence_state_version, target_profile_version, target_feasibility_state, plan_state, primary_action_id, actions, generated_at, expires_at]
     properties:
       plan_id: "string"
       plan_version: "string"
       evidence_state_version: "string"
       target_profile_version: "integer"
-      plan_state: "ready|fallback_offered|no_plan|plan_stale|plan_unavailable|plan_replaced"
+      target_feasibility_state: "insufficient_evidence|on_track|at_risk|current_constraints_insufficient|target_met|null"
+      plan_state: "ready|fallback_offered|no_plan|plan_stale|plan_unavailable|plan_replaced|content_gap"
+      primary_action_id: "string|null"
       actions: "array<DailyAction>"
       generated_at: "timestamp"
       expires_at: "timestamp"
 
   DailyAction:
-    required: [action_id, capability_id, intent, reason_code, source_evidence_refs, estimated_minutes]
+    required: [action_id, capability_id, intent, reason_code, diagnosis_cause, source_evidence_refs, verification_rule_ref, estimated_minutes]
     properties:
       action_id: "string"
       capability_id: "string"
       intent: "CONTINUE|REVIEW_DUE|RETEST|REMEDIATE|COLLECT_EVIDENCE|GOAL_COVERAGE|FALLBACK"
       reason_code: "resume_active_session|due_review|eligible_retest|admitted_error|evidence_gap|target_coverage_gap|deterministic_fallback"
+      diagnosis_cause: "english_foundation|ielts_technique|integrated_performance|mixed|evidence_needed|null"
       source_evidence_refs: "array<string>"
+      verification_rule_ref: "string|null"
       estimated_minutes: "integer"
 
   StudySessionStart:
