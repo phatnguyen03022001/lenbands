@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.1.1
 status: draft
 scope: closed_pilot_p0
 source_of_truth: false
@@ -185,15 +185,14 @@ capability_families:
     phase: P0
     user_outcome: learner_fixes_one_confirmed_error_and_proves_improvement_on_eligible_retest
     dependencies: [P0-04, error_taxonomy_version, review_mapping_version, exposure_policy]
-    inputs: [learning_error_ref, remediation_unit_ref, learner_rating_if_reviewable, retest_response_ref]
-    outputs: [intervention_ref, review_schedule_ref_optional, retest_result_ref, error_resolution_state]
+    inputs: [source_finding_ref, learning_error_ref, remediation_unit_ref, learner_rating_if_reviewable, retest_response_ref]
+    outputs: [learning_error_ref, intervention_ref, review_schedule_ref_optional, retest_result_ref, error_resolution_state]
     state_axes:
       learning_error: [open, in_review, improved, dismissed]
       review_card: [none, new, learning, review, relearning]
       retest: [pending, processing, passed, failed, insufficient_evidence, invalid]
       novelty: [eligible, familiar, invalid, unknown]
-    api_operations: [getReviewQueue, rateReviewItem]
-    canonical_api_gaps: [save_confirmed_writing_error, save_fix_evidence, start_writing_error_retest]
+    api_operations: [saveWritingError, saveWritingErrorFix, startWritingErrorRetest, getReviewQueue, rateReviewItem]
     data_entities: [LearningError, ReviewCard, RetestAttempt]
     events_published: [learning_error_saved, review_card_created, review_queue_opened, review_card_rated, review_completed, retest_started, retest_completed, learning_error_resolved]
     events_consumed: [evaluation_scored]
@@ -203,24 +202,31 @@ capability_families:
       fsrs_only_for_retrievable_units: true
       fsrs_maturity_is_writing_mastery: false
       independent_retest_required_for_improved: true
-    metrics: [review_completion_rate, novel_retest_success_rate, error_recurrence_rate, verified_improvement_rate]
-    cost_boundary: deterministic_fsrs
+      client_taxonomy_or_confidence_override: prohibited
+    metrics: [review_completion_rate, novel_retest_success_rate, error_recurrence_rate, verified_improvement_rate, cost_per_verified_improvement]
+    cost_boundary: deterministic_fsrs_plus_governed_retest_evaluation
     privacy_class: learning
     quality_gate: error_to_review_acceptance
     fallback: empty_or_ineligible_queue_offers_alternative_action_without_fake_progress
-    artifacts_required: [experience_contract, vertical_slice_spec, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, retest_acceptance_run]
+    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_operations, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, retest_acceptance_run]
     artifacts_current:
       - path: artifacts/experience/specs/vertical-slices/error-to-review.md
-        status: review_reconciliation_required
+        status: review
       - path: artifacts/engineering/contracts/error-to-review/data-contract.md
-        status: review_reconciliation_required
+        status: review
       - path: artifacts/engineering/contracts/error-to-review/event-contract.md
         status: review
       - path: artifacts/engineering/contracts/error-to-review/failure-contract.md
         status: review
-    evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run]
+      - path: artifacts/engineering/api/openapi.yaml
+        status: review
+      - path: artifacts/engineering/api/schema-contract.yaml
+        status: review
+      - path: artifacts/engineering/api/operation-ownership.yaml
+        status: review
+    evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [canonical_api_operations_missing, error_to_review_rebaseline_pending, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-06
     implementation_family_id: OPS.QualityEconomics
