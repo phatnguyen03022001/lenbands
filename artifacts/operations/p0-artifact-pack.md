@@ -2,7 +2,10 @@
 
 ## Purpose
 
-This is the contract portfolio for the closed pilot. It answers: **which inputs must exist so an agent can code without inventing product behavior, privacy, quality, cost, evidence or unresolved-risk policy?**
+This contract portfolio answers two questions without mixing them:
+
+1. what must be defined so an agent can implement without inventing behavior;
+2. what real evidence must exist before the closed pilot can serve learners.
 
 It does not replace the Capability Catalog, Problem/Risk Registry, Implementation Eligibility contract, or Build Readiness Matrix.
 
@@ -11,44 +14,42 @@ It does not replace the Capability Catalog, Problem/Risk Registry, Implementatio
 1. Capability IDs in `blueprint/03-features.md` remain canonical identities.
 2. One Artifact may cover multiple packs when semantics are shared; avoid one-file-per-row bureaucracy.
 3. Before implementation planning, filter `artifacts/operations/problem-risk-registry.yaml` to the target family.
-4. A P0 critical/high risk marked `open` or `partial` with `implementation_blocking=true` blocks implementation eligibility; do not hide it with local code or prose.
-5. A wireframe or model prompt alone never makes a pack ready.
-6. Build/buy/provider artifacts appear only when the owning sourcing/runtime contract needs them.
-7. Do not invent benchmark/legal/user-research/acceptance evidence.
-8. Every inference-using pack must first prove why deterministic/library/SQL/precomputed mechanisms are insufficient for that specific judgment.
-9. Model output is a candidate judgment; domain validation/evidence admission remains authoritative.
-10. Cost is evaluated against required quality and verified learner outcome, not tokens/request count alone.
+4. An unresolved risk with `implementation_blocking=true` blocks implementation. `release_evidence_required=true` belongs to release readiness when the design contract already exists. `public_scale_control_required=true` is a broader-access gate.
+5. Do not invent benchmark, legal, rights, runtime, user-research, acceptance or incident evidence.
+6. Every inference-using pack first proves why deterministic/library/SQL/precomputed mechanisms are insufficient for that judgment.
+7. Model output is a candidate judgment; domain validation/evidence admission remains authoritative.
+8. Cost is evaluated against required quality and verified learner outcome, not token/request count alone.
 
 ## Required artifact/input classes
 
-| Class | Purpose | When required |
+| Class | Purpose | Stage |
 |---|---|---|
-| Problem/risk coverage | classify applicable failure classes, owner, control, acceptance boundary and blockers | every P0 family before implementation eligibility |
-| Interaction / experience | entry, intent, states, recovery, trust copy | learner-facing pack |
-| Vertical slice | complete outcome loop + cross-domain handoffs | pack with new learner workflow |
-| API / data / event / failure | typed runtime semantics, idempotency, privacy, recovery | runtime reads/writes |
-| Evidence/result policy | separates observation, result validity, evidence admission, readiness | diagnosis/evaluation/retest |
-| Evaluation contract | staged judgment, evidence validation, scorer routing, uncertainty | learner-visible subjective scoring |
-| Deterministic/inference decision | proves rule/library/precompute vs model boundary | inference-using capability |
-| Operations gate | quota, cost, observability, rollout/rollback | every P0 pack |
-| Runtime foundation | authz, durable operation, provider adapter, privacy | durable/external work |
-| Capability manifest | typed family inputs/outputs/states/events/cost/privacy/blockers | every P0 pack |
-| Rights/content evidence | provenance/license/published version | learner-visible task/content dependency |
-| Benchmark | authorized corpus + protocol + run + candidate binding | learner-visible scorer route |
-| Acceptance evidence | executable functional/privacy/idempotency/outcome tests | every pack before release readiness; some controls also block implementation when code need not exist to resolve them |
+| Problem/risk coverage | classify applicable problem, owner, control and staged gate | before implementation planning |
+| Interaction / vertical slice | entry, states, recovery, cross-domain handoff | before learner-flow implementation |
+| Critical-path usability | accessibility + browser/network preservation semantics | before P0 UI/state implementation |
+| API / data / event / failure | typed runtime semantics, idempotency, privacy, recovery | before affected source implementation |
+| Data migration | additive/expand-contract, backfill, compatibility, projection rebuild | before persistent schema/backfill implementation |
+| Evidence/result policy | observation vs validity vs evidence admission/readiness | before diagnosis/evaluation/retest implementation |
+| Evaluation contract | staged judgment, validation, scorer routing and uncertainty | before subjective scorer implementation |
+| Deterministic/inference decision | rules/library/precompute vs model boundary | before inference-using implementation |
+| Operations/release design | quota, cost, observability, incident, restore, rollback | design before implementation; evidence before release |
+| Rights/content design | provenance/right/version/exposure semantics | design before content pipeline; approved assets before release |
+| Benchmark design | corpus classes, slice plan, metrics, threshold lifecycle | design before scorer approval |
+| Benchmark run | authorized corpus + exact candidate-bound results | before learner-visible scorer release |
+| Acceptance evidence | functional/privacy/idempotency/usability/outcome tests | before release readiness unless explicitly pre-code |
 
 Do not create a second LLM architecture layer when canonical evaluation/runtime contracts already own inference semantics. Do not create one risk document per problem: the registry owns classification; the referenced contract owns the control.
 
-## Definition of done by P0 pack
+## P0 pack requirements
 
-| Pack | Outcome proof | Minimum contract set before code | Additional gate before pilot |
+| Pack | Outcome proof | Minimum design/contract set before source implementation | Additional evidence before closed-pilot release |
 |---|---|---|---|
-| P0-01 Identity | learner authenticates/consents; ownership/export/delete are safe | risk coverage + experience + auth/access/privacy/retention + provider/legal decision | destructive/privacy/access acceptance + provider activation evidence |
-| P0-02 Diagnosis | learner gets a useful baseline without false precision | risk coverage + TargetProfile placement/coverage/termination + evidence/result validity + deterministic scoring rules | calibration/construct-coverage + placement acceptance evidence |
-| P0-03 Daily action | learner gets one reasoned useful action with fallback | risk coverage + TargetProfile/evidence snapshot + deterministic candidate/ranking policy + session/API/failure semantics | no-plan/stale/overload/retry/outcome acceptance |
-| P0-04 Writing evaluation | task-scoped evidence-backed feedback + priority fix | risk coverage + Writing vertical slice + staged runtime + canonical API/schema + evaluation/event/failure + scorer route + deterministic precheck/inference boundary | benchmark/fairness + rights + evidence/idempotency/privacy/escalation acceptance |
-| P0-05 Error-to-review | confirmed error receives smallest useful intervention and independent retest | risk coverage + error/remediation/retest policy + FSRS suitability + exposure/novelty + canonical mutations | scheduling + no-card-for-complex-skill + novel-retest + verified-improvement acceptance |
-| P0-06 Quality & economics | quality/privacy/outcome floor survives cost pressure | risk coverage + benchmark + cost budget + routing + release gate + observability + rights + metadata economics | real benchmark + armed cost + incident/restore/rollback + cost-per-verified-improvement evidence |
+| P0-01 Identity | learner authenticates/consents; ownership is safe | risk coverage + experience + auth/access/privacy/retention + provider adapter/sourcing boundaries + critical-path usability | provider DPA/activation + legal pilot eligibility + export/delete + negative access/usability acceptance |
+| P0-02 Diagnosis | useful baseline without false precision | risk coverage + TargetProfile + placement coverage/termination/result validity + deterministic scoring + time semantics + content-rights model | calibration/construct coverage + approved task/config rights + legal eligibility + usability acceptance |
+| P0-03 Daily action | one reasoned useful action with fallback | risk coverage + compact evidence state + deterministic candidate/ranking policy + time semantics + session/API/failure + critical-path usability | deterministic/timezone/network/accessibility/outcome acceptance |
+| P0-04 Writing evaluation | task-scoped evidence-backed feedback + priority fix | risk coverage + Writing slice + staged runtime/API/data/evaluation/event/failure + benchmark slice design + scorer route + support dispute + reproducibility + usability | rights-approved tasks + authorized gold corpus + required benchmark slices + privacy/idempotency/evidence/dispute/usability + legal eligibility |
+| P0-05 Error-to-review | confirmed error receives smallest useful intervention and independent retest | risk coverage + remediation/retest policy + FSRS suitability + exposure/novelty + canonical mutations + time/usability semantics | scheduling + no-card-for-complex-skill + novel-retest + verified-improvement + access/usability acceptance |
+| P0-06 Quality & economics | quality/privacy/outcome floor survives cost pressure | risk coverage + benchmark design + cost/routing/release/observability + migration/retention/incident/recovery/vendor-exit design | real benchmark + armed thresholds + cost/outcome + restore + incident tabletop + retention + rollback + legal eligibility evidence |
 
 ## P0 Writing non-negotiables
 
@@ -64,7 +65,7 @@ deterministic eligibility
   -> independent/novel retest
 ```
 
-The pack is blocked if active implementation semantics still:
+Active implementation semantics must not:
 
 - treat `low_confidence` as submission/workflow state;
 - expose raw model confidence as learner correctness probability;
@@ -87,11 +88,11 @@ If not, do not create it.
 
 ## References
 
-- Authority registry: `DOCS.yaml`.
+- Authority: `DOCS.yaml`.
 - Risk coverage: `artifacts/operations/problem-risk-registry.yaml`.
-- Implementation eligibility: `artifacts/operations/implementation-eligibility.yaml`.
-- Capability scope: `blueprint/03-features.md`.
-- Runtime: `artifacts/engineering/runtime-contract.yaml`.
+- Implementation/release lifecycle: `artifacts/operations/implementation-eligibility.yaml`.
+- Runtime/time/reproducibility: `artifacts/engineering/runtime-contract.yaml`.
+- Data migration: `artifacts/engineering/data-migration-contract.yaml`.
+- P0 accessibility/network: `artifacts/experience/critical-path-usability-contract.yaml`.
 - Canonical web API: `artifacts/engineering/api/`.
-- Current readiness: `artifacts/operations/build-readiness-matrix.md`.
-- Artifact lifecycle: `artifacts/CONVENTION.md`.
+- Current status: `artifacts/operations/build-readiness-matrix.md`.
