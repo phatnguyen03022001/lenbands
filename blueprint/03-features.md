@@ -9,6 +9,7 @@ This is the **Capability Catalog** — the list of system capabilities, each wit
 - UI labels follow `07-conventions.md` (no AI wording, no AI icon).
 - Capability identity is independent of implementation mechanism. A capability may be implemented by deterministic logic, a maintained library, precomputed content, a specialist model, an LLM, or a combination according to `02-architecture.md` and `06-engines.md`.
 - AI/model providers are not product roles and do not own capability semantics.
+- The learner-facing primary path is intentionally smaller than this catalog: capabilities support the target path; the learner is not expected to navigate the catalog.
 
 ---
 
@@ -19,7 +20,7 @@ This is the **Capability Catalog** — the list of system capabilities, each wit
 | id | Capability |
 |---|---|
 | `IDENTITY.Auth` | Sign-up / sign-in / authorization |
-| `IDENTITY.Profile` | Profile, preferred language, IELTS module/target profile, target date, weekly/daily goal, progress |
+| `IDENTITY.Profile` | Account profile, display/locale/timezone preferences, and optional sourced prior official-result references; goal/target semantics belong to `GOAL.Target` |
 | `IDENTITY.Recovery` | Forgot Password, Email Verification, Change Email |
 | `IDENTITY.Privacy` | Export Data, Delete Data, Consent, model/AI data usage controls |
 | `IDENTITY.DeleteAccount` | Delete account |
@@ -40,7 +41,7 @@ This is the **Capability Catalog** — the list of system capabilities, each wit
 
 | id | Capability |
 |---|---|
-| `GOAL.Target` | Target Profile: IELTS module, overall target, optional per-skill minima, target date, and purpose/study constraints when applicable |
+| `GOAL.Target` | Target Profile: IELTS module, overall target, optional per-skill minima, target date/purpose/study constraints plus a derived planning-feasibility state that never represents exam-success probability |
 | `GOAL.Weekly`, `GOAL.Daily` | Weekly / Daily Goal |
 | `GOAL.StudyPlan` | Study Plan |
 | `GOAL.ExamPlan` | Countdown, Pre-exam Checklist, Exam Day Timeline, Time Management Strategy, Test Day Anxiety Tips |
@@ -49,11 +50,11 @@ This is the **Capability Catalog** — the list of system capabilities, each wit
 
 | id | Capability |
 |---|---|
-| `PLACE.Test` | Placement test |
-| `PLACE.SkillDiagnosis` | Per-skill diagnosis with evidence coverage/uncertainty |
+| `PLACE.Test` | Placement test / minimum useful evidence collection |
+| `PLACE.SkillDiagnosis` | Per-skill/construct diagnosis with evidence coverage/uncertainty and supported cause class: English foundation, IELTS technique, integrated performance, mixed, or evidence-needed |
 | `PLACE.BandEstimation` | Scoped diagnostic band estimation; may return insufficient evidence instead of false precision |
-| `PLACE.GapDetection` | Initial gap or under-measured-construct detection |
-| `PLACE.InitialPath` | Initial learning-path recommendation |
+| `PLACE.GapDetection` | Target-relevant gap vs evidence-needed detection; missing evidence is not weakness and cause is only assigned when it changes intervention |
+| `PLACE.InitialPath` | Compressed initial path: target status → one supported priority → smallest useful intervention → independent verification; missing coverage returns content gap |
 
 ### Learning (LEARN)
 
@@ -61,7 +62,7 @@ Each skill has four layers: Learning / Practice / Evaluation / Review. The Evalu
 
 | id | Capability |
 |---|---|
-| `LEARN.Path` | Path by target profile / learning band bucket / skill / question type, Next Best Lesson, Learning Milestone |
+| `LEARN.Path` | Target-aware learning path ordered by prerequisites, supported cause, minimum sufficient challenge and verification need; internal path depth must not become primary learner choice overload |
 | `LEARN.QuestionTypes` | Question/task types for the four IELTS skills; pronunciation uses practice units that support Speaking |
 | `LEARN.Listening` | Audio Player, Transcript, Replay, Playback Speed, Section Practice, Keyword Highlight, Dictation, Shadowing |
 | `LEARN.Reading` | Passage Reader, Paragraph Navigation, Highlight, Underline, Annotation, Vocabulary Lookup, Bookmark Paragraph |
@@ -75,7 +76,7 @@ Each skill has four layers: Learning / Practice / Evaluation / Review. The Evalu
 |---|---|
 | `KA.Lesson`, `KA.Grammar`, `KA.Vocabulary`, `KA.Collocation`, `KA.Template`, `KA.Strategy`, `KA.Example`, `KA.Exercise` | System knowledge published by Colab |
 
-> Detailed structure and taxonomy are defined in `05-content.md`.
+> Detailed structure, curriculum sufficiency and challenge-fit rules are defined in `05-content.md`.
 
 ### Personal Knowledge / PKM (PKM)
 
@@ -99,7 +100,7 @@ Each skill has four layers: Learning / Practice / Evaluation / Review. The Evalu
 | `PRACTICE.Set` | Exercise, Practice Set |
 | `PRACTICE.Drill` | Skill Drill, Question Type Drill |
 | `PRACTICE.Timed` | Timed Practice |
-| `PRACTICE.Adaptive` | Item-level routing balancing weakness, uncertainty, coverage, exposure/novelty, transfer need, goal relevance, due review and learner load |
+| `PRACTICE.Adaptive` | Item-level routing balancing supported weakness/cause, uncertainty, coverage, exposure/novelty, transfer need, target relevance, prerequisite/challenge fit, due review and learner load |
 | `PRACTICE.MockTest` | Full Test, Practice/Exam/Timed/Review Mode, scoped estimate, Result Analysis |
 | `PRACTICE.ExamSimulation` | Exam mode, Timed mode, Review mode |
 
@@ -113,7 +114,7 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 | `EVAL.Speaking` | Speaking Evaluation | staged transcript/features/acoustic/rubric evidence where applicable |
 | `EVAL.Pronunciation` | Pronunciation Evaluation (phoneme, stress, intonation, mispronunciation) | specialist speech/acoustic evidence where required |
 | `EVAL.Examiner` | Examiner — interactive dialogue Part 1/2/3, follow-up generation | conversation/question generation is separate from scoring |
-| `EVAL.BandPrediction` | Band Prediction | derived from admissible scoped evidence + uncertainty |
+| `EVAL.BandPrediction` | Band Prediction | derived from admissible scoped evidence + uncertainty; never a guaranteed future official result |
 | `EVAL.RewriteSuggestion` | Rewrite Suggestion (sentence-level feedback, scorecard) | coaching output; never proof of independent learner production |
 | `EVAL.AntiGaming` | Deprecated alias; identity is retained for compatibility, while canonical implementation is `GOVERNANCE.AntiGaming` | |
 
@@ -127,7 +128,7 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 | `COACH.ListeningCoach` | Listening Coach |
 | `COACH.ReadingCoach` | Reading Coach |
 | `COACH.Feedback` | General feedback |
-| `COACH.ErrorAnalysis` | Evidence-backed error analysis |
+| `COACH.ErrorAnalysis` | Evidence-backed error/cause analysis |
 | `COACH.Recommendation` | Improvement recommendation |
 | `COACH.Tutor` | IELTS Q&A, context-aware using the minimum relevant passage/question/skill context |
 
@@ -136,11 +137,11 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 | id | Capability |
 |---|---|
 | `PERSONAL.Recommendation` | Recommendation Engine |
-| `PERSONAL.NextBestAction` | Next Best Action — one eligible high-value action + reason + lighter alternative |
-| `PERSONAL.AdaptivePlan` | Adaptive Learning Plan |
-| `PERSONAL.WeaknessPractice` | Evidence/weakness-based Practice with uncertainty/coverage/exposure constraints |
-| `PERSONAL.GoalRecommendation` | Goal-based Recommendation |
-| `PERSONAL.GapAnalysis` | Gap Analysis including uncertainty/insufficient evidence, not only weakness |
+| `PERSONAL.NextBestAction` | One eligible high-value action + controlled reason + verification rule + at most one lighter alternative |
+| `PERSONAL.AdaptivePlan` | Versioned TargetProfile/evidence/feasibility-aware plan adjustment; cannot preserve stale priorities merely for engagement |
+| `PERSONAL.WeaknessPractice` | Evidence/weakness-based Practice with cause, uncertainty, coverage, exposure and challenge-fit constraints |
+| `PERSONAL.GoalRecommendation` | Goal/constraint recommendation without guaranteed-band probability |
+| `PERSONAL.GapAnalysis` | Target-vs-evidence gap including cause/uncertainty/insufficiency, not numeric band subtraction alone |
 | `PERSONAL.Insights` | Structured learning insight derived from governed evidence; model-generated wording is optional rendering, not analytical truth |
 
 ### Band Framework & Progression (BAND)
@@ -150,13 +151,13 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 | `BAND.Descriptor` | Official Band Descriptor reference (IELTS rubric) |
 | `BAND.Requirement` | Band-level requirements (grammar points, question types, vocab/topic, micro-skills) — data layer feeding `BAND.Map`; LenBands curriculum metadata is not an official IELTS requirement unless explicitly sourced |
 | `BAND.Checklist` | Cross-skill checklist by band-learning bucket — data layer feeding `BAND.Map` |
-| `BAND.Map` | **Band Map** — learner-facing view of evidence/coverage toward target X: per-skill state, question types, micro-skills, grammar/remediation units and relevant vocabulary. It must distinguish curriculum completion from readiness evidence. |
+| `BAND.Map` | Learner-facing evidence/coverage toward target X; distinguishes curriculum completion from readiness evidence |
 | `BAND.Current`, `BAND.Target` | Current estimate / Target Profile band values with score scope |
 | `BAND.Completion` | Curriculum/evidence coverage view; must not be presented as mastery/readiness by percentage alone |
-| `BAND.Readiness` | Evidence-based Band Readiness state/estimate with uncertainty and blockers |
-| `BAND.RecommendedNext` | Recommended Next Band, Recommended Access |
+| `BAND.Readiness` | Evidence-based Band Readiness state/estimate with uncertainty and blockers; does not guarantee official result |
+| `BAND.RecommendedNext` | Optional recommended next target only when learner actually wants progression; target completion never automatically forces a higher band |
 | `BAND.ProgressionWarning` | Progression Warning |
-| `BAND.ExamReadiness` | Exam Readiness (Overall / per-skill readiness, evidence coverage, uncertainty/confidence language, risk) |
+| `BAND.ExamReadiness` | Exam Readiness (Overall / per-skill readiness, evidence coverage, uncertainty, blockers) |
 
 ### Review & Revision (REVIEW)
 
@@ -188,9 +189,9 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 | `PROGRESS.Dashboard` | Progress Dashboard |
 | `PROGRESS.LearningAnalytics`, `PROGRESS.SkillAnalytics` | Learning / Skill Analytics |
 | `PROGRESS.BandProgress` | Band Progress based on appropriate evidence, not activity count alone |
-| `PROGRESS.GoalTracking` | Goal Tracking |
+| `PROGRESS.GoalTracking` | Goal/feasibility tracking without guaranteed-attainment semantics |
 | `PROGRESS.Motivation` | Streak, Milestone, Goal Completion Celebration, Band Improvement Highlight, Progress Recap, Comeback Nudge |
-| `PROGRESS.Achievement` | Achievement (Band X Ready when evidence policy supports it, 100 Reviews, 30-day Streak — lightweight milestones, no leaderboard/XP/avatar) |
+| `PROGRESS.Achievement` | Achievement (Band X Ready when evidence policy supports it, review/streak milestones — lightweight, no leaderboard/XP/avatar) |
 | `PROGRESS.WeeklyRecap` | Outcome-based progress recap: independent improvement, strengths, reduced errors, retest/transfer gain, uncertainty and next priority |
 | `PROGRESS.Reactivation` | Comeback plan after absence; restore learning rhythm without dumping backlog or creating guilt |
 | `PROGRESS.Wellbeing` | Track study load and overload signals and recommend an appropriate slowdown or break |
@@ -205,18 +206,18 @@ Learner-facing Writing/Speaking/Pronunciation evaluation is automated at runtime
 
 ### Study Orchestration (STUDY)
 
-The orchestration layer between Goal (long-term) and Practice (questions) — the backbone of Home.
+The orchestration layer between Goal and Practice is the backbone of Home. The internal plan may contain multiple candidates, while the primary learner surface exposes one action-first path.
 
 | id | Capability |
 |---|---|
 | `STUDY.Session` | Study Session (Start, Resume, Pause, End, Session Goal) |
-| `STUDY.SessionSummary` | Session Summary (time, questions/activities, evidence produced, new words, errors) |
-| `STUDY.DailyPlan` | Daily Plan (Today's Lesson, Today's Practice, Today's Review) |
-| `STUDY.TodayQueue` | Today's Queue (review due, evidence collection, weakness/transfer practice, exam prep) |
+| `STUDY.SessionSummary` | Session Summary (action, evidence produced, errors, uncertainty/verification state; activity metrics are secondary) |
+| `STUDY.DailyPlan` | Derived target/evidence/feasibility-aware plan with one primary action + at most one lighter alternative on the primary surface |
+| `STUDY.TodayQueue` | Internal/secondary queue of eligible review/evidence/weakness/transfer/exam actions; not a competing primary Home decision |
 | `STUDY.Continue` | Continue on Another Device (current session handoff) |
 | `STUDY.Resume` | Resume after interruption (Mock Test, network loss, session timeout) — Error Recovery belongs here |
 | `STUDY.MicroSession` | A 5–10 minute session for busy days, still tied to a concrete goal and outcome |
-| `STUDY.CheckIn` | Check in on energy, available time, and study intent to adjust today's session |
+| `STUDY.CheckIn` | Check in on energy/available time to adjust burden without changing scoring/evidence truth |
 
 ### Notification (NOTIF)
 
@@ -244,7 +245,7 @@ The orchestration layer between Goal (long-term) and Practice (questions) — th
 |---|---|
 | `CONTENT.Lesson`, `CONTENT.Knowledge`, `CONTENT.QuestionBank`, `CONTENT.MockTest`, `CONTENT.Quiz`, `CONTENT.Tag` | Content management |
 | `CONTENT.Publish` | Permission-scoped Publish Workflow |
-| `CONTENT.Moderation` | Review content, check errors, useful/required tags, rights/calibration state, unpublish |
+| `CONTENT.Moderation` | Review content, check errors, useful/required tags, rights/calibration state, curriculum coverage and unpublish |
 | `CONTENT.BlueprintUpdate` | Update content when the IELTS blueprint changes |
 | `CONTENT.Feedback` | Handle Content Feedback from learners (Report Content, Suggest Fix, Report Wrong Answer) |
 | `CONTENT.AutoTag` | Suggest only taxonomy/tags that feed a governed decision; never auto-publish |
@@ -273,10 +274,10 @@ These backend/cross-functional capabilities protect quality and cost. They must 
 
 | id | Capability |
 |---|---|
-| `OPS.ContentQuality` | Content quality gate: correctness, decision-useful taxonomy completeness, calibration, accessibility, licensing/rights |
+| `OPS.ContentQuality` | Content quality gate: correctness, decision-useful taxonomy, curriculum sufficiency, challenge fit, calibration, accessibility, licensing/rights |
 | `OPS.EvaluationQuality` | Scorer quality gate: criterion/task agreement, ordinal agreement, stability, evidence quality, uncertainty calibration, drift/bias where valid, reproducibility |
-| `OPS.ReleaseGate` | Gate before publishing a scorer/content/feature; checks quality, safety, accessibility, rights/privacy and cost |
-| `OPS.OutcomeMeasurement` | Measure independent learning outcome, retest/transfer gain, error recurrence, uncertainty reduction and helpfulness |
+| `OPS.ReleaseGate` | Gate before publishing a scorer/content/feature; checks quality, safety, accessibility, rights/privacy, learner-path integrity and cost |
+| `OPS.OutcomeMeasurement` | Measure independent learning outcome, retest/transfer gain, error recurrence, uncertainty reduction, target-planning usefulness and helpfulness |
 | `OPS.ModelRouting` | Route by deterministic-first ladder: rules/library/SQL → precomputed → bounded small/specialist model → benchmark-approved stronger route → fallback |
 | `OPS.CostBudget` | Budget by learner, capability, scorer route/model, audio units, retry/escalation, batch job and verified outcome |
 | `OPS.Quota` | Rate limit, usage limit, fair use, reservation and graceful degradation |
@@ -284,7 +285,7 @@ These backend/cross-functional capabilities protect quality and cost. They must 
 
 ### Capability contract
 
-The catalog owns identity and short descriptions. Every capability moved into an active phase, build candidate, or build-ready state must have a canonical **Capability Profile**; capabilities in the future horizon do not yet need their own profile. A profile contains build/governance metadata and may be represented as an Artifact when the capability enters build, but the following fields are mandatory and must not exist only in an implementation backlog:
+The catalog owns identity and short descriptions. Every capability moved into an active phase, build candidate, or build-ready state must have a canonical **Capability Profile**; capabilities in the future horizon do not yet need their own profile.
 
 ```yaml
 capability_id: DOMAIN.Capability
@@ -306,18 +307,18 @@ A capability is a `build candidate` only when its profile is complete. It is `bu
 
 ### P0 Capability Profile Matrix — closed pilot canonical scope
 
-P0 no longer means every capability that might exist at launch. The P0 closed pilot contains only the capabilities required to prove one outcome: **a Writing Task 2 learner receives evidence-backed feedback, fixes one error/remediation unit, reviews it where suitable, and demonstrates improvement on an independent retest**. A row is a shared profile for capabilities that may not diverge within the same vertical slice; if they need to diverge, split the profile.
+P0 proves one outcome loop; it does not claim a complete four-skill learner solution.
 
 | Profile | Capability IDs | User outcome | Owner | Dependencies | Primary events | Quality / fallback | Privacy | Cost boundary |
 |---|---|---|---|---|---|---|---|---|
-| `P0-01 Identity` | `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy` | Has an account, target profile, consent, and ownership of their data | engineering | managed auth boundary | account_created, consent_recorded | deny-by-default; export/delete recovery | account | managed_auth_pilot |
-| `P0-02 Diagnosis` | `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current` | Has a scoped baseline/evidence state and target from which to generate a plan | product | published placement configuration | placement_started/completed | insufficient coverage/precision → explain + collect evidence; never fabricate estimate | learning | placement_pilot |
-| `P0-03 Daily action` | `STUDY.DailyPlan`, `STUDY.CheckIn`, `STUDY.MicroSession`, `PERSONAL.NextBestAction` | Knows one useful thing to do today and why | product | P0-02 + user state | daily_plan_generated, session_started | insufficient evidence → evidence-collection action or at most 3 choices with clear reasons | learning | deterministic_rules_first |
-| `P0-04 Writing evaluation` | `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts` | Writes, saves, submits, and understands evidence-backed task-scoped feedback | product + engineering | published task, rubric, evaluation contract | evaluation_submitted, evaluation_scored | limited/insufficient/delay/unavailable user-safe states; no silent scorer downgrade | learning/assessment | staged_writing_eval_pilot |
-| `P0-05 Error-to-review` | `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill` | Selects one evidence-backed error, fixes it, reviews a suitable retrievable unit, and demonstrates an independent retest | product | P0-04 + error/remediation taxonomy | learning_error_saved, review_completed, retest_completed | no valid remediation unit → no FSRS card; empty queue → alternative action | learning | deterministic_fsrs |
-| `P0-06 Quality & economics` | `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `OPS.ContentQuality`, `OPS.OutcomeMeasurement`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail` | Does not sacrifice trust/data safety for feature speed or cheap inference | operations | benchmark, content, event/failure contracts | evaluation_failed, evaluation_delayed, retest_completed | release blocked / deterministic or delayed safe fallback | assessment | quality_plus_verified_outcome_cost_gate |
+| `P0-01 Identity` | `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy` | Has an account/preferences/consent and ownership of their data | engineering | managed auth boundary | account_created, consent_recorded | deny-by-default; export/delete recovery | account | managed_auth_pilot |
+| `P0-02 Diagnosis` | `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current` | Has a TargetProfile, truthful evidence state, supported cause/evidence-gap state, planning-feasibility state and one credible initial priority | product | published placement configuration + curriculum coverage projection | placement_started/completed | insufficient evidence stays insufficient; missing path → content gap; no attainment probability | learning | placement_pilot |
+| `P0-03 Daily action` | `STUDY.DailyPlan`, `STUDY.CheckIn`, `STUDY.MicroSession`, `PERSONAL.NextBestAction` | Knows one useful thing to do now, why, and how it will be verified | product | P0-02 + learner/content state | daily_plan_generated, session_started | evidence gap → collect evidence; content gap → truthful blocker; primary surface at most one lighter alternative | learning | deterministic_rules_first |
+| `P0-04 Writing evaluation` | `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts` | Writes, saves, submits, and understands evidence-backed task-scoped feedback | product + engineering | published task, rubric, evaluation contract | evaluation_submitted, evaluation_scored | limited/insufficient/delay/unavailable states; no silent scorer downgrade | learning/assessment | staged_writing_eval_pilot |
+| `P0-05 Error-to-review` | `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill` | Selects one evidence-backed error, fixes it, reviews a suitable retrievable unit, and demonstrates an independent retest | product | P0-04 + error/remediation taxonomy + retest coverage | learning_error_saved, review_completed, retest_completed | no valid remediation/retest → content gap/no false resolution | learning | deterministic_fsrs |
+| `P0-06 Quality & economics` | `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `OPS.ContentQuality`, `OPS.OutcomeMeasurement`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail` | Does not sacrifice trust/data safety/learner-path integrity for feature speed or cheap inference | operations | benchmark, content, event/failure contracts | evaluation_failed, evaluation_delayed, retest_completed | release blocked / deterministic or delayed safe fallback | assessment | quality_plus_verified_outcome_cost_gate |
 
-Capabilities outside this matrix remain canonical Blueprint capabilities but are not part of closed-pilot P0. They can enter launch scope only through an Artifact decision plus the Build Readiness Matrix, never by copy/pasting them into P0.
+Capabilities outside this matrix remain canonical Blueprint capabilities but are not part of closed-pilot P0. They can enter launch scope only through governed phasing/readiness, never by being present in this catalog.
 
 ---
 
@@ -351,9 +352,9 @@ All analytics, recommendations, dashboards, experiments, and notifications must 
 |---|---|---|
 | `account_created` / `consent_recorded` | An account or effective consent is created | IDENTITY, privacy audit |
 | `privacy_export_requested` / `privacy_deletion_requested` | Learner requests data export/deletion | IDENTITY, privacy operation |
-| `placement_started` / `placement_completed` | A valid placement begins/completes with termination/evidence state | PLACE, PERSONAL, activation |
+| `placement_started` / `placement_completed` | A valid placement begins/completes with termination/evidence/cause/feasibility refs | PLACE, PERSONAL, activation |
 | `goal_set` | A valid target profile/goal is stored | GOAL, PLACE, STUDY |
-| `daily_plan_generated` | Today creates or refreshes a plan with a structured reason | STUDY, PERSONAL, UX diagnosis |
+| `daily_plan_generated` | Today creates/refreshes a plan with controlled reason, verification and target-feasibility state | STUDY, PERSONAL, UX diagnosis |
 | `session_started` | Learner begins a study session with intent | STUDY, outcome measurement |
 | `session_completed` | Session satisfies its completion rule | STUDY, outcome measurement |
 | `first_meaningful_session_completed` | The first session produces an outcome rather than merely opening the app | PROGRESS, retention |
@@ -379,8 +380,6 @@ All analytics, recommendations, dashboards, experiments, and notifications must 
 
 ### Registered slice/internal extensions
 
-The events below use the same envelope and registry but are detail/operational extensions; they do not replace canonical outcome events. Their producer must be a backend service, not the SPA directly.
-
 | Event family | Registered event types |
 |---|---|
 | Writing detail | `writing_task_opened`, `writing_draft_saved`, `writing_submission_started`, `writing_submission_accepted`, `writing_feedback_viewed` |
@@ -395,6 +394,7 @@ The events below use the same envelope and registry but are detail/operational e
 - Event producers must be idempotent by `event_id` + stable `entity_refs` + `occurred_at` window; offline sync must deduplicate. Raw `actor_id` does not appear in the envelope; identity uses only `user_id_hash`.
 - Do not send PII or raw audio/text into general analytics; use references, allow-listed derived properties and a privacy class.
 - Outcome events carry enough result/evidence state to distinguish accepted, limited/insufficient, invalid and integrity-review outcomes; event existence alone does not prove success/mastery.
+- Feasibility/cause/event properties are derived domain state, never client-authored exam-success probability.
 - Backfills use `source=backfill`, record a reason and time range, and must not trigger unintended notifications/recommendations.
 - Data deletion cascades according to privacy policy and may leave anonymized aggregates only when policy/consent permits it.
 
