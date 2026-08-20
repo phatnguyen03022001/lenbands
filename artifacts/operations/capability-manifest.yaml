@@ -1,4 +1,4 @@
-schema_version: 1.3.0
+schema_version: 1.4.0
 status: draft
 scope: closed_pilot_p0
 source_of_truth: false
@@ -12,10 +12,15 @@ manifest_rules:
   - operation_lifecycle_and_result_validity_are_distinct_axes
   - inference_using_families_must_declare_deterministic_precheck_and_escalation_boundary
   - capability_manifest_api_operations_must_exist_in_canonical_artifacts_engineering_api
-  - legacy_scoped_openapi_files_are_not_build_authority
+  - retired_or_legacy_contracts_are_not_build_authority
   - cost_metrics_include_verified_outcome_where_the_family_claims_learning_improvement
   - applicable_problem_risk_categories_must_be_assessed_before_implementation_eligibility
   - runtime_or_legal_release_evidence_must_not_be_fabricated_as_a_pre_code_requirement
+  - target_feasibility_is_planning_state_not_exam_success_probability
+  - diagnosis_cause_requires_admitted_evidence_and_must_change_intervention_when_used
+  - primary_learner_path_exposes_one_action_one_reason_one_verification_and_at_most_one_lighter_alternative
+  - recommendation_cannot_outpace_curriculum_and_independent_verification_coverage
+  - minimum_sufficient_challenge_prevents_unjustified_over_band_routing
   - manifest_readiness_is_not_implementation_authorization
 
 capability_families:
@@ -25,7 +30,7 @@ capability_families:
     capability_ids: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy]
     owner: engineering
     phase: P0
-    user_outcome: learner_has_account_consent_and_data_ownership
+    user_outcome: learner_has_account_preferences_consent_and_data_ownership
     dependencies: [managed_auth_boundary]
     inputs: [email_or_oauth_assertion, consent_choice, profile_seed]
     outputs: [account_ref, consent_record_ref, learner_profile_ref]
@@ -41,11 +46,12 @@ capability_families:
     privacy_class: account
     quality_gate: identity_privacy_acceptance
     fallback: deny_by_default_with_recovery_path
-    artifacts_required: [experience_contract, vertical_slice_spec, auth_identity_contract, access_control, retention_mapping, privacy_acceptance_run, provider_dpa_evidence]
+    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_access_control, retention_mapping, privacy_acceptance_run, provider_dpa_evidence]
     artifacts_current:
       - {path: artifacts/experience/specs/vertical-slices/identity-consent.md, status: draft}
-      - {path: artifacts/engineering/contracts/runtime/auth-identity-contract.md, status: review}
       - {path: artifacts/engineering/api/access-control.md, status: review}
+      - {path: artifacts/engineering/api/openapi.yaml, status: review}
+      - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
       - {path: artifacts/operations/data-retention-registry.yaml, status: review}
     evidence_required: [provider_dpa, export_delete_acceptance_run, accessibility_network_acceptance]
     readiness_state: not_ready
@@ -57,32 +63,35 @@ capability_families:
     capability_ids: [GOAL.Target, PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current]
     owner: product
     phase: P0
-    user_outcome: learner_has_baseline_target_profile_and_reasoned_plan_seed_without_false_precision
-    dependencies: [published_placement_configuration]
-    inputs: [target_profile, placement_responses]
-    outputs: [goal_ref, placement_attempt_ref, diagnostic_estimate_ref, initial_path_ref]
+    user_outcome: learner_has_target_truthful_evidence_supported_cause_feasibility_and_one_credible_initial_priority
+    dependencies: [published_placement_configuration, curriculum_coverage_projection]
+    inputs: [target_profile, placement_responses, study_capacity, content_coverage_state]
+    outputs: [goal_ref, placement_attempt_ref, diagnostic_estimate_ref, diagnosis_cause_refs, target_feasibility_ref, initial_path_ref]
     states: [not_started, in_progress, diagnosed, insufficient_data, retry_required]
+    planning_states: [insufficient_evidence, on_track, at_risk, current_constraints_insufficient, target_met]
+    diagnosis_causes: [english_foundation, ielts_technique, integrated_performance, mixed, evidence_needed]
     api_operations: [getMyGoal, putMyGoal, startPlacement, submitPlacementResponse, submitPlacement, getPlacementAttempt]
-    data_entities: [LearnerGoal, TargetProfile, PlacementAttempt, PlacementResult, GapProfile]
+    data_entities: [LearnerGoal, TargetProfile, PlacementAttempt, PlacementResult, GapProfile, TargetFeasibility, DiagnosisCause]
     events_published: [goal_set, placement_started, placement_completed]
     events_consumed: [account_created]
-    failure_modes: [INSUFFICIENT_EVIDENCE, CONFIG_NOT_PUBLISHED, SCORING_UNAVAILABLE]
+    failure_modes: [INSUFFICIENT_EVIDENCE, CONFIG_NOT_PUBLISHED, CONTENT_GAP, SCORING_UNAVAILABLE]
     knowledge_refs: [blueprint/framework/exam-module-differences.md, blueprint/framework/skill-questiontype-band.md]
-    metrics: [placement_completion_rate, insufficient_evidence_rate, evidence_coverage, calibration_error_when_calibrated]
+    metrics: [placement_completion_rate, insufficient_evidence_rate, evidence_coverage, cause_classification_review_rate, feasibility_state_mix, calibration_error_when_calibrated]
     cost_boundary: placement_pilot
     privacy_class: learning
     quality_gate: placement_quality_gate
-    fallback: explain_insufficient_data_and_retry
-    artifacts_required: [experience_contract, vertical_slice_spec, placement_diagnosis_contract, target_profile_schema, time_semantics, calibration_evidence, acceptance_run]
+    fallback: explain_missing_evidence_constraint_or_content_gap_without_fabricating_target_attainment
+    artifacts_required: [experience_contract, vertical_slice_spec, placement_diagnosis_contract, target_profile_schema, feasibility_and_cause_schema, curriculum_coverage_contract, time_semantics, calibration_evidence, acceptance_run]
     artifacts_current:
       - {path: artifacts/experience/specs/vertical-slices/placement-and-plan.md, status: review}
       - {path: artifacts/engineering/contracts/placement-diagnosis-contract.md, status: review}
       - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
       - {path: artifacts/operations/placement-quality-gate.md, status: review}
       - {path: artifacts/engineering/runtime-contract.yaml, status: review}
-    evidence_required: [placement_calibration_run, placement_acceptance_run, content_rights_review, accessibility_network_acceptance]
+      - {path: blueprint/05-content.md, status: canonical}
+    evidence_required: [placement_calibration_run, placement_acceptance_run, diagnosis_cause_usefulness_review, feasibility_copy_acceptance, curriculum_coverage_acceptance, content_rights_review, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [calibration_evidence_missing, rights_evidence_missing, legal_pilot_eligibility_pending, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [calibration_evidence_missing, cause_usefulness_not_validated, curriculum_coverage_not_validated, rights_evidence_missing, legal_pilot_eligibility_pending, acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-03
     implementation_family_id: STUDY.DailyAction
@@ -90,37 +99,45 @@ capability_families:
     capability_ids: [STUDY.DailyPlan, STUDY.CheckIn, STUDY.MicroSession, PERSONAL.NextBestAction]
     owner: product
     phase: P0
-    user_outcome: learner_gets_one_reasoned_useful_action_for_today
-    dependencies: [P0-02]
-    inputs: [target_profile_ref, compact_learner_evidence_state_ref, due_review_refs, available_time_energy]
-    outputs: [daily_plan_ref, next_action_ref, session_ref]
-    states: [no_plan, plan_ready, action_started, paused, completed, fallback_offered]
+    user_outcome: learner_gets_one_target_aware_action_reason_verification_and_optional_lighter_alternative
+    dependencies: [P0-02, curriculum_coverage_projection]
+    inputs: [target_profile_ref, target_feasibility_ref, compact_learner_evidence_state_ref, diagnosis_cause_refs, content_coverage_state_ref, due_review_refs, retest_eligibility_refs, available_time_energy]
+    outputs: [daily_plan_ref, primary_action_ref, optional_lighter_action_ref, session_ref]
+    states: [no_plan, plan_ready, content_gap, action_started, paused, completed, fallback_offered]
     api_operations: [getTodayPlan, recordTodayCheckIn, startStudySession, updateStudySession]
     data_entities: [DailyPlan, DailyAction, StudySession]
     events_published: [daily_plan_generated, session_started, session_paused, session_resumed, session_completed, session_abandoned, first_meaningful_session_completed, next_best_action_shown, next_best_action_taken]
     events_consumed: [placement_completed, goal_set, review_completed, retest_completed]
-    failure_modes: [NO_ELIGIBLE_ACTION, STALE_PLAN, SESSION_RESTORE_FAILED]
+    failure_modes: [NO_ELIGIBLE_ACTION, CONTENT_GAP, TARGET_CONSTRAINTS_INSUFFICIENT, STALE_PLAN, SESSION_RESTORE_FAILED]
     knowledge_refs: []
     deterministic_policy:
       required: true
       candidate_intents: [CONTINUE, REVIEW_DUE, RETEST, REMEDIATE, COLLECT_EVIDENCE, GOAL_COVERAGE, FALLBACK]
-      objective_factors: [expected_learning_value, evidence_uncertainty, coverage, due_review, goal_relevance, transfer_need, exposure_novelty, available_time_energy, recent_load]
+      diagnosis_causes: [english_foundation, ielts_technique, integrated_performance, mixed, evidence_needed]
+      objective_factors: [expected_learning_value, evidence_uncertainty, diagnosis_cause, target_feasibility, curriculum_coverage, prerequisite_fit, minimum_sufficient_challenge, coverage, due_review, goal_relevance, transfer_need, exposure_novelty, available_time_energy, recent_load]
       missing_evidence_is_weakness: false
       llm_direct_action_selection: prohibited
-    metrics: [daily_action_start_rate, first_meaningful_session_rate, retest_or_transfer_lift, overload_rate]
+      primary_action_count: 1
+      max_lighter_alternatives: 1
+      verification_rule_required_for_learning_claim: true
+      unjustified_over_band_routing: prohibited
+      target_met_auto_progression: prohibited
+    metrics: [daily_action_start_rate, next_action_comprehension_rate, first_meaningful_session_rate, retest_or_transfer_lift, content_gap_rate, overload_rate]
     cost_boundary: rules_first
     privacy_class: learning
     quality_gate: daily_action_acceptance
-    fallback: show_up_to_three_reasoned_alternatives
-    artifacts_required: [experience_contract, vertical_slice_spec, daily_action_contract, time_semantics, critical_path_usability, session_event_contract, deterministic_selection_policy, acceptance_run]
+    fallback: one_truthful_prerequisite_constraint_or_content_gap_action_with_at_most_one_lighter_alternative
+    artifacts_required: [experience_contract, vertical_slice_spec, daily_action_contract, feasibility_and_cause_schema, curriculum_coverage_contract, time_semantics, critical_path_usability, session_event_contract, deterministic_selection_policy, acceptance_run]
     artifacts_current:
       - {path: artifacts/experience/specs/vertical-slices/daily-action.md, status: review}
       - {path: artifacts/engineering/contracts/daily-action-contract.md, status: review}
+      - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
       - {path: artifacts/engineering/runtime-contract.yaml, status: review}
       - {path: artifacts/experience/critical-path-usability-contract.yaml, status: review}
-    evidence_required: [daily_action_acceptance_run, timezone_boundary_acceptance, accessibility_network_acceptance]
+      - {path: blueprint/05-content.md, status: canonical}
+    evidence_required: [daily_action_acceptance_run, one_action_usability_acceptance, curriculum_coverage_acceptance, no_over_band_acceptance, timezone_boundary_acceptance, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [acceptance_not_run, timezone_acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [acceptance_not_run, choice_compression_not_validated, curriculum_coverage_not_validated, no_over_band_not_validated, timezone_acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-04
     implementation_family_id: WRITING.Evaluation
@@ -178,8 +195,8 @@ capability_families:
     owner: product
     phase: P0
     user_outcome: learner_fixes_one_confirmed_error_and_proves_improvement_on_eligible_retest
-    dependencies: [P0-04, error_taxonomy_version, review_mapping_version, exposure_policy]
-    inputs: [source_finding_ref, learning_error_ref, remediation_unit_ref, learner_rating_if_reviewable, retest_response_ref]
+    dependencies: [P0-04, error_taxonomy_version, review_mapping_version, exposure_policy, curriculum_coverage_projection]
+    inputs: [source_finding_ref, diagnosis_cause_ref, learning_error_ref, remediation_unit_ref, learner_rating_if_reviewable, retest_response_ref]
     outputs: [learning_error_ref, intervention_ref, review_schedule_ref_optional, retest_result_ref, error_resolution_state]
     state_axes:
       learning_error: [open, in_review, improved, dismissed]
@@ -190,19 +207,21 @@ capability_families:
     data_entities: [LearningError, ReviewCard, RetestAttempt]
     events_published: [learning_error_saved, review_card_created, review_queue_opened, review_card_rated, review_completed, retest_started, retest_completed, learning_error_resolved]
     events_consumed: [evaluation_scored]
-    failure_modes: [NO_EVIDENCE_NO_CARD, REVIEW_QUEUE_EMPTY, RETEST_INVALID, RETEST_EXPOSURE_INELIGIBLE]
+    failure_modes: [NO_EVIDENCE_NO_CARD, REVIEW_QUEUE_EMPTY, CONTENT_GAP, RETEST_INVALID, RETEST_EXPOSURE_INELIGIBLE]
     knowledge_refs: [blueprint/framework/error-taxonomy.md, blueprint/framework/review-mapping.md]
     review_policy:
+      cause_appropriate_intervention_required: true
       fsrs_only_for_retrievable_units: true
       fsrs_maturity_is_writing_mastery: false
       independent_retest_required_for_improved: true
+      unjustified_over_band_routing: prohibited
       client_taxonomy_or_confidence_override: prohibited
-    metrics: [review_completion_rate, novel_retest_success_rate, error_recurrence_rate, verified_improvement_rate, cost_per_verified_improvement]
+    metrics: [review_completion_rate, novel_retest_success_rate, error_recurrence_rate, verified_improvement_rate, content_gap_rate, cost_per_verified_improvement]
     cost_boundary: deterministic_fsrs_plus_governed_retest_evaluation
     privacy_class: learning
     quality_gate: error_to_review_acceptance
-    fallback: empty_or_ineligible_queue_offers_alternative_action_without_fake_progress
-    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_operations, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, time_semantics, critical_path_usability, retest_acceptance_run]
+    fallback: missing_or_ineligible_remediation_or_retest_returns_content_gap_or_alternative_without_fake_progress
+    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_operations, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, curriculum_coverage_contract, time_semantics, critical_path_usability, retest_acceptance_run]
     artifacts_current:
       - {path: artifacts/experience/specs/vertical-slices/error-to-review.md, status: review}
       - {path: artifacts/engineering/contracts/error-to-review/data-contract.md, status: review}
@@ -212,9 +231,10 @@ capability_families:
       - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
       - {path: artifacts/engineering/api/operation-ownership.yaml, status: review}
       - {path: artifacts/engineering/runtime-contract.yaml, status: review}
-    evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run, timezone_boundary_acceptance, accessibility_network_acceptance]
+      - {path: blueprint/05-content.md, status: canonical}
+    evidence_required: [review_scheduling_acceptance_run, curriculum_coverage_acceptance, no_over_band_acceptance, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run, timezone_boundary_acceptance, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [generated_api_revalidation_pending, curriculum_coverage_not_validated, no_over_band_not_validated, acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-06
     implementation_family_id: OPS.QualityEconomics
@@ -222,23 +242,23 @@ capability_families:
     capability_ids: [OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, OPS.EvaluationQuality, OPS.ContentQuality, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
     owner: operations
     phase: P0
-    user_outcome: pilot_cannot_ship_without_trust_privacy_quality_outcome_and_cost_controls
-    dependencies: [P0-01, P0-04, P0-05]
-    inputs: [benchmark_run_ref, cost_measurement_ref, outcome_evidence_ref, release_candidate_ref]
-    outputs: [release_decision_ref, quality_status_ref, cost_status_ref, audit_trail_ref]
+    user_outcome: pilot_cannot_ship_without_trust_privacy_quality_learner_path_outcome_and_cost_controls
+    dependencies: [P0-01, P0-02, P0-03, P0-04, P0-05]
+    inputs: [benchmark_run_ref, curriculum_coverage_evidence_ref, usability_evidence_ref, cost_measurement_ref, outcome_evidence_ref, release_candidate_ref]
+    outputs: [release_decision_ref, quality_status_ref, learner_path_integrity_ref, cost_status_ref, audit_trail_ref]
     states: [unarmed, collecting_evidence, blocked, approved_for_pilot, rolled_back]
     api_operations: [getEvaluationGovernance, getUsageOverview, evaluateReleaseGate]
     data_entities: [BenchmarkRun, CostMeasurement, ReleaseGateDecision, AuditRecord]
     events_published: [benchmark_run_completed, drift_threshold_exceeded, anti_gaming_flagged, quota_warning_shown, quota_exceeded]
-    events_consumed: [evaluation_submitted, evaluation_scored, evaluation_failed, evaluation_delayed, retest_completed]
-    failure_modes: [RELEASE_BLOCKED, COST_CEILING_UNARMED, BENCHMARK_MISSING, DRIFT_THRESHOLD_EXCEEDED]
+    events_consumed: [placement_completed, daily_plan_generated, evaluation_submitted, evaluation_scored, evaluation_failed, evaluation_delayed, retest_completed]
+    failure_modes: [RELEASE_BLOCKED, COST_CEILING_UNARMED, BENCHMARK_MISSING, CURRICULUM_COVERAGE_MISSING, LEARNER_PATH_INTEGRITY_FAILED, DRIFT_THRESHOLD_EXCEEDED]
     knowledge_refs: []
-    metrics: [criterion_agreement, within_half_band_agreement, evidence_validity_rate, cost_per_accepted_evaluation, cost_per_verified_improvement, escalation_rate, quota_breach_rate, drift_rate, privacy_violation_count, metadata_authoring_cost]
+    metrics: [criterion_agreement, within_half_band_agreement, evidence_validity_rate, cause_classification_review_rate, content_gap_rate, one_action_comprehension_rate, over_band_violation_rate, cost_per_accepted_evaluation, cost_per_verified_improvement, escalation_rate, quota_breach_rate, drift_rate, privacy_violation_count, metadata_authoring_cost]
     cost_boundary: quality_release_gate
     privacy_class: derived
     quality_gate: release_gate
-    fallback: block_release_or_degrade_non_critical_feedback_depth_without_lowering_score_quality_floor
-    artifacts_required: [benchmark_spec, cost_budget, release_gate, observability_contract, event_schema_pack, quota_contract, dashboard_spec, metadata_economics, migration_contract, retention_registry, incident_model, immutable_evidence_records]
+    fallback: block_release_or_degrade_non_critical_depth_without_lowering_score_or_learner_path_integrity_floor
+    artifacts_required: [benchmark_spec, cost_budget, release_gate, observability_contract, event_schema_pack, quota_contract, dashboard_spec, metadata_economics, curriculum_coverage_contract, learner_path_usability, migration_contract, retention_registry, incident_model, immutable_evidence_records]
     artifacts_current:
       - {path: artifacts/operations/evaluation-benchmark-spec.md, status: review}
       - {path: artifacts/operations/cost-budget.md, status: draft_rebaseline_required}
@@ -248,6 +268,8 @@ capability_families:
       - {path: artifacts/operations/data-retention-registry.yaml, status: review}
       - {path: artifacts/operations/bops/contract.yaml, status: review}
       - {path: artifacts/experience/specs/vertical-slices/governance-ops-dashboard.md, status: review}
-    evidence_required: [gold_corpus, benchmark_run_with_required_slices, numeric_cost_threshold_approval, rollout_rollback_record, outcome_cost_measurement, restore_drill, incident_tabletop, retention_export_delete_acceptance, legal_pilot_eligibility]
+      - {path: artifacts/experience/critical-path-usability-contract.yaml, status: review}
+      - {path: blueprint/05-content.md, status: canonical}
+    evidence_required: [gold_corpus, benchmark_run_with_required_slices, curriculum_coverage_acceptance, one_action_usability_acceptance, no_over_band_acceptance, feasibility_claim_review, numeric_cost_threshold_approval, rollout_rollback_record, outcome_cost_measurement, restore_drill, incident_tabletop, retention_export_delete_acceptance, legal_pilot_eligibility]
     readiness_state: not_ready
-    readiness_blockers: [gold_corpus_missing, benchmark_not_run, numeric_thresholds_unapproved, outcome_cost_not_measured, restore_drill_not_run, incident_tabletop_not_run, legal_pilot_eligibility_pending, founder_approval_pending]
+    readiness_blockers: [gold_corpus_missing, benchmark_not_run, curriculum_coverage_not_validated, learner_path_usability_not_validated, no_over_band_not_validated, numeric_thresholds_unapproved, outcome_cost_not_measured, restore_drill_not_run, incident_tabletop_not_run, legal_pilot_eligibility_pending, founder_approval_pending]
