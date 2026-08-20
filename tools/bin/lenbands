@@ -23,7 +23,7 @@ Commands:
   doctor
   context [--yaml]
   generate <all|catalog|lifecycle|coverage|baseline> [--check]
-  validate <all|tooling|claude-code|trust-boundary|phase-index|documents|framework|knowledge-assets|openapi|semantic-contracts|contract-ownership|domain-automation|evidence-lineage|platform-boundary|spawn-prompts|benchmark-contracts|implementation-catalog|problem-risks>
+  validate <all|tooling|claude-code|trust-boundary|phase-index|documents|framework|knowledge-assets|openapi|semantic-contracts|contract-ownership|domain-automation|evidence-lineage|platform-boundary|spawn-prompts|benchmark-contracts|implementation-catalog>
   gate <toolchain|p0|repository>
   verify
   capability compile <CAPABILITY_ID|P0-XX>
@@ -67,7 +67,6 @@ run_validate() {
     spawn-prompts) exec tools/commands/validate/spawn-prompts.sh "$@" ;;
     benchmark-contracts) exec tools/commands/validate/benchmark-contracts.sh "$@" ;;
     implementation-catalog) exec tools/commands/validate/implementation-catalog.sh "$@" ;;
-    problem-risks) exec tools/commands/validate/problem-risk-coverage.rb "$@" ;;
     *) echo "unknown validate target: $target" >&2; usage; exit 64 ;;
   esac
 }
