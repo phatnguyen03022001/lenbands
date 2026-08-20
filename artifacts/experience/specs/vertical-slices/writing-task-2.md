@@ -2,381 +2,324 @@
 
 ## 0. Specification status
 
-Canonical metadata is in `writing-task-2.meta.yaml`; do not keep duplicate lifecycle metadata in the body.
+Canonical lifecycle metadata remains in `writing-task-2.meta.yaml`.
 
-This is the specification for LenBands' first vertical slice. It is currently `draft`, not an official build input: benchmark, review, and acceptance runs do not yet exist. Behavior is anchored by capability IDs in §2; design artifacts are reference representations, not source identity.
+This slice is the first closed-pilot learner outcome proof. It is not build-ready until the canonical API/schema, rights-approved content, benchmark route and executable acceptance evidence align with the current Blueprint/runtime contracts.
 
-Canonical runtime orchestration, normalized `FeedbackFinding`, API pending behavior, and the exact acceptance boundary are in `artifacts/engineering/contracts/writing-task-2/runtime-spec.md`; the sections below are learner-experience summaries and must not redefine them.
+The canonical runtime processing contract is `artifacts/engineering/contracts/writing-task-2/runtime-spec.md`. This document owns the learner-experience summary and must not redefine runtime/API state semantics.
 
-The canonical interaction path is in `artifacts/experience/specs/interaction/writing-task-2.md`; do not implement individual states/APIs until the interaction table is resolved.
+## 1. Product outcome
 
-## 1. Product goal
-
-The learner writes an IELTS Writing Task 2 essay, receives evidence-backed feedback, chooses the most important error to fix, then reviews and retests to verify that the error has decreased.
+The learner writes one IELTS Writing Task 2 essay, receives evidence-backed task-scoped diagnostic feedback, fixes the highest-leverage error, then demonstrates improvement on sufficiently novel content.
 
 ```text
 Task
-  → Draft
-  → Submit
-  → Evaluation
-  → Error Graph
-  → Micro-fix
-  → Mistake Notebook
-  → FSRS Review
-  → Retest
+  -> Draft
+  -> Submit
+  -> Staged evaluation
+  -> Evidence-backed priority finding
+  -> Smallest useful fix
+  -> Review when retrievable
+  -> Independent/novel retest
+  -> Verified improvement or explicit remaining gap
 ```
 
-### Out of scope for this slice
+Success is not "AI returned a score" and not "learner completed a card". The slice succeeds when a later admissible attempt provides evidence that the targeted error decreased.
 
-- Speaking evaluation.
-- Human examiner workflow.
-- Full content authoring/collaborator workflow.
-- Real payment; only the quota/access boundary is needed.
-- Fine-tuning or per-learner FSRS optimization.
+## 2. Scope
 
-## 2. Traceability
+In-scope capability packs:
 
-P0-04 canonical capability IDs: `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts`. The capabilities below are referenced but outside the P0-04 pack scope:
+- P0-04: `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts`;
+- P0-05 integration: `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill`;
+- P0-06 controls: `OPS.*` required by Writing evaluation plus `GOVERNANCE.ConfidenceScore`/audit semantics.
 
-| Type | Reference | P0-04 scope |
-|---|---|---|
-| Capability | `LEARN.Writing`, `EVAL.Writing` | **in-pack** |
-| Capability | `EVAL.RewriteSuggestion` | **out-of-scope (P1)** — referenced for future rewrite loop only |
-| Feedback | `COACH.Feedback`, `COACH.ErrorAnalysis` | **in-pack** |
-| Review | `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue` | **in-pack (P0-05)** |
-| Personalization | `PERSONAL.NextBestAction`, `PERSONAL.Insights` | **out-of-scope (P1)** — Today/NBA uses deterministic rules in P0 |
-| Governance | `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail` | **in-pack (P0-06)** |
-| Governance | `GOVERNANCE.AntiGaming` | **unresolved gap** — capability is P1; P0-04 evaluation flow requires `anti_gaming_status` and `anti_gaming_review` state (runtime-spec §5.3) but no P0 pack owns the anti-gaming capability. Until resolved, P0 anti-gaming detection is a placeholder adapter returning `anti_gaming_status: unchecked`. See convergence audit M10. |
-| Runtime | `STUDY.Session` | **in-pack (P0-03)** |
-| Runtime | `STUDY.Resume`, `PKM.Offline` | **out-of-scope (P1)** — P0 uses basic session/draft save without cross-device resume |
+Explicitly out of scope:
 
-## 3. Users and permissions
+- full essay rewrite generation;
+- Speaking/Pronunciation;
+- human examiner runtime workflow;
+- full cross-skill content management;
+- advanced personalization/Insights;
+- generic AI-generated-text adjudication;
+- per-learner FSRS optimization;
+- full mock/exam-readiness claims.
 
-| Role | Permission |
+## 3. Learner / access boundary
+
+| Persona | Slice behavior |
 |---|---|
-| Learner free | View task, save draft, submit within quota, view completed feedback |
-| Learner premium | Same as free, with package-based quota |
-| Collaborator | Outside the learner flow; cannot read a private draft without permission |
-| Admin | View aggregate quality/audit only; cannot directly edit learner feedback in this slice |
+| Learner | own task/draft/submission/evaluation/error/retest within entitlement/quota |
+| Premium Learner | same learner role; different entitlement/quota/depth only |
+| Colab | no private learner evaluation access in normal content role |
+| Admin | aggregate governance/operations; no manual score overwrite |
+| Internal evaluation worker | function-scoped access to one required operation payload |
 
-Privacy rule: essays, drafts, evaluations, and personal errors are learner-private runtime data. Do not put essay text into analytics events or ordinary logs.
+Premium never uses a different scoring truth/quality floor. Higher plans may buy quota, latency priority or deeper optional explanation, not a lower/higher semantic definition of the same score.
 
-## 4. Entry and exit
+## 4. Entry conditions
 
-### Entry conditions
+P0 entry requires:
 
-One of the following conditions:
+- authenticated learner + effective required consent;
+- TargetProfile exists or a safe P0 fallback target state exists;
+- a right-approved published Writing Task 2 exists for the relevant module/policy;
+- the task/rubric/evaluation route is build/release eligible;
+- evaluation quota/budget can be checked before paid inference.
 
-- The learner clicks `Writing Task 2` from Today.
-- The learner selects `Writing` → `Task 2` from Skill Practice.
-- `PERSONAL.NextBestAction` recommends this task.
-- The learner selects a retest for a due Writing Error.
+If no eligible task exists, show a truthful empty/unavailable state. Do not synthesize an arbitrary assessment task at runtime to avoid the empty state.
 
-If no valid task exists, show an empty state and CTA `Choose another Writing task`. Do not create a random task when content has not been published.
-
-### Exit conditions
-
-- Draft is saved and the learner leaves the screen: draft state `drafting` (pre-submission; not a submission status).
-- Successful submission: submission status moves `submitted` → `processing` (runtime-spec §5.2).
-- With a valid evaluation: submission status moves to `scored`; Error Graph candidates are created automatically, but Review Cards are created only after the learner confirms the error (runtime-spec §D.7, §F.3 — do not auto-create a card).
-- The learner completes the micro-fix: move to the review domain (`REVIEW.ErrorToReview`).
-- Retest meets criteria: error state `improved` (error-to-review contract); otherwise return to the review queue.
-
-## 5. State machine
-
-Canonical submission lifecycle is in `runtime-spec.md` §5.2/§5.3. The states below are a UX-flow view; each state must map to the canonical runtime spec. UX-only states (such as `drafting`) are explicitly not persisted submission statuses.
-
-```text
-idle (UX only — pre-submission)
-  ↓ open task
-drafting (UX only — pre-submission; draft state ≠ submission status)
-  ├─ autosave → drafting
-  ├─ exit → drafting (resume later)
-  └─ submit valid → submitted (runtime-spec canonical)
-
-submitted (runtime-spec: submission accepted; outbox committed)
-  ↓ job claimed
-processing (runtime-spec canonical)
-  ├─ accepted result → scored
-  ├─ low_confidence result → low_confidence (runtime-spec canonical)
-  ├─ invalid/insufficient evidence → unavailable
-  ├─ delayed → delayed
-  ├─ anti-gaming signal flagged → anti_gaming_review (evaluation state, not submission status)
-  └─ provider/system failure → unavailable
-
-anti_gaming_review (evaluation state — runtime-spec §5.2)
-  ├─ route recheck clears signal → processing (re-evaluate)
-  └─ route remains unavailable → unavailable
-
-scored (runtime-spec canonical — submission status terminal)
-  ├─ learner confirms error → review domain (REVIEW.ErrorToReview)
-  └─ learner skips → scored (no error saved)
-
-low_confidence (runtime-spec canonical)
-  ├─ learner confirms evidence-backed error → review domain
-  ├─ learner submits feedback → low_confidence
-  └─ retry evaluation → processing
-```
-
-When submission is blocked by validation/quota/network, it does not create a new submission status; corresponding UX states (`quota_exceeded`, `pending_sync`) are UX-only and map to `not_created` (runtime-spec §5.2). The canonical review/retest state machine is in the `error-to-review` vertical slice and `REVIEW.ErrorToReview` runtime spec.
-
-## 6. Screen inventory
-
-| Screen | Purpose | Primary action | Required states |
-|---|---|---|---|
-| `WR-01 Task` | Understand task and start writing | Start writing | loading, empty, unavailable |
-| `WR-02 Editor` | Write and save draft | Submit | idle, drafting, autosaving, validation_error, offline |
-| `WR-03 Submit Confirm` | Confirm submission | Submit and evaluate | confirm, quota_exceeded (UX-only → not_created) |
-| `WR-04 Evaluating` | Wait for a long task or route recheck | Leave while retaining state | processing, delayed, low_confidence, anti_gaming_review, unavailable |
-| `WR-05 Feedback` | Understand errors and choose priority | Fix this error | scored, low_confidence, partial |
-| `WR-06 Fix Drill` | Fix one specific error | Complete fix exercise | empty, in_progress, complete |
-| `WR-07 Review/Retest` | Verify the error has decreased | Start retest | due, done, needs_review |
+## 5. Learner flow
 
 ### WR-01 — Task
 
-- Display: task prompt, task type, word target, expected time; internal source/license status is not shown to the learner.
-- If the task has a prerequisite, explain it briefly before starting.
-- Primary CTA: `Start writing`.
-- Secondary CTA: `Later` → save task to the plan, do not create an empty draft.
+Show:
+
+- task prompt/type;
+- module where relevant;
+- word target/time guidance;
+- clear primary CTA `Start writing`.
+
+Do not expose internal provider/model identity.
 
 ### WR-02 — Editor
 
-- Sections: collapsed task prompt, editor, word count, optional timer, autosave status, submit bar.
-- Word count is informational; validate on submit:
-  - Task 2 minimum 250 words.
-  - Text is not empty.
-- Autosave locally first, sync to the server later; network loss must not delete text.
-- `Cmd/Ctrl+Enter` opens submit confirmation; it does not submit immediately.
-- Leaving the screen must show `Saved` or `Saving`.
+Must provide:
 
-### WR-03 — Submit Confirm
+- autosave/local recovery;
+- word count;
+- optional timer;
+- visible `Saved`/`Saving locally` state;
+- submit confirmation rather than accidental immediate keyboard submit.
 
-- Copy: `Submit for evaluation? You cannot edit this version after submission.`
-- Show word count and remaining quota.
-- Buttons: `Back to edit`, `Submit`.
-- If quota is exhausted: do not lose the draft; show a clear alternative.
+Network loss must never erase the current learner draft.
+
+### WR-03 — Submit confirmation
+
+Show immutable-version warning, current word count and applicable remaining evaluation allowance.
+
+Before paid inference, deterministic checks validate task/version/input/quota/idempotency.
+
+Invalid input keeps the draft editable and produces zero scorer calls.
 
 ### WR-04 — Evaluating
 
-- Display: `Evaluating writing`, progress by stage, and an estimated time when available.
-- Do not require the user to poll or refresh.
-- The learner may leave; Home displays `Result processing`.
-- If >3 seconds: status feedback is required.
-- If delayed/unavailable: retain the submission and allow an idempotent retry.
+The learner sees only truthful operation states:
+
+- processing;
+- delayed;
+- unavailable.
+
+The learner may leave the screen. The accepted submission remains durable and may be resumed/read later.
+
+Do not expose `low_confidence` as a queue/lifecycle state.
 
 ### WR-05 — Feedback
 
 Content order:
 
-1. Quality state + confidence/disclaimer; no band claim unless the named slice passes the learning measurement admission gate.
-2. 4 criteria: Task Response, Coherence & Cohesion, Lexical Resource, Grammar.
-3. Evidence in the essay.
-4. Short explanation: what the issue is and why.
-5. One highest-priority error.
-6. One immediate corrective action.
+1. what this result represents (`diagnostic estimate from this Writing Task 2`);
+2. result limitation copy when evidence is limited/insufficient;
+3. criterion summary;
+4. cited evidence from the learner essay;
+5. one highest-priority finding;
+6. one concrete corrective action;
+7. how improvement will be verified.
 
-Do not show a long feedback list without priority order.
+Do not show raw model confidence percentages as learner truth.
 
-If confidence is low:
+Primary CTA: `Fix priority error`.
 
-- Label `Needs review`.
-- Show the supporting evidence.
-- Allow the learner to mark `This feedback is incorrect`.
-- Do not use that score as a strong readiness signal.
+Secondary actions may include `View more detail`, `This feedback seems wrong`, or `Skip for now`.
 
-Primary CTA: `Fix priority error`. Secondary CTAs: `Save`, `View all errors`, `Skip this time`.
+### WR-06 — Fix
 
-### WR-06 — Fix Drill
+The intervention is the smallest useful action for the confirmed error.
 
-- One session focuses on one error pattern.
-- Show incorrect example → hint → learner rewrites independently → check.
-- Do not auto-rewrite the entire essay for the learner.
-- Completion must create fix evidence, not merely mark it as read.
-
-### WR-07 — Review/Retest
-
-- Review card requires recall before revealing the explanation.
-- Rating FSRS: Again / Hard / Good / Easy.
-- Retest uses a new prompt/passage with the same error pattern.
-- `improved` applies only when the learner meets the acceptance criteria; see section 12.
-
-## 7. Runtime data contract
-
-This is runtime data, not a Knowledge Asset.
-
-### WritingSubmission
-
-Canonical shape is in `data-contract.md`; raw `text` exists only in the learner-scoped draft service and is not duplicated in the submission entity.
-
-```yaml
-submission_id: string
-user_id: string
-task_ref: string
-draft_id: string
-draft_version: integer
-word_count: integer
-status: submitted | processing | scored | low_confidence | unavailable | delayed
-submitted_at: timestamp
-evaluation_ref: string?
-```
-
-### WritingEvaluation
-
-```yaml
-evaluation_id: string
-submission_id: string
-rubric_version: string
-model_version: string
-criteria:
-  task_response: { band: number, confidence: number, evidence_refs: [] }
-  coherence_cohesion: { band: number, confidence: number, evidence_refs: [] }
-  lexical_resource: { band: number, confidence: number, evidence_refs: [] }
-  grammar: { band: number, confidence: number, evidence_refs: [] }
-overall_band: number
-overall_confidence: number
-evaluation_state: submitted | processing | scored | low_confidence | invalid | anti_gaming_review | failed
-quality_status: accepted | low_confidence | insufficient_evidence | invalid
-anti_gaming_status: clear | action_required
-created_at: timestamp
-```
-
-### LearningError
-
-```yaml
-error_id: string
-user_id: string
-source_evaluation_id: string
-error_pattern: string
-criterion: task_response | coherence_cohesion | lexical_resource | grammar
-severity: high | medium | low
-evidence_ref: string
-status: open | in_review | improved | dismissed
-confidence: number
-created_at: timestamp
-```
-
-### ReviewCard
-
-```yaml
-card_id: string
-user_id: string
-content_ref: error_id
-due: timestamp
-stability: number
-difficulty: number
-reps: integer
-last_rating: again | hard | good | easy
-algorithm_version: string
-```
-
-## 8. API boundary
-
-Contract names are logical boundaries; the current OpenAPI draft is in `engineering/contracts/writing-task-2/openapi.yaml`. Shared HTTP/job/cache/outbox/provider semantics are in the Runtime Contract Pack; this slice must not redefine them.
-
-| Operation | Input | Output | Idempotency |
-|---|---|---|---|
-| `GET /writing/tasks/{task_ref}` | task ref | prompt + constraints | n/a |
-| `PUT /writing/drafts/{draft_id}` | text + version | saved version + saved_at | version check |
-| `POST /writing/submissions` | draft ref + idempotency key | submission ref + status | required |
-| `GET /writing/submissions/{id}` | submission ref | status/evaluation ref | n/a |
-| `GET /writing/errors` | optional status filter | learner-owned error list | n/a |
-| `POST /writing/errors` | confirmed error + evidence ref | saved error | required |
-| `GET /writing/errors/{id}` | error ref | error status + review-card ref | n/a |
-| `POST /writing/submissions/{id}/retry` | submission ref | same submission status | required |
-| `POST /writing/errors/{id}/fixes` | fix evidence | updated error status | required |
-| `POST /review/cards/{id}/ratings` | rating | next due + updated card | required |
-| `POST /writing/submissions/{id}/feedback` | label + note | accepted feedback ref | required |
-
-## 9. Events
-
-Events must use the envelope in the Blueprint Event Contract and contain no essay text. The Writing family emits `evaluation_submitted`, `evaluation_scored`, `evaluation_failed`, `evaluation_delayed`; the Review family emits `learning_error_saved`, `review_completed`, `retest_completed`. The vertical slice observes the full loop but does not transfer ownership between families. The lifecycle/detail events below are registered extensions only; do not rename or replace outcome events.
+Example behavior:
 
 ```text
-writing_task_opened
-writing_draft_saved
-writing_submission_started
-writing_submission_accepted
-evaluation_submitted
-evaluation_scored
-evaluation_delayed
-evaluation_failed
-writing_feedback_viewed
-learning_error_saved
-learning_error_fix_started
-learning_error_fix_completed
-review_card_created
-review_card_rated
-review_completed
-retest_started
-retest_completed
+source evidence
+  -> short diagnosis
+  -> worked/contrast example if needed
+  -> learner produces corrected response independently
+  -> save fix evidence
 ```
 
-## 10. Failure contract
+Do not auto-rewrite the whole essay by default. A full rewrite is not evidence that the learner learned the target construct.
 
-| Failure | User-facing state | Recovery |
-|---|---|---|
-| Draft save fail | `Saving locally` | Retry sync, retain text |
-| Network submit fail | `Unable to submit` | Retry with the same idempotency key |
-| Quota exceeded | `Evaluation quota used` | Retain draft, alternative/upgrade |
-| Evaluation delayed | `Taking longer than expected` | Leave screen, notify when complete |
-| Evaluation unavailable | `Evaluation is unavailable right now` | Retry, retain submission |
-| Anti-gaming review | `Result is being checked further` | Do not show a temporary score; route recheck or unavailable state |
-| Low confidence | `Needs review` | View evidence, learner feedback |
-| Content unavailable | `Task is no longer available` | Choose another published task |
+### WR-07 — Review / Retest
 
-Do not show stack traces, provider names, or technical failure codes to the learner.
+If the remediation unit is meaningfully retrievable, it may enter FSRS review.
 
-## 11. Quality and cost guardrails
+Examples suitable for FSRS:
 
-### Quality
+- grammar form/rule;
+- collocation/phrase;
+- punctuation/error concept;
+- bounded sentence pattern.
 
-- Each criterion must have at least one evidence reference or status `insufficient_evidence`.
-- Do not show an overall band if evaluation does not pass the quality gate.
-- Run benchmark regression before changing the prompt/model/rubric.
-- Store model version, rubric version, and evaluation trace for audit.
-- System feedback must have scoped uncertainty copy; do not show a band claim if the named slice has not passed the learning measurement admission gate.
+Examples not proven by card maturity alone:
 
-### Cost
+- Task Response;
+- Coherence & Cohesion;
+- overall Writing performance.
 
-- Do not call evaluation when the draft is not eligible for submission.
-- Autosave uses debounce and sends only the necessary delta/version.
-- Retry is bounded and idempotent.
-- Generate detailed feedback only after the learner opens the result; the summary may use a less costly output.
-- Micro-fix prioritizes short content/prompts and reuses Knowledge Assets.
+Retest uses sufficiently novel eligible content according to exposure policy. A familiar/revealed prompt can support practice but does not automatically prove transfer.
 
-## 12. Acceptance tests
+## 6. State presentation
 
-### Critical path
+Experience consumes the runtime axes rather than creating new semantic states.
 
-- [ ] Learner opens a published task and sees the prompt + word target.
-- [ ] Learner writes under 250 words and receives inline validation on submit.
-- [ ] Draft autosaves; reload does not lose text.
-- [ ] Submit creates exactly one submission even if the user clicks twice.
-- [ ] Evaluation shows processing if it exceeds 3 seconds.
-- [ ] Completed evaluation shows 4 criteria, overall, confidence, and evidence.
-- [ ] Feedback creates at least one learning error with a source evaluation.
-- [ ] Learner selects one error and completes the fix drill.
-- [ ] Fix drill creates or updates a ReviewCard.
-- [ ] FSRS rating creates a new `due` value.
-- [ ] Retest uses new content/prompt with the same error pattern.
-- [ ] Retest marks `improved` only when the defined criterion is met.
+### Operation state
 
-### Recovery
+```text
+accepted -> processing -> succeeded | delayed | unavailable | failed | cancelled
+```
 
-- [ ] Network loss during draft: text remains local.
-- [ ] Network loss during submit: retry does not create a duplicate submission.
-- [ ] Evaluation timeout: learner can leave and still receives the result after completion.
-- [ ] Quota exhausted: draft is retained and the learner understands the alternative.
-- [ ] Low confidence: band is not used as a strong readiness signal.
-- [ ] Retired content: learner is routed to a replacement task.
+Learner UI normally projects these into actionable copy such as `Evaluating`, `Taking longer`, `Unavailable`.
 
-### Success metric
+### Result validity
 
-The slice is considered quality-ready only when it measures:
+```text
+accepted
+limited_evidence
+insufficient_evidence
+invalid
+integrity_review
+```
 
-- Rate of submissions receiving valid evaluation.
-- Rate of evidence-backed feedback opened by the learner.
-- Rate of errors moved into review.
-- Fix-drill completion rate.
-- Rate of retests showing error improvement.
-- Average evaluation cost per submission.
+Result validity determines whether/how a diagnostic estimate or finding is shown and whether downstream learner-state policy may admit it.
+
+Do not put `low_confidence`, `anti_gaming_review`, `invalid` into the same persisted submission lifecycle enum.
+
+## 7. Score and trust UX
+
+Every numeric result must show scope before precision.
+
+Preferred framing:
+
+- `Estimated from this Writing Task 2`;
+- `Limited evidence — use another task to strengthen the estimate`;
+- `Not enough evidence for a reliable numeric estimate`.
+
+Avoid:
+
+- naked `Band 7.0` with no scope;
+- `73% confidence` when the number has no calibrated learner interpretation;
+- language implying official IELTS examiner equivalence without evidence.
+
+## 8. Integrity UX
+
+Integrity handling is neutral and recoverable.
+
+If an unresolved integrity risk exists:
+
+- do not accuse the learner based on a detector score;
+- explain that this attempt cannot currently be used as normal evidence;
+- allow an appropriate resubmission/new attempt path;
+- keep original learner work durable according to retention policy.
+
+Known-sample similarity/provenance/exposure facts are preferred over probabilistic AI-text-detector claims.
+
+## 9. TargetProfile behavior
+
+The task itself does not store the learner target.
+
+TargetProfile may influence:
+
+- module eligibility;
+- planning/priority;
+- feedback depth/prioritization after scoring;
+- later gap/readiness interpretation.
+
+It must not bias the scorer into awarding the target band. Rubric judgment uses task evidence, not "the learner wants Band 7" as scoring evidence.
+
+## 10. Event/outcome measurement
+
+Core learner-outcome sequence:
+
+```text
+writing_submission_accepted
+evaluation_submitted
+evaluation_scored | evaluation_delayed | evaluation_failed
+writing_feedback_viewed
+learning_error_saved
+learning_error_fix_completed
+review_completed                 # only when review exists
+retest_completed
+verified_improvement_recorded    # add/activate only through canonical event governance
+```
+
+Existing canonical event names remain authoritative. If `verified_improvement_recorded` is not yet registered, do not emit it until the event owner adds it; derive pilot evidence from admitted retest/evidence records in the meantime.
+
+Do not treat feedback view, fix completion or review completion as verified improvement by themselves.
+
+## 11. Quality guardrails
+
+- every actionable finding cites actual learner evidence;
+- unsupported/hallucinated evidence is not silently promoted;
+- scorer route change requires benchmark/release gate;
+- task/rubric/prompt/scorer provenance is retained;
+- no result validity state bypasses evidence admission;
+- no learner-facing score is generated when evidence policy requires `insufficient_evidence`;
+- repeated/familiar retest is not counted as independent transfer;
+- accessibility and keyboard recovery remain part of release acceptance.
+
+## 12. Cost guardrails
+
+- zero scorer calls for deterministically invalid input;
+- one approved primary scorer route for ordinary cases;
+- stronger/second scorer only under hard-case policy;
+- concise feedback is default;
+- deep personalized feedback is optional/quota-bound;
+- remediation content is reused/precomputed where possible;
+- FSRS uses deterministic library logic;
+- route/retry/escalation cost is attributable per evaluation;
+- pilot evaluates `cost_per_verified_improvement`, not only tokens/evaluation.
+
+## 13. Failure/recovery matrix
+
+| Problem | Learner behavior |
+|---|---|
+| Draft network failure | keep local draft; retry sync |
+| Duplicate submit/retry | resolve same logical submission via idempotency |
+| Quota unavailable | keep draft; explain alternative |
+| Provider timeout | preserve submission; show delayed; bounded retry |
+| No approved scorer route | unavailable, not silent model substitution |
+| Invalid scorer evidence | do not pretend result exists; governed retry/degraded validity |
+| Limited evidence | show scoped result limitation and next verification action |
+| Integrity risk | neutral action-required/resubmission path |
+| Retest content unavailable | keep error state; offer another valid action rather than fake completion |
+
+## 14. Acceptance criteria
+
+P0 slice is acceptable only when executable tests/evidence prove:
+
+- published/right-approved task only;
+- draft survives refresh/network interruption;
+- invalid/under-threshold input creates no paid scorer call;
+- duplicate submit creates one semantic submission/charge;
+- evaluation uses staged pipeline and approved routes;
+- malformed/hallucinated evidence cannot become accepted learner feedback;
+- learner A cannot access learner B data;
+- raw essay is absent from general telemetry;
+- learner sees task-scoped estimate semantics;
+- raw confidence is not exposed as a correctness probability;
+- one evidence-backed finding maps to one smallest useful fix;
+- FSRS card is created only for suitable retrievable unit;
+- retest meets configured novelty/exposure requirement;
+- improvement is based on admitted retest evidence rather than completion;
+- provider/model output cannot directly update readiness/mastery;
+- primary/escalation/deep-feedback cost is measurable.
+
+## 15. Exit
+
+The slice exits with one of these learner-meaningful states:
+
+- verified improvement for the targeted error;
+- error remains active with a clear next action;
+- evidence remains insufficient and the learner knows what evidence is needed;
+- evaluation temporarily unavailable but learner work is preserved.
+
+There is no valid exit state called "AI finished".
