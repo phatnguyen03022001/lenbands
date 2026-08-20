@@ -1,6 +1,6 @@
 type: capability-manifest
 status: draft
-version: 1.3.0
+version: 1.4.0
 owner: operations + founder
 representation: yaml
 derived_from: [IDENTITY.Auth, IDENTITY.Profile, IDENTITY.Privacy, GOAL.Target, PLACE.Test, PLACE.BandEstimation, PLACE.GapDetection, PLACE.InitialPath, PLACE.SkillDiagnosis, BAND.Current, STUDY.DailyPlan, STUDY.CheckIn, STUDY.MicroSession, PERSONAL.NextBestAction, LEARN.Writing, EVAL.Writing, COACH.ErrorAnalysis, COACH.Feedback, PKM.Drafts, REVIEW.MistakeNotebook, REVIEW.FSRS, REVIEW.SmartQueue, PRACTICE.Drill, OPS.CostBudget, OPS.ModelRouting, OPS.Quota, OPS.Observability, OPS.ReleaseGate, OPS.EvaluationQuality, OPS.ContentQuality, OPS.OutcomeMeasurement, GOVERNANCE.ConfidenceScore, GOVERNANCE.AuditTrail]
@@ -8,3 +8,9 @@ purpose: typed P0 family projection separating implementation design from releas
 consumed_by: [engineering, experience, operations]
 created_at: 2026-08-07
 updated_at: 2026-08-20
+change_log:
+  - version: 1.4.0
+    date: 2026-08-20
+    changes:
+      - Added target-feasibility, diagnosis-cause, curriculum-coverage, no-over-band and one-action path projection fields.
+      - Removed stale identity runtime-contract reference and legacy three-alternative fallback.
