@@ -32,6 +32,7 @@ Everything else is progressive disclosure.
 10. **Trust before persuasion** — score scope, feasibility limits, data use and recommendation rationale must be understandable.
 11. **No dark patterns** — streaks, reminders and premium design never manufacture urgency or readiness.
 12. **No guaranteed-band copy** — LenBands may explain target feasibility and evidence-based readiness; it must not promise an official IELTS band from plan compliance alone.
+13. **Navigation follows the learning decision** — capability inventory does not become navigation inventory.
 
 ## 3. Minimal Target-to-Band path
 
@@ -71,7 +72,7 @@ This path is a product invariant. Feature additions may deepen a step but must n
 
 ## 4. Home
 
-Home is an orchestration surface, not a feature dashboard.
+Home/Today is the default authenticated learner destination and orchestration surface, not a feature dashboard.
 
 Default layout:
 
@@ -97,6 +98,91 @@ Do **not** stack separate primary cards for Daily Plan, Smart Queue, Insights, R
 Advanced history/analytics/content browsing remains accessible but secondary.
 
 New learner empty state: `Start placement / provide evidence` rather than fake personalization.
+
+### 4.1 Canonical app shell
+
+The shell is intentionally smaller than the capability catalog.
+
+| Destination | Role in the learner experience | P0 behavior |
+|---|---|---|
+| **Today** | default entry; resolves target/evidence state into one next action | primary and always visible after authentication |
+| **Progress / History** | inspect admitted evidence, prior attempts, target movement and unresolved uncertainty | secondary; never required to decide what to do today |
+| **Library / Explore** | deliberate browsing of eligible lessons/practice/resources | phase-gated; hidden in P0 when no useful breadth exists |
+| **Account** | profile, locale/timezone, consent, export/delete and preferences | utility destination, not a learning recommendation surface |
+
+Contextual destinations are reached from the current action rather than permanently occupying top-level navigation:
+
+- placement/diagnosis;
+- Writing/Reading/Listening/Speaking task or practice;
+- evaluation/feedback;
+- error fix/remediation;
+- review;
+- retest;
+- mock/exam simulation when activated.
+
+Rules:
+
+- do not create top-level tabs for capability domains merely because they exist in `03-features.md`;
+- `Writing`, `Speaking`, `Review`, `Insights`, `Recommendations`, `Band Map`, `Mock Test` and similar surfaces become top-level only if measured repeated direct-entry value justifies competing with Today;
+- desktop sidebar and mobile bottom navigation may differ visually but preserve the same destination hierarchy;
+- phase-gated destinations are absent rather than disabled placeholders advertising unavailable scope;
+- top-level navigation never changes scoring/evidence/readiness semantics.
+
+### 4.2 Route topology
+
+The semantic route topology is:
+
+```text
+Unauthenticated
+  -> Sign in / consent prerequisite
+  -> Today
+
+Today
+  ├─ missing goal/evidence -> Target / Placement -> Today
+  ├─ primary action -> Active Task/Session
+  │      ├─ learning/practice complete -> Outcome Summary -> Today
+  │      ├─ evaluation required -> Evaluation Status -> Feedback
+  │      │      -> Priority Fix -> Review if suitable -> Retest
+  │      │      -> Outcome Summary -> Today
+  │      └─ paused/interrupted -> Today exposes Resume
+  ├─ Progress / History
+  └─ Account
+
+Library / Explore (when activated)
+  -> chosen eligible resource/practice
+  -> contextual session
+  -> outcome/evidence handling
+  -> Today remains the default next-decision surface
+```
+
+The user may browse secondary surfaces, but those surfaces do not independently rewrite the current daily plan, target feasibility, diagnosis or readiness.
+
+### 4.3 Navigation and recovery semantics
+
+Navigation is part of state correctness.
+
+- **Back is safe:** browser/system Back returns to the prior meaningful surface without changing accepted domain state or marking a session complete/abandoned.
+- **Resume is explicit:** leaving an active resumable session does not silently complete it; Today exposes `Resume` when the session remains valid.
+- **Drafts survive navigation:** Writing edits are server-synced/versioned when acknowledged and safely preserved locally during transient failure. Show a leave warning only when there is a real risk of losing unacknowledged work.
+- **Submission is immutable after acceptance:** Back navigation cannot turn an accepted Writing submission into an editable pre-submit state; the learner returns to the durable submission/evaluation projection.
+- **Deep links authorize first:** an owned task/result/history deep link resolves authorization and current resource state before rendering. Missing/retired/ineligible resources return one useful recovery action, normally Today or the owning history surface.
+- **Stale routes recover:** stale plan/action links do not execute old recommendations; recompute from canonical state and explain the replacement when material.
+- **No modal maze:** dialogs are reserved for bounded confirmation/consent/destructive decisions; primary learning flows use navigable surfaces rather than nested dialog stacks.
+- **Refresh is semantic no-op:** refreshing an acknowledged state restores the same logical learner state; it never duplicates mutation, evaluation, charge, evidence or completion.
+- **Cross-device resume is versioned:** when activated, another device resumes from canonical server state plus only safe unacknowledged local work; last-writer behavior must not silently discard learner work.
+
+### 4.4 Primary action handoff
+
+Every contextual flow hands control back to the learner in one of four ways:
+
+```text
+verified or useful outcome -> Today recomputes next action
+action incomplete          -> Today offers Resume
+more evidence required     -> Today offers one evidence action
+no eligible governed path  -> truthful content_gap / unavailable / constraint decision
+```
+
+A contextual screen must not end with a generic dead-end `Done` if a governed next state exists.
 
 ## 5. First Day
 
@@ -124,6 +210,8 @@ Foundation vs technique vs integrated-performance diagnosis
 Target feasibility state
    ↓
 ONE first action + why + verification
+   ↓
+Today becomes the default home
 ```
 
 Rules:
@@ -132,14 +220,15 @@ Rules:
 - target feasibility may also be insufficient evidence;
 - `on_track` is not a guarantee;
 - `current_constraints_insufficient` must present actionable choices without shaming the learner;
-- onboarding should not ask for metadata that does not change the first plan.
+- onboarding should not ask for metadata that does not change the first plan;
+- onboarding does not end on a dashboard tour; it ends on the first credible action or an explicit missing-evidence/constraint decision.
 
 ## 6. Daily Study
 
 The daily loop:
 
 ```text
-Open app
+Open app -> Today
    ↓
 Today action + Why + Verification
    ↓
@@ -153,7 +242,7 @@ Outcome summary
    - what remains uncertain
    - whether verification passed
    ↓
-Next action only when needed
+Today recomputes only when a new decision is needed
 ```
 
 Activity metrics such as minutes/questions are secondary. They do not define progress.
@@ -178,6 +267,8 @@ Novel retest
 Transfer / maintenance when the construct requires it
    ↓
 Update learner evidence
+   ↓
+Return to Today with new decision state
 ```
 
 FSRS is inserted only for a genuinely retrievable remediation unit. Review-card maturity never substitutes for complex IELTS performance.
@@ -233,6 +324,8 @@ What the result represents
 Highest-value blocker
    ↓
 ONE next action
+   ↓
+Today / readiness state
 ```
 
 ### Before Exam
@@ -262,6 +355,8 @@ The next path is either:
 - target achieved -> close/maintain/new target;
 - target missed -> compare evidence, identify the most supportable gap, create a new one-action plan.
 
+Both return to Today once a new target/decision state exists.
+
 ## 12. Failure and recovery
 
 Every failure ends in a useful state.
@@ -275,6 +370,8 @@ Every failure ends in a useful state.
 | Missing curriculum coverage | `content_gap`; do not substitute unrelated/harder material |
 | Target constraints insufficient | show one constraint decision, not an impossible normal plan |
 | No eligible action | truthful fallback/no-plan state |
+| Stale/deep-linked action | resolve current ownership/version/eligibility, then replace or recover instead of executing stale semantics |
+| Navigation during unsaved work | preserve safely or warn only when real loss is possible |
 
 Technical codes, provider identity and raw model confidence never replace learner-facing guidance.
 
@@ -284,6 +381,7 @@ Retention is a value loop:
 
 ```text
 Return
+  -> Today
   -> one useful action
   -> evidence change
   -> clear next state
@@ -316,7 +414,8 @@ Optional deeper explanation comes after these four elements, never before the le
 - default feedback depth is the least expensive version that remains actionable;
 - premium may increase volume/depth, never alter score/evidence semantics;
 - weak network/quota preserves work and basic truth before optional depth;
-- fewer learner-facing choices are preferred when they preserve outcome quality.
+- fewer learner-facing choices are preferred when they preserve outcome quality;
+- a new permanent top-level destination must justify its navigation/maintenance burden with repeated learner value.
 
 ## 16. Experience measurement
 
@@ -327,6 +426,7 @@ Optional deeper explanation comes after these four elements, never before the le
 | Recommendation | later retest/transfer lift | choice overload / opt-out |
 | Feedback | next independent attempt improves | abandonment / feedback length |
 | Feasibility | learner takes an appropriate plan/constraint action | no false guarantee/false precision |
+| Navigation | time/steps from app open to primary useful action; resume success | dead-end/back confusion/top-level sprawl |
 | Comeback | meaningful session resumed | guilt/notification fatigue |
 | Before exam | evidence coverage and stable performance improve | avoid last-minute over-band cramming |
 
@@ -335,9 +435,14 @@ Optional deeper explanation comes after these four elements, never before the le
 Before releasing a learner journey, verify that:
 
 - the first meaningful action is easy to reach;
+- Today is the default next-decision surface after authentication/onboarding and after contextual flow completion;
 - the learner does not need to browse the feature catalog to know what to do next;
 - one primary action, one reason and one verification rule are visible;
 - at most one lighter alternative competes with the primary action;
+- top-level navigation contains only destinations with repeated direct-entry value in the activated phase;
+- Back/refresh/deep-link/resume behavior preserves canonical state and cannot duplicate semantic effects;
+- leaving a resumable session does not silently mark it complete or abandoned;
+- unsaved learner work is preserved or explicitly protected before navigation loss;
 - missing evidence is not labeled weakness;
 - foundation vs technique vs integrated-performance cause changes the intervention where evidence supports it;
 - no over-target/advanced material appears without explicit justification;
