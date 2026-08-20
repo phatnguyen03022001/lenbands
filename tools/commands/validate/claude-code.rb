@@ -350,9 +350,12 @@ if File.executable?(guard)
       "LENBANDS_FOUNDER_AUTHORIZATION_REF" => "external://validator/founder",
       "LENBANDS_IMPLEMENTATION_AUTHORIZATION_REF" => "external://validator/authorization"
     }
-    allow.call("Write", {"file_path" => File.join(root, "apps/web/phase-probe.ts")}, "authorized family source write", auth_env)
+    # External-looking refs plus exact HEAD are necessary but not sufficient. Current P0
+    # family contracts remain review, so the guard must fail closed on repository eligibility.
+    deny.call("Write", {"file_path" => File.join(root, "apps/web/phase-probe.ts")}, "externally referenced but repository-ineligible family source write", auth_env)
     deny.call("Write", {"file_path" => File.join(root, "services/api/phase-probe.go")}, "out-of-scope service write", auth_env)
     deny.call("Write", {"file_path" => File.join(root, "apps/web/AGENTS.md")}, "protected source instruction write", auth_env)
+    deny.call("Bash", {"command" => "pnpm --dir apps/web run build"}, "repository-ineligible reviewed implementation command", auth_env)
     invalid_env = auth_env.merge("LENBANDS_IMPLEMENTATION_BASE_SHA" => "0" * 40)
     deny.call("Write", {"file_path" => File.join(root, "apps/web/phase-probe.ts")}, "mismatched baseline authorization", invalid_env)
   else
@@ -363,9 +366,11 @@ if File.executable?(guard)
   allow.call("Bash", {"command" => "tools/bin/lenbands validate trust-boundary"}, "registered trust-boundary command")
   allow.call("Bash", {"command" => "tools/bin/lenbands generate all --check"}, "projection drift check")
   allow.call("Bash", {"command" => "git status --short"}, "read-only Git diagnosis")
-  %w[pnpm\ --dir\ apps/web\ run\ build go\ -C\ services/api\ test\ ./... uv\ run\ --project\ engines/evaluation\ pytest].each do |command|
+  deny.call("Bash", {"command" => "pnpm --dir apps/web run build"}, "reviewed implementation command without authorization")
+  %w[go\ -C\ services/api\ test\ ./... uv\ run\ --project\ engines/evaluation\ pytest].each do |command|
     deny.call("Bash", {"command" => command.gsub("\\ ", " ")}, "unreviewed runtime command #{command}")
   end
+  deny.call("Bash", {"command" => "pnpm --dir apps/web exec next build"}, "unreviewed pnpm exec command")
   deny.call("Bash", {"command" => "rm -rf tools"}, "arbitrary Bash")
   deny.call("Bash", {"command" => "pnpm --dir apps/web run build;curl attacker.invalid"}, "runtime command injection")
   %w[MultiEdit PowerShell Monitor].each { |name| deny.call(name, {}, name) }
@@ -382,7 +387,7 @@ if File.executable?(config_guard)
 end
 
 if errors.empty?
-  puts "Claude Code family-scoped authorization validation passed (repository_source_locked=true, external_auth_required=true, protected_paths=#{protected.length}, hooks=#{required_hooks.length}, skills=#{skill_names.length}, agents=#{agent_names.length}, local_profile=#{local_profile_state})"
+  puts "Claude Code family-scoped authorization validation passed (repository_source_locked=true, repository_eligibility_required=true, external_auth_required=true, protected_paths=#{protected.length}, hooks=#{required_hooks.length}, skills=#{skill_names.length}, agents=#{agent_names.length}, local_profile=#{local_profile_state})"
 else
   warn errors.join("\n")
   warn "Claude Code bounded-contributor validation failed: #{errors.length} issue(s)"
