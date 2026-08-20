@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 status: review
 source_of_truth: true
 contract_id: implementation-eligibility
@@ -28,21 +28,34 @@ axes:
   release_readiness:
     values: [not_ready, ready]
     evaluated_per: release_scope
-    requires: [runtime_acceptance, evidence_integrity, privacy_security_quality_cost_gates]
+    requires:
+      - runtime_acceptance
+      - evidence_integrity
+      - privacy_security_quality_cost_gates
+      - all_applicable_risk_release_evidence_satisfied
+      - legal_rights_and_provider_activation_decisions_satisfied
+  public_scale_readiness:
+    values: [not_ready, ready]
+    evaluated_per: exposed_product_scope
+    requires: [release_ready, public_scale_risk_controls_satisfied]
 
 risk_coverage_binding:
   registry: artifacts/operations/problem-risk-registry.yaml
-  rule: >
-    Every category applicable to a capability family must have an explicit risk entry. Any P0
-    critical/high risk marked open or partial with implementation_blocking=true keeps that family
-    blocked even when feature prose appears complete.
-  non_rule: >
-    A covered risk does not prove runtime acceptance or release readiness; those remain separate
-    evidence gates.
+  implementation_rule: >
+    Only an unresolved risk explicitly marked implementation_blocking=true keeps source implementation
+    in that family blocked. Evidence that can exist only after implementation must not be fabricated or
+    used as a circular pre-code prerequisite.
+  release_rule: >
+    release_evidence_required=true means the owning release/evidence gate must contain real candidate-bound
+    evidence before release; risk status covered describes design coverage, not that the evidence has passed.
+  scale_rule: >
+    public_scale_control_required=true may remain unresolved in a bounded closed pilot only when the closed-pilot
+    eligibility policy explicitly permits it; it must be resolved before broader access or monetization.
 
 invariants:
   - ACTIVE_does_not_mean_implementation_authorized
   - implementation_eligibility_does_not_mean_release_ready
+  - release_ready_does_not_mean_public_scale_ready
   - one_family_may_be_eligible_while_other_families_remain_blocked
   - closed_pilot_release_may_still_require_all_P0_families_ready
   - authorization_is_bound_to_exact_candidate_sha_and_declared_family_scope
@@ -50,6 +63,7 @@ invariants:
   - no_unknown_placeholder_or_unapproved_decision_may_be_silently_coerced_to_eligible
   - risk_status_covered_is_not_runtime_evidence
   - deferred_risk_is_not_equivalent_to_covered
+  - synthetic_or_fixture_implementation_does_not_authorize_real_learner_data_collection
 
 current_transition:
   source_mutation_state: locked
