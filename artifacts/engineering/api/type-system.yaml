@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 status: review
 source_of_truth: true
 contract_id: web-api-type-system
@@ -51,12 +51,16 @@ transport_policy:
   public_failure_codes:
     - EVALUATION_DELAYED
     - EVALUATION_UNAVAILABLE
-    - EVALUATION_LOW_CONFIDENCE
     - QUOTA_EXCEEDED
     - SYNC_CONFLICT
     - DRAFT_SYNC_UNAVAILABLE
     - SUBMISSION_UNAVAILABLE
     - CONTENT_UNAVAILABLE
+
+result_validity_policy:
+  values: [accepted, limited_evidence, insufficient_evidence, invalid, integrity_review]
+  rule: result_validity_is_a_success_payload_domain_field_not_a_public_failure_code
+  learner_uncertainty_rule: raw_model_confidence_is_not_exposed_as_correctness_probability_without_calibration
 
 compiler_rules:
   - schema_names_resolve_before_aliases
@@ -70,3 +74,5 @@ compiler_rules:
   - object_schemas_reject_unknown_properties_unless_the_alias_explicitly_allows_them
   - every_non_204_success_response_is_bound_to_the_operation_response_schema
   - resolved_openapi_is_the_only_codegen_input
+  - canonical_openapi_operation_set_equals_schema_contract_operation_set_equals_operation_ownership_set
+  - public_failure_codes_resolve_to_failure_taxonomy_public_projection
