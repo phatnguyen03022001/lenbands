@@ -42,13 +42,13 @@ Do **not** scan the repository before reading `DOCS.yaml`. Do **not** resolve au
 - Problem/risk coverage: `artifacts/operations/problem-risk-registry.yaml`
 - Sourcing/build-vs-buy: `artifacts/business/decisions/platform-sourcing.md`
 
-Legacy OpenAPI/BOPS/build-buy documents exist only for migration and traceability. Their status is declared in `DOCS.yaml`; they must not become a second authority.
+Retired migration/review documents are historical Git state, not build inputs. Only current aliases explicitly registered in `DOCS.yaml` may be followed for transitional compatibility.
 
-## Framework compatibility projection
+## Framework compatibility marker
 
 Current compatibility projection: **Framework IELTS v1.0.6**.
 
-This line exists only because the bounded-contributor validator still checks the agent entrypoint during migration. The authoritative Framework version remains `blueprint/framework/README.md`; agents must not use this projection to resolve a conflict. The projection is removed when that validator is migrated to `DOCS.yaml`/Framework metadata.
+This marker exists only because the bounded-contributor validator still checks the entrypoint against `blueprint/framework/README.md`. Framework authority remains the Framework itself; this marker must never resolve a semantic conflict and should be removed when that validator dependency is retired.
 
 ## Protected change workflow
 
