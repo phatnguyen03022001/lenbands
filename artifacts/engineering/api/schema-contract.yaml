@@ -1,12 +1,12 @@
 type: web-api-schema-contract
 status: review
-version: 0.1.1
+version: 0.2.0
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
 purpose: typed request-response contract for every canonical web operation
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
 
 rules:
   - every canonical OpenAPI operationId appears exactly once in operation_contracts
@@ -17,6 +17,10 @@ rules:
   - assessment payloads preserve task/content/version and assessment_mode provenance
   - score payloads preserve score_label and score_scope
   - learner-facing score responses never use raw provider confidence as correctness probability
+  - operation_or_submission_lifecycle_is_separate_from_result_validity
+  - model_or_provider_identity_is_not_required_in_learner_facing_score_payloads
+  - learner_target_is_a_target_profile_not_one_universal_band_value
+  - optional_content_taxonomy_never_becomes_required_without_an_active_consumer_decision
 
 operation_contracts:
   getPublicConfig: {request: none, response: PublicConfig}
@@ -88,24 +92,28 @@ schemas:
       supported_locales: "array<string>"
       product_status: "string"
       api_version: "semver"
+
   PublicCatalog:
     required: [exam_modules, skills, capability_refs]
     properties:
       exam_modules: "array<academic|general_training>"
       skills: "array<listening|reading|writing|speaking>"
       capability_refs: "array<string>"
+
   PricingView:
     required: [plans, currency, display_source]
     properties:
       plans: "array<PricingPlan>"
       currency: "string"
       display_source: "provider_or_config"
+
   PricingPlan:
     required: [plan_id, entitlement, display_price]
     properties:
       plan_id: "string"
       entitlement: "string"
       display_price: "string"
+
   Profile:
     required: [subject_id, role, locale, account_status, version]
     properties:
@@ -115,12 +123,14 @@ schemas:
       account_status: "active|suspended|deletion_pending"
       display_name: "string|null"
       version: "integer"
+
   ProfilePatch:
     required: [version]
     properties:
       display_name: "string|null"
       locale: "string|null"
       version: "integer"
+
   EntitlementSet:
     required: [subject_id, active_entitlements, source_version, evaluated_at]
     properties:
@@ -128,12 +138,14 @@ schemas:
       active_entitlements: "array<string>"
       source_version: "string"
       evaluated_at: "timestamp"
+
   ConsentDecision:
     required: [policy_id, policy_version, decision]
     properties:
       policy_id: "string"
       policy_version: "string"
       decision: "consented|declined"
+
   ConsentRecord:
     required: [consent_id, policy_id, policy_version, decision, recorded_at]
     properties:
@@ -142,34 +154,51 @@ schemas:
       policy_version: "string"
       decision: "consented|declined"
       recorded_at: "timestamp"
+
   AsyncRequest:
     required: [request_id, state, created_at]
     properties:
       request_id: "string"
       state: "queued|processing|completed|failed"
       created_at: "timestamp"
-  LearnerGoalInput:
-    required: [target_band, exam_module, daily_minutes]
+
+  TargetProfile:
+    required: [exam_module]
     properties:
-      target_band: "half_band_0_9"
       exam_module: "academic|general_training"
+      target_overall_band: "half_band_0_9|null"
+      skill_minimums: "SkillMinimumMap"
       exam_date: "date|null"
+      purpose: "string|null"
+
+  SkillMinimumMap:
+    properties:
+      listening: "half_band_0_9|null"
+      reading: "half_band_0_9|null"
+      writing: "half_band_0_9|null"
+      speaking: "half_band_0_9|null"
+
+  LearnerGoalInput:
+    required: [target_profile, daily_minutes]
+    properties:
+      target_profile: "TargetProfile"
       daily_minutes: "integer_5_480"
+
   LearnerGoal:
-    required: [goal_id, target_band, exam_module, daily_minutes, version]
+    required: [goal_id, target_profile, daily_minutes, version]
     properties:
       goal_id: "string"
-      target_band: "half_band_0_9"
-      exam_module: "academic|general_training"
-      exam_date: "date|null"
+      target_profile: "TargetProfile"
       daily_minutes: "integer_5_480"
       version: "integer"
+
   PlacementStart:
     required: [configuration_ref, configuration_version]
     properties:
       configuration_ref: "string"
       configuration_version: "semver"
       goal_ref: "string|null"
+
   PlacementResponseInput:
     required: [item_ref, item_version, response]
     properties:
@@ -177,6 +206,7 @@ schemas:
       item_version: "string"
       response: "scalar_or_structured_answer"
       response_time_ms: "integer|null"
+
   PlacementResponseReceipt:
     required: [response_id, attempt_id, item_ref, accepted]
     properties:
@@ -184,6 +214,7 @@ schemas:
       attempt_id: "string"
       item_ref: "string"
       accepted: "boolean"
+
   PlacementAttempt:
     required: [attempt_id, configuration_ref, configuration_version, state, version]
     properties:
@@ -193,6 +224,7 @@ schemas:
       state: "new|in_progress|paused|submitted|diagnosed|insufficient_data"
       result: "PlacementResult|null"
       version: "integer"
+
   PlacementResult:
     required: [score_label, score_scope, calibration_status, confidence_state, termination_reason, evidence_coverage]
     properties:
@@ -204,12 +236,14 @@ schemas:
       confidence_state: "unknown|provisional|stronger_evidence"
       termination_reason: "precision_and_coverage_met|max_burden_reached|learner_stopped|insufficient_evidence|invalid_configuration"
       evidence_coverage: "EvidenceCoverage"
+
   SkillEstimateMap:
     properties:
       listening: "half_band_0_9|null"
       reading: "half_band_0_9|null"
       writing: "half_band_0_9|null"
       speaking: "half_band_0_9|null"
+
   EvidenceCoverage:
     required: [required_constructs, observed_constructs, missing_constructs, independent_evidence_count]
     properties:
@@ -217,10 +251,12 @@ schemas:
       observed_constructs: "array<string>"
       missing_constructs: "array<string>"
       independent_evidence_count: "integer"
+
   CheckInInput:
     properties:
       minutes_available: "integer|null"
       energy: "low|normal|high|skipped"
+
   DailyPlan:
     required: [plan_id, plan_version, plan_state, actions, generated_at, expires_at]
     properties:
@@ -230,6 +266,7 @@ schemas:
       actions: "array<DailyAction>"
       generated_at: "timestamp"
       expires_at: "timestamp"
+
   DailyAction:
     required: [action_id, capability_id, reason_code, estimated_minutes]
     properties:
@@ -237,16 +274,19 @@ schemas:
       capability_id: "string"
       reason_code: "string"
       estimated_minutes: "integer"
+
   StudySessionStart:
     required: [plan_id, action_id]
     properties:
       plan_id: "string"
       action_id: "string"
+
   StudySessionUpdate:
     required: [state, version]
     properties:
       state: "started|paused|completed|abandoned"
       version: "integer"
+
   StudySession:
     required: [session_id, action_id, state, version]
     properties:
@@ -256,6 +296,7 @@ schemas:
       started_at: "timestamp"
       completed_at: "timestamp|null"
       version: "integer"
+
   LearningPath:
     required: [path_id, path_version, nodes, evidence_state_version]
     properties:
@@ -263,6 +304,7 @@ schemas:
       path_version: "string"
       nodes: "array<LearningPathNode>"
       evidence_state_version: "string"
+
   LearningPathNode:
     required: [node_id, capability_id, status, reason]
     properties:
@@ -270,32 +312,38 @@ schemas:
       capability_id: "string"
       status: "recommended|available|completed"
       reason: "string"
+
   PracticeSetList:
     properties:
       items: "array<PracticeSetSummary>"
       next_cursor: "string|null"
+
   PracticeSetSummary:
     required: [set_id, skill, assessment_modes]
     properties:
       set_id: "string"
       skill: "listening|reading|writing|speaking"
       assessment_modes: "array<learn|practice|retest|exam_simulation>"
+
   PracticeAttemptStart:
     required: [set_ref, set_version, assessment_mode]
     properties:
       set_ref: "string"
       set_version: "string"
       assessment_mode: "learn|practice|retest|exam_simulation"
+
   MockAttemptStart:
     required: [test_version]
     properties:
       test_version: "string"
+
   PracticeAnswerInput:
     required: [item_ref, item_version, answer]
     properties:
       item_ref: "string"
       item_version: "string"
       answer: "scalar_or_structured_answer"
+
   PracticeAnswerReceipt:
     required: [answer_id, attempt_id, item_ref, accepted]
     properties:
@@ -303,25 +351,30 @@ schemas:
       attempt_id: "string"
       item_ref: "string"
       accepted: "boolean"
+
   PracticeAttempt:
-    required: [attempt_id, assessment_mode, state, exposure_refs, version]
+    required: [attempt_id, assessment_mode, operation_state, exposure_refs, version]
     properties:
       attempt_id: "string"
       assessment_mode: "learn|practice|retest|exam_simulation"
-      state: "in_progress|submitted|scored|insufficient_evidence|invalid"
+      operation_state: "in_progress|submitted|processing|completed|delayed|unavailable"
+      result_validity: "accepted|limited_evidence|insufficient_evidence|invalid|integrity_review|null"
       exposure_refs: "array<string>"
       score_label: "exam_simulation_estimate|diagnostic_estimate|null"
       score_scope: "string|null"
       version: "integer"
+
   ReviewQueue:
     properties:
       items: "array<ReviewItem>"
       generated_at: "timestamp"
+
   ReviewRatingInput:
     required: [rating, card_version]
     properties:
       rating: "again|hard|good|easy"
       card_version: "integer"
+
   ReviewItem:
     required: [item_id, content_ref, source_evidence_ref, due_at, state]
     properties:
@@ -330,10 +383,12 @@ schemas:
       source_evidence_ref: "string"
       due_at: "timestamp"
       state: "new|learning|review|relearning"
+
   AssessmentHistory:
     properties:
       attempts: "array<AttemptSummary>"
       next_cursor: "string|null"
+
   AttemptSummary:
     required: [attempt_id, score_label, score_scope, assessment_mode, created_at]
     properties:
@@ -342,36 +397,47 @@ schemas:
       score_scope: "string"
       assessment_mode: "string"
       band: "half_band_0_9|null"
+      result_validity: "accepted|limited_evidence|insufficient_evidence|invalid|integrity_review|null"
       created_at: "timestamp"
+
   ProgressSummary:
     required: [evidence_updated_at, outcomes]
     properties:
       evidence_updated_at: "timestamp"
       outcomes: "array<ProgressOutcome>"
+
   ProgressOutcome:
     required: [type, state]
     properties:
       type: "error_recurrence|retest|transfer|maintenance|estimate_uncertainty|exam_simulation_stability"
       state: "string"
       evidence_ref: "string|null"
+
   SearchResultList:
     properties:
       items: "array<SearchResult>"
       next_cursor: "string|null"
+
   SearchResult:
     required: [result_id, type, title]
     properties:
       result_id: "string"
       type: "content|question|framework|personal"
       title: "string"
+
   WritingTask:
-    required: [task_id, task_version, task_type, prompt, lifecycle_state]
+    required: [task_id, task_version, exam_module, task_type, prompt, rubric_version, lifecycle_state, rights_state, exposure_policy_ref]
     properties:
       task_id: "string"
       task_version: "string"
+      exam_module: "academic|general_training|shared"
       task_type: "string"
       prompt: "string"
+      rubric_version: "string"
       lifecycle_state: "published|retired"
+      rights_state: "approved|restricted|blocked|needs_review"
+      exposure_policy_ref: "string"
+
   WritingDraftInput:
     required: [task_ref, task_version, text, version]
     properties:
@@ -379,15 +445,18 @@ schemas:
       task_version: "string"
       text: "string"
       version: "integer"
+
   WritingDraft:
-    required: [draft_id, task_ref, task_version, text, version, saved_at]
+    required: [draft_id, task_ref, task_version, text, word_count, version, saved_at]
     properties:
       draft_id: "string"
       task_ref: "string"
       task_version: "string"
       text: "string"
+      word_count: "integer"
       version: "integer"
       saved_at: "timestamp"
+
   WritingSubmissionInput:
     required: [draft_ref, draft_version, task_ref, task_version, assessment_mode]
     properties:
@@ -395,19 +464,23 @@ schemas:
       draft_version: "integer"
       task_ref: "string"
       task_version: "string"
-      assessment_mode: "learn|practice|retest|exam_simulation"
+      assessment_mode: "practice|retest"
+
   WritingSubmission:
-    required: [submission_id, immutable_snapshot_ref, task_ref, task_version, assessment_mode, state, created_at]
+    required: [submission_id, immutable_snapshot_ref, task_ref, task_version, assessment_mode, operation_id, submission_state, created_at]
     properties:
       submission_id: "string"
       immutable_snapshot_ref: "string"
       task_ref: "string"
       task_version: "string"
-      assessment_mode: "learn|practice|retest|exam_simulation"
-      state: "submitted|processing|scored|low_confidence|insufficient_evidence|invalid|failed"
+      assessment_mode: "practice|retest"
+      operation_id: "string"
+      submission_state: "submitted|processing|completed|delayed|unavailable"
+      evaluation_ref: "string|null"
       created_at: "timestamp"
+
   EvaluationResult:
-    required: [evaluation_id, submission_id, score_label, score_scope, assessment_mode, rubric_version, scorer_route_version, quality_status, criteria, created_at]
+    required: [evaluation_id, submission_id, score_label, score_scope, assessment_mode, rubric_version, scorer_route_version, result_validity, criteria, created_at]
     properties:
       evaluation_id: "string"
       submission_id: "string"
@@ -416,51 +489,58 @@ schemas:
       assessment_mode: "learn|practice|retest|exam_simulation"
       rubric_version: "string"
       scorer_route_version: "string"
-      model_id: "string"
-      provider_id: "string"
-      quality_status: "accepted|low_confidence|insufficient_evidence|invalid"
-      confidence_state: "unknown|provisional|stronger_evidence"
+      result_validity: "accepted|limited_evidence|insufficient_evidence|invalid|integrity_review"
       overall_band: "half_band_0_9|null"
+      learner_uncertainty_copy: "string|null"
       criteria: "CriterionResultMap"
       created_at: "timestamp"
+
   CriterionResultMap:
     properties:
       task_response: "CriterionResult"
       coherence_cohesion: "CriterionResult"
       lexical_resource: "CriterionResult"
       grammar: "CriterionResult"
+
   CriterionResult:
     required: [band, evidence_refs]
     properties:
       band: "half_band_0_9|null"
       evidence_refs: "array<string>"
-      issue_refs: "array<string>"
+      finding_refs: "array<string>"
+
   EvaluationFeedbackInput:
     required: [feedback_type]
     properties:
       feedback_type: "helpful|not_helpful|incorrect|unclear"
       note: "string|null"
+
   EvaluationFeedbackReceipt:
     required: [feedback_id, recorded_at]
     properties:
       feedback_id: "string"
       recorded_at: "timestamp"
+
   DeepFeedbackInput:
     properties:
       focus_criterion: "task_response|coherence_cohesion|lexical_resource|grammar|null"
+
   InsightList:
     properties:
       items: "array<Insight>"
       generated_from_evidence_version: "string"
+
   Insight:
     required: [insight_id, reason, action]
     properties:
       insight_id: "string"
       reason: "string"
       action: "string"
+
   MockTestList:
     properties:
       items: "array<MockTestSummary>"
+
   MockTestSummary:
     required: [test_id, test_version, module, skills]
     properties:
@@ -468,37 +548,47 @@ schemas:
       test_version: "string"
       module: "academic|general_training"
       skills: "array<string>"
+
   ContentItemInput:
-    required: [content_type, body, taxonomy_refs]
+    required: [content_type, body, provenance_ref, rights_state]
     properties:
       content_type: "string"
       body: "structured_content"
       taxonomy_refs: "array<string>"
-      provenance_ref: "string|null"
+      provenance_ref: "string"
+      rights_state: "approved|restricted|blocked|needs_review"
+
   ContentItemPatch:
     required: [version]
     properties:
       body: "structured_content|null"
       taxonomy_refs: "array<string>|null"
       provenance_ref: "string|null"
+      rights_state: "approved|restricted|blocked|needs_review|null"
       version: "integer"
+
   ContentItem:
-    required: [item_id, content_type, lifecycle_state, version, taxonomy_refs]
+    required: [item_id, content_type, lifecycle_state, version, provenance_ref, rights_state]
     properties:
       item_id: "string"
       content_type: "string"
-      lifecycle_state: "draft|in_review|approved|published|retired"
+      lifecycle_state: "draft|in_review|approved|published|deprecated|retired"
       version: "integer"
       taxonomy_refs: "array<string>"
+      provenance_ref: "string"
+      rights_state: "approved|restricted|blocked|needs_review"
+
   ContentItemList:
     properties:
       items: "array<ContentItem>"
       next_cursor: "string|null"
+
   LifecycleTransitionInput:
     required: [expected_version]
     properties:
       expected_version: "integer"
       reason: "string|null"
+
   ContentReport:
     required: [report_id, item_ref, category, state]
     properties:
@@ -506,20 +596,25 @@ schemas:
       item_ref: "string"
       category: "wrong_answer|content_error|rights|other"
       state: "open|triaged|resolved|rejected"
+
   ContentReportList:
     properties:
       items: "array<ContentReport>"
       next_cursor: "string|null"
+
   ContentReportPatch:
     required: [state]
     properties:
       state: "triaged|resolved|rejected"
       resolution_note: "string|null"
+
   TagSuggestionInput:
     required: [item_ref, item_version]
     properties:
       item_ref: "string"
       item_version: "integer"
+      requested_dimensions: "array<string>"
+
   AdminUser:
     required: [subject_id, role, account_status]
     properties:
@@ -527,30 +622,36 @@ schemas:
       role: "learner|colab|admin"
       account_status: "active|suspended|deletion_pending"
       entitlement_summary: "array<string>"
+
   AdminUserList:
     properties:
       items: "array<AdminUser>"
       next_cursor: "string|null"
+
   UserStatusInput:
     required: [status, reason]
     properties:
       status: "active|suspended"
       reason: "string"
+
   SystemConfig:
     required: [config_version, values, updated_at]
     properties:
       config_version: "integer"
       values: "governed_config_map"
       updated_at: "timestamp"
+
   SystemConfigInput:
     required: [expected_version, changes]
     properties:
       expected_version: "integer"
       changes: "governed_config_map"
+
   AuditRecordList:
     properties:
       items: "array<AuditRecord>"
       next_cursor: "string|null"
+
   AuditRecord:
     required: [audit_id, action, principal_ref, target_ref, created_at]
     properties:
@@ -559,38 +660,45 @@ schemas:
       principal_ref: "string"
       target_ref: "string|null"
       created_at: "timestamp"
+
   EvaluationGovernanceView:
     required: [scorer_routes, benchmark_state, quality_slices]
     properties:
       scorer_routes: "array<ScorerRouteState>"
       benchmark_state: "string"
       quality_slices: "governed_aggregate_map"
+
   ScorerRouteState:
     required: [route_version, state]
     properties:
       route_version: "string"
       state: "candidate|approved|retired"
+
   UsageOverview:
     required: [window, metrics]
     properties:
       window: "string"
       metrics: "provider_neutral_usage_map"
+
   ReleaseGateInput:
     required: [candidate_ref, evidence_refs]
     properties:
       candidate_ref: "string"
       evidence_refs: "array<string>"
+
   ReleaseGateDecision:
     required: [decision_id, state, reasons]
     properties:
       decision_id: "string"
       state: "pass|block"
       reasons: "array<string>"
+
   BillingOverview:
     required: [subscription_counts, entitlement_reconciliation_state]
     properties:
       subscription_counts: "aggregate_map"
       entitlement_reconciliation_state: "healthy|degraded|unknown"
+
   BillingWebhookEnvelope:
     required: [event_id, occurred_at, event_type, data]
     properties:
@@ -598,6 +706,7 @@ schemas:
       occurred_at: "timestamp"
       event_type: "string"
       data: "provider_payload_normalized_after_signature_verification"
+
   WebhookReceipt:
     required: [event_id, disposition]
     properties:
