@@ -10,9 +10,10 @@ The slice is **not** "create an FSRS card for every error". FSRS is used only wh
 confirmed finding
   -> LearningError
   -> choose smallest useful intervention
+  -> learner fixes/practices independently
   -> optional FSRS review when retrievable
   -> sufficiently novel retest
-  -> evidence admission
+  -> governed evaluation/evidence admission
   -> improved | remains active | insufficient evidence
 ```
 
@@ -23,14 +24,39 @@ Completion, card maturity and success on a revealed source item are not verified
 Entry requires:
 
 - learner owns the source evaluation/finding;
-- source evaluation result is admitted by the owning evidence policy for remediation use;
+- source evaluation is admissible for remediation under its result-validity policy;
 - finding has resolvable learner evidence;
 - learner confirms/selects the finding;
-- required `error_pattern`/remediation mapping resolves, or the finding remains informational instead of inventing a taxonomy ID.
+- required error/remediation mapping resolves, or the finding remains informational instead of inventing a taxonomy ID.
 
-`limited_evidence` may still support a learning action when policy allows, but it must not silently become strong readiness evidence.
+`limited_evidence` may support a learning action when policy allows, but it must not silently become strong readiness evidence.
 
-## 3. State axes
+## 3. Learner-visible flow
+
+```text
+Feedback
+  ↓
+ONE priority error
+  ↓
+Why it matters + cited evidence
+  ↓
+Smallest useful fix
+  ↓
+Learner produces corrected work
+  ↓
+Review only if this is a retrievable unit
+  ↓
+Independent/novel retest
+  ↓
+Did the error reduce on admissible evidence?
+  ├─ yes -> improved
+  ├─ no  -> remains active + next action
+  └─ insufficient -> explain what evidence is still needed
+```
+
+The learner does not choose among taxonomy nodes, scheduler settings, scorer routes or multiple remediation plans.
+
+## 4. State axes
 
 Keep independent axes rather than one giant state machine.
 
@@ -51,8 +77,14 @@ none | new -> learning -> review <-> relearning
 
 ### Retest
 
+The retest relation has server-owned novelty and operation/result state. Learner-facing status follows the ordinary Writing submission/evaluation flow rather than inventing a parallel scorer lifecycle.
+
 ```text
-pending -> processing -> passed | failed | insufficient_evidence | invalid
+retest created
+  -> learner completes eligible new work
+  -> Writing submission/evaluation
+  -> accepted/limited/insufficient/invalid/integrity-review result
+  -> error-resolution policy
 ```
 
 ### Novelty/exposure
@@ -63,7 +95,7 @@ eligible | familiar | invalid | unknown
 
 Only an eligible retest may count as configured independent/transfer evidence.
 
-## 4. Intervention selection
+## 5. Intervention selection
 
 Use deterministic/framework mappings when available:
 
@@ -75,16 +107,16 @@ error_pattern + criterion + evidence
 
 Examples:
 
-- article/preposition/punctuation error → short explanation + independent sentence fix + optional review card;
-- collocation/lexical precision → contrast/example + retrieval card where appropriate;
-- weak topic sentence pattern → guided contrast + independent paragraph rewrite; card only for a bounded pattern if useful;
-- Task Response/Coherence problem → structured drill/rewrite/retest, **not** a generic FSRS mastery card.
+- article/preposition/punctuation error -> short explanation + independent sentence fix + optional review card;
+- collocation/lexical precision -> contrast/example + retrieval card where appropriate;
+- weak topic sentence pattern -> guided contrast + independent paragraph rewrite; card only for a bounded pattern if useful;
+- Task Response/Coherence problem -> structured drill/rewrite/retest, **not** a generic FSRS mastery card.
 
-An LLM may help explain a valid finding where needed, but it does not own the error taxonomy, review eligibility or resolution rule.
+A model may help explain a valid finding where needed, but it does not own error taxonomy, review eligibility or resolution state.
 
-## 5. FSRS suitability gate
+## 6. FSRS suitability gate
 
-Before creating a ReviewCard, the review service evaluates a deterministic `reviewability` rule.
+Before creating a ReviewCard, the review domain evaluates a deterministic `reviewability` rule.
 
 ```yaml
 reviewability:
@@ -98,22 +130,22 @@ Create a card only when `reviewable` and a stable bounded unit exists.
 
 FSRS owns scheduling/ratings. It does not prove Writing Task Response, Coherence, overall skill mastery or exam readiness.
 
-## 6. Retest policy
+## 7. Retest policy
 
 Retest must:
 
 - target the same underlying error/construct;
-- use an eligible task/prompt according to exposure policy;
+- use eligible content according to exposure policy;
 - not reveal the answer/fix before learner commitment;
 - preserve task/rubric/evaluation provenance;
-- produce a result whose `result_validity` is separately evaluated;
+- produce a result whose `result_validity` is evaluated separately;
 - avoid claiming transfer when the prompt/item is familiar or recently revealed.
 
-If no eligible retest content exists, keep the error active and offer another valid learning action. Do not fake progress with the source item.
+If no eligible retest content exists, keep the error active and surface `content_gap`/another valid action. Do not fake progress with the source item or unrelated harder content.
 
-## 7. Resolution rule
+## 8. Resolution rule
 
-`LearningError.status=improved` is derived by a versioned policy, not a manual endpoint.
+`LearningError.status=improved` is derived by a versioned policy, not a client mutation or manual score override.
 
 A P0 resolution policy may consider:
 
@@ -122,29 +154,38 @@ A P0 resolution policy may consider:
 - recurrence history where enough evidence exists;
 - review result only as supporting memory evidence when a review card exists.
 
-It must **not** require an arbitrary FSRS `review` state for errors where FSRS is not suitable.
+It must **not** require an arbitrary FSRS state for errors where FSRS is not suitable.
 
 No universal `90% accuracy + 3 submissions` constant is canonical until calibrated/approved for the specific error family.
 
-## 8. API boundary
+## 9. Canonical API boundary
 
-Canonical API currently exposes review queue/rating operations but does not yet expose every learner-error/fix/retest mutation required by this slice.
+Canonical mutation/review operations already exist:
 
-Therefore P0-05 remains `not ready` until canonical API owners add/review operations for:
+- `saveWritingError` — save one learner-confirmed server-derived finding as a LearningError;
+- `saveWritingErrorFix` — persist learner-produced fix evidence;
+- `startWritingErrorRetest` — create/bind an eligible retest relation and task;
+- `getReviewQueue` — retrieve due review units;
+- `rateReviewItem` — persist one review rating/idempotent semantic effect.
 
-- save learner-confirmed Writing error;
-- save fix evidence;
-- start/get retest lifecycle.
+The normal Writing operations remain the scoring/evaluation route for retest work:
 
-Scoped legacy endpoints in old contracts do not become canonical merely because this slice mentions them.
+- `getWritingTask`;
+- `saveWritingDraft`;
+- `createWritingSubmission`;
+- `getWritingSubmission`;
+- `getWritingEvaluation`.
 
-All mutations are idempotent and owner-scoped.
+A separate `GET retest` endpoint is **not** required merely for CRUD symmetry. The server persists the retest/error relation; learner evaluation state is obtained through the canonical Writing submission/evaluation flow. Add a standalone retrieval operation only if a real learner/admin use case cannot be served by current canonical projections.
 
-## 9. Events
+All mutations remain owner-scoped, versioned where applicable and idempotent according to the canonical API/runtime contract.
 
-Existing canonical events are used where registered:
+## 10. Events and outcome measurement
+
+Registered events include:
 
 - `learning_error_saved`;
+- `learning_error_fix_completed`;
 - `review_card_created` only when a card exists;
 - `review_card_rated` / `review_completed`;
 - `retest_started` / `retest_completed`;
@@ -152,44 +193,58 @@ Existing canonical events are used where registered:
 
 No event contains raw essay/error evidence text.
 
-A future dedicated verified-improvement event requires canonical event governance before emission; until then, outcome measurement derives it from admitted retest + error state.
+Until a dedicated verified-improvement event is canonically registered, outcome measurement derives verified improvement from admitted retest evidence + error-resolution state. Completion events alone do not prove improvement.
 
-## 10. Cost / privacy
+## 11. Cost / privacy
 
 - FSRS/rating and novelty/exposure checks are deterministic.
-- Do not call a model to decide review intervals.
+- Do not call a model to decide review intervals or retest novelty when exposure facts exist.
 - Retest eligibility/quota is checked before costly evaluation.
-- Reuse governed remediation assets before generating new explanation.
+- Reuse governed remediation assets before generating a new explanation.
 - General telemetry contains opaque refs/pattern IDs/outcome classes only.
-- Track cost per verified improvement, including retest evaluation cost and any generated feedback/remediation cost.
+- Track cost per verified improvement, including retest evaluation and optional generated remediation cost.
 
-## 11. Failure behavior
+## 12. Failure behavior
 
 | Condition | Recovery |
 |---|---|
 | no evidence/mapping | keep finding informational; no fake error/card |
-| remediation unavailable | keep error open; offer another valid action |
-| not reviewable | skip FSRS; proceed to appropriate fix/retest path |
+| remediation unavailable | keep error open; another valid action/content-gap |
+| not reviewable | skip FSRS; continue fix/retest path |
 | review save failure | idempotent retry; preserve card state |
-| no eligible novel retest | keep error active; do not reuse invalid exposed task as proof |
-| retest evaluation delayed | preserve retest/submission; show truthful delayed state |
-| insufficient retest evidence | remain active; explain next verification action |
-| quota unavailable | allow zero-cost review/fix where possible; retain progress |
+| no eligible novel retest | keep error active; never reuse exposed task as independent proof |
+| retest evaluation delayed | preserve ordinary Writing submission; show truthful delayed state |
+| insufficient retest evidence | remain active; show next verification action |
+| invalid/integrity-review result | do not resolve; governed recovery/resubmission path |
+| quota unavailable | allow zero-cost review/fix where possible; retain learner work/state |
 
-## 12. Acceptance evidence
+## 13. Anti-overload rules
+
+- feedback hands off only one priority error by default;
+- one smallest useful fix is primary;
+- review is inserted only when materially useful;
+- retest is shown when eligible, not as another permanent dashboard card;
+- no harder/higher-band substitute for missing remediation/retest coverage;
+- technical state is hidden unless it changes the learner's next action.
+
+## 14. Acceptance evidence
 
 P0-05 needs executable proof for:
 
-1. no evidence → no LearningError/card;
-2. learner confirmation required;
-3. retrievable grammar/pattern error can create one idempotent FSRS card;
-4. complex criterion finding can skip FSRS without blocking remediation;
-5. duplicate rating does not create duplicate history;
-6. familiar/revealed retest is rejected as independent proof;
-7. eligible novel retest can resolve the error when the policy passes;
-8. insufficient/invalid retest does not resolve the error;
-9. raw learner evidence absent from general events/logs;
-10. cost attribution includes retest and optional generated remediation;
-11. canonical API operations exist before implementation eligibility.
+1. no evidence -> no LearningError/card;
+2. learner confirmation is required;
+3. save error/fix/retest operations are owner-scoped and idempotent;
+4. retrievable grammar/pattern error can create one FSRS card;
+5. complex criterion finding can skip FSRS without blocking remediation;
+6. duplicate rating does not create duplicate history;
+7. familiar/revealed retest is rejected as independent proof;
+8. eligible novel retest can resolve the error only when admission/resolution policy passes;
+9. insufficient/invalid/integrity-review retest does not resolve the error;
+10. learner can leave/resume the retest through canonical Writing state without losing the error relation;
+11. raw learner evidence is absent from general events/logs;
+12. cost attribution includes retest and optional generated remediation;
+13. missing remediation/retest coverage produces a truthful non-progress/content-gap path.
 
-This slice remains `review/not ready` until those contracts/runs exist.
+## Readiness
+
+The learner flow and canonical API operations are now semantically aligned. Implementation/release remains `not ready` until exact-candidate acceptance, accessibility/network, rights/content and applicable risk evidence pass; missing runtime evidence is not an API-design blocker.
