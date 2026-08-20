@@ -1,220 +1,198 @@
 # 08 — Roadmap
 
-This file contains **delivery planning**: Priority (P0/P1/P2), MVP/version phasing, Release, and Deprecation. It **does not define feature details**; it references capability IDs from `03-features.md`.
+This file owns delivery phasing, not capability semantics. The complete product Blueprint may describe future scope; only the phase below may receive build-ready work.
 
-> **Important:** this is the roadmap for **delivery**, not the product blueprint. The complete Blueprint lives in `README.md` plus its spokes. This roadmap may be cut or changed according to delivery reality without breaking the Blueprint: the Blueprint is the SSOT for capabilities, while the roadmap is the SSOT for phasing.
+## P0 — Closed Pilot
 
-## Priority
+P0 proves one complete learner-outcome loop, not a four-skill IELTS-completion claim.
 
-### P0 — Closed Pilot (build now)
+P0 packs remain:
 
-P0 is the only canonical scope allowed to receive build-ready Artifacts. It contains exactly the six packs in `03-features.md` § P0 Capability Profile Matrix:
+- `P0-01` identity/consent/profile/privacy;
+- `P0-02` TargetProfile + placement/diagnosis;
+- `P0-03` deterministic Daily Action / Next Best Action;
+- `P0-04` Writing Task 2 evaluation;
+- `P0-05` error → remediation → review when appropriate → independent retest;
+- `P0-06` quality/cost/governance controls.
 
-- `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Privacy`
-- `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current`
-- `STUDY.DailyPlan`, `STUDY.CheckIn`, `STUDY.MicroSession`, `PERSONAL.NextBestAction`
-- `LEARN.Writing`, `EVAL.Writing`, `COACH.ErrorAnalysis`, `COACH.Feedback`, `PKM.Drafts`
-- `REVIEW.MistakeNotebook`, `REVIEW.FSRS`, `REVIEW.SmartQueue`, `PRACTICE.Drill`
-- `OPS.CostBudget`, `OPS.ModelRouting`, `OPS.Quota`, `OPS.Observability`, `OPS.ReleaseGate`, `OPS.EvaluationQuality`, `GOVERNANCE.ConfidenceScore`, `GOVERNANCE.AuditTrail`
-- `OPS.ContentQuality`, `OPS.OutcomeMeasurement` are shared P0 quality/measurement gates; they do not open the full Colab/content-management scope.
+P0 principles:
 
-A P0 pack may be coded only when the Build Readiness Matrix reports `ready`; full P0 may launch only when all six packs are `ready`.
+- deterministic-first;
+- missing evidence is not weakness;
+- diagnosis distinguishes English foundation, IELTS technique, integrated performance, mixed causes and evidence-needed states when evidence supports it;
+- target feasibility is a planning state, never a guaranteed-band probability;
+- the learner sees one primary action + one reason + one verification rule + at most one lighter alternative;
+- recommendation cannot outrun governed curriculum + independent verification/retest coverage;
+- minimum sufficient challenge; no automatic higher-band progression;
+- Writing result is task-scoped diagnostic evidence, not an official IELTS Writing score;
+- FSRS schedules only suitable retrievable units;
+- success requires independent evidence, not familiar-item completion;
+- cost is measured against verified learner improvement.
 
-P0 principles are fixed:
-
-- deterministic-first implementation;
-- no model/provider as product authority;
-- placement may return insufficient evidence;
-- Writing produces a task-scoped diagnostic result, not an official IELTS Writing score;
-- FSRS schedules only suitable retrievable remediation units;
-- success requires an **independent retest**, not merely a familiar-item repeat;
-- cost is measured against quality and verified learner improvement.
-
-### P1 (expansion after closed-pilot evidence)
-
-P1 is candidate scope after P0, not an automatic addition.
-
-- `REVIEW.SmartQueue` expands cross-skill only after P0 evidence.
-- `REVIEW.FSRS` expansion requires proof that the candidate unit is meaningfully retrievable; FSRS never becomes the complex-skill mastery model.
-- `PERSONAL.NextBestAction`, `COACH.ErrorAnalysis`, and `GOVERNANCE.ConfidenceScore` advanced forms must preserve the P0 deterministic/evidence boundaries.
-- Model-based recommendation is not introduced merely because more data exists; it requires measured benefit over the deterministic policy.
-
-Candidate P1 capabilities:
-
-- `STUDY.Session`, `STUDY.SessionSummary`, `STUDY.Continue`, `STUDY.Resume`
-- `BAND.Readiness` (advanced), `BAND.RecommendedNext`, `BAND.ExamReadiness`
-- `PERSONAL.GapAnalysis`, `PERSONAL.NextBestAction`, `PERSONAL.Insights`
-- `COACH.ErrorAnalysis`, `COACH.Recommendation`, `COACH.ListeningCoach`, `COACH.ReadingCoach`, `COACH.DistractorExplanation`
-- `EVAL.Speaking` (advanced staged scoring), `EVAL.Pronunciation`, `EVAL.Examiner`
-- `LEARN.Speaking`, `EVAL.RewriteSuggestion`
-- `LEARN.Pronunciation`
-- `PRACTICE.Adaptive`
-- `REVIEW.SmartQueue`
-- `PRACTICE.ExamSimulation`
-- `HISTORY.*`
-- `PKM.WordBank`, `PKM.Collections`, `PKM.Import`, `PKM.Export`, `PKM.Sync`, `PKM.Offline`
-- `NOTIF.Preference`, `NOTIF.QuietHours`, `NOTIF.SmartDelivery`, `NOTIF.Reengagement`
-- `CONTENT.Feedback`
-- `SEARCH.*`
-- `CONTENT.*` (full management)
-- `SUB.*`, `SUB.Premium`
-- `PROGRESS.Motivation`, `PROGRESS.Achievement`, `PROGRESS.Reactivation`, `PROGRESS.Wellbeing`
-- `GOVERNANCE.GoldStandardBenchmark`, `GOVERNANCE.DriftDetection`, `GOVERNANCE.AntiGaming`
-- content auto-tag/review only for metadata that feeds a governed decision
-
-### P2 (nice-to-have, Version 2)
-
-- `PERSONAL.AdaptivePlan` (advanced), `PERSONAL.NextBestAction` (advanced)
-- `PROGRESS.LearningAnalytics`, `PROGRESS.SkillAnalytics` (advanced)
-- `NOTIF.*` (notification center)
-- `CONTENT.Moderation` (advanced workflow)
-- `ADMIN.Revenue`
-- `ADMIN.AuditLog` (deep view)
-- `REVIEW.FSRS` optimization (tuning per learner only after sample sufficiency and measurable benefit)
-- `LOC.LocaleFormat` (advanced), additional languages
-- `GOAL.ExamPlan` (advanced)
-
-## MVP
-
-### MVP rebaseline — Closed Pilot (canonical launch scope)
-
-The closed pilot does not attempt to prove a four-skill platform. It proves one measurable outcome/economics loop:
+## P0 canonical outcome loop
 
 ```text
-Target profile / Placement
-  → evidence state
-  → Today action + Why
-  → Writing Task 2
-  → task-scoped evidence-based evaluation
-  → one evidence-backed error/remediation unit
-  → fix drill
-  → FSRS review only if suitable
-  → independent retest on sufficiently novel context
-  → evidence update
-  → measured cost per verified improvement
+TargetProfile
+  -> minimum placement evidence
+  -> target feasibility
+  -> supported cause / evidence gap
+  -> ONE Today action + Why + Verification
+  -> Writing Task 2
+  -> governed task-scoped evaluation
+  -> one evidence-backed error/cause
+  -> smallest useful remediation
+  -> optional FSRS review only when retrievable
+  -> sufficiently novel independent retest
+  -> evidence/readiness update
+  -> measured cost per verified improvement
 ```
 
-Canonical capability scope lives in `03-features.md` § P0 Capability Profile Matrix. Only the six packs `P0-01` through `P0-06` may receive build-ready Artifacts in the closed pilot.
+Explicitly deferred from P0 learner-completeness claims: Listening, Reading, Speaking, Pronunciation, full Mock Test, full Exam Readiness, full Content/Colab, subscriptions, broad search/notifications/offline/multi-device and advanced analytics.
 
-**Explicitly deferred:** Listening, Reading, Speaking, Pronunciation, Mock Test, full Content/Colab, subscription/payment launch, advanced analytics, search, notification center, multi-device/offline, and full Exam Readiness. They retain Blueprint identity and are reintroduced according to evidence after the pilot.
+## P0 launch gates
 
-### Expanded MVP (candidate after closed-pilot outcome proof)
+Closed pilot may launch only when all six P0 packs are eligible/ready under the canonical readiness system and the exact candidate proves:
 
-**Goal:** validate the core loop `Diagnose → Understand → Practice → Independent Retest → Transfer` across the announced four-skill scope without abandoning deterministic-first economics.
+1. TargetProfile supports module + overall/per-skill minima + date/capacity constraints without altering observed score truth.
+2. Placement can return insufficient evidence instead of fabricated precision.
+3. Supported diagnosis distinguishes foundation/technique/integrated/mixed causes or explicitly returns evidence-needed.
+4. Target feasibility uses only `insufficient_evidence | on_track | at_risk | current_constraints_insufficient | target_met`; no success probability/hours-to-band/guaranteed attainment copy exists.
+5. Home/Daily Action exposes one primary action, one controlled reason, one verification rule and at most one lighter alternative.
+6. `current_constraints_insufficient` yields an actionable constraint decision instead of an impossible normal plan.
+7. Activated Writing diagnosis/remediation families have governed intervention + independent verification/retest coverage; missing coverage yields `content_gap`.
+8. Planner excludes advanced/beyond-target content unless prerequisite, authentic-exam or transfer policy explicitly justifies it.
+9. Writing submission/evaluation preserves scope, rubric/task/scorer-route/config provenance, result validity, evidence, cost and recovery.
+10. No unbenchmarked scorer fallback exists; stronger scoring only runs under a governed escalation rule.
+11. Error → fix → retest preserves novelty/exposure; revealed/repeated source content cannot prove transfer.
+12. Activity/session/FSRS completion cannot directly promote complex-skill readiness.
+13. Consent/export/delete/access/telemetry/privacy/recovery tests pass on the exact candidate.
+14. Accessibility/browser/network critical-path evidence passes for activated P0 flows.
+15. Cost/evaluation and cost/verified-improvement are observable without weakening the quality floor.
+16. No learner-facing text promises that plan adherence guarantees an official IELTS band.
 
-Includes candidate basic scope:
+## Expanded MVP — four-skill learner solution
 
-- Guest preview
-- `IDENTITY.Auth`, `IDENTITY.Profile`, `IDENTITY.Recovery`
-- `LOC.InterfaceLanguage` (vi/en), `LOC.AIResponseLanguage` compatibility capability
-- `GOAL.Target`, `GOAL.Daily`, `GOAL.Weekly`
-- `PLACE.Test`
-- `LEARN.Path`, `LEARN.QuestionTypes`, basic `LEARN.Listening/Reading/Writing/Speaking`, basic `KA.*`
-- `STUDY.DailyPlan`, `STUDY.TodayQueue`
-- basic `PRACTICE.*`
-- `PRACTICE.MockTest` only with score-scope/evidence-validity contract
-- `EVAL.Writing`, basic staged `EVAL.Speaking`
-- deterministic objective scoring for Listening/Reading + `COACH.AnswerExplanation`
-- basic `BAND.*` evidence views
-- `REVIEW.FSRS` (vocabulary/suitable retrievable units only)
-- `PKM.Notes`, `PKM.SavedItems`
-- `PROGRESS.Dashboard`
-- `REVIEW.MistakeNotebook`
-- basic `CONTENT.*`
-- `ADMIN.User`, `ADMIN.Role`
+Expanded MVP may claim a complete IELTS-learning path only after P0 outcome evidence exists and the same semantic loop is proven across all announced skills.
 
-**Not in Expanded MVP by default:** interactive examiner dialogue, phoneme-level pronunciation, broad FSRS expansion, advanced Smart Queue, generated Insights, full Exam Readiness, Offline, Import, Achievement, advanced Governance. Baseline `OPS.*` remains mandatory: observability, quota, budget, deterministic/model routing, release gate and recovery/result-validity state.
+Candidate scope includes:
 
-## Version 1
-
-High-value advanced capability expansion:
-
-- advanced study/resume orchestration
-- evidence-based Exam Readiness
-- uncertainty-aware personalization and adaptive selection
-- full coaching where reusable/deterministic content is insufficient
-- staged Speaking/Pronunciation/Examiner features
-- Writing rewrite loop as coaching, not mastery evidence
-- adaptive practice with exposure/novelty/coverage controls
-- full History/portfolio/compare
-- Exam Simulation
-- Search
-- healthy motivation/reactivation
-- expanded PKM and notification controls
-- full governed Content feedback/operations
-- full Governance backend
-- subscription/premium with shared semantic truth and scoring-quality floor
-
-## Version 2
-
-Polish + advanced:
-
-- advanced personalization after outcome evidence
-- advanced learning analytics
-- notification center
-- advanced moderation
-- revenue/deep audit views
-- per-learner FSRS tuning if justified
-- additional locales
-- advanced exam-day planning
-
-## Release
-
-- Each version releases by milestone rather than a fixed calendar date.
-- Release notes reference capability IDs for traceability.
-- Breaking data-model changes require migration + version bump.
-- Inference/provider changes affecting evaluation or learner evidence require the appropriate benchmark/release gate even when the HTTP API is unchanged.
-
-## Deprecation
-
-- A capability is deprecated when replaced or removed.
-- Process: `deprecated` → retain for one version → `retired`.
-- This parallels content versioning in `05-content.md`.
-
-## Roadmap notation and exit criteria
-
-- `*` is shorthand only; implementation backlogs expand concrete IDs.
-- `basic` requires acceptance criteria; `advanced` requires measured outcome evidence.
-- Every milestone contains capability IDs, dependency graph, owner, capacity estimate, quality gate, cost budget, analytics/outcome events, privacy class, fallback and rollback plan.
-- Any inference-using milestone states why deterministic/precomputed mechanisms are insufficient and defines escalation/context limits.
-
-### Closed-pilot launch gates
-
-The closed pilot may launch only when all six P0 packs are `ready` and:
-
-1. target profile/placement produces a truthful evidence state; insufficient coverage/precision returns insufficient evidence rather than a fabricated estimate;
-2. learner receives one Today action with a structured reason on the same day;
-3. complete Writing Task 2 loop exists: submit → task-scoped evidence-based feedback → one remediation → suitable review → **independent retest**;
-4. Writing evaluation records score scope, rubric/task/scorer-route/prompt-config provenance, result validity, evidence, cost/escalation and timeout recovery;
-5. stronger/second scoring pass runs only for a governed hard/high-risk condition and no unbenchmarked scorer fallback exists;
-6. a missing/invalid task blocks evaluation rather than generating arbitrary assessment content;
-7. cost/evaluation, cost/successful-evaluation, cost/verified-improvement, latency, error, quota, retry/escalation and raw-content telemetry controls are observable;
-8. Runtime State/Event/Failure/result-validity contracts are tested for onboarding, draft save, duplicate submit, timeout, network loss, quota exhaustion, worker retry and app restart;
-9. access tests prove scoped internal workers and no blanket generic service authority;
-10. consent/export/delete/ownership and model-context minimization are tested end-to-end;
-11. benchmark, scorer route, rubric and release gate contain no unevidenced quality claims; while required evidence is missing, the pilot remains `not ready`.
+- Listening/Reading objective practice/scoring;
+- Writing;
+- staged Speaking;
+- target-relevant Pronunciation support where activated;
+- governed Mock/Exam Simulation where scope is valid;
+- cross-skill evidence/readiness;
+- full minimum curriculum coverage needed by the announced path.
 
 ### Expanded-MVP launch gates
 
-Expanded MVP may launch only after closed-pilot evidence exists and when:
+For every announced skill/scope:
 
-1. `Diagnose → Understand → Practice → Independent Retest → Transfer` has acceptance evidence for each announced skill/scope;
-2. placement/mock/readiness preserve score scope, content coverage, exposure/novelty and insufficient-evidence behavior;
-3. objective Listening/Reading scoring remains deterministic where answer keys suffice;
-4. staged Speaking/speech processing passes quality/privacy/cost gates for the exact announced use;
-5. every activated taxonomy field demonstrably feeds diagnosis, recommendation, evaluation, review, search or governed quality analysis;
-6. notification/engagement has opt-out, quiet hours, frequency caps and no guilt mechanics;
-7. multi-skill cost/quality/verified-learning impact is benchmarked again rather than inferred from the Writing-only pilot.
+1. `Diagnose → supported cause/evidence gap → intervention → independent retest → transfer/maintenance where applicable` has acceptance evidence.
+2. Foundation vs IELTS-technique routing materially changes the intervention where supported.
+3. Curriculum coverage exists from diagnosis to independent verification; no activated target/cause family dead-ends.
+4. Objective Listening/Reading correctness stays deterministic where answer keys suffice.
+5. Speaking/Pronunciation measurement uses appropriate staged/specialist evidence and passes quality/privacy/cost gates.
+6. Placement/mock/readiness preserve module, score scope, exposure/novelty and insufficient-evidence behavior.
+7. Planner does not over-band learners; harder content has explicit target/prerequisite/transfer justification.
+8. Primary UX remains one-action-first despite expanded capability inventory.
+9. Multi-skill cost, quality and verified-learning impact are measured again rather than inferred from Writing-only P0.
+10. The product still makes no guaranteed official-band claim from adherence alone.
 
-### Version 1 gates
+Only after these gates pass may product language describe LenBands as an end-to-end four-skill IELTS learning system.
 
-V1 expands personalization/engagement only after Expanded MVP demonstrates independent retest/transfer gain, lower error recurrence, useful uncertainty reduction, helpfulness and comeback quality. Retention or model sophistication alone is not evidence of product quality.
+## P1 / Version 1
 
-## Phasing principle
+Expansion is evidence-triggered, not feature-count-triggered.
 
-- P0 → prove one Writing evidence→intervention→independent-retest loop and its unit economics
-- Expanded MVP → prove the same semantic loop across announced four-skill scope
-- P1/V1 → expand only mechanisms that add measured learner value over simpler policies
-- P2/V2 → polish, deeper analytics and scale after the core evidence/economics system works
+Candidate additions:
 
-This roadmap **may** change according to delivery reality without breaking the Blueprint. The Blueprint (`README` + spokes) is the capability SSOT; the roadmap is the phasing SSOT.
+- advanced `BAND.Readiness` / `BAND.ExamReadiness`;
+- broader `PERSONAL.GapAnalysis`, Insights and adaptive practice;
+- staged Speaking/Pronunciation/Examiner capabilities;
+- full History/portfolio/compare;
+- governed Exam Simulation;
+- advanced content/search/notification/PKM operations;
+- subscription/premium with identical semantic truth/quality floor;
+- healthy motivation/reactivation;
+- richer governance/drift/anti-gaming only where evidence requires it.
+
+Rules:
+
+- model-based recommendation requires measured benefit over deterministic policy;
+- per-learner FSRS tuning requires sample sufficiency and measurable outcome benefit;
+- advanced personalization may not add primary learner choices unless it improves verified outcome over the compressed path;
+- generated insights/prose never become learner-state truth.
+
+## P2 / Version 2
+
+Polish and scale only after the core target-to-verification system works:
+
+- advanced analytics;
+- advanced notification center/moderation;
+- deeper personalization;
+- additional locales;
+- richer exam planning;
+- operational scale controls triggered by measured volume/risk.
+
+## Outcome-claim maturity
+
+Product claims advance separately from feature phases.
+
+```text
+Design claim
+  -> acceptance evidence
+  -> closed-pilot outcome evidence
+  -> multi-skill outcome evidence
+  -> governed attainment/effectiveness study
+  -> only then stronger effectiveness claims
+```
+
+### Always allowed when true
+
+- describes what the system does;
+- states score/evidence scope;
+- states that recommendations are target/evidence-driven;
+- states that improvement is verified by governed retest/transfer rules.
+
+### Requires runtime evidence
+
+- scoring accuracy/benchmark quality;
+- learner improvement rate;
+- usefulness of recommendation/cause classification;
+- cost per verified improvement;
+- accessibility/recovery reliability.
+
+### Requires dedicated outcome study
+
+- percentage of adherent learners reaching official targets;
+- expected time/hours to gain a band;
+- probability of official-band attainment;
+- causal claim that LenBands makes learners achieve a target.
+
+A dedicated outcome claim must specify cohort, baseline, target, adherence definition, observation window, attrition/missing-data handling, uncertainty and causal-vs-associational status.
+
+## Release principles
+
+- milestone/evidence-based, not calendar-based;
+- capability additions never bypass the minimal learner-path invariant;
+- breaking data semantics require migration/versioning;
+- scorer/provider changes affecting evidence require benchmark/release governance even when HTTP is unchanged;
+- content/taxonomy expands only when an active consumer and outcome/quality need justify the cost;
+- roadmap changes may reduce scope without changing canonical capability identity.
+
+## Phasing summary
+
+```text
+P0
+  prove one Writing target→cause→action→retest loop + economics
+
+Expanded MVP
+  prove the same loop across announced IELTS skills
+
+V1
+  add mechanisms only when they improve measured learner value
+
+V2
+  scale/polish after core evidence + economics work
+```
