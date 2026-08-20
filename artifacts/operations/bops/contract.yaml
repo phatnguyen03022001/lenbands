@@ -1,17 +1,17 @@
 type: bops-contract
 status: review
-version: 1.1.0
+version: 1.2.0
 owner: operations + engineering + security
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability, ADMIN.GovernanceDashboard, IDENTITY.Privacy, CONTENT.Publish, SUB.Payment]
 purpose: machine-readable Business/Operations/Platform/Security control plane for the buy-first web platform
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
 
 scope:
   web_personas: [guest, learner, premium_learner, colab, admin]
   authorization_roles: [learner, colab, admin]
-  non_web_principals: [service]
+  non_web_function_scopes: [evaluation_worker, workflow_callback, billing_webhook, content_job, notification_job, research_benchmark_job]
   environments: [local, preview, production]
 
 operating_domains:
@@ -26,10 +26,10 @@ operating_domains:
     required_controls: [webhook_health, entitlement_reconciliation, refund_or_dispute_visibility, provider_incident_playbook]
   content_operations:
     owner: colab + operations
-    required_controls: [review_queue, publish_gate, retirement_without_history_deletion, rights_provenance_check, learner_report_triage]
+    required_controls: [author_review_publish_permissions, review_queue, publish_gate, retirement_without_history_deletion, rights_provenance_check, learner_report_triage]
   evaluation_quality:
     owner: engineering + governance
-    required_controls: [benchmark_route_gate, confidence_quality_monitoring, drift_slices, scorer_route_rollback, immutable_provenance]
+    required_controls: [benchmark_route_gate, staged_evidence_pipeline, result_validity_policy, uncertainty_quality_monitoring, drift_slices, scorer_route_rollback, immutable_provenance]
   release_change:
     owner: engineering + operations
     required_controls: [change_set, same_head_verification, protected_attestation, rollback_or_disable_path, post_release_observation]
@@ -62,7 +62,7 @@ data_classes:
     examples: [secrets, signing_keys, security_config, release_internals]
     raw_analytics_allowed: false
   C5_derived:
-    examples: [opaque_ids, event_name, latency, aggregate_quality_metric]
+    examples: [opaque_ids, event_name, latency, aggregate_quality_metric, aggregate_cost_metric]
     raw_analytics_allowed: true
 
 platform_planes:
@@ -76,7 +76,9 @@ platform_planes:
       - same_origin_API_boundary
       - server_only_secrets
       - function_and_workflow_input_minimization
+      - internal_function_scope_before_elevated_data_access
       - idempotent_durable_steps
+      - deterministic_first_execution_policy
       - scoring_route_model_provider_allow_list
       - cost_budgets_and_timeout
     exit: Next.js/HTTP contract plus Postgres SSOT; workflow state never becomes domain SSOT
@@ -88,7 +90,7 @@ platform_planes:
     controls:
       - RLS_on_exposed_schemas
       - service_or_bypass_RLS_credentials_server_only
-      - application_authorization_before_elevated_queries
+      - application_and_function_scope_authorization_before_elevated_queries
       - opaque_object_paths_and_storage_policies
       - standard_Postgres_migrations_and_export
     exit: Postgres dump/migrations plus storage export plus external-subject mapping
@@ -109,6 +111,7 @@ platform_planes:
       - reason_by_occurred_at_not_arrival_order
       - provider_neutral_entitlement_ledger
       - periodic_reconciliation
+      - billing_webhook_function_scope_only
       - billing_webhook_cannot_mutate_learning_or_assessment
   analytics_flags:
     candidate: PostHog
@@ -125,27 +128,47 @@ platform_planes:
     candidate: null
     status: deferred_until_speaking_scope
     allowed_data: [C3_assessment]
-    controls: [separate_procurement_DPA_retention_quality_benchmark_before_activation]
+    controls: [separate_procurement_DPA_retention_quality_benchmark_before_activation, specialist_acoustic_evidence_when_pronunciation_contract_requires_it]
 
 iam:
   default: deny
   web_role_source: server_verified_managed_auth_token_plus_product_role_record
   premium_source: provider_neutral_entitlement_ledger
+  internal_function_source: server_verified_job_or_callback_identity_plus_declared_operation_scope
   rules:
     - premium_entitlement_never_changes_learner_role
     - colab_and_admin_are_separate_functions_with_no_implicit_hierarchy
+    - colab_author_review_publish_permissions_are_separable
     - admin_cannot_override_evaluation_score
     - colab_cannot_access_arbitrary_learner_assessment_content
+    - one_generic_service_identity_never_implies_blanket_domain_authorization
+    - evaluation_worker_reads_only_job_required_submission_scope
+    - billing_webhook_can_mutate_only_entitlement_reconciliation_state
+    - content_job_cannot_read_arbitrary_learner_assessment_content
+    - research_benchmark_job_uses_only_approved_corpus_scope
     - elevated_provider_credentials_are_scoped_and_server_only
+    - model_or_provider_credentials_do_not_grant_lenbands_authorization
     - break_glass_access_requires_separate_future_contract_and_is_absent_by_default
 
 evaluation:
-  score_identities: [official_ielts_score, exam_simulation_estimate, diagnostic_estimate, learning_mastery]
+  score_identities: [official_ielts_score, exam_simulation_estimate, diagnostic_estimate, criterion_evidence, learning_mastery]
+  operation_states: [accepted, processing, succeeded, delayed, unavailable, failed, cancelled]
+  result_validity_states: [accepted, limited_evidence, insufficient_evidence, invalid, integrity_review]
   route_policy:
+    deterministic_prechecks: required_before_model_work_when_applicable
     general_generation: fallback_allowed_only_within_data_privacy_cost_policy
     learner_visible_scoring: fallback_only_among_benchmark_approved_combinations_within_same_scorer_route_version
+    hard_case_escalation: stronger_or_second_pass_only_when_uncertainty_or_risk_policy_justifies_cost
     no_approved_route_available: persist_delayed_or_unavailable_do_not_silently_substitute
-  required_provenance: [rubric_version, prompt_hash, model_route_version, model_id, provider_id, task_version, assessment_mode]
+  stage_policy:
+    writing: deterministic_precheck_then_rubric_scorer_then_evidence_validator_then_optional_escalation
+    speaking: audio_quality_then_transcript_and_features_then_acoustic_evidence_if_required_then_rubric_scorer_then_validity_gate
+    pronunciation: specialist_speech_or_acoustic_measurement_when_required_then_governed_interpretation
+    examiner: speaking_followup_generation_is_separate_from_speaking_score_authority
+  required_provenance: [score_scope, rubric_version, prompt_hash, model_route_version, model_id, provider_id, task_version, assessment_mode]
+  evidence_admission:
+    rule: provider_output_is_candidate_observation_or_judgment_until_domain_validation
+    prohibited: [raw_model_output_directly_sets_readiness, raw_confidence_percentage_treated_as_probability_without_calibration]
   logs: never_raw_prompt_chain_of_thought_essay_audio_transcript_or_full_provider_payload
 
 durability:
@@ -154,11 +177,15 @@ durability:
     - all_durable_side_effects_idempotent
     - canonical_state_persisted_before_or_with_orchestration_handoff
     - workflow_retry_cannot_duplicate_evaluation_charge_entitlement_review_card_or_publish_action
+    - retry_has_one_owning_layer
     - external_webhook_sequence_may_be_duplicated_or_out_of_order
 
 privacy_retention:
   registry_required: true
   rule: every C1_C4 entity has purpose_owner_retention_delete_or_archive_behavior_before_public_release
+  minimization:
+    model_context: task_plus_smallest_relevant_learner_state_snapshot
+    prohibited_default: unbounded_full_learner_history_to_model_provider
   deletion:
     identity: provider_identity_delete_or_disable_plus_subject_mapping_tombstone_as_policy_requires
     canonical_data: delete_or_anonymize_by_entity_policy
@@ -196,29 +223,36 @@ incident_management:
 support_boundary:
   default_access: metadata_and_opaque_refs_only
   raw_learner_assessment_access: prohibited_without_future_break_glass_contract
-  score_dispute: collect_feedback_and_rerun_governed_evaluator_when_policy_allows; never_manual_band_edit
+  score_dispute: preserve_original_and_rerun_governed_evaluator_when_policy_allows_never_manual_band_edit
   content_report: routed_to_colab_with_minimum_learner_fields
   billing_case: routed_by_provider_subject_and_local_entitlement_ref_without_learning_payload
+  research_access: approved_benchmark_corpus_only_not_arbitrary_production_browsing
 
 observability:
-  allowed: [C5_derived, opaque_refs, operationId, duration, status_or_problem_code, model_route_version, cost_units]
+  allowed: [C5_derived, opaque_refs, operationId, duration, status_or_problem_code, model_route_version, cost_units, escalation_flag, result_validity]
   forbidden: [email_name, essay_audio_transcript_answers, private_notes, secrets, raw_token, provider_payload, prompt_body]
   session_replay: disabled_on_assessment_auth_privacy_billing_and_admin_sensitive_surfaces
   alerts: actionable_symptom_or_threshold_only; dependency_events_are_deduplicated_into_incident_signals
   dashboards:
-    product: [activation, meaningful_progress, error_recurrence, transfer_or_retest_outcomes]
-    evaluation: [route_health, quality_state_mix, benchmark_drift, latency, cost]
+    product: [activation, time_to_first_useful_value, verified_progress, error_recurrence, independent_retest_or_transfer_outcomes, uncertainty_reduction]
+    evaluation: [route_health, result_validity_mix, benchmark_agreement, uncertainty_calibration, drift, latency, cost, escalation_rate]
     platform: [availability, error_rate, workflow_backlog, database_health, provider_dependency_health]
     operations: [privacy_request_age, entitlement_reconciliation, content_report_age, incident_state]
 
 cost:
+  routing_order: [deterministic_rule_library_or_sql, versioned_precomputed_result, bounded_small_or_specialist_model, benchmark_approved_stronger_route, safe_degraded_state_or_retry]
   policy:
     - provider_pricing_checked_at_procurement_and_periodically_not_frozen_as_architecture_fact
     - spend_caps_and_alerts_enabled_where_supported
     - evaluation_has_per_request_budget_and_retry_ceiling
+    - deterministic_or_precomputed_work_is_used_when_it_meets_required_quality
+    - model_context_is_minimized
+    - second_or_stronger_pass_only_for_policy_defined_hard_cases
     - degrade_feedback_depth_before_scoring_integrity
     - never_silently_switch_scorer_quality_to_save_cost
-  review_dimensions: [cost_per_active_learner, cost_per_evaluation, workflow_retry_cost, provider_fixed_cost, egress_or_storage_growth]
+    - free_and_premium_share_semantic_truth_and_minimum_scoring_quality_floor
+    - cheap_but_non_helpful_generation_is_not_an_optimization
+  review_dimensions: [cost_per_active_learner, cost_per_evaluation, cost_per_successful_evaluation, cost_per_verified_improvement, model_escalation_rate, workflow_retry_cost, audio_cost_per_attempt, provider_fixed_cost, egress_or_storage_growth]
 
 procurement_gate:
   required:
@@ -231,16 +265,20 @@ procurement_gate:
     - export_or_exit_path
     - provider_specific_security_checklist
   scoring_provider_extra: [benchmark_route_approval, privacy_review, deterministic_model_version_or_route_provenance]
+  speech_provider_extra: [audio_retention_review, pronunciation_or_transcription_quality_benchmark_for_announced_use]
 
 release_gate:
   required:
     - API_contract_parse_and_access_matrix_tests
     - typed_operation_payload_contract_complete
     - BOLA_BFLA_negative_tests_for_every_protected_operation_family
+    - internal_function_scope_negative_tests
     - privacy_telemetry_lint
     - idempotency_replay_tests
     - provider_exit_and_degraded_state_design
     - evaluation_benchmark_for_any_learner_visible_scoring_route
+    - result_validity_and_evidence_admission_tests
+    - deterministic_vs_inference_boundary_review_for_costly_capabilities
     - recovery_or_export_import_design_and_required_pre_release_evidence
     - same_head_CI_and_trust_boundary_pass
   blocked_if:
@@ -248,6 +286,8 @@ release_gate:
     - raw_C1_C4_in_general_analytics
     - unbenchmarked_scorer_fallback
     - premium_implemented_as_divergent_role_hierarchy
+    - generic_service_identity_grants_blanket_domain_access
+    - model_output_can_directly_set_readiness_or_entitlement
     - service_key_exposed_to_browser
     - content_or_task_version_mutable_after_it_has_evaluation_evidence
     - privacy_retention_registry_missing_for_activated_C1_C4_entity
