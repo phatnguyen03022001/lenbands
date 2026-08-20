@@ -1,6 +1,6 @@
 type: web-api-schema-contract
 status: review
-version: 0.2.2
+version: 0.3.0
 owner: engineering + security
 representation: yaml
 derived_from: [IDENTITY.Profile, GOAL.Target, PLACE.Test, STUDY.Session, PRACTICE.Set, REVIEW.FSRS, EVAL.Writing, CONTENT.Publish, ADMIN.User, OPS.ReleaseGate]
@@ -8,3 +8,11 @@ purpose: typed request-response contract for canonical web operation ids
 consumed_by: [experience, engineering, operations]
 created_at: 2026-08-17
 updated_at: 2026-08-20
+change_log:
+  - version: 0.3.0
+    date: 2026-08-20
+    changes:
+      - Added TargetFeasibility and DiagnosisCause canonical schemas.
+      - Bound PlacementResult and LearnerGoal responses to derived feasibility/cause semantics.
+      - Added DailyPlan target-feasibility state, primary action, content_gap, diagnosis cause and verification-rule fields.
+      - Explicitly prohibited client-authored feasibility/probability semantics through validator invariants.
