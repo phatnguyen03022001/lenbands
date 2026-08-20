@@ -2,71 +2,67 @@
 
 ## Purpose
 
-This operational projection states whether each closed-pilot P0 pack has enough approved contract, resolved blocking-risk control, and executable evidence to enter implementation/pilot promotion. It does not redefine capability identity, product semantics, risk controls, or release policy.
+This projection reports two different questions for the closed-pilot P0 packs:
 
-Scope: only `P0-01` → `P0-06` from `blueprint/03-features.md`.
+1. **Implementation eligibility** — can an agent implement source without inventing unresolved behavior?
+2. **Release readiness** — does the exact candidate have the runtime/legal/rights/quality evidence required to serve real learners?
+
+It does not redefine capability identity, product semantics, risk controls or release policy.
 
 ## Rebaseline — 2026-08-20
 
-The architecture is now based on:
+Canonical design now includes evidence/outcome-first semantics, deterministic-first execution, TargetProfile, staged Writing evaluation, function-scoped internal principals, split operation/result validity, decision-value metadata, independent retest, cost per verified improvement, explicit risk coverage, data-migration rules, time/reproducibility semantics, and P0 accessibility/network recovery contracts.
 
-- evidence/outcome-first product semantics;
-- deterministic-first execution;
-- TargetProfile rather than one universal target-band scalar;
-- staged Writing evaluation;
-- function-scoped internal principals;
-- split operation lifecycle vs result validity;
-- learner-facing uncertainty without raw confidence-as-probability;
-- metadata decision value / reduced taxonomy cost;
-- independent/novel retest before verified improvement;
-- cost per verified improvement;
-- explicit problem/risk coverage before implementation eligibility.
-
-`artifacts/operations/problem-risk-registry.yaml` is the canonical coverage map. A risk marked covered is not runtime evidence; an applicable blocking risk keeps the family ineligible until its control boundary is sufficient.
+`artifacts/operations/problem-risk-registry.yaml` owns risk classification. `artifacts/operations/implementation-eligibility.yaml` owns the lifecycle distinction.
 
 ## Current matrix
 
-| Pack | Current semantic state | Main remaining blockers | Build state |
-|---|---|---|---|
-| `P0-01 Identity` | Premium entitlement, scoped internal principals and privacy ownership are defined | provider/DPA/eligibility decisions, export/delete evidence, break-glass/restore/legal risk controls, generated access evidence | **not ready** |
-| `P0-02 Diagnosis` | TargetProfile, deterministic placement, coverage/termination and missing-evidence semantics are reconciled | calibration/construct coverage evidence, content/legal/retention/DR/migration/accessibility risk controls, acceptance run | **not ready** |
-| `P0-03 Daily action` | deterministic candidate intents/ranking, evidence uncertainty, coverage/load and zero-LLM routing are reconciled | acceptance run plus applicable DR/migration/incident/accessibility/device/experiment risk controls | **not ready** |
-| `P0-04 Writing evaluation` | staged deterministic-first runtime/evaluation/data/experience/API contracts are aligned at authority level | benchmark/fairness slices, rights-approved tasks, support/break-glass, retention/DR/migration/accessibility/vendor/legal/reproducibility controls, acceptance evidence | **not ready** |
-| `P0-05 Error-to-review` | retrievable-unit FSRS boundary + independent/novel retest semantics + save-error/fix/retest API identities are aligned | generated API/access/idempotency validation, verified-improvement run, support/DR/migration/accessibility/device risk controls | **not ready** |
-| `P0-06 Quality & economics` | deterministic/inference boundary, scorer governance, metadata economics and cost/verified-improvement metrics are defined | benchmark/fairness corpus, armed cost ceilings, incident/DR/vendor/legal/support controls, outcome-cost measurement and rollback evidence | **not ready** |
+| Pack | Contract/design state | Implementation state | Release evidence still missing | Release state |
+|---|---|---|---|---|
+| `P0-01 Identity` | auth/access/privacy/retention/support boundaries defined | **blocked pending contract approval + verification/authorization** | provider DPA/activation, legal pilot eligibility, export/delete, access and accessibility/network acceptance | **not ready** |
+| `P0-02 Diagnosis` | TargetProfile + deterministic placement + coverage/termination + time semantics defined | **blocked pending contract approval + verification/authorization** | calibration/coverage run, rights evidence, legal pilot eligibility, accessibility/network acceptance | **not ready** |
+| `P0-03 Daily action` | deterministic candidate/ranking + uncertainty/coverage/load + zero-LLM + time semantics defined | **blocked pending contract approval + verification/authorization** | deterministic acceptance, timezone-boundary and accessibility/network runs | **not ready** |
+| `P0-04 Writing evaluation` | staged scorer/runtime/API/data/failure/benchmark-slice/support/reproducibility semantics defined | **blocked pending contract approval + verification/authorization** | rights-approved tasks, authorized corpus, benchmark including required slices, privacy/idempotency/evidence/dispute/accessibility runs, legal pilot eligibility | **not ready** |
+| `P0-05 Error-to-review` | reviewability/FSRS boundary + independent retest + canonical mutations + time semantics defined | **blocked pending contract approval + verification/authorization** | generated API/access/idempotency checks, review/retest/verified-improvement and accessibility/network runs | **not ready** |
+| `P0-06 Quality & economics` | release controls + risk model + benchmark design + migration/recovery/incident/cost semantics defined | **blocked pending contract approval + verification/authorization** | real benchmark, armed cost thresholds, cost/outcome measurement, restore drill, incident tabletop, retention evidence, legal pilot eligibility, rollback evidence | **not ready** |
+
+No row is marked implementation-eligible merely because the prose is now coherent. Canonical contracts are still in `review`, repository verification has not been observed against this exact head in this session, and implementation authorization remains a separate exact-SHA gate.
 
 ## Implementation eligibility gate
 
-A family is not implementation-eligible until all of the following hold:
+A family becomes implementation-eligible only when:
 
 1. canonical Blueprint/API/runtime/Artifact semantics agree;
-2. every problem category applicable to the family has an explicit risk entry;
-3. no P0 critical/high risk for the family remains `open` or `partial` with `implementation_blocking=true`;
-4. required owner contracts are sufficiently resolved for code not to invent behavior;
-5. generated API/schema/ownership projections validate for families that expose HTTP operations;
-6. privacy/data entity coverage is complete for the family;
-7. no unresolved critical/high finding remains outside the risk registry.
+2. every applicable problem category has explicit coverage;
+3. no unresolved risk for the family has `implementation_blocking: true`;
+4. required owner contracts have the lifecycle state required by the eligibility policy;
+5. generated API/schema/ownership checks pass when applicable;
+6. every stored C1-C4 entity has retention mapping;
+7. schema changes use `artifacts/engineering/data-migration-contract.yaml`;
+8. no unresolved critical/high finding exists outside governed risk/finding tracking.
 
-This gate is intentionally earlier than release readiness. Runtime benchmark, calibration, pilot outcome, cost and rollback evidence may still be missing after a family becomes implementation-eligible when those observations require code to exist.
+Runtime benchmark, calibration, cost/outcome, restore, accessibility and legal evidence that can only exist after implementation are not circular pre-code prerequisites.
 
-## Release/global gates
+## Release gates
 
-No closed-pilot release becomes ready until all applicable items below pass:
+Closed-pilot release additionally requires the applicable `release_evidence_required` risks to have real candidate-bound evidence, including:
 
-1. role/entitlement/function-scope negative authorization tests;
-2. idempotency/replay tests for durable mutations;
-3. C1-C4 raw learner content absent from general telemetry;
-4. benchmark-approved learner-visible scoring route tied to exact rubric/prompt/route versions;
-5. rights-approved/versioned content for tested learner paths;
-6. failures preserve learner work and do not double-charge quota/cost;
-7. restore/rollback/disable behavior is exercised;
-8. no readiness/learning-effectiveness claim is inferred from completion, prose or raw model confidence;
-9. acceptance evidence is bound to the exact candidate commit/artifact versions;
-10. blocking problem risks are closed or explicitly moved out of scope by a governed scope decision.
+- negative role/entitlement/function/object authorization tests;
+- idempotency/replay and network-recovery tests;
+- retention/export/delete evidence and telemetry privacy checks;
+- authorized rights/provenance for released content and benchmark assets;
+- benchmark-approved scorer route with required slice results;
+- result-validity/evidence-admission tests;
+- accessibility critical-path acceptance;
+- timezone/day-boundary tests where applicable;
+- restore/export-import drill and incident tabletop;
+- migration rehearsal for material schema changes;
+- armed cost/quality thresholds and rollback/disable path;
+- approved closed-pilot jurisdiction/age/processing/provider decisions before real learner data.
 
-## P0-04 Writing gate
+A `covered` risk means the design/control boundary exists. It does **not** mean these release runs have passed.
 
-Active contracts/projected schemas must agree on:
+## P0-04 Writing invariant
 
 ```text
 submission:
@@ -79,45 +75,29 @@ result_validity:
   accepted|limited_evidence|insufficient_evidence|invalid|integrity_review
 ```
 
-Block any implementation that:
+Block implementation that reintroduces `low_confidence` as workflow state, raw confidence as learner probability, migration-only OpenAPI authority, unconditional strong-model second pass, model-owned readiness/mastery or detector-as-cheating-proof.
 
-- persists `low_confidence` as workflow/submission state;
-- requires learner-facing raw model confidence;
-- uses migration-only OpenAPI as build authority;
-- maps model output directly to readiness/mastery;
-- performs an unconditional stronger-model second pass;
-- treats AI-generated-text detection as cheating proof.
-
-## P0-05 verified-improvement gate
+## P0-05 verified-improvement invariant
 
 ```text
 confirmed evidence-backed error
   -> smallest useful intervention
-  -> FSRS only if unit is retrievable
+  -> FSRS only when retrievable
   -> sufficiently novel retest
   -> evidence admission
   -> improved or remains active
 ```
 
-Canonical P0-05 mutations are `saveWritingError`, `saveWritingErrorFix`, and `startWritingErrorRetest`; review uses `getReviewQueue` and `rateReviewItem`. Operation existence is not acceptance evidence.
+Operation existence is not improvement evidence.
 
-## Cost gate
+## Cost invariant
 
-P0-06 must observe at least:
-
-- cost per accepted evaluation;
-- primary vs escalation scorer cost;
-- retry/failure waste;
-- optional deep-feedback cost;
-- content author/reviewer metadata cost when material;
-- cost per verified improvement/retest outcome.
-
-A cheaper route fails when required benchmark/evidence quality falls below the quality floor.
+P0-06 observes cost per accepted evaluation, primary/escalation cost, retry waste, optional feedback cost, material content-operation cost and cost per verified improvement. A cheaper route fails when the required quality floor fails.
 
 ## Update rule
 
-- Semantic changes return affected packs to `review/not ready` until consumers are reconciled.
-- Problem/risk coverage changes may add blockers without changing product scope.
+- Semantic changes can return a family to implementation review even when prior runtime evidence exists.
+- Runtime/legal/rights evidence changes release readiness without automatically changing product semantics.
 - `not run` is truthful; intended tests do not count as evidence.
-- New future-scope features do not enter this matrix without roadmap/capability-phase change.
+- Public-scale controls are separate from bounded closed-pilot release when the canonical eligibility policy permits that distinction.
 - This matrix reports status only; canonical owners remain in `DOCS.yaml`.
