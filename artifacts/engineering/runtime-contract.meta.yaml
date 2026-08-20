@@ -1,10 +1,10 @@
 type: runtime-contract
 status: review
-version: 1.0.0
+version: 1.2.0
 owner: engineering + operations
 representation: yaml
 derived_from: [OPS.ModelRouting, OPS.Observability, OPS.ReleaseGate, EVAL.Writing]
-purpose: provider-neutral-runtime-invariants
+purpose: provider-neutral runtime invariants including time migration handoff and evaluation reproducibility
 consumed_by: [engineering, operations, agents]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-20
