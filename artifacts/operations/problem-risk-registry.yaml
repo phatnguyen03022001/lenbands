@@ -1,4 +1,4 @@
-schema_version: 1.1.0
+schema_version: 1.2.0
 status: review
 source_of_truth: true
 contract_id: problem-risk-coverage
@@ -519,8 +519,8 @@ risks:
     owner: engineering + operations
     status: covered
     canonical_contracts: [DOCS.yaml, artifacts/operations/documentation-architecture.yaml]
-    required_control: 'Start at DOCS.yaml, hide migration aliases and keep one semantic owner per field.'
-    acceptance_test: 'Authority validators reject split ownership and legacy build/codegen authority.'
+    required_control: 'Start at DOCS.yaml, keep zero live legacy aliases and one semantic owner per field; Git history holds retired migration trace.'
+    acceptance_test: 'Authority validators reject split ownership, live legacy aliases and retired build/codegen authority.'
     implementation_blocking: false
     release_evidence_required: false
     public_scale_control_required: false
@@ -611,6 +611,81 @@ risks:
     canonical_contracts: [artifacts/engineering/contracts/daily-action-contract.md, artifacts/operations/capability-manifest.yaml]
     required_control: 'Build bounded deterministic candidates from compact evidence state and expose controlled reasons.'
     acceptance_test: 'Same versioned inputs produce same rank result and P0 plan generation makes zero LLM calls.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-039
+    category: product_outcome_metric
+    title: Target feasibility or readiness is presented as guaranteed official IELTS attainment
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-06]
+    owner: product + experience + operations
+    status: covered
+    canonical_contracts: [blueprint/01-product.md, artifacts/engineering/contracts/placement-diagnosis-contract.md, blueprint/08-roadmap.md]
+    required_control: 'Treat feasibility as a planning state, prohibit success probability and universal hours-to-band claims, and gate stronger attainment claims on dedicated outcome evidence.'
+    acceptance_test: 'Learner copy and API contain no guaranteed-band or unvalidated probability/time-to-band semantics; stronger claims require governed cohort evidence.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: true
+
+  - risk_id: RISK-040
+    category: personalization_adaptation
+    title: Wrong foundation-versus-technique diagnosis sends the learner to the wrong intervention
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-05]
+    owner: product + evaluation
+    status: covered
+    canonical_contracts: [artifacts/engineering/contracts/placement-diagnosis-contract.md, artifacts/engineering/contracts/daily-action-contract.md, blueprint/06-engines.md]
+    required_control: 'Assign english_foundation, ielts_technique, integrated_performance or mixed only from admitted evidence; otherwise return evidence_needed.'
+    acceptance_test: 'Cause classification has evidence refs, materially changes intervention when used, and uncertain cases remain evidence_needed during release evaluation.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-041
+    category: content_quality_rights
+    title: Planner identifies a real gap but curriculum has no governed path to independent verification
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-05, P0-06]
+    owner: content + product
+    status: covered
+    canonical_contracts: [blueprint/05-content.md, artifacts/engineering/contracts/daily-action-contract.md, blueprint/08-roadmap.md]
+    required_control: 'Require activated diagnosis/cause families to have intervention plus independent verification or retest coverage; otherwise return content_gap.'
+    acceptance_test: 'Released activated families have machine-checkable curriculum coverage and missing coverage never substitutes unrelated or harder content.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-042
+    category: personalization_adaptation
+    title: Harder or above-target content creates inefficient over-band study and skips prerequisites
+    phase: P0
+    severity: high
+    affected_families: [P0-03, P0-05]
+    owner: product + content
+    status: covered
+    canonical_contracts: [blueprint/04-experience.md, blueprint/05-content.md, blueprint/06-engines.md, artifacts/engineering/contracts/daily-action-contract.md]
+    required_control: 'Select minimum sufficient challenge and permit harder content only for explicit prerequisite bridge, authentic-exam, transfer or demonstrated-next-level reasons.'
+    acceptance_test: 'Planner fixtures reject unjustified above-target actions and target_met routes to maintenance/readiness rather than automatic progression.'
+    implementation_blocking: false
+    release_evidence_required: true
+    public_scale_control_required: false
+
+  - risk_id: RISK-043
+    category: product_outcome_metric
+    title: Feature-rich surfaces create choice overload and obscure the learner next step
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-05]
+    owner: product + experience
+    status: covered
+    canonical_contracts: [blueprint/04-experience.md, artifacts/engineering/contracts/daily-action-contract.md, artifacts/experience/specs/vertical-slices/daily-action.md]
+    required_control: 'Primary learner surfaces expose one action, one reason, one verification statement and at most one lighter alternative; internal candidates remain secondary.'
+    acceptance_test: 'Critical-path usability shows learners can identify the next action and why without browsing parallel recommendation, queue, insight or path surfaces.'
     implementation_blocking: false
     release_evidence_required: true
     public_scale_control_required: false
