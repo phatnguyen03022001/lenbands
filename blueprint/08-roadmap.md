@@ -22,6 +22,7 @@ P0 principles:
 - diagnosis distinguishes English foundation, IELTS technique, integrated performance, mixed causes and evidence-needed states when evidence supports it;
 - target feasibility is a planning state, never a guaranteed-band probability;
 - the learner sees one primary action + one reason + one verification rule + at most one lighter alternative;
+- Today is the default authenticated next-decision surface; capability inventory does not become navigation inventory;
 - recommendation cannot outrun governed curriculum + independent verification/retest coverage;
 - minimum sufficient challenge; no automatic higher-band progression;
 - Writing result is task-scoped diagnostic evidence, not an official IELTS Writing score;
@@ -44,6 +45,7 @@ TargetProfile
   -> optional FSRS review only when retrievable
   -> sufficiently novel independent retest
   -> evidence/readiness update
+  -> Today recomputes the next decision
   -> measured cost per verified improvement
 ```
 
@@ -58,17 +60,19 @@ Closed pilot may launch only when all six P0 packs are eligible/ready under the 
 3. Supported diagnosis distinguishes foundation/technique/integrated/mixed causes or explicitly returns evidence-needed.
 4. Target feasibility uses only `insufficient_evidence | on_track | at_risk | current_constraints_insufficient | target_met`; no success probability/hours-to-band/guaranteed attainment copy exists.
 5. Home/Daily Action exposes one primary action, one controlled reason, one verification rule and at most one lighter alternative.
-6. `current_constraints_insufficient` yields an actionable constraint decision instead of an impossible normal plan.
-7. Activated Writing diagnosis/remediation families have governed intervention + independent verification/retest coverage; missing coverage yields `content_gap`.
-8. Planner excludes advanced/beyond-target content unless prerequisite, authentic-exam or transfer policy explicitly justifies it.
-9. Writing submission/evaluation preserves scope, rubric/task/scorer-route/config provenance, result validity, evidence, cost and recovery.
-10. No unbenchmarked scorer fallback exists; stronger scoring only runs under a governed escalation rule.
-11. Error → fix → retest preserves novelty/exposure; revealed/repeated source content cannot prove transfer.
-12. Activity/session/FSRS completion cannot directly promote complex-skill readiness.
-13. Consent/export/delete/access/telemetry/privacy/recovery tests pass on the exact candidate.
-14. Accessibility/browser/network critical-path evidence passes for activated P0 flows.
-15. Cost/evaluation and cost/verified-improvement are observable without weakening the quality floor.
-16. No learner-facing text promises that plan adherence guarantees an official IELTS band.
+6. Today is the default authenticated next-decision surface; P0 does not expose top-level tabs merely for capability domains.
+7. Back/refresh/deep-link/resume behavior preserves canonical state, accepted submissions and unacknowledged learner work without duplicate semantic effects.
+8. `current_constraints_insufficient` yields an actionable constraint decision instead of an impossible normal plan.
+9. Activated Writing diagnosis/remediation families have governed intervention + independent verification/retest coverage; missing coverage yields `content_gap`.
+10. Planner excludes advanced/beyond-target content unless prerequisite, authentic-exam or transfer policy explicitly justifies it.
+11. Writing submission/evaluation preserves scope, rubric/task/scorer-route/config provenance, result validity, evidence, cost and recovery.
+12. No unbenchmarked scorer fallback exists; stronger scoring only runs under a governed escalation rule.
+13. Error → fix → retest preserves novelty/exposure; revealed/repeated source content cannot prove transfer.
+14. Activity/session/FSRS completion cannot directly promote complex-skill readiness.
+15. Consent/export/delete/access/telemetry/privacy/recovery tests pass on the exact candidate.
+16. Accessibility/browser/network/navigation critical-path evidence passes for activated P0 flows.
+17. Cost/evaluation and cost/verified-improvement are observable without weakening the quality floor.
+18. No learner-facing text promises that plan adherence guarantees an official IELTS band.
 
 ## Expanded MVP — four-skill learner solution
 
@@ -84,6 +88,43 @@ Candidate scope includes:
 - cross-skill evidence/readiness;
 - full minimum curriculum coverage needed by the announced path.
 
+### Skill activation template
+
+A new learner-facing skill/scope is not activated merely because capability IDs, content or an evaluator exist. Before build/release promotion it must define the same minimum flow depth as the Writing pilot.
+
+```text
+Entry / prerequisite
+  -> task or evidence-collection surface
+  -> durable learner attempt/work
+  -> deterministic checks where applicable
+  -> governed result/evidence state
+  -> supported cause or evidence-needed
+  -> ONE smallest useful intervention
+  -> independent verification/retest
+  -> transfer/maintenance when required
+  -> evidence/readiness update
+  -> Today recomputes the next decision
+```
+
+For each activated skill/scope the implementation-facing vertical slice must specify:
+
+1. learner outcome and explicit out-of-scope behavior;
+2. entry prerequisites, target/module/content eligibility and rights boundary;
+3. primary surfaces and one-action navigation handoff;
+4. persisted state axes versus UI-only loading/navigation states;
+5. scoring/evidence scope and insufficient/invalid behavior;
+6. foundation-vs-technique-vs-integrated cause behavior where meaningful;
+7. minimum sufficient intervention and no-over-band constraints;
+8. independent verification/retest and exposure/novelty rules;
+9. back/refresh/deep-link/resume/network recovery behavior;
+10. accessibility requirements for the skill-specific interaction;
+11. privacy/telemetry/provider-context boundaries;
+12. deterministic-first/cost/escalation behavior;
+13. events/outcome measurement;
+14. executable acceptance evidence and learner-meaningful exit states.
+
+Do not create skill-specific navigation, state names or recommendation semantics that duplicate the canonical shell/domain owners. Skill slices extend the shared flow only where the modality genuinely requires it.
+
 ### Expanded-MVP launch gates
 
 For every announced skill/scope:
@@ -96,8 +137,9 @@ For every announced skill/scope:
 6. Placement/mock/readiness preserve module, score scope, exposure/novelty and insufficient-evidence behavior.
 7. Planner does not over-band learners; harder content has explicit target/prerequisite/transfer justification.
 8. Primary UX remains one-action-first despite expanded capability inventory.
-9. Multi-skill cost, quality and verified-learning impact are measured again rather than inferred from Writing-only P0.
-10. The product still makes no guaranteed official-band claim from adherence alone.
+9. Every activated skill passes the Skill Activation Template including Back/refresh/deep-link/resume and accessibility evidence.
+10. Multi-skill cost, quality and verified-learning impact are measured again rather than inferred from Writing-only P0.
+11. The product still makes no guaranteed official-band claim from adherence alone.
 
 Only after these gates pass may product language describe LenBands as an end-to-end four-skill IELTS learning system.
 
@@ -122,7 +164,8 @@ Rules:
 - model-based recommendation requires measured benefit over deterministic policy;
 - per-learner FSRS tuning requires sample sufficiency and measurable outcome benefit;
 - advanced personalization may not add primary learner choices unless it improves verified outcome over the compressed path;
-- generated insights/prose never become learner-state truth.
+- generated insights/prose never become learner-state truth;
+- a new permanent top-level destination requires repeated direct-entry value, not merely a new feature family.
 
 ## P2 / Version 2
 
@@ -161,7 +204,7 @@ Design claim
 - learner improvement rate;
 - usefulness of recommendation/cause classification;
 - cost per verified improvement;
-- accessibility/recovery reliability.
+- accessibility/recovery/navigation reliability.
 
 ### Requires dedicated outcome study
 
@@ -176,6 +219,7 @@ A dedicated outcome claim must specify cohort, baseline, target, adherence defin
 
 - milestone/evidence-based, not calendar-based;
 - capability additions never bypass the minimal learner-path invariant;
+- skill activation requires an implementation-facing vertical slice following the shared template;
 - breaking data semantics require migration/versioning;
 - scorer/provider changes affecting evidence require benchmark/release governance even when HTTP is unchanged;
 - content/taxonomy expands only when an active consumer and outcome/quality need justify the cost;
@@ -188,7 +232,7 @@ P0
   prove one Writing target→cause→action→retest loop + economics
 
 Expanded MVP
-  prove the same loop across announced IELTS skills
+  prove the same loop and skill-activation contract across announced IELTS skills
 
 V1
   add mechanisms only when they improve measured learner value
