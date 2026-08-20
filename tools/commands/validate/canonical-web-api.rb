@@ -172,15 +172,45 @@ errors.concat(resolve_errors)
 errors.concat(Lenbands::ApiSchemaCompiler.validate_resolved(openapi: resolved, schema_contract: schema_contract, type_system: type_system))
 errors << "compiled schema count differs from semantic schema count" unless compiled.length == schemas.length
 
-%w[TargetProfile PlacementResult EvaluationResult WritingError WritingErrorRetest AttemptSummary].each do |name|
+%w[TargetProfile PlacementResult EvaluationResult WritingError WritingErrorRetest AttemptSummary DailyAction Profile].each do |name|
   errors << "critical schema missing #{name}" unless schemas.key?(name)
 end
 
+profile_props = schemas.dig("Profile", "properties") || {}
+profile_required = Set.new(Array(schemas.dig("Profile", "required")))
+errors << "Profile must persist learner timezone" unless profile_props["timezone"] == "iana_timezone" && profile_required.include?("timezone")
+errors << "ProfilePatch must allow explicit timezone change" unless schemas.dig("ProfilePatch", "properties", "timezone") == "iana_timezone|null"
+timezone_alias = type_system.dig("aliases", "iana_timezone") || {}
+errors << "IANA timezone alias must require runtime timezone-database validation" unless timezone_alias["x-lenbands-rule"] == "validate_against_runtime_iana_timezone_database_not_pattern_alone"
+
+placement_props = schemas.dig("PlacementResult", "properties") || {}
+placement_required = Set.new(Array(schemas.dig("PlacementResult", "required")))
+%w[result_id attempt_id score_label score_scope result_validity calibration_status termination_reason evidence_coverage configuration_version policy_version created_at].each do |field|
+  errors << "PlacementResult missing required #{field}" unless placement_required.include?(field) && placement_props.key?(field)
+end
+errors << "PlacementResult must not use legacy confidence_state" if placement_props.key?("confidence_state")
+errors << "PlacementResult result_validity drifted" unless placement_props["result_validity"] == "accepted|limited_evidence|insufficient_evidence|invalid"
+
+daily_plan_required = Set.new(Array(schemas.dig("DailyPlan", "required")))
+%w[evidence_state_version target_profile_version].each do |field|
+  errors << "DailyPlan missing source-version binding #{field}" unless daily_plan_required.include?(field)
+end
+daily_action_props = schemas.dig("DailyAction", "properties") || {}
+daily_action_required = Set.new(Array(schemas.dig("DailyAction", "required")))
+%w[intent reason_code source_evidence_refs].each do |field|
+  errors << "DailyAction missing controlled routing field #{field}" unless daily_action_required.include?(field) && daily_action_props.key?(field)
+end
+errors << "DailyAction intent vocabulary drifted" unless daily_action_props["intent"] == "CONTINUE|REVIEW_DUE|RETEST|REMEDIATE|COLLECT_EVIDENCE|GOAL_COVERAGE|FALLBACK"
+errors << "DailyAction reason vocabulary must be closed" unless daily_action_props["reason_code"] == "resume_active_session|due_review|eligible_retest|admitted_error|evidence_gap|target_coverage_gap|deterministic_fallback"
+
 eval_props = schemas.dig("EvaluationResult", "properties") || {}
-%w[score_label score_scope scorer_route_version result_validity criteria].each do |field|
+%w[score_label score_scope scorer_route_version result_validity criteria overall_band_estimate].each do |field|
   errors << "EvaluationResult missing #{field}" unless eval_props.key?(field)
 end
+errors << "EvaluationResult must not expose legacy overall_band alias" if eval_props.key?("overall_band")
 errors << "EvaluationResult must not require learner-facing raw confidence" if eval_props.key?("overall_confidence") || eval_props.key?("confidence_state") || eval_props.key?("quality_status")
+criterion_props = schemas.dig("CriterionResult", "properties") || {}
+errors << "CriterionResult must use band_estimate" unless criterion_props.key?("band_estimate") && !criterion_props.key?("band")
 
 writing_error_input = schemas.dig("WritingErrorInput", "properties") || {}
 %w[score confidence error_pattern user_id].each do |forbidden|
