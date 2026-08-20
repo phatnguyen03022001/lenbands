@@ -28,8 +28,8 @@ reporter << "persistent raw bearer storage is not prohibited" unless session["pe
 reporter << "cookie mutation CSRF/origin defense is not required" unless session["cookie_authenticated_mutation_requires_origin_or_csrf_defense"] == true
 
 access = read.call("artifacts/engineering/api/access-control.md")
-%w["Browser session and credential transport" "Recent-auth / step-up policy"].each do |heading|
-  reporter << "access-control missing #{heading}" unless access.include?(heading.delete_prefix('"').delete_suffix('"'))
+["Browser session and credential transport", "Recent-auth / step-up policy"].each do |heading|
+  reporter << "access-control missing #{heading}" unless access.include?(heading)
 end
 reporter << "client-authored recent-auth is not explicitly rejected" unless access.include?("recent-auth proof") && access.include?("cannot be supplied as an arbitrary client-authored boolean/header")
 
@@ -53,9 +53,8 @@ reporter << "dev incorrectly claims release authority" unless change_governance.
 reporter << "candidate identity is still branch-name based" unless change_governance.dig("candidate_selection", "branch_name_is_not_candidate_identity") == true
 
 family_registry = load_yaml.call("artifacts/operations/capability-family-registry.yaml")
-active_contracts = Array(family_registry["families"])
-  .select { |family| family["lifecycle"] == "ACTIVE" }
-  .flat_map { |family| Array(family["shared_contracts"]) }
+active_families = Array(family_registry["families"]).select { |family| family["lifecycle"] == "ACTIVE" }
+active_contracts = active_families.flat_map { |family| Array(family["shared_contracts"]) }
 retired = %w[
   artifacts/engineering/contracts/runtime/auth-identity-contract.md
   artifacts/engineering/contracts/openapi.yaml
@@ -65,9 +64,7 @@ retired = %w[
 retired.each do |path|
   reporter << "retired contract returned to active family registry: #{path}" if active_contracts.include?(path)
 end
-legacy_failures = Array(family_registry["families"])
-  .select { |family| family["lifecycle"] == "ACTIVE" }
-  .flat_map { |family| Array(family["shared_failures"]) }
+legacy_failures = active_families.flat_map { |family| Array(family["shared_failures"]) }
 reporter << "legacy LOW_CONFIDENCE failure returned to active family registry" if legacy_failures.any? { |failure| failure.include?("LOW_CONFIDENCE") }
 
 reporter.pass!("PASS: security contract regression tests")
