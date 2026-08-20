@@ -27,6 +27,9 @@ Dir.glob(File.join(root, "{blueprint,artifacts,knowledge-assets}/**/*.{yaml,yml}
   load_yaml.call(path)
 end
 
+docs_registry = load_yaml.call(File.join(root, "DOCS.yaml"))
+errors << "DOCS.yaml legacy_aliases must remain empty" unless (docs_registry["legacy_aliases"] || {}).empty?
+
 allowed_statuses = %w[draft review approved deprecated archived].to_set
 required_meta = %w[type status version owner representation derived_from purpose created_at updated_at]
 meta_paths = Dir.glob(File.join(root, "artifacts/**/*.meta.yaml")).sort
@@ -164,10 +167,15 @@ required_runtime = %w[
 ]
 required_runtime.each { |path| errors << "missing P0 runtime contract: #{path}" unless File.file?(File.join(root, path)) }
 
+# Historical migration/review material belongs in Git history, not the current authority tree.
 retired_paths = %w[
   artifacts/engineering/contracts/openapi.yaml
   artifacts/engineering/contracts/writing-task-2/openapi.yaml
   artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md
+  artifacts/engineering/contracts/runtime/async-job-worker-contract.md
+  artifacts/engineering/contracts/runtime/cache-contract.md
+  artifacts/engineering/contracts/runtime/outbox-reconciliation-contract.md
+  artifacts/engineering/contracts/runtime/cloud-topology-contract.md
   artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md
   artifacts/engineering/contracts/runtime/lifecycle-contract.md
   artifacts/engineering/contracts/runtime/auth-identity-contract.md
@@ -175,6 +183,11 @@ retired_paths = %w[
   artifacts/engineering/contracts/learning-ontology-proposal.md
   artifacts/engineering/contracts/learning-measurement-traceability-proposal.md
   artifacts/engineering/contracts/phase-4-target-learning-architecture-proposal.md
+  artifacts/operations/bops-contract-pack.md
+  artifacts/business/decisions/build-buy-register.md
+  artifacts/business/decisions/managed-platform-baseline-decision.md
+  artifacts/engineering/technology-stack-recommendations.md
+  artifacts/operations/catalogs/web-platform-pack-inventory.md
 ]
 retired_paths.each do |path|
   errors << "retired shadow/legacy document returned: #{path}" if File.exist?(File.join(root, path))
