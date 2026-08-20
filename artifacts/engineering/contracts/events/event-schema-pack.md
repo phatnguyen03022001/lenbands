@@ -1,120 +1,162 @@
-# Event Schema Pack (canonical events)
+# Event Schema Pack
 
 Canonical metadata is in `event-schema-pack.meta.yaml`.
 
-Registry schema for canonical events (Blueprint § Event Contract). Slice-specific events (Writing, Error-to-Review) may extend payload/producer only; do not rename outcome events.
+This registry defines canonical event payload boundaries. Events are immutable facts and compact projections of already-governed domain state; they do not become a second source of truth for TargetProfile, scores, feasibility, diagnosis, readiness or content.
 
-## Envelope (applies to every event)
+## Envelope
 
 ```yaml
 event:
-  event_type: string             # canonical past-tense fact
-  event_version: string          # event semantics version (semver)
-  event_id: string               # uuid, idempotent
-  trace_id: string               # cross-service trace
+  event_type: string
+  event_version: semver
+  event_id: uuid
+  trace_id: string
   occurred_at: timestamp
-  user_id_hash: string           # hashed, not raw user_id (privacy)
+  user_id_hash: string | null
   session_id: string | null
-  schema_version: string         # envelope schema version
+  schema_version: semver
   source: service | offline_sync | backfill
-  entity_refs: map               # opaque ids only
-  properties: map                # typed, no raw learner content
+  entity_refs: map
+  properties: map
   privacy_class: account | learning | assessment | audio | billing | system | derived
   schema_hash: string
 ```
 
-The envelope contains no learner content (essay/audio/error text). Payload is determined by `event_type`.
+General event payloads contain no raw essay/audio/transcript/private-note/answer/provider payload, credential or hidden reasoning.
 
 ## P0 canonical events
 
-### Identity / placement
-- `account_created` — `{plan, acquisition_source}`
-- `consent_recorded` — `{consent_version, purpose}`
-- `placement_started` — `{section, attempt}`
-- `placement_completed` — `{estimated_band, confidence, sections_scored}`
-- `goal_set` — `{target_band, target_date, daily_minutes}`
-- `privacy_export_requested` — `{request_id, scope}`
-- `privacy_deletion_requested` — `{request_id, scope}`
+### Identity / placement / target
+
+- `account_created` — `{account_ref, acquisition_source_code}`
+- `consent_recorded` — `{consent_ref, policy_version, decision}`
+- `privacy_export_requested` — `{request_ref, scope_code}`
+- `privacy_deletion_requested` — `{request_ref, scope_code}`
+- `goal_set` — `{goal_ref, target_profile_ref, goal_version}`
+- `placement_started` — `{attempt_ref, configuration_ref, configuration_version}`
+- `placement_completed` — `{attempt_ref, result_ref, result_validity, termination_reason, diagnosis_cause_classes, target_feasibility_state, evidence_coverage_ref}`
+
+Rules:
+
+- `goal_set` does not duplicate scalar target-band truth into analytics.
+- `placement_completed` contains no raw confidence/probability and no raw responses.
+- diagnosis cause/feasibility values are server-derived governed state; event existence does not imply a successful numeric estimate.
 
 ### Study orchestration
-- `daily_plan_generated` — `{date, items_count, estimated_minutes}`
-- `session_started` — `{intent, planned_minutes}`
-- `session_paused` — `{session_id, reason}`
-- `session_resumed` — `{session_id}`
-- `session_abandoned` — `{session_id, reason}`
-- `session_completed` — `{duration_seconds, items_done}`
-- `first_meaningful_session_completed` — `{session_id, outcome_ref}`
-- `next_best_action_shown` — `{action_type, reason}`
-- `next_best_action_taken` — `{action_type}`
+
+- `daily_plan_generated` — `{plan_ref, plan_version, plan_state, target_feasibility_state, primary_intent, reason_code, verification_rule_ref, estimated_minutes}`
+- `session_started` — `{session_ref, action_ref, intent, planned_minutes}`
+- `session_paused` — `{session_ref, reason_code}`
+- `session_resumed` — `{session_ref}`
+- `session_abandoned` — `{session_ref, reason_code}`
+- `session_completed` — `{session_ref, action_ref, duration_seconds, evidence_produced}`
+- `first_meaningful_session_completed` — `{session_ref, outcome_ref}`
+- `next_best_action_shown` — `{action_ref, intent, reason_code, verification_rule_ref}`
+- `next_best_action_taken` — `{action_ref, intent}`
+
+Rules:
+
+- plan/action events do not emit an internal candidate list;
+- one action event does not prove mastery/readiness;
+- `target_feasibility_state` is planning state, never official-band probability;
+- `reason_code` is controlled routing semantics, not free learner text.
 
 ### Writing loop
-- `writing_task_opened` — `{task_id, task_type}`
-- `writing_draft_saved` — `{draft_id, version, word_count}` (no text)
-- `writing_submission_started` — `{submission_id, task_id}`
-- `writing_submission_accepted` — `{submission_id}`
-- `evaluation_submitted` — `{evaluation_id, submission_id, evaluation_kind}`
-- `evaluation_scored` — `{evaluation_id, overall_band, overall_confidence, quality_status, usage}`
-- `evaluation_failed` — `{evaluation_id, failure_class}`
-- `evaluation_delayed` — `{evaluation_id, expected_delay_seconds}`
-- `writing_feedback_viewed` — `{evaluation_id, criterion_viewed_first}`
-- `learning_error_saved` — (xem error-to-review/event-contract.md)
-- `learning_error_fix_started` — `{error_id}`
-- `learning_error_fix_completed` — `{error_id, fix_evidence_ref}`
-- `practice_started` — `{action_type, source_ref}`
-- `retest_completed` — (xem error-to-review/event-contract.md)
+
+- `writing_task_opened` — `{task_ref, task_version, task_type}`
+- `writing_draft_saved` — `{draft_ref, draft_version, word_count}`
+- `writing_submission_started` — `{submission_ref, task_ref, task_version}`
+- `writing_submission_accepted` — `{submission_ref, operation_ref}`
+- `evaluation_submitted` — `{operation_ref, submission_ref, scorer_route_version}`
+- `evaluation_scored` — `{evaluation_ref, submission_ref, score_label, score_scope, result_validity, rubric_version, scorer_route_version, usage_ref}`
+- `evaluation_failed` — `{operation_ref, failure_code, retryable}`
+- `evaluation_delayed` — `{operation_ref, retry_after_seconds}`
+- `writing_feedback_viewed` — `{evaluation_ref, criterion_code}`
+- `learning_error_saved` — see error-to-review event owner
+- `learning_error_fix_started` — `{error_ref}`
+- `learning_error_fix_completed` — `{error_ref, fix_evidence_ref}`
+- `practice_started` — `{action_ref, source_ref, intent}`
+- `retest_completed` — see error-to-review event owner
+
+Rules:
+
+- `evaluation_scored` does not emit raw model confidence, `quality_status`, raw essay or provider response;
+- result validity is explicit and separate from operation state;
+- numeric score detail remains in the governed result resource rather than general analytics unless a separately approved aggregate purpose requires it.
 
 ### Review
+
 - `review_queue_opened` — `{due_count}`
-- `review_card_created` — (error-to-review/event-contract)
-- `review_card_rated` — (error-to-review/event-contract)
-- `review_completed` — `{card_id, rating, review_outcome}`
-- `retest_started` — `{retest_id, source_error_id, prompt_ref}` (xem error-to-review/event-contract.md)
-- `review_card_graduated` — (error-to-review/event-contract)
-- `learning_error_resolved` — (error-to-review/event-contract)
+- `review_card_created` — see error-to-review event owner
+- `review_card_rated` — see error-to-review event owner
+- `review_completed` — `{card_ref, rating, review_outcome}`
+- `retest_started` — `{retest_ref, source_error_ref, task_ref, exposure_policy_version}`
+- `review_card_graduated` — see error-to-review event owner
+- `learning_error_resolved` — see error-to-review event owner
 
-### Quota / paywall
-- `quota_warning_shown` — `{action_type, remaining, window}`
-- `quota_exceeded` — `{action_type, plan, window}`
-- `upgrade_cta_shown` — `{trigger}` (P1, Subscription/access service)
-- `upgrade_completed` — `{plan_from, plan_to}` (P1, Subscription/access service)
+A review event never means IELTS mastery. `retest_completed` must retain novelty/result-validity semantics in its owning contract before it can support verified improvement.
 
-### Governance (internal, not a learner event)
-- `benchmark_run_completed` — `{corpus_id, mae, route_id}`
-- `drift_threshold_exceeded` — `{metric, value, threshold}`
-- `anti_gaming_flagged` — `{evaluation_id, flag_type, score}`
+### Quota / subscription
+
+- `quota_warning_shown` — `{action_type, remaining, window_code}`
+- `quota_exceeded` — `{action_type, entitlement_code, window_code}`
+- `upgrade_cta_shown` — `{trigger_code}` (P1)
+- `upgrade_completed` — `{prior_entitlement_code, new_entitlement_code}` (P1)
+
+### Governance internal
+
+- `benchmark_run_completed` — `{benchmark_run_ref, scorer_route_version, required_slice_status, promotion_decision}`
+- `drift_threshold_exceeded` — `{metric_code, observed_value, threshold_ref}`
+- `anti_gaming_flagged` — `{evaluation_ref, flag_type, risk_disposition}`
+
+Rules:
+
+- aggregate MAE alone is not a scorer promotion event contract;
+- benchmark event points to the governed run/slices rather than reproducing corpus labels;
+- anti-gaming events carry risk disposition, never a cheating verdict from one detector score.
 
 ## Quality rules
 
-- Every event has a unique `event_id` (idempotent consumer).
-- `user_id_hash` replaces raw user_id — analytics cannot re-identify it unless joined to the auth DB (gated).
-- Learner content (essay, audio, error evidence) is NOT in the payload.
-- `reason`/`scope` for session/privacy events contains only controlled short codes, never learner text; the controlled value set lacks a Framework node (open gap; do not invent names).
-- Bump `event_version` minor when adding a field, major when breaking; the event type must exist in the Blueprint or extension registry.
-- Consumers must handle unknown fields (forward compatibility).
+- Every event has a unique `event_id`; consumers deduplicate retries.
+- Event types use `snake_case`; semantic changes bump `event_version`.
+- `entity_refs` use opaque references only.
+- `properties` contains controlled derived fields required by declared consumers.
+- Learner-created raw content is prohibited in general event payloads.
+- UI clicks alone do not count as learning outcomes.
+- `source=backfill` records the backfill/reason boundary and cannot unintentionally trigger learner notifications/recommendations.
+- Deletion/anonymization follows the retention registry.
+- Consumers tolerate additive unknown fields but do not reinterpret existing fields.
+- New event fields require a declared consumer/decision; analytics curiosity alone is not enough for sensitive data.
 
-## Forbidden events
+## Outcome interpretation
 
-- Event contains raw essay/audio/error text.
-- Event emitted from UI without a service (SPAs emit through the backend, not directly to analytics).
-- Duplicate events (same event_id on retry) — consumer dedupes.
+```text
+session_completed       != mastery
+evaluation_scored       != accepted evidence unless result_validity permits it
+review_completed         != transfer
+retest_completed         != improvement unless novelty + result validity + owning resolve policy pass
+placement_completed      != precise band when evidence is insufficient
+daily_plan_generated     != guaranteed target attainment
+```
 
-## Registry / consumer
+## Consumers
 
-- Analytics consumer: aggregate (DAU, retention, funnel).
-- Personalization consumer: recommendation (reads `session_completed`, `learning_error_saved`, `retest_completed`).
-- Governance consumer: benchmark/drift/anti-gaming.
+- analytics/outcome measurement: governed aggregates and funnels;
+- personalization: only admitted compact facts needed by deterministic planning;
+- governance: benchmark/drift/integrity/cost controls;
+- notification: explicit subscribed facts only, never wildcard learner-content access.
 
-Each consumer declares event subscriptions; do not subscribe to wildcards (except analytics aggregate).
+Do not subscribe domain consumers to wildcard events when a narrower contract is possible.
 
 ## P0 vs later
 
-- P0: the subset above, sufficient to measure activation/retention/outcome loop.
-- P1: add Speaking, Mock Test, and Search events.
-- P2: full event catalog.
+P0 registers only facts needed to operate/measure the closed Writing outcome loop. Speaking/Mock/Search and broader product events are added when their capabilities activate and their privacy/decision consumers are defined.
 
-## Cross-refs
+## Canonical references
 
-- Blueprint Event Contract: `blueprint/03-features.md` § Event Contract (canonical outcome event list).
-- Writing slice events: `experience/specs/vertical-slices/writing-task-2.md` §9.
-- Error-to-Review events: `engineering/contracts/error-to-review/event-contract.md`.
-- Analytics schema: generator projection (later).
+- Blueprint event identity: `blueprint/03-features.md`.
+- Writing events: `artifacts/engineering/contracts/writing-task-2/event-contract.md`.
+- Error-to-review events: `artifacts/engineering/contracts/error-to-review/event-contract.md`.
+- API payload/domain semantics: `artifacts/engineering/api/schema-contract.yaml`.
+- Privacy deny list: `artifacts/operations/data-retention-registry.yaml`.
