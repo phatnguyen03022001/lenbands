@@ -1,0 +1,574 @@
+schema_version: 1.0.0
+status: review
+source_of_truth: true
+contract_id: problem-risk-coverage
+owner: founder + product + engineering + operations
+purpose: >
+  Prove that implementation-relevant problem classes have been considered before an agent
+  builds a capability. This registry owns risk classification and coverage state only; the
+  referenced canonical contracts own the actual controls and runtime semantics.
+
+coverage_policy:
+  statuses: [covered, partial, open, deferred, not_applicable]
+  severities: [critical, high, medium, low]
+  phases: [P0, P1, P2, OPS]
+  p0_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  blocking_rule: >
+    A P0 critical/high risk with status open or partial is implementation-blocking until the
+    named control contract and acceptance boundary are sufficient for that family. A risk may
+    remain partial after code exists; implementation eligibility and release readiness are
+    separate gates.
+  deferred_rule: >
+    deferred is allowed only when the risk does not apply to the current P0 implementation
+    family and the later phase is explicit. Deferred is never equivalent to covered.
+  covered_rule: >
+    covered requires at least one canonical control owner plus a concrete acceptance or
+    verification boundary. A prose statement alone is not coverage.
+  no_duplication_rule: >
+    Do not create a new standalone risk document when an existing canonical contract can own
+    the control. Add the risk here and reference that owner.
+
+categories:
+  product_outcome_metric:
+    p0_applies_to: [P0-02, P0-03, P0-04, P0-05, P0-06]
+  learning_science_transfer:
+    p0_applies_to: [P0-02, P0-03, P0-04, P0-05]
+  measurement_psychometrics:
+    p0_applies_to: [P0-02, P0-04, P0-05, P0-06]
+  evaluator_quality_fairness:
+    p0_applies_to: [P0-04, P0-06]
+  ai_inference_boundary:
+    p0_applies_to: [P0-03, P0-04, P0-06]
+  personalization_adaptation:
+    p0_applies_to: [P0-02, P0-03, P0-05]
+  content_quality_rights:
+    p0_applies_to: [P0-02, P0-04, P0-05, P0-06]
+  identity_authorization:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  privacy_data_governance:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  security_abuse_fraud:
+    p0_applies_to: [P0-01, P0-03, P0-04, P0-05, P0-06]
+  billing_entitlement:
+    p0_applies_to: [P0-01, P0-03, P0-04, P0-05, P0-06]
+  support_dispute_breakglass:
+    p0_applies_to: [P0-01, P0-04, P0-05, P0-06]
+  reliability_disaster_recovery:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  data_schema_migration:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  observability_incident_response:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  cost_unit_economics:
+    p0_applies_to: [P0-03, P0-04, P0-05, P0-06]
+  accessibility_inclusive_design:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05]
+  device_network_media:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05]
+  time_semantics:
+    p0_applies_to: [P0-02, P0-03, P0-05]
+  experimentation_metric_integrity:
+    p0_applies_to: [P0-02, P0-03, P0-04, P0-05, P0-06]
+  vendor_dependency_exit:
+    p0_applies_to: [P0-01, P0-04, P0-06]
+  documentation_agent_integrity:
+    p0_applies_to: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+  legal_regulatory:
+    p0_applies_to: [P0-01, P0-02, P0-04, P0-06]
+  reproducibility_model_deprecation:
+    p0_applies_to: [P0-02, P0-04, P0-06]
+
+risks:
+  - risk_id: RISK-001
+    category: product_outcome_metric
+    title: Engagement metrics replace verified learning outcomes
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: product + operations
+    status: covered
+    canonical_contracts: [blueprint/01-product.md, blueprint/06-engines.md]
+    required_control: Optimize verified improvement/readiness evidence rather than completion, text volume, streak or raw engagement.
+    acceptance_test: Progress/readiness changes require admitted evidence; activity completion alone cannot promote mastery.
+    implementation_blocking: false
+
+  - risk_id: RISK-002
+    category: learning_science_transfer
+    title: Practice success is mistaken for independent transfer
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-04, P0-05]
+    owner: product
+    status: covered
+    canonical_contracts: [blueprint/06-engines.md, artifacts/engineering/contracts/error-to-review/data-contract.md]
+    required_control: Track exposure and require sufficiently novel independent retest evidence before verified improvement.
+    acceptance_test: Revealed or repeated source content cannot resolve an error or count as independent transfer evidence.
+    implementation_blocking: false
+
+  - risk_id: RISK-003
+    category: measurement_psychometrics
+    title: Missing evidence is interpreted as learner weakness
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-05]
+    owner: product + evaluation
+    status: covered
+    canonical_contracts: [artifacts/engineering/contracts/placement-diagnosis-contract.md, blueprint/06-engines.md]
+    required_control: Represent evidence gaps separately from observed performance gaps and route evidence collection when needed.
+    acceptance_test: An unobserved construct cannot be labeled weak solely because placement or history lacks observations.
+    implementation_blocking: false
+
+  - risk_id: RISK-004
+    category: measurement_psychometrics
+    title: Construct underrepresentation and false precision
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-04, P0-06]
+    owner: evaluation + product
+    status: partial
+    canonical_contracts: [artifacts/engineering/contracts/placement-diagnosis-contract.md, artifacts/operations/placement-quality-gate.md]
+    required_control: Version construct coverage, termination and calibration policy; withhold aggregate estimates when evidence is insufficient.
+    acceptance_test: Calibration/coverage run demonstrates the claimed score scope before calibrated precision is exposed.
+    implementation_blocking: true
+
+  - risk_id: RISK-005
+    category: evaluator_quality_fairness
+    title: Average benchmark quality hides weak slices or subgroup failure
+    phase: P0
+    severity: high
+    affected_families: [P0-04, P0-06]
+    owner: evaluation + operations
+    status: open
+    canonical_contracts: [artifacts/operations/evaluation-benchmark-spec.md]
+    required_control: Define benchmark slices by task type, score range and relevant input-quality/user-group dimensions before scorer approval.
+    acceptance_test: Release gate reports slice metrics and blocks when an armed critical slice fails even if aggregate quality passes.
+    implementation_blocking: true
+
+  - risk_id: RISK-006
+    category: evaluator_quality_fairness
+    title: Evaluator drift silently changes score meaning
+    phase: P0
+    severity: critical
+    affected_families: [P0-04, P0-06]
+    owner: evaluation + operations
+    status: covered
+    canonical_contracts: [artifacts/operations/evaluator-drift-incident-runbook.md, artifacts/engineering/contracts/writing-task-2/evaluation-contract.md]
+    required_control: Bind scorer route, rubric and prompt versions to benchmark/release governance; immutable recalibration rather than overwrite.
+    acceptance_test: Unapproved route/version cannot serve learner-visible scoring and drift incident has disable/rollback path.
+    implementation_blocking: false
+
+  - risk_id: RISK-007
+    category: ai_inference_boundary
+    title: AI becomes domain authority for deterministic decisions
+    phase: P0
+    severity: high
+    affected_families: [P0-03, P0-04, P0-06]
+    owner: engineering + product
+    status: covered
+    canonical_contracts: [blueprint/06-engines.md, artifacts/engineering/runtime-contract.yaml]
+    required_control: Rules/SQL/libraries own deterministic facts and transitions; model output is validated candidate judgment only.
+    acceptance_test: No model output can directly grant entitlement, set readiness/mastery, bypass validation or choose P0 daily action.
+    implementation_blocking: false
+
+  - risk_id: RISK-008
+    category: ai_inference_boundary
+    title: Prompt injection from assessed learner content changes evaluator policy
+    phase: P0
+    severity: critical
+    affected_families: [P0-04, P0-06]
+    owner: security + evaluation
+    status: covered
+    canonical_contracts: [artifacts/operations/bops/threat-model.md, artifacts/engineering/contracts/writing-task-2/writing_evaluation_v1.md]
+    required_control: Treat learner content as untrusted data, expose no tools/secrets, validate structured output and isolate system/rubric instructions.
+    acceptance_test: Prompt-injection corpus cannot select provider/tools, disclose secrets or escape evaluator schema/rubric.
+    implementation_blocking: false
+
+  - risk_id: RISK-009
+    category: personalization_adaptation
+    title: One observed weakness monopolizes the learner plan
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-05]
+    owner: product
+    status: covered
+    canonical_contracts: [blueprint/06-engines.md, artifacts/engineering/contracts/daily-action-contract.md]
+    required_control: Deterministic ranking balances evidence uncertainty, coverage, due review, transfer, target relevance, load and exposure novelty.
+    acceptance_test: Repeated plans cannot indefinitely starve under-observed target-relevant constructs under the versioned policy.
+    implementation_blocking: false
+
+  - risk_id: RISK-010
+    category: content_quality_rights
+    title: Unlicensed, stale or mutable assessment content contaminates evaluation
+    phase: P0
+    severity: critical
+    affected_families: [P0-02, P0-04, P0-05, P0-06]
+    owner: content + legal + operations
+    status: partial
+    canonical_contracts: [blueprint/05-content.md, artifacts/engineering/api/schema-contract.yaml]
+    required_control: Require provenance, rights state, immutable published version and exposure policy before assessment use.
+    acceptance_test: Closed-pilot task/config batch has reviewed rights/provenance and historical attempts retain exact versions.
+    implementation_blocking: true
+
+  - risk_id: RISK-011
+    category: content_quality_rights
+    title: Taxonomy authoring cost exceeds decision value
+    phase: P0
+    severity: medium
+    affected_families: [P0-04, P0-05, P0-06]
+    owner: content + product
+    status: covered
+    canonical_contracts: [blueprint/05-content.md]
+    required_control: A metadata field is required only when an active decision/search/evaluation/review consumer uses it.
+    acceptance_test: P0 publish path does not block on dormant taxonomy dimensions and metadata authoring cost is observable when material.
+    implementation_blocking: false
+
+  - risk_id: RISK-012
+    category: identity_authorization
+    title: BOLA/BFLA or entitlement-role collision exposes unauthorized data/function
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: security + engineering
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/access-control.md, artifacts/engineering/api/openapi.yaml]
+    required_control: Deny-by-default role/entitlement/object authorization with RLS defense in depth and negative access tests.
+    acceptance_test: Generated matrix proves cross-user object denial, cross-role function denial and Premium entitlement revocation without role mutation.
+    implementation_blocking: false
+
+  - risk_id: RISK-013
+    category: identity_authorization
+    title: Generic elevated service identity gains blanket runtime access
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-04, P0-06]
+    owner: security + engineering
+    status: covered
+    canonical_contracts: [artifacts/engineering/api/access-control.md, artifacts/engineering/runtime-contract.yaml]
+    required_control: Resolve internal calls to a function-scoped principal and minimum object/data purpose before elevated access.
+    acceptance_test: Evaluation, billing, content and research identities cannot execute each other's domain operations or enumerate unrelated learner resources.
+    implementation_blocking: false
+
+  - risk_id: RISK-014
+    category: privacy_data_governance
+    title: Raw learner content leaks into telemetry, logs, queues or unrelated providers
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: privacy + engineering
+    status: covered
+    canonical_contracts: [artifacts/operations/data-retention-registry.yaml, artifacts/operations/bops/contract.yaml]
+    required_control: Enforce C1-C5 classification, opaque references and telemetry deny lists; send minimum payload to providers.
+    acceptance_test: Privacy validator/event tests reject forbidden raw fields and assessment/session replay is disabled where prohibited.
+    implementation_blocking: false
+
+  - risk_id: RISK-015
+    category: privacy_data_governance
+    title: Retention, export or deletion misses a sensitive runtime entity
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: privacy + operations
+    status: partial
+    canonical_contracts: [artifacts/operations/data-retention-registry.yaml]
+    required_control: Every C1-C4 stored entity maps to exactly one retention/export/deletion registry entry before implementation eligibility.
+    acceptance_test: Entity coverage validator plus end-to-end export/delete run for the closed-pilot data graph.
+    implementation_blocking: true
+
+  - risk_id: RISK-016
+    category: security_abuse_fraud
+    title: Cost/resource exhaustion through automated or replayed expensive actions
+    phase: P0
+    severity: high
+    affected_families: [P0-03, P0-04, P0-05, P0-06]
+    owner: security + operations
+    status: covered
+    canonical_contracts: [artifacts/operations/bops/threat-model.md, artifacts/engineering/runtime-contract.yaml]
+    required_control: Quota preflight/reservation, idempotency, bounded retries, abuse/rate controls and cost attribution before inference.
+    acceptance_test: Duplicate/replayed submissions cannot double-charge and armed limits block pathological request volume safely.
+    implementation_blocking: false
+
+  - risk_id: RISK-017
+    category: security_abuse_fraud
+    title: Account farming, credential sharing or free-tier cycling bypasses economics
+    phase: P0
+    severity: medium
+    affected_families: [P0-01, P0-04, P0-06]
+    owner: security + operations
+    status: open
+    canonical_contracts: []
+    required_control: Define pilot-appropriate abuse signals and response without invasive fingerprinting or conflating abuse with learner error.
+    acceptance_test: Abuse policy and rate/account controls are documented and tested before opening beyond the closed pilot.
+    implementation_blocking: false
+
+  - risk_id: RISK-018
+    category: billing_entitlement
+    title: Duplicate/out-of-order billing events corrupt entitlements
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-03, P0-04, P0-05, P0-06]
+    owner: billing + engineering
+    status: covered
+    canonical_contracts: [artifacts/operations/bops/threat-model.md, artifacts/engineering/api/openapi.yaml]
+    required_control: Verify raw signature, dedupe provider event ID, order by occurrence time and reconcile provider-neutral ledger.
+    acceptance_test: Duplicate/stale webhook sequence produces one consistent entitlement state and cannot mutate learning/assessment state.
+    implementation_blocking: false
+
+  - risk_id: RISK-019
+    category: billing_entitlement
+    title: Payment fraud or entitlement abuse creates uncontrolled cost/access
+    phase: P0
+    severity: medium
+    affected_families: [P0-04, P0-06]
+    owner: billing + operations
+    status: open
+    canonical_contracts: []
+    required_control: Define provider-led fraud/dispute handling and local entitlement suspension/reconciliation boundaries before public monetization.
+    acceptance_test: Fraud/dispute path cannot directly mutate scores or learner evidence and entitlement rollback is auditable.
+    implementation_blocking: false
+
+  - risk_id: RISK-020
+    category: support_dispute_breakglass
+    title: Learner disputes a score/content/quota decision with no governed resolution path
+    phase: P0
+    severity: high
+    affected_families: [P0-04, P0-05, P0-06]
+    owner: product + operations
+    status: open
+    canonical_contracts: []
+    required_control: Define dispute intake, evidence-preserving re-evaluation/content/quota resolution, status communication and audit without manual score overwrite.
+    acceptance_test: A disputed Writing result can be re-evaluated/versioned or declined with reason while preserving immutable prior result and quota accounting.
+    implementation_blocking: true
+
+  - risk_id: RISK-021
+    category: support_dispute_breakglass
+    title: Support/admin needs sensitive learner data without a break-glass policy
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-04, P0-06]
+    owner: security + privacy + operations
+    status: partial
+    canonical_contracts: [artifacts/engineering/api/access-control.md]
+    required_control: Define separately authorized, time-bounded, purpose-bound, audited break-glass access with minimum fields and post-access review.
+    acceptance_test: Ordinary Admin cannot access raw C3; break-glass test requires explicit authorization/audit and expires automatically.
+    implementation_blocking: true
+
+  - risk_id: RISK-022
+    category: reliability_disaster_recovery
+    title: Backup exists but restore, RPO or RTO is unproven
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: operations + engineering
+    status: partial
+    canonical_contracts: [artifacts/operations/bops/contract.yaml]
+    required_control: Choose closed-pilot RPO/RTO, backup/export strategy and execute restore/reconciliation drills for database and object storage.
+    acceptance_test: Restore drill recreates a consistent pilot dataset and identifies acceptable loss window/recovery time before release readiness.
+    implementation_blocking: true
+
+  - risk_id: RISK-023
+    category: reliability_disaster_recovery
+    title: Provider or async worker outage loses work or creates duplicate effects
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: engineering + operations
+    status: covered
+    canonical_contracts: [artifacts/engineering/runtime-contract.yaml]
+    required_control: Durable operations, idempotent effects, bounded retry, truthful delayed/unavailable state and preserved learner work.
+    acceptance_test: Worker/provider failure/replay does not lose accepted input, double-create domain effects or silently substitute unapproved scorer route.
+    implementation_blocking: false
+
+  - risk_id: RISK-024
+    category: data_schema_migration
+    title: Schema migration or backfill corrupts source or derived learner state
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: engineering
+    status: open
+    canonical_contracts: []
+    required_control: Define additive migration, backfill idempotency, projection rebuild, rollback/forward-fix and compatibility rules for active clients/workers.
+    acceptance_test: Representative migration rehearsal proves source data preservation, replay-safe backfill and projection rebuild from canonical state.
+    implementation_blocking: true
+
+  - risk_id: RISK-025
+    category: observability_incident_response
+    title: Security/privacy/billing/scoring/data-loss incidents lack one severity and response model
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: operations + security
+    status: partial
+    canonical_contracts: [artifacts/engineering/contracts/runtime/observability-slo-contract.md, artifacts/operations/evaluator-drift-incident-runbook.md]
+    required_control: Define generic incident classes/severity, containment, communication, rollback/disable, evidence preservation and postmortem ownership.
+    acceptance_test: Tabletop scenarios cover security, privacy, billing, scoring, provider and data-loss incidents with named actions/owners.
+    implementation_blocking: true
+
+  - risk_id: RISK-026
+    category: cost_unit_economics
+    title: Cheap requests optimize spend while learner outcome remains poor
+    phase: P0
+    severity: high
+    affected_families: [P0-03, P0-04, P0-05, P0-06]
+    owner: product + operations
+    status: partial
+    canonical_contracts: [blueprint/01-product.md, blueprint/06-engines.md]
+    required_control: Observe cost per accepted evaluation and cost per verified improvement, including escalation/retry/content-operation cost.
+    acceptance_test: Closed-pilot economics report binds cost to accepted evaluations and verified retest outcomes; quality floor cannot be traded away silently.
+    implementation_blocking: true
+
+  - risk_id: RISK-027
+    category: accessibility_inclusive_design
+    title: Core learner flow is unusable with keyboard, screen reader, zoom or reduced motion
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05]
+    owner: experience + engineering
+    status: open
+    canonical_contracts: [blueprint/04-experience.md]
+    required_control: Define WCAG-oriented interaction checklist for auth, placement, editor, feedback, review, timer and error/recovery states.
+    acceptance_test: Keyboard-only, screen-reader semantics, 200-percent zoom/reflow, focus/error announcement and reduced-motion checks pass P0 critical path.
+    implementation_blocking: true
+
+  - risk_id: RISK-028
+    category: device_network_media
+    title: Browser/network interruption loses drafts, attempts or session state
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05]
+    owner: experience + engineering
+    status: partial
+    canonical_contracts: [artifacts/engineering/runtime-contract.yaml, artifacts/engineering/contracts/writing-task-2/runtime-spec.md]
+    required_control: Local preservation where needed, optimistic versioning, idempotent retry and tested browser/network degradation behavior.
+    acceptance_test: Critical flows survive refresh, transient offline/network timeout and duplicate submit without data loss or duplicate effects on supported browsers.
+    implementation_blocking: true
+
+  - risk_id: RISK-029
+    category: time_semantics
+    title: Timezone, midnight or DST changes corrupt daily plan, exam countdown or review due state
+    phase: P0
+    severity: medium
+    affected_families: [P0-02, P0-03, P0-05]
+    owner: engineering + product
+    status: open
+    canonical_contracts: []
+    required_control: Define canonical stored timestamps, learner timezone source, local-day boundary, travel/timezone change and due-date comparison rules.
+    acceptance_test: Tests cover midnight boundary, timezone change and DST-capable zones without duplicate/missed daily actions or reviews.
+    implementation_blocking: false
+
+  - risk_id: RISK-030
+    category: experimentation_metric_integrity
+    title: Experiment changes scoring truth, security or entitlement semantics by cohort
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: product + operations
+    status: open
+    canonical_contracts: []
+    required_control: Define experimentable surfaces versus invariant scoring/evidence/security/entitlement semantics and metric guardrails against engagement gaming.
+    acceptance_test: Experiment configuration cannot select unapproved scorer route, weaken evidence admission, security/privacy, entitlement or release gates.
+    implementation_blocking: true
+
+  - risk_id: RISK-031
+    category: vendor_dependency_exit
+    title: Selected provider disappears, changes policy/region or sharply increases price
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-04, P0-06]
+    owner: engineering + operations
+    status: partial
+    canonical_contracts: [artifacts/business/decisions/platform-sourcing.md, artifacts/engineering/runtime-contract.yaml]
+    required_control: Maintain provider-neutral domain contracts, data export path, scorer-route approval and explicit exit triggers for material dependency changes.
+    acceptance_test: Exit exercise demonstrates what can be swapped behind adapters, what data can be exported and which capabilities must degrade/disable safely.
+    implementation_blocking: true
+
+  - risk_id: RISK-032
+    category: documentation_agent_integrity
+    title: Agent implements stale or higher-noise document instead of canonical owner
+    phase: P0
+    severity: critical
+    affected_families: [P0-01, P0-02, P0-03, P0-04, P0-05, P0-06]
+    owner: engineering + operations
+    status: covered
+    canonical_contracts: [DOCS.yaml, artifacts/operations/documentation-architecture.yaml]
+    required_control: Start at DOCS.yaml, hide legacy aliases from default context and keep one semantic owner per field.
+    acceptance_test: Document/authority validators reject split canonical ownership and legacy build/codegen authority.
+    implementation_blocking: false
+
+  - risk_id: RISK-033
+    category: legal_regulatory
+    title: User age, jurisdiction, consent or data-processing obligations are undefined
+    phase: P0
+    severity: high
+    affected_families: [P0-01, P0-02, P0-04, P0-06]
+    owner: founder + privacy + legal
+    status: open
+    canonical_contracts: [artifacts/operations/data-retention-registry.yaml]
+    required_control: Define closed-pilot eligibility, supported jurisdictions, age/minor handling, consent basis, DPA/subprocessor and deletion/legal-hold assumptions before collecting production learner data.
+    acceptance_test: Pilot launch checklist records approved eligibility/jurisdiction/privacy decisions and provider DPAs for active processors.
+    implementation_blocking: true
+
+  - risk_id: RISK-034
+    category: legal_regulatory
+    title: IELTS/trademark/third-party benchmark or content rights are misrepresented
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-04, P0-06]
+    owner: founder + content + legal
+    status: partial
+    canonical_contracts: [blueprint/framework/README.md, blueprint/05-content.md]
+    required_control: Keep official-derived claims traceable, LenBands constructs labeled internal, and content/benchmark licenses/provenance approved before use.
+    acceptance_test: Legal/content review samples learner-facing IELTS claims and every P0 assessment/benchmark asset has approved provenance/rights state.
+    implementation_blocking: true
+
+  - risk_id: RISK-035
+    category: reproducibility_model_deprecation
+    title: Historical evaluation cannot be explained after model/provider/version retirement
+    phase: P0
+    severity: high
+    affected_families: [P0-02, P0-04, P0-06]
+    owner: evaluation + engineering
+    status: partial
+    canonical_contracts: [artifacts/engineering/contracts/writing-task-2/data-contract.md, artifacts/engineering/runtime-contract.yaml]
+    required_control: Persist task/rubric/prompt/scorer-route/model audit identities and define exact versus semantic versus audit-only reproducibility levels.
+    acceptance_test: Historical result remains attributable to immutable inputs/versions and governed re-evaluation creates a superseding result rather than rewriting history.
+    implementation_blocking: true
+
+  - risk_id: RISK-036
+    category: product_outcome_metric
+    title: Feedback volume or template dependence harms learner autonomy and exam transfer
+    phase: P0
+    severity: medium
+    affected_families: [P0-03, P0-04, P0-05]
+    owner: product + experience
+    status: covered
+    canonical_contracts: [blueprint/04-experience.md, artifacts/experience/specs/vertical-slices/writing-task-2.md]
+    required_control: Prioritize one actionable fix, avoid full auto-rewrite and measure later retest/transfer rather than feedback quantity.
+    acceptance_test: P0 Writing critical path produces prioritized evidence-linked feedback and an independent learner action before retest.
+    implementation_blocking: false
+
+  - risk_id: RISK-037
+    category: learning_science_transfer
+    title: FSRS maturity is interpreted as Writing or IELTS mastery
+    phase: P0
+    severity: high
+    affected_families: [P0-03, P0-05]
+    owner: product
+    status: covered
+    canonical_contracts: [blueprint/06-engines.md, artifacts/engineering/contracts/error-to-review/data-contract.md]
+    required_control: FSRS schedules only retrievable remediation units; construct mastery/readiness requires separate independent evidence.
+    acceptance_test: Review-card state cannot directly set Writing criterion mastery, IELTS band estimate or exam readiness.
+    implementation_blocking: false
+
+  - risk_id: RISK-038
+    category: personalization_adaptation
+    title: Daily action uses raw learner history or an LLM as an opaque recommender
+    phase: P0
+    severity: high
+    affected_families: [P0-03]
+    owner: product + engineering
+    status: covered
+    canonical_contracts: [artifacts/engineering/contracts/daily-action-contract.md, artifacts/operations/capability-manifest.yaml]
+    required_control: Build bounded deterministic candidates from compact evidence state, apply constraints/ranking, then expose controlled reason codes.
+    acceptance_test: Same versioned inputs produce same candidate/rank result and P0 plan generation makes zero LLM calls.
+    implementation_blocking: false
