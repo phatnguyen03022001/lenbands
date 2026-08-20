@@ -2,13 +2,14 @@
 # frozen_string_literal: true
 
 require "yaml"
+require "date"
 require "lenbands"
 require "lenbands/reporter"
 
 root = Lenbands::ROOT
 reporter = Lenbands::Reporter.new("Security contract regression tests")
 read = ->(path) { File.read(File.join(root, path)) }
-load_yaml = ->(path) { YAML.safe_load(read.call(path), aliases: false) }
+load_yaml = ->(path) { YAML.safe_load(read.call(path), permitted_classes: [Date], aliases: false) }
 
 type_system = load_yaml.call("artifacts/engineering/api/type-system.yaml")
 transport = type_system.fetch("transport_policy", {})
