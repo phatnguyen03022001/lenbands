@@ -1,6 +1,6 @@
 type: documentation-architecture
 status: review
-version: 1.1.0
+version: 1.2.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability]
@@ -15,7 +15,8 @@ principles:
   - risk registry classifies coverage and blockers; referenced canonical contracts own controls
   - generated files are projections, never authorities
   - migration aliases expire; parallel authorities do not
-  - rename only after inbound references have a machine-readable successor
+  - git_history_is_archive_for_retired_review_migration_and_execution_snapshots
+  - rename_or_delete_only_after_inbound_executable_and_canonical_consumers_are_resolved
 
 filename_policy:
   mutable_canonical: lower-kebab-case
@@ -23,6 +24,16 @@ filename_policy:
   immutable_evidence: date_or_version_allowed
   prohibited_new_patterns: [final, latest, new, v2-as-filename-revision, copy, contract-pack, target-architecture]
   allowed_special_names: [README.md, AGENTS.md, DOCS.yaml, CODEOWNERS]
+
+metadata_policy:
+  purpose: lifecycle_ownership_provenance_and_small_change_history_only
+  prohibited_payloads:
+    - repository_wide_source_inventory
+    - bulk_execution_trace
+    - full_diff_packet
+    - benchmark_corpus
+    - duplicated_primary_document_body
+  large_evidence_rule: immutable_or_generated_evidence_belongs_in_its_owned_evidence_surface_not_a_sidecar
 
 folder_policy:
   blueprint: product_and_domain_design_authority
@@ -32,15 +43,7 @@ folder_policy:
   artifacts/operations: quality_security_release_evidence_and_runtime_operations
   knowledge-assets: learner_serving_content
 
-canonical_renames:
-  - from: artifacts/engineering/contracts/openapi.yaml
-    to: artifacts/engineering/api/openapi.yaml
-    mode: consolidate
-    reason: remove split API authority
-  - from: artifacts/engineering/contracts/writing-task-2/openapi.yaml
-    to: artifacts/engineering/api/openapi.yaml
-    mode: consolidate
-    reason: remove P0-specific second API authority
+active_migrations:
   - from: artifacts/operations/bops-contract-pack.md
     to: artifacts/operations/bops/contract.yaml
     mode: normalize
@@ -58,6 +61,15 @@ canonical_renames:
     mode: reduce
     reason: avoid library catalog becoming architecture authority
 
+completed_migrations:
+  retired_from_working_tree:
+    - artifacts/engineering/contracts/openapi.yaml
+    - artifacts/engineering/contracts/writing-task-2/openapi.yaml
+    - artifacts/engineering/contracts/openapi/
+    - artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md
+  canonical: artifacts/engineering/api/openapi.yaml
+  archive: git_history
+
 blueprint_display_names:
   blueprint/01-product.md: product
   blueprint/02-architecture.md: system-architecture
@@ -69,9 +81,9 @@ blueprint_display_names:
   blueprint/08-roadmap.md: roadmap
 
 note: >
-  Numbered Blueprint filenames remain physical paths during this migration because they have extensive
-  validator and artifact references. DOCS.yaml supplies stable semantic document IDs now. Physical renaming
-  is permitted only after a generated inbound-reference report proves zero unresolved consumers.
+  Numbered Blueprint filenames remain physical paths because they still have extensive validator and artifact
+  references. DOCS.yaml supplies stable semantic document IDs. Physical rename is permitted only when current
+  consumers are migrated and validation proves no unresolved executable/canonical reference.
 
 noise_budget:
   maximum_canonical_docs_per_semantic_concern: 1
@@ -81,12 +93,20 @@ noise_budget:
   maximum_web_authorization_roles: 3
   web_personas: 5
   risk_registry_policy: one_registry_only_controls_remain_in_existing_owners
-  rule: a new document needs a new semantic owner or it belongs inside an existing document
+  manual_snapshot_policy: retire_when_current_registry_or_generator_supersedes_it
+  rule: a new document needs a new semantic owner or executable/evidence boundary; otherwise update the existing owner
+
+retirement_gate:
+  - canonical_or_executable_consumers_are_zero_or_migrated
+  - current_owner_contains_the_needed_semantics
+  - immutable_evidence_is_not_deleted
+  - git_history_is_sufficient_for_historical_review_or_migration_trace
+  - validators_are_updated_to_reject_reintroduction_when_split_authority_was_the_risk
 
 migration_gate:
-  - DOCS.yaml resolves every new canonical authority
-  - legacy paths are marked migration_only or historical_input
-  - validators consume canonical paths before legacy paths are removed
+  - DOCS.yaml resolves every active canonical authority
+  - remaining legacy paths are explicitly transitional or historical
+  - validators consume canonical paths before a legacy path is removed
   - risk registry references canonical controls instead of duplicating their semantics
-  - no unresolved inbound references before physical rename/delete
-  - same-head repository verify and trust-boundary gate pass
+  - no unresolved canonical_or_executable inbound references before physical rename/delete
+  - same-head repository verify and trust-boundary gate pass before readiness claims
