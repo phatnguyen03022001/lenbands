@@ -1,9 +1,17 @@
 type: llm-routing-context-contract
 status: review
-version: 0.1.1
+version: 0.3.0
 owner: engineering
 representation: markdown
 derived_from: [EVAL.Writing, GOVERNANCE.ConfidenceScore, OPS.ModelRouting, OPS.CostBudget]
-purpose: p0-writing-llm-routing-context-token-and-fallback-semantics
+purpose: p0-minimum-context-inference-routing-quality-and-cost-boundary
+consumed_by: [engineering, operations, agents]
 created_at: 2026-08-06
-updated_at: 2026-08-07
+updated_at: 2026-08-20
+change_log:
+  - version: 0.3.0
+    date: 2026-08-20
+    changes:
+      - Removed Go/worker/queue/cache architecture assumptions.
+      - Made deterministic preflight, bounded primary scoring and governed escalation explicit.
+      - Separated generated candidate fields from runtime provenance and domain result validity.
