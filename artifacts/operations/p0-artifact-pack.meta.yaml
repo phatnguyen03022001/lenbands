@@ -1,6 +1,6 @@
 type: capability-pack-contract
 status: draft
-version: 0.3.1
+version: 0.4.0
 owner: product
 representation: markdown
 derived_from:
@@ -10,6 +10,6 @@ derived_from:
   - EVAL.Writing
   - REVIEW.FSRS
   - OPS.ReleaseGate
-purpose: closed-pilot-artifact-coverage-and-definition-of-done
+purpose: separate minimum implementation contracts from closed-pilot release evidence for P0
 created_at: 2026-08-06
-updated_at: 2026-08-11
+updated_at: 2026-08-20
