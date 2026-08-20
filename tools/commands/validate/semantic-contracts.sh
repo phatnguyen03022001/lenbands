@@ -45,11 +45,45 @@ quota_contract = read.call("artifacts/engineering/contracts/quota-usage/quota-us
   errors << "quota event producer contract missing: #{event}" unless quota_contract.include?("`#{event}`")
 end
 
-# The aggregate can have no evaluation; an Evaluation resource cannot.
+# Cross-cutting state/runtime conventions must agree with the canonical runtime model.
 conventions = read.call("blueprint/07-conventions.md")
-unless conventions.include?("aggregate may be `none`") && conventions.include?("persisted `Evaluation` entity")
-  errors << "evaluation_state lifecycle/entity scope is not explicit"
+errors << "conventions must separate operation_state and result_validity" unless conventions.include?("operation_state:") && conventions.include?("result_validity:")
+errors << "conventions must prohibit low_confidence workflow state" unless conventions.include?("do not reintroduce `low_confidence` or `quality_status` as persisted workflow state")
+errors << "conventions restored fixed Redis runtime topology" if conventions.include?("P0 backend jobs use Redis Streams")
+errors << "conventions must keep runtime topology provider/mechanism neutral" unless conventions.include?("This Blueprint does not require Redis, Kafka, a standalone worker service, Go, Python")
+errors << "conventions restored scalar target-band semantics" if conventions.include?("target is `target_band`")
+errors << "conventions must identify TargetProfile target semantics" unless conventions.include?("target is `TargetProfile`")
+
+# The learner shell must remain Today-first and navigation-safe rather than capability-first.
+experience = read.call("blueprint/04-experience.md")
+[
+  "Home/Today is the default authenticated learner destination",
+  "capability inventory does not become navigation inventory",
+  "Back is safe",
+  "Resume is explicit",
+  "Deep links authorize first",
+  "Refresh is semantic no-op"
+].each do |phrase|
+  errors << "experience shell invariant missing: #{phrase}" unless experience.include?(phrase)
 end
+errors << "experience must cap lighter alternative at one" unless experience.include?("at most one lighter alternative")
+
+usability = Lenbands::YamlLoader.load_file(File.join(root, "artifacts/experience/critical-path-usability-contract.yaml"), mapping: true)
+nav = usability["navigation"] || {}
+errors << "critical-path usability contract must include navigation semantics" if nav.empty?
+errors << "critical-path default authenticated destination must be today" unless nav.dig("shell", "default_authenticated_destination") == "today"
+errors << "critical-path shell must forbid capability-to-nav projection" unless nav.dig("shell", "rule") == "capability_inventory_must_not_become_top_level_navigation_inventory"
+errors << "critical-path primary action count drift" unless Array(nav.dig("primary_action", "required_visible_elements")) == %w[one_primary_action one_reason one_verification_rule]
+errors << "critical-path lighter alternative cap drift" unless nav.dig("primary_action", "maximum_competing_lighter_alternatives") == 1
+errors << "critical-path back semantics drift" unless nav.dig("back_and_exit", "browser_or_system_back_is_semantic_no_op_for_domain_truth") == true
+errors << "critical-path refresh semantics drift" unless nav.dig("resume", "refresh_restores_acknowledged_canonical_state") == true
+errors << "critical-path stale deep-link rule missing" unless nav.dig("deep_link", "stale_action_must_not_execute_superseded_plan") == true
+errors << "critical-path accepted submission navigation integrity missing" unless nav.dig("submission_integrity", "accepted_submission_cannot_return_to_editable_pre_submit_state_via_navigation") == true
+
+roadmap = read.call("blueprint/08-roadmap.md")
+errors << "roadmap missing Skill Activation Template" unless roadmap.include?("### Skill activation template")
+errors << "roadmap must require Today handoff for new skills" unless roadmap.include?("Today recomputes the next decision")
+errors << "roadmap skill template missing navigation recovery" unless roadmap.include?("back/refresh/deep-link/resume/network recovery behavior")
 
 # Cost boundary identifiers used by P0 profiles must be declared in operations policy.
 cost_budget = read.call("artifacts/operations/cost-budget.md")
