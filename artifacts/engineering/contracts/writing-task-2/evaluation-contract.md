@@ -4,7 +4,7 @@
 
 Define the P0 boundary between deterministic validation, model-assisted rubric judgment, evidence validation, bounded escalation and learner-facing Writing feedback.
 
-This contract intentionally separates **scorer output** from **domain result validity**. A model response is a candidate judgment; it cannot directly become readiness/mastery or an official-equivalent IELTS score.
+This contract intentionally separates **scorer output** from **runtime provenance** and **domain result validity**. A model response is a candidate judgment; it cannot directly become readiness/mastery or an official-equivalent IELTS score.
 
 ## Score identity
 
@@ -28,15 +28,16 @@ evaluation_request:
   task_version: string
   rubric_version: string
   assessment_mode: practice | retest
-  essay_text: <protected runtime payload>
+  essay_segments:
+    - evidence_ref: string
+      text: string
   task_prompt: string
   scorer_route_version: string
   bounded_context:
     language_preference: string | null
-    relevant_prior_error_refs: []   # optional, capped, only when needed
 ```
 
-Do not send full learner history, entitlements, unrelated scores or private notes to the scorer.
+Do not send full learner history, entitlements, unrelated scores, arbitrary prior feedback or private notes to the scorer.
 
 Target band/minima may inform later feedback/planning, but are not required to decide what evidence exists in the submitted essay.
 
@@ -44,36 +45,36 @@ Target band/minima may inform later feedback/planning, but are not required to d
 
 Before scorer invocation the runtime validates:
 
-- task status/version and module eligibility;
+- task status/version, rights state and module eligibility;
 - ownership/idempotency/quota;
 - non-empty/eligible essay input;
 - deterministic word count/basic integrity;
-- supported rubric/scorer-route version.
+- supported rubric/scorer-route version;
+- stable segmentation and evidence-reference creation.
 
 A failed precheck produces no paid scorer call.
 
 ## Primary scorer output
 
-The scorer returns structured rubric judgments and evidence candidates only:
+The model returns structured rubric judgments and supplied evidence references only:
 
 ```yaml
 scorer_output:
-  scorer_route_version: string
-  model_id: string
-  provider_id: string
   criteria:
     - criterion: task_response | coherence_cohesion | lexical_resource | grammar
-      band_estimate: half_band_0_9 | null
+      band_candidate: half_band_0_9 | null
       raw_confidence: number | null
-      evidence_candidates:
-        - evidence_ref: string
-          claim: string
+      evidence_refs: [string]
       finding_candidate: string | null
+      insufficiency_signals: [string]
   overall_band_candidate: half_band_0_9 | null
-  integrity_signals: []
+  global_insufficiency_signals: [string]
+  integrity_signals: [string]
 ```
 
-`raw_confidence` is internal routing/governance data. It is not a learner-facing probability that the band is correct.
+The model payload does **not** own or echo provider/model/route provenance. The adapter/runtime records `model_id`, `provider_id`, `scorer_route_version`, prompt template/revision/hash and execution identity outside the model-generated payload. This prevents a model from self-asserting provenance.
+
+`raw_confidence` is optional restricted routing/governance data. It is not a learner-facing probability that the band is correct.
 
 The scorer output is not persisted as the learner result until domain validation succeeds.
 
@@ -83,12 +84,13 @@ The normalizer/evidence validator must check:
 
 1. output/schema version;
 2. closed criterion enum;
-3. band value/range/rounding policy;
-4. each evidence reference resolves to actual learner-owned submission evidence;
-5. finding text is supported by the cited evidence;
-6. task/rubric/scorer route provenance is complete;
-7. no result attempts to change score scope/label;
-8. integrity signals are treated according to policy rather than as proof.
+3. band candidate value/range/rounding policy;
+4. each `evidence_ref` is one of the deterministically supplied learner-owned essay segment references;
+5. finding text is supported by the cited evidence/rubric meaning;
+6. task/rubric/scorer route and runtime provenance are complete outside the model payload;
+7. no result attempts to change score scope/label or create readiness/mastery authority;
+8. integrity signals are treated according to policy rather than as proof;
+9. insufficiency signals degrade/null unsupported claims rather than being ignored.
 
 Unsupported/hallucinated evidence cannot be silently dropped while retaining the same confident score claim. The result must be degraded/re-evaluated according to the versioned policy.
 
@@ -142,7 +144,7 @@ writing_evaluation:
   created_at: timestamp
 ```
 
-`operation_state` belongs to the durable operation/submission projection and is not duplicated as result trustworthiness.
+The learner-facing API projection may omit restricted provider/model/cost provenance, but it must preserve the same score field names, score identity, rubric/route version and result validity. `operation_state` belongs to the durable operation/submission projection and is not duplicated as result trustworthiness.
 
 ## Result-validity policy
 
