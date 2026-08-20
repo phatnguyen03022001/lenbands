@@ -15,6 +15,7 @@ tools/commands/validate/evidence-lineage.rb
 ruby tools/commands/validate/evidence-integrity.rb
 ruby tools/commands/validate/data-governance.rb
 ruby tools/commands/validate/failure-registry.rb
+ruby tools/commands/validate/problem-risk-coverage.rb
 tools/commands/validate/platform-boundary.rb
 tools/commands/validate/domain-automation.rb
 # Document validation owns framework/OpenAPI/semantic/spawn/benchmark orchestration.
@@ -32,4 +33,4 @@ for test_file in "${test_files[@]}"; do
   ruby -Itools/lib "$test_file"
 done
 
-echo "repository contract verification passed; runtime/P0 readiness remains a separate fail-closed evidence gate"
+echo "repository contract verification passed; runtime/P0 readiness remains a separate fail-closed evidence and blocking-risk gate"
