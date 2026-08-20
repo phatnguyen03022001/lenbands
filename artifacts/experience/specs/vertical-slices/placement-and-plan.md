@@ -1,98 +1,190 @@
 # Vertical Slice — Placement, Goal & Initial Plan
 
-## Outcome and scope
+## Outcome
 
-The learner has a target, a baseline with clear reliability, and a reasoned initial plan. Scope: `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current`.
+The learner leaves onboarding knowing:
 
-**In scope:** target/date/time budget, published placement configuration, attempt/resume, provisional band/gap, first plan. **Out of scope:** official IELTS result, full four-skill exam simulation, adaptive practice engine, free-form placement inference.
+1. what exam target they are preparing for;
+2. what LenBands currently knows versus does not yet know;
+3. one useful first action based on admitted evidence or an explicit need to collect evidence.
 
-## State and behavior
+Scope: `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current`.
 
-The canonical persisted placement attempt status is defined in `placement-diagnosis-contract.md`:
-`new | in_progress | paused | submitted | diagnosed | insufficient_data`.
+Success is not "show a band quickly". False precision is worse than a narrower/insufficient result.
 
-The states below are a UX-flow view that also includes screen-level states not persisted as status:
+## 1. Target setup
+
+Target uses `TargetProfile`, not one mandatory band scalar.
+
+Ask only what is useful for planning:
+
+- Academic or General Training;
+- target overall band if the learner has one;
+- per-skill minimums when relevant;
+- exam date if known;
+- daily study time budget;
+- optional purpose/context when it materially changes planning.
+
+Learners may continue without exam date or overall target when they know only skill minima.
+
+Copy must not imply that TargetProfile influences scorer generosity. It prioritizes planning only.
+
+## 2. Placement behavior
+
+P0 placement uses a published deterministic/fixed/rule-based configuration. No model inference is required in the default route.
 
 ```text
-new → consent_pending (UX only) → goal_collecting (UX only) → placement_ready (UX only) → placement_in_progress
-consent_pending → consented → goal_collecting
-placement_in_progress → submitted → diagnosing (UX transition) → diagnosed
-placement_in_progress → paused → placement_in_progress
-diagnosing → insufficient_data → placement_ready (UX only)
-diagnosed → initial_plan_ready (UX only)
+TargetProfile saved
+  -> placement intro
+  -> versioned attempt
+  -> responses saved/resumable
+  -> submit/termination policy
+  -> admitted diagnostic result
+       -> accepted/limited evidence
+       -> insufficient evidence
+       -> invalid configuration
+  -> first plan/action
 ```
 
-`consent_pending`, `goal_collecting`, `placement_ready`, `diagnosing`, and `initial_plan_ready` are UX/screen states; they are not persisted `placement_attempt.status`. Persisted status uses the canonical enum from `placement-diagnosis-contract.md`. `consent_pending` composes with `identity-consent.md`: placement configuration and learner responses are not processed until required consent is `consented`. Role is authenticated learner; service may read only that learner's goal/attempt.
+Persisted attempt state remains:
 
-| Surface | Primary action | Required recovery |
+`new | in_progress | paused | submitted | diagnosed | insufficient_data`.
+
+Screen-only states such as consent, configuration unavailable, diagnosing and initial-plan-ready are UX projections, not additional domain status values.
+
+## 3. Placement intro
+
+Show:
+
+- expected maximum burden/time as a configuration property, not a guarantee;
+- which skills/constructs this placement can currently sample;
+- that it produces a diagnostic estimate, not an official IELTS result;
+- that LenBands may return "not enough evidence yet" rather than inventing a band.
+
+If no right-approved published configuration exists, provide a goal-only safe next action or retry. Do not generate an arbitrary assessment at runtime.
+
+## 4. Attempt UX
+
+| State | UI behavior | Rule |
 |---|---|---|
-| Goal setup | Save goal | validation/date unavailable |
-| Placement intro | Start baseline | no published configuration |
-| Placement attempt | Continue / Submit | autosave, pause/resume, network loss |
-| Result & gaps | View first plan | insufficient data, provisional disclosure |
+| `in_progress` | one task/item at a time; clear save/progress state | answer stored idempotently |
+| network loss | keep recoverable local state where possible | no duplicate response/evidence after sync |
+| pause | save and leave safely | resume exact attempt/config version |
+| submit guard | state what evidence/sections remain | learner may continue or submit under termination policy |
+| exposure conflict | use another eligible item or explain limitation | familiar/revealed evidence is not counted as independent proof |
 
-Do not display an “official score”. `BAND.Current` always includes source, configuration version, confidence/calibration status, and timestamp.
+Do not use answer correctness alone to imply whole-skill mastery.
 
-## Screen behavior detail
+## 5. Result UX
 
-### Goal setup
+Always show **scope before number**.
 
-| State | UI behavior | Copy rule | Decision |
-|---|---|---|---|
-| default | Ask target band, exam module, exam date and daily time budget | Short labels; no long coaching text | If date missing, allow "no exam date yet" |
-| invalid | Show field-level issue after user leaves field or submits | Say how to fix | Do not block unrelated fields |
-| saved | Summarize goal and next step | "Used to create the baseline and first plan" | Move to placement intro |
+Preferred hierarchy:
 
-### Placement intro
+1. `Initial diagnostic estimate` / narrower skill estimate;
+2. what evidence/skills were sampled;
+3. what remains unknown/missing;
+4. learner-facing uncertainty copy;
+5. first useful action and why.
 
-| State | UI behavior | Copy rule | Decision |
-|---|---|---|---|
-| ready | Show duration, what is measured, and provisional nature | No official-score claim | Start attempt |
-| no_config | Empty state with retry/contact or fallback goal-only plan | Explain no published configuration | Do not generate random placement |
-| resumed | Show saved progress and last saved time | "You can continue from question..." | Resume exact attempt |
+Result validity behavior:
 
-### Placement attempt
+| State | UI |
+|---|---|
+| `accepted` | show allowed scoped estimates + evidence coverage |
+| `limited_evidence` | show only defensible estimate(s) with limitation + verification action |
+| `insufficient_evidence` | no fabricated aggregate number; show missing evidence and one continuation option |
+| `invalid` | no score/gap; explain configuration/attempt recovery |
 
-| State | UI behavior | Copy rule | Decision |
-|---|---|---|---|
-| in_progress | One question/task at a time, visible progress and save status | Keep instruction near task | Autosave answer |
-| network_loss | Continue locally if possible | "Your answer is being kept on this device" | sync later/idempotent |
-| pause | Confirm safe pause, not abandon | "Progress saved" | return to Today or resume |
-| submit_guard | Show unanswered critical items | "X questions still need answers for a better estimate" | submit or go back |
+Do not show raw statistical/model confidence percentages unless separately calibrated for learner interpretation.
 
-### Result and first plan
+## 6. Gap language
 
-| State | UI behavior | Copy rule | Decision |
-|---|---|---|---|
-| diagnosed | Show band/gap with confidence and reason | "Initial estimate" if provisional | generate first Today action |
-| insufficient_data | Explain which section lacks signal | one retry CTA | no band/gap persisted |
-| plan_ready | Show first action and why | one primary CTA | accept plan |
+A missing observation is not a weakness.
 
-## Runtime boundary
+UI distinguishes:
 
-| Entity | Write authority | Privacy | Canonical events |
-|---|---|---|---|
-| LearnerGoal | learner | learning | goal-save contract pending |
-| PlacementAttempt | placement service | learning | `placement_started`, `placement_completed` |
-| PlacementResult | diagnosis service | learning | `placement_completed` |
-| InitialPlan | plan service | learning | `daily_plan_generated` |
+- **confirmed/observed gap** — admitted evidence supports a performance gap;
+- **needs evidence** — construct is under-measured;
+- **not required by target** — no current target constraint;
+- **strength / currently supported** — only when evidence policy permits that claim.
 
-- Placement config is a future published Knowledge Asset; this slice only accepts a `published` config/version reference.
-- Result generation is deterministic/rule-based for P0 unless an approved evaluation route is introduced.
-- Missing/invalid responses never fabricate band/gap; show insufficient-data reason and retry path.
+Avoid statements such as "Speaking is weak" merely because no Speaking evidence exists.
 
-## Quality, cost and acceptance
+## 7. Initial plan
 
-- Must pass Placement Quality Gate before a configuration is selectable.
-- No model call in baseline route P0; cache/resume must not alter attempt answers or band result.
-- [ ] Resume produces one attempt history, not duplicates.
-- [ ] Result records config/calibration version and communicates `provisional` when not calibrated.
-- [ ] No valid configuration or insufficient data leads to a learner-safe retry, never random plan.
-- [ ] Goal/attempt data is owner-scoped and redacted from analytics.
-- [ ] Goal setup, placement attempt and result screen each have one primary CTA.
-- [ ] Learner can leave placement and return to the exact saved attempt state.
-- [ ] First plan explains why the first action was chosen from gap/goal data.
+The first plan chooses among two fundamentally different intents:
+
+```text
+REMEDIATE        -> evidence supports a real gap
+COLLECT_EVIDENCE -> uncertainty/missing coverage is the highest-value issue
+```
+
+P0 may also route to a safe generic Writing baseline/action when the closed pilot deliberately has narrow scope, but it must explain why.
+
+The plan is deterministic/rules-first. It does not ask an LLM to infer the next action from free-form history.
+
+## 8. API/runtime boundary
+
+Canonical operations are:
+
+- `getMyGoal`;
+- `putMyGoal`;
+- `startPlacement`;
+- `submitPlacementResponse`;
+- `submitPlacement`;
+- `getPlacementAttempt`.
+
+The canonical schemas live in `artifacts/engineering/api/schema-contract.yaml`. Legacy scoped OpenAPI files are migration-only.
+
+Runtime owner/data:
+
+| Entity | Write authority | Privacy |
+|---|---|---|
+| LearnerGoal/TargetProfile | learner through application API | learning |
+| PlacementAttempt | placement service | assessment/learning |
+| PlacementResult | diagnosis domain | assessment/derived |
+| Initial plan | daily-action/planning domain | learning |
+
+## 9. Cost boundary
+
+P0 placement should have zero model calls in the normal route.
+
+Use deterministic:
+
+- answer keys/normalization where objective;
+- config/coverage/exposure rules;
+- aggregate/scoped estimate policy;
+- templated learner explanation for common evidence states.
+
+Do not add model-generated "personalized placement insight" until learner evidence shows it improves outcome enough to justify cost/privacy/complexity.
+
+## 10. Recovery
+
+| Condition | Experience |
+|---|---|
+| no config | explain unavailable + safe goal-only/fallback action |
+| insufficient evidence | explain missing scope + one continuation option |
+| max burden reached | stop burden; do not force a score |
+| network interruption | preserve/resume exact attempt |
+| stale version | reload/reconcile; do not overwrite |
+| learner stops | preserve attempt; narrow/insufficient result only if policy allows |
+| module-ineligible item/config | block selection; do not silently substitute incompatible semantics |
+
+## 11. Acceptance evidence
+
+- [ ] TargetProfile supports module + optional overall/per-skill minimums.
+- [ ] UI never requires one universal target band when learner has another valid target shape.
+- [ ] Target does not alter scoring truth.
+- [ ] no-model P0 route is observable as zero model calls.
+- [ ] resume/retry creates one logical attempt/evidence history.
+- [ ] result can return no aggregate band when evidence is insufficient.
+- [ ] missing evidence is shown as uncertainty/evidence-needed, not weakness.
+- [ ] repeated/revealed item does not increase independent evidence.
+- [ ] first plan distinguishes remediation from evidence collection.
+- [ ] no raw answers enter general telemetry.
+- [ ] real calibration evidence exists before calibrated-quality claims.
 
 ## Readiness
 
-Required next contracts: placement data/API/event/failure, deterministic scoring rule and configuration publish/rights reference. **Ready for Source Code: no.**
+Semantic contract is reviewable, but **Ready for Source Code: no** until canonical consumers/generated API, calibration policy and executable acceptance evidence pass.
