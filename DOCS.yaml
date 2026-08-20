@@ -1,4 +1,4 @@
-schema_version: 1.5.0
+schema_version: 1.6.0
 repository: phatnguyen03022001/lenbands
 purpose: agent-readable document control plane
 rule: Read this registry before opening deep documents. A path not registered as canonical must not override a canonical document.
@@ -143,26 +143,6 @@ authority:
     owns: [agent_permissions, protected_paths, sandbox_policy, source_mutation_guard, family_scoped_external_implementation_authorization_requirements]
 
 legacy_aliases:
-  artifacts/engineering/contracts/openapi.yaml:
-    canonical: artifacts/engineering/api/openapi.yaml
-    status: migration_only
-    authority_state: historical
-    retrieval_state: referenced_only
-    default_context_visibility: false
-    removal_condition: zero_authoritative_and_executable_consumers_after_legacy_traceability_review
-  artifacts/engineering/contracts/writing-task-2/openapi.yaml:
-    canonical: artifacts/engineering/api/openapi.yaml
-    status: migration_only
-    authority_state: historical
-    retrieval_state: referenced_only
-    default_context_visibility: false
-    removal_condition: zero_authoritative_and_executable_consumers_after_legacy_traceability_review
-  artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md:
-    canonical: artifacts/engineering/api/README.md
-    status: compatibility_pointer
-    authority_state: transitional
-    retrieval_state: referenced_only
-    default_context_visibility: false
   artifacts/engineering/contracts/runtime/async-job-worker-contract.md:
     canonical: artifacts/engineering/runtime-contract.yaml
     status: compatibility_pointer
@@ -217,7 +197,7 @@ agent_rules:
   - Never treat README, catalog, index, generated projection, prompt, benchmark proposal, research synthesis, or compatibility pointer as a higher authority than its registered owner.
   - Do not scan the whole repository before consulting this registry.
   - Before implementation planning, inspect problem_risk_coverage for the target capability family and do not infer that an unlisted control is solved.
-  - Follow legacy aliases only for migration and traceability, never to select a second source of truth.
+  - Follow a legacy alias only when a current executable or canonical consumer still requires migration traceability; Git history is the archive for retired migration packets.
   - Stable product identities are capability IDs, framework node IDs, document_ids, operationIds and implementation family IDs; paths are replaceable.
   - Generated resolved OpenAPI is a deterministic build projection and never a semantic SSOT.
   - Repository policy is not evidence of external GitHub enforcement; use hosting_control_state for observed host controls.
