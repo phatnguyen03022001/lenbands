@@ -1,4 +1,4 @@
-schema_version: 1.3.0
+schema_version: 1.4.0
 repository: phatnguyen03022001/lenbands
 purpose: agent-readable document control plane
 rule: Read this registry before opening deep documents. A path not registered as canonical must not override a canonical document.
@@ -25,6 +25,10 @@ authority:
     document_id: learner-experience
     path: blueprint/04-experience.md
     owns: [journeys, experience_principles, learner_facing_recovery]
+  critical_path_usability:
+    document_id: critical-path-usability
+    path: artifacts/experience/critical-path-usability-contract.yaml
+    owns: [p0_accessibility_acceptance, p0_browser_network_recovery_semantics]
   content_system:
     document_id: content-system
     path: blueprint/05-content.md
@@ -78,7 +82,11 @@ authority:
   runtime_contract:
     document_id: runtime-contract
     path: artifacts/engineering/runtime-contract.yaml
-    owns: [runtime_invariants, durable_operation_semantics, persistence_roles, cache_default, provider_runtime_boundary]
+    owns: [runtime_invariants, durable_operation_semantics, persistence_roles, cache_default, provider_runtime_boundary, time_semantics, evaluation_reproducibility_levels]
+  data_migration:
+    document_id: data-migration
+    path: artifacts/engineering/data-migration-contract.yaml
+    owns: [schema_change_strategy, backfill_idempotency, migration_compatibility, projection_rebuild, migration_rollback_forward_fix]
   platform_sourcing:
     document_id: platform-sourcing
     path: artifacts/business/decisions/platform-sourcing.md
@@ -87,7 +95,7 @@ authority:
   bops:
     document_id: bops
     path: artifacts/operations/bops/contract.yaml
-    owns: [business_operations_platform_security_controls, data_classes, provider_controls, slo_targets]
+    owns: [business_operations_platform_security_controls, data_classes, provider_controls, slo_targets, support_dispute_boundary, incident_model, experimentation_guardrails, recovery_release_controls]
   bops_threat_model:
     document_id: bops-threat-model
     path: artifacts/operations/bops/threat-model.md
