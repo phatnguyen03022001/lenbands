@@ -113,6 +113,16 @@ end
 family_owner_specs = families.map { |family| family["owner_spec"] }.compact
 family_owner_specs.group_by(&:itself).each { |path, values| errors << "owner spec #{path} owned by multiple families" if values.length > 1 }
 
+retired_active_contracts = %w[
+  artifacts/engineering/contracts/runtime/auth-identity-contract.md
+  artifacts/engineering/contracts/openapi.yaml
+  artifacts/engineering/contracts/writing-task-2/openapi.yaml
+  artifacts/engineering/contracts/runtime/api-ownership-bff-contract.md
+  artifacts/engineering/contracts/runtime/lifecycle-contract.md
+  artifacts/engineering/contracts/runtime/cloud-topology-contract.md
+  artifacts/engineering/contracts/runtime/cloud-platform-topology-contract.md
+]
+
 families.each do |family|
   id = field.call(family, "family_id", "family registry entry")
   next if id.nil?
@@ -120,6 +130,13 @@ families.each do |family|
   if family["lifecycle"] == "ACTIVE"
     errors << "#{id}: active owner spec missing" if family["owner_spec"].nil?
     errors << "#{id}: active interaction spec missing" if family["interaction_spec"].nil?
+    Array(family["shared_contracts"]).each do |contract|
+      errors << "#{id}: active shared contract does not exist: #{contract}" unless File.file?(File.join(ROOT, contract.to_s))
+      errors << "#{id}: retired contract returned to active family registry: #{contract}" if retired_active_contracts.include?(contract.to_s)
+    end
+    Array(family["shared_failures"]).each do |failure|
+      errors << "#{id}: legacy low-confidence failure returned" if failure.to_s.include?("LOW_CONFIDENCE")
+    end
   end
 end
 
