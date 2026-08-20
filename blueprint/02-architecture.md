@@ -44,7 +44,7 @@ Next.js web + same-origin application API
    |
    +--> managed identity
    +--> managed Postgres / object storage
-   +--> durable managed workflow for long-running jobs
+   +--> managed durable-operation mechanism when work outlives a request
    +--> governed model/speech provider adapters
    +--> managed email/billing/analytics adapters
 ```
@@ -75,9 +75,9 @@ The default synchronous path is one TypeScript/Next.js application boundary. Add
 
 ### Long-running work
 
-Evaluation and other multi-step work execute through a durable managed workflow. Canonical domain state remains in Postgres. Workflow state may coordinate execution but does not become the score, submission, entitlement or content source of truth.
+Evaluation and other multi-step work use the canonical durable-operation semantics through the smallest managed mechanism that satisfies them. Canonical domain state remains in Postgres. Execution/workflow state may coordinate work but does not become the score, submission, entitlement or content source of truth.
 
-Every durable side effect is idempotent because workflows, provider callbacks and webhooks can retry.
+Every durable side effect is idempotent because managed workflows, provider callbacks, webhooks or equivalent execution mechanisms can retry.
 
 ### Data
 
@@ -86,7 +86,7 @@ Every durable side effect is idempotent because workflows, provider callbacks an
 - Row-level/database policies provide defense in depth; application authorization remains required for sensitive operations.
 - No Redis, Kafka, vector database or secondary search system exists until measured requirements justify one.
 - Search begins with Postgres-native search.
-- A model provider response, embedding index, cache entry or workflow payload is never canonical learner state.
+- A model provider response, embedding index, cache entry or execution payload is never canonical learner state.
 
 ### Identity and access
 
@@ -98,13 +98,13 @@ Security identity is intentionally smaller:
 - `learner`;
 - `colab`;
 - `admin`;
-- function-scoped internal service principals for callbacks/workflows/jobs.
+- function-scoped internal principals for callbacks, evaluation, billing, content and other bounded operations.
 
 Premium Learner is a learner with a `premium` entitlement, not a separate role.
 
 Colab and Admin are separate duties. Neither is an implicit super-role over learner assessment content. Admin does not manually override learner scores; Colab does not score learner work.
 
-A production implementation must not treat one generic `service` credential as blanket authorization. Evaluation workers, billing/webhook handlers, content jobs and workflow callbacks receive the minimum function/data scope required for their contract even when the underlying identity mechanism is shared.
+A production implementation must not treat one generic `service` credential as blanket authorization. Evaluation, billing/webhook, content, notification, benchmark and workflow functions receive the minimum function/data scope required for their contract even when the underlying identity mechanism is shared.
 
 Canonical details live in `artifacts/engineering/api/access-control.md`.
 
@@ -114,9 +114,9 @@ There is exactly one canonical web API:
 
 `artifacts/engineering/api/openapi.yaml`.
 
-Legacy split OpenAPI files are migration-only and cannot receive new authority. Auth provider endpoints are external to the LenBands API; LenBands verifies identity and enforces product authorization server-side.
+Former split OpenAPI paths are retired and must not reappear as compatibility authorities or codegen inputs. Auth provider endpoints are external to the LenBands API; LenBands verifies identity and enforces product authorization server-side.
 
-Every API operation declares persona, role, entitlement, data class and idempotency policy.
+Every API operation declares persona, role, entitlement, data class and idempotency policy. Request/success payload meaning is owned by the canonical schema/type registries under `artifacts/engineering/api/`.
 
 ## Deterministic domain core and intelligence boundary
 
@@ -132,7 +132,7 @@ Typed rule / formula / state machine / answer key / SQL
 Precomputed or governed reusable knowledge
   ↓ insufficient
 Bounded small/specialist model
-  ↓ insufficient confidence or high-risk judgment
+  ↓ insufficient evidence / governed hard case
 Benchmark-approved stronger/specialist model
   ↓ unavailable / invalid
 Safe degraded state or durable retry
@@ -168,14 +168,14 @@ A model/speech adapter may produce a typed **observation**, **feature**, **candi
 
 ```text
 provider output
-  -> schema validation
-  -> provenance/version binding
-  -> domain evidence/quality validation
-  -> accepted observation/result OR rejected/limited state
+  -> candidate-schema validation
+  -> independent provenance/version binding
+  -> domain evidence/uncertainty/integrity validation
+  -> admitted observation/result with result_validity OR rejected execution/candidate
   -> governed learner-state transition
 ```
 
-A prompt, agent, provider, or raw confidence value may never directly authorize access, publish content, grant entitlement, define curriculum truth, or declare readiness/mastery.
+A prompt, agent, provider, model self-asserted provenance, or raw confidence value may never directly authorize access, publish content, grant entitlement, define curriculum truth, or declare readiness/mastery.
 
 ## Evaluation boundary
 
@@ -183,17 +183,17 @@ Evaluation is a high-risk product domain.
 
 ```text
 submission snapshot
-  -> durable workflow
+  -> canonical durable operation
   -> deterministic pre-check/features
   -> scorer route version
-  -> model/speech provider adapter(s)
-  -> structured output normalization
+  -> provider/speech adapter candidate output
+  -> independent runtime provenance binding
   -> rubric/evidence validation
-  -> quality/evidence state
+  -> result_validity + evidence-admission decision
   -> immutable evaluation result
 ```
 
-A model-provider outage cannot silently change score semantics. Learner-visible scoring may fall back only to a model/provider combination benchmark-approved for the same scorer route version. Otherwise the evaluation remains delayed/unavailable.
+A provider outage cannot silently change score semantics. Learner-visible scoring may escalate/fall back only to a benchmark-approved compatible route under the governed scorer policy. Otherwise the durable operation remains delayed/unavailable and no valid result is fabricated.
 
 Writing/Speaking/Pronunciation should be **staged pipelines** where the construct benefits from separable evidence. One opaque model call must not collapse distinguishable evidence such as transcript, timing/fluency features, acoustic pronunciation evidence, rubric judgment and result validation when those distinctions materially affect auditability or quality.
 
@@ -250,14 +250,14 @@ Skill/evidence state is tracked separately per construct and includes uncertaint
 
 - canonical writes are durable before a learner is told they succeeded;
 - mutations with durable side effects are idempotent;
-- external callbacks and workflows are treated as replayable;
+- external callbacks and durable execution are treated as replayable;
 - task/content versions referenced by assessment evidence are immutable;
 - cache/analytics/workflow/provider state never authorizes access or replaces canonical state;
 - raw learner assessment content never enters general logs or analytics;
-- every provider boundary has timeout, schema validation, minimum-data transfer, cost attribution and user-safe degradation;
+- every provider boundary has timeout, candidate-schema validation, minimum-data transfer, cost attribution and user-safe degradation;
 - provider names never enter capability IDs, domain event names or score meaning;
-- model context is minimized to the task plus the smallest relevant learner-state snapshot required for the operation;
-- retry happens in one owning layer only and cannot duplicate learner-visible effects or charges.
+- model context is minimized to the task plus the smallest relevant state required for the operation;
+- retry happens in one owning layer only and cannot duplicate learner-visible effects or logical charges.
 
 ## Build-versus-buy change gate
 
@@ -292,7 +292,9 @@ Cost is optimized against learner outcome and required quality, not raw request 
 - Content: `05-content.md`
 - Engines/learning policy: `06-engines.md`
 - API: `artifacts/engineering/api/openapi.yaml`
+- API schemas/types: `artifacts/engineering/api/schema-contract.yaml`, `type-system.yaml`
 - Access: `artifacts/engineering/api/access-control.md`
+- Runtime: `artifacts/engineering/runtime-contract.yaml`
 - Sourcing: `artifacts/business/decisions/platform-sourcing.md`
 - BOPS: `artifacts/operations/bops/contract.yaml`
 - Document authority: `DOCS.yaml`
