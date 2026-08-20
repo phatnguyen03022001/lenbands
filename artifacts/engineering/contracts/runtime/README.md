@@ -1,21 +1,36 @@
-# Runtime Contract Pack — P0
+# Runtime Derived Contracts — P0
 
-These contracts are shared standards for every P0 slice with an HTTP mutation, cache, async job, or provider call. They are not executable Source Code, Terraform, or Redis configuration.
+This folder is an implementation-detail index, not a runtime authority.
 
-| Contract | What it governs |
+Read canonical owners first:
+
+1. `artifacts/engineering/runtime-contract.yaml` — durable execution, persistence, intelligence/provider/time/reproducibility invariants.
+2. `artifacts/engineering/api/` — HTTP operations, schemas, types, access and API policy.
+3. `artifacts/operations/bops/contract.yaml` — security/incident/support/recovery/experiment controls.
+4. `artifacts/engineering/data-migration-contract.yaml` — schema/backfill/projection migration rules.
+5. `artifacts/business/decisions/platform-sourcing.md` — managed build/buy/provider boundary.
+
+Files in this folder may only specialize one unique implementation boundary. They cannot introduce a second lifecycle, API, topology, authorization model or infrastructure requirement.
+
+| Derived contract | Unique purpose |
 |---|---|
-| `async-job-worker-contract.md` | Delivery at-least-once, idempotency, Redis Streams, retry/DLQ/replay |
-| `cache-contract.md` | Scope, key, TTL, invalidation, cache failure, and privacy |
-| `api-governance-contract.md` | HTTP version, auth, errors, idempotency, compatibility |
-| `outbox-reconciliation-contract.md` | No job loss between database commit and enqueue |
-| `observability-slo-contract.md` | Trace, redaction, SLO, alert, incident evidence |
-| `provider-adapter-contract.md` | Provider-neutral inference, timeout, circuit/fallback, audit |
-| `llm-routing-context-contract.md` | P0 LLM route, context boundary, token envelope, structured output, and cost/quality guard |
-| `api-ownership-bff-contract.md` | Canonical API ownership/version/deprecation + BFF/server-client boundary (pre-code design) |
-| `cloud-platform-topology-contract.md` | Provider-neutral env topology, trust zones, IAM, network, DNS/WAF, secrets/KMS, backup/restore, RPO/RTO, DR (pre-code design) |
-| `sre-delivery-security-contract.md` | Incident/runbook taxonomy, alert ownership, redaction/audit, CI/CD gates, provenance, SCA, migration, config, flag/kill-switch/rollback (pre-code design) |
-| `runtime-baseline-config.yaml` | Versioned P0 values for rate limit, retry, worker, circuit, cache, and retention |
+| `failure-taxonomy-contract.md` | internal technical failure classes → learner-safe public recovery codes; explicitly separate from result validity |
+| `provider-adapter-contract.md` | bounded provider execution, candidate payload and independently recorded runtime provenance |
+| `llm-routing-context-contract.md` | minimum-context inference routing, deterministic preflight, quality/cost boundary |
+| `observability-slo-contract.md` | mechanism-neutral runtime signals, redaction and candidate SLO semantics |
+| `runtime-baseline-config.yaml` | unarmed candidate runtime values; not architecture defaults |
+| `api-governance-contract.md` | compatibility notes derived from canonical API policy; it cannot override `artifacts/engineering/api/` |
 
-The final three contracts are **pre-code design contracts** (Batch 5): they define canonical ownership/design and do not claim that runtime has run. Execution, benchmarking, acceptance, restore drills, and SCA scans are post-code evidence gates.
+Compatibility notes for async workers, cache, outbox and cloud topology are being retired. Their surviving semantics already live in the canonical runtime/sourcing/BOPS contracts. Do not infer Redis, queues, worker fleets, caches, Go/Python services, VPCs or any provider product from historical paths or Git history.
 
-Current status: contracts with sufficient content are in `review`; `runtime-baseline-config.yaml` remains `draft` because its values are safe starting assumptions. No contract is inferred to have run correctly outside runtime; approval and acceptance evidence remain separate gates.
+## Creation rule
+
+Add a new runtime-derived document only when all are true:
+
+- a concrete implementation boundary exists;
+- no canonical owner already owns the semantic field;
+- the document reduces implementation invention rather than duplicating architecture;
+- its lifecycle metadata and consumer are explicit;
+- a validator/acceptance boundary can detect drift where material.
+
+Otherwise deepen the existing canonical owner.
