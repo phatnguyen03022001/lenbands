@@ -4,30 +4,30 @@
 
 The learner leaves onboarding knowing:
 
-1. what exam target they are preparing for;
-2. what LenBands currently knows versus does not yet know;
-3. one useful first action based on admitted evidence or an explicit need to collect evidence.
+1. the IELTS target and current constraints;
+2. what LenBands knows versus does not yet know;
+3. whether the current target plan is `insufficient_evidence`, `on_track`, `at_risk`, `current_constraints_insufficient`, or `target_met` under the current planning policy;
+4. whether the supported blocker is English foundation, IELTS technique, integrated performance, mixed, or evidence-needed;
+5. one useful first action, why it matters, and how improvement will be verified.
 
 Scope: `GOAL.Target`, `PLACE.Test`, `PLACE.BandEstimation`, `PLACE.GapDetection`, `PLACE.InitialPath`, `PLACE.SkillDiagnosis`, `BAND.Current`.
 
-Success is not "show a band quickly". False precision is worse than a narrower/insufficient result.
+Success is not "show a band quickly" and not "promise the target is achievable". False precision is worse than a narrower/insufficient result.
 
 ## 1. Target setup
 
 Target uses `TargetProfile`, not one mandatory band scalar.
 
-Ask only what is useful for planning:
+Ask only what changes planning:
 
 - Academic or General Training;
-- target overall band if the learner has one;
-- per-skill minimums when relevant;
+- target overall band if known;
+- per-skill minima when relevant;
 - exam date if known;
-- daily study time budget;
+- daily study capacity;
 - optional purpose/context when it materially changes planning.
 
-Learners may continue without exam date or overall target when they know only skill minima.
-
-Copy must not imply that TargetProfile influences scorer generosity. It prioritizes planning only.
+Target does not change scorer generosity or observed evidence.
 
 ## 2. Placement behavior
 
@@ -35,33 +35,31 @@ P0 placement uses a published deterministic/fixed/rule-based configuration. No m
 
 ```text
 TargetProfile saved
-  -> placement intro
-  -> versioned attempt
-  -> responses saved/resumable
-  -> submit/termination policy
+  -> minimum useful placement evidence
   -> admitted diagnostic result
-       -> accepted/limited evidence
-       -> insufficient evidence
-       -> invalid configuration
-  -> first plan/action
+  -> evidence coverage
+  -> supported cause or evidence-needed
+  -> target feasibility
+  -> one first action + why + verification
 ```
 
 Persisted attempt state remains:
 
 `new | in_progress | paused | submitted | diagnosed | insufficient_data`.
 
-Screen-only states such as consent, configuration unavailable, diagnosing and initial-plan-ready are UX projections, not additional domain status values.
+Screen-only loading/transitions do not create a second domain lifecycle.
 
 ## 3. Placement intro
 
 Show:
 
 - expected maximum burden/time as a configuration property, not a guarantee;
-- which skills/constructs this placement can currently sample;
-- that it produces a diagnostic estimate, not an official IELTS result;
-- that LenBands may return "not enough evidence yet" rather than inventing a band.
+- what this placement can sample;
+- that it produces diagnostic evidence, not an official IELTS result;
+- that LenBands may return `not enough evidence yet`;
+- that target feasibility is planning guidance, not a probability of exam success.
 
-If no right-approved published configuration exists, provide a goal-only safe next action or retry. Do not generate an arbitrary assessment at runtime.
+If no right-approved published configuration exists, provide a goal-only safe next action/retry. Do not generate arbitrary assessment content at runtime.
 
 ## 4. Attempt UX
 
@@ -70,10 +68,10 @@ If no right-approved published configuration exists, provide a goal-only safe ne
 | `in_progress` | one task/item at a time; clear save/progress state | answer stored idempotently |
 | network loss | keep recoverable local state where possible | no duplicate response/evidence after sync |
 | pause | save and leave safely | resume exact attempt/config version |
-| submit guard | state what evidence/sections remain | learner may continue or submit under termination policy |
-| exposure conflict | use another eligible item or explain limitation | familiar/revealed evidence is not counted as independent proof |
+| submit guard | state what evidence remains | learner may continue or submit under termination policy |
+| exposure conflict | another eligible item or explain limitation | familiar/revealed evidence is not fresh independent proof |
 
-Do not use answer correctness alone to imply whole-skill mastery.
+Do not infer whole-skill mastery from answer correctness alone.
 
 ## 5. Result UX
 
@@ -81,52 +79,94 @@ Always show **scope before number**.
 
 Preferred hierarchy:
 
-1. `Initial diagnostic estimate` / narrower skill estimate;
-2. what evidence/skills were sampled;
-3. what remains unknown/missing;
-4. learner-facing uncertainty copy;
-5. first useful action and why.
+1. diagnostic scope/estimate when defensible;
+2. what evidence was sampled;
+3. what remains unknown;
+4. supported cause or evidence-needed;
+5. target-feasibility state + concise blocker copy;
+6. one first action + Why + Verification.
 
-Result validity behavior:
+Result validity:
 
 | State | UI |
 |---|---|
-| `accepted` | show allowed scoped estimates + evidence coverage |
-| `limited_evidence` | show only defensible estimate(s) with limitation + verification action |
-| `insufficient_evidence` | no fabricated aggregate number; show missing evidence and one continuation option |
-| `invalid` | no score/gap; explain configuration/attempt recovery |
+| `accepted` | allowed scoped estimate + coverage/cause/feasibility |
+| `limited_evidence` | only defensible estimate(s) + limitation + evidence action |
+| `insufficient_evidence` | no fabricated aggregate number; one minimum evidence action |
+| `invalid` | no score/gap/cause; configuration/attempt recovery |
 
-Do not show raw statistical/model confidence percentages unless separately calibrated for learner interpretation.
+Do not show raw model/statistical confidence percentages unless separately validated.
 
-## 6. Gap language
+## 6. Gap and cause language
 
 A missing observation is not a weakness.
 
 UI distinguishes:
 
-- **confirmed/observed gap** — admitted evidence supports a performance gap;
-- **needs evidence** — construct is under-measured;
-- **not required by target** — no current target constraint;
-- **strength / currently supported** — only when evidence policy permits that claim.
+- supported performance gap;
+- needs evidence;
+- not required by target;
+- currently supported strength when evidence policy permits it.
 
-Avoid statements such as "Speaking is weak" merely because no Speaking evidence exists.
+When a gap is supported, cause may be:
 
-## 7. Initial plan
+- **English foundation** — language competence is the primary supported blocker;
+- **IELTS technique** — task/question/rubric/timing method is the primary blocker;
+- **Integrated performance** — knowledge appears available but independent application is the blocker;
+- **Mixed** — multiple supported causes materially contribute;
+- **Needs evidence** — cause cannot yet be defended.
 
-The first plan chooses among two fundamentally different intents:
+Do not show “Speaking is weak” merely because Speaking evidence is absent.
+
+## 7. Target feasibility UX
+
+| State | Learner meaning | Primary response |
+|---|---|---|
+| `insufficient_evidence` | not enough evidence to judge the plan | collect smallest missing evidence |
+| `on_track` | no known current pace/coverage blocker under policy | continue; never guarantee official outcome |
+| `at_risk` | material actionable blocker exists | show highest-leverage blocker/action |
+| `current_constraints_insufficient` | current date/capacity/coverage cannot form a credible target path | offer one constraint decision at a time |
+| `target_met` | readiness policy is satisfied by admitted evidence | maintain/transfer/exam-prep, not forced higher-band study |
+
+Forbidden:
+
+- success probability without validated calibration;
+- universal hours/weeks-to-band;
+- “follow the plan and you will get Band X”.
+
+## 8. Initial plan
+
+The first plan may use the canonical intents, but the learner sees a compressed path:
 
 ```text
-REMEDIATE        -> evidence supports a real gap
-COLLECT_EVIDENCE -> uncertainty/missing coverage is the highest-value issue
+Target status
+  -> one supported priority/cause
+  -> one smallest useful action
+  -> Why this?
+  -> How we verify it
+  -> at most one lighter alternative
 ```
 
-P0 may also route to a safe generic Writing baseline/action when the closed pilot deliberately has narrow scope, but it must explain why.
+Examples:
 
-The plan is deterministic/rules-first. It does not ask an LLM to infer the next action from free-form history.
+```text
+evidence_needed          -> COLLECT_EVIDENCE
+english_foundation       -> REMEDIATE with foundation unit
+ielts_technique          -> REMEDIATE with task-method practice
+integrated_performance   -> RETEST / independent application
+mixed                    -> smallest evidence-supported blocking component first
+```
 
-## 8. API/runtime boundary
+Rules:
 
-Canonical operations are:
+- deterministic/rules-first;
+- no LLM path invention from free-form history;
+- no advanced/beyond-target material without explicit prerequisite/exam-authenticity/transfer justification;
+- if no governed intervention + independent verification path exists, return `content_gap` rather than unrelated/harder content.
+
+## 9. API/runtime boundary
+
+Canonical operations:
 
 - `getMyGoal`;
 - `putMyGoal`;
@@ -135,18 +175,19 @@ Canonical operations are:
 - `submitPlacement`;
 - `getPlacementAttempt`.
 
-The canonical schemas live in `artifacts/engineering/api/schema-contract.yaml`. Legacy scoped OpenAPI files are migration-only.
+Canonical payload semantics live in `artifacts/engineering/api/schema-contract.yaml`.
 
-Runtime owner/data:
+Runtime ownership:
 
 | Entity | Write authority | Privacy |
 |---|---|---|
 | LearnerGoal/TargetProfile | learner through application API | learning |
-| PlacementAttempt | placement service | assessment/learning |
+| PlacementAttempt | placement domain | assessment/learning |
 | PlacementResult | diagnosis domain | assessment/derived |
+| TargetFeasibility | Goal/Placement planning policy | derived/learning |
 | Initial plan | daily-action/planning domain | learning |
 
-## 9. Cost boundary
+## 10. Cost boundary
 
 P0 placement should have zero model calls in the normal route.
 
@@ -154,37 +195,43 @@ Use deterministic:
 
 - answer keys/normalization where objective;
 - config/coverage/exposure rules;
-- aggregate/scoped estimate policy;
-- templated learner explanation for common evidence states.
+- evidence/cause/feasibility policy;
+- templated learner explanation.
 
-Do not add model-generated "personalized placement insight" until learner evidence shows it improves outcome enough to justify cost/privacy/complexity.
+Do not add generated placement insight until measured learner outcome justifies the cost/privacy/complexity.
 
-## 10. Recovery
+## 11. Recovery
 
 | Condition | Experience |
 |---|---|
-| no config | explain unavailable + safe goal-only/fallback action |
-| insufficient evidence | explain missing scope + one continuation option |
-| max burden reached | stop burden; do not force a score |
+| no config | unavailable + safe goal/evidence fallback |
+| insufficient evidence | missing scope + one continuation option |
+| max burden reached | stop burden; do not force score/cause |
 | network interruption | preserve/resume exact attempt |
-| stale version | reload/reconcile; do not overwrite |
-| learner stops | preserve attempt; narrow/insufficient result only if policy allows |
-| module-ineligible item/config | block selection; do not silently substitute incompatible semantics |
+| stale version | reload/reconcile |
+| module-ineligible content | reject; no semantic substitution |
+| no cause evidence | show evidence-needed |
+| current constraints insufficient | one actionable target/time/capacity decision |
+| no intervention/retest coverage | `content_gap`; do not over-band |
 
-## 11. Acceptance evidence
+## 12. Acceptance evidence
 
-- [ ] TargetProfile supports module + optional overall/per-skill minimums.
-- [ ] UI never requires one universal target band when learner has another valid target shape.
-- [ ] Target does not alter scoring truth.
-- [ ] no-model P0 route is observable as zero model calls.
-- [ ] resume/retry creates one logical attempt/evidence history.
-- [ ] result can return no aggregate band when evidence is insufficient.
-- [ ] missing evidence is shown as uncertainty/evidence-needed, not weakness.
+- [ ] TargetProfile supports module + optional overall/per-skill minima.
+- [ ] Target never alters observed scoring truth.
+- [ ] placement can produce no aggregate band when evidence is insufficient.
+- [ ] missing evidence is never shown as weakness.
+- [ ] cause classification requires admitted evidence and changes intervention when used.
+- [ ] missing cause evidence returns evidence-needed.
+- [ ] target feasibility never exposes guaranteed-band probability/hours-to-band.
+- [ ] `current_constraints_insufficient` offers an actionable constraint decision.
+- [ ] first plan exposes one action + reason + verification + at most one lighter alternative.
+- [ ] missing curriculum/retest path produces `content_gap`.
+- [ ] advanced/beyond-target content requires explicit justification.
 - [ ] repeated/revealed item does not increase independent evidence.
-- [ ] first plan distinguishes remediation from evidence collection.
+- [ ] normal P0 placement performs zero model calls.
 - [ ] no raw answers enter general telemetry.
-- [ ] real calibration evidence exists before calibrated-quality claims.
+- [ ] calibration evidence exists before calibrated-quality claims.
 
 ## Readiness
 
-Semantic contract is reviewable, but **Ready for Source Code: no** until canonical consumers/generated API, calibration policy and executable acceptance evidence pass.
+Contract completeness does not equal release evidence. Implementation/release state remains governed by the canonical Build Readiness Matrix, risk registry, API validation and exact-candidate acceptance evidence.
