@@ -1,10 +1,17 @@
 type: web-access-control
 status: review
-version: 1.0.0
+version: 1.1.0
 owner: engineering + security
 representation: markdown
 derived_from: [IDENTITY.Auth, IDENTITY.Privacy, SUB.Premium, CONTENT.Publish, ADMIN.Permission]
-purpose: define five web personas product roles premium entitlement and separation of duties
+purpose: define web personas authorization identities browser session security recent-auth and separation of duties
 consumed_by: [experience, engineering, operations]
 created_at: 2026-08-17
-updated_at: 2026-08-17
+updated_at: 2026-08-21
+change_log:
+  - version: 1.1.0
+    date: 2026-08-21
+    changes:
+      - Added browser credential storage, CSRF/origin, session rotation/revocation and re-auth invariants.
+      - Added recent-auth/step-up requirements for destructive and governance mutations.
+      - Extended generated security acceptance requirements for session and step-up behavior.
