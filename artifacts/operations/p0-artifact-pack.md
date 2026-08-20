@@ -2,58 +2,97 @@
 
 ## Purpose
 
-This is the contract portfolio for the closed pilot. It answers: **which Artifacts does a P0 capability pack need so an agent can code without inferring product behavior, privacy, quality, or cost rules?**
+This is the contract portfolio for the closed pilot. It answers: **which Artifacts does a P0 capability pack need so an agent can code without inferring product behavior, privacy, quality, cost or evidence rules?**
 
-It does not create a Knowledge Asset, assign a default Artifact ID, or replace the Build Readiness Matrix. The matrix records actual status; this file defines only the required evidence/specification set.
-
-Typed P0 capability objects are now seeded in `artifacts/operations/capability-manifest.yaml`. `tools/compile-capability.sh <CAPABILITY_ID|P0-XX>` reads that projection seed and prints the build context, evidence gaps and blockers for one family. Blueprint capability identity and product semantics remain authoritative; this pack and manifest are operational build context, not replacement SSOT.
+It does not replace the Capability Catalog or Build Readiness Matrix. It defines the minimum contract/evidence set required before implementation or pilot promotion.
 
 ## Usage rules
 
-1. The Capability ID in `blueprint/03-features.md` is the canonical identity.
-2. One Artifact may cover multiple P0 packs when behavior is shared; do not copy it to create one file per row.
-3. Do not mark a pack `ready` because it has a wireframe. Behavior, data, failure, privacy, cost, and acceptance are all required.
-4. Provider-specific contracts appear only after a build/buy decision selects a provider; the Blueprint does not know the vendor.
-5. Do not invent benchmarks, legal clearance, user-interview findings, or acceptance runs. Anything not performed must be `not run`, `missing`, `draft`, or `review`.
+1. Capability IDs in `blueprint/03-features.md` remain canonical identities.
+2. One Artifact may cover multiple packs when semantics are shared; avoid one-file-per-row bureaucracy.
+3. A wireframe or model prompt alone never makes a pack ready.
+4. Build/buy/provider artifacts appear only when the owning sourcing/runtime contract needs them.
+5. Do not invent benchmark/legal/user-research/acceptance evidence.
+6. Every inference-using pack must first prove why deterministic/library/SQL/precomputed mechanisms are insufficient for that specific judgment.
+7. Model output is a candidate judgment; domain validation/evidence admission remains authoritative.
+8. Cost is evaluated against required quality and verified learner outcome, not tokens/request count alone.
 
 ## Required artifact classes
 
 | Class | Purpose | When required |
 |---|---|---|
-| Interaction / design | Entry condition, intent, decision, state, recovery, and screen behavior | Every learner-facing pack; P0 must use `p0-experience-contract.md` |
-| Vertical slice spec | Scope, role/permission, entry/exit, runtime boundary, acceptance | Every pack with new code |
-| Data / API / event / failure contract | Cross-service semantics, idempotency, telemetry redaction, recovery | When a pack reads/writes runtime data or calls a service |
-| Evaluation contract | Evidence, confidence, version, benchmark, and learner-safe messaging | Every learner-visible judgment/scoring |
-| Decision record | Build/buy, irreversible boundary, or exception | When there is a hard-to-reverse choice |
-| Operations gate | Cost, quota, observability, rollout, rollback | Every P0 pack; a shared gate may be used |
-| Shared runtime foundation | HTTP/API lifecycle, cache, job/worker, outbox/reconciliation, observability, provider adapter | Every P0 pack with code; P0-04/P0-05 must use the full pack |
-| Semantic contract validation | Cross-file SSOT resolution for failure codes, events, framework node types, lifecycle projections, and boundary enums | Every P0 pack with an event/failure/framework/runtime contract; static validators do not replace evidence |
-| Capability manifest | Typed capability family object with inputs, outputs, states, events, data, metrics, cost/privacy, artifacts, and evidence blockers | Every closed-pilot P0 pack; future compiler input |
-| Evidence record | Immutable external proof or immutable run record | When claiming rights, benchmark, procurement, or release results |
-| Benchmark intake/run | Authorized corpus manifest, numeric policy, result schema and immutable run boundary | P0-04/P0-06 evaluation quality |
-| Acceptance manifest/run | P0 test IDs, privacy/idempotency checks, and immutable runtime result | Every P0 pack before `ready` |
+| Interaction / experience | entry, intent, states, recovery, trust copy | learner-facing pack |
+| Vertical slice | complete outcome loop + cross-domain handoffs | pack with new learner workflow |
+| API / data / event / failure | typed runtime semantics, idempotency, privacy, recovery | runtime reads/writes |
+| Evidence/result policy | separates observation, result validity, evidence admission, readiness | diagnosis/evaluation/retest |
+| Evaluation contract | staged judgment, evidence validation, scorer routing, uncertainty | learner-visible subjective scoring |
+| Deterministic/inference decision | proves rule/library/precompute vs model boundary | every inference-using capability |
+| Operations gate | quota, cost, observability, rollout/rollback | every P0 pack |
+| Runtime foundation | authz, durable operation, provider adapter, outbox, privacy | code with durable/external work |
+| Capability manifest | typed family inputs/outputs/states/events/cost/privacy/blockers | every P0 pack |
+| Rights/content evidence | provenance/license/published version | every learner-visible task/content dependency |
+| Benchmark | authorized corpus + protocol + run + candidate binding | learner-visible scorer route |
+| Acceptance evidence | executable functional/privacy/idempotency/outcome tests | every pack before ready |
 
-Asset spawn must also pass `operations/asset-spawn-freeze-gate.md`. The gate unlocks mass spawn only at `approved`; the maximum-7-asset validation exception is recorded separately in the gate and workflow.
+Do not require a separate LLM-specific architecture layer when the canonical evaluation/runtime contracts already define the inference boundary. Provider/prompt artifacts remain scoped implementation evidence, not product authority.
 
-## P0 pack definition of done
+## Definition of done by P0 pack
 
-| Pack | Outcome proof | Minimum Artifact set before code | Additional gate before pilot |
+| Pack | Outcome proof | Minimum contract set before code | Additional gate before pilot |
 |---|---|---|---|
-| P0-01 Identity | Learner logs in, consent is clear, export/delete stays within permission | P0 experience contract; identity/privacy slice; permission + retention contract; auth build/buy decision; failure/acceptance spec | destructive-operation test record; provider/DPA evidence if a provider is selected |
-| P0-02 Diagnosis | Baseline/goal creates a reasoned plan | P0 experience contract; diagnosis slice; **placement-diagnosis-contract**; score-confidence rule; no-data recovery | calibration/provisional label verified; placement acceptance run |
-| P0-03 Daily action | One reasoned next action is easy to start and has a fallback | P0 experience contract; daily-action slice; **daily-action-contract**; deterministic recommendation decision rule; session/event/failure contract; state behavior | no-plan, stale-plan, resume, and retry acceptance run |
-| P0-04 Writing evaluation | Writing receives feedback with evidence and one priority fix | P0 experience contract; Writing Task 2 slice; **interaction/writing-task-2.md**; **writing-task-2/runtime-spec.md**; OpenAPI, data, event, failure, evaluation, controlled prompt, LLM routing/context contracts; full runtime foundation; quota/cost/ops gate | benchmark run, redaction check, retry/idempotency, and low-confidence acceptance run |
-| P0-05 Error-to-review | One error is fixed, reviewed, and retested with a recorded result | P0 experience contract; `vertical-slices/error-to-review.md`; error/review-card data rule; FSRS/retest acceptance rule; shared runtime foundation | review scheduling and retest outcome run; no-evidence/no-card guard verified |
-| P0-06 Quality & economics | Features do not break trust, privacy, or the hard cost ceiling | benchmark spec; cost budget; release gate; observability/event/failure contracts; exit exercise spec | actual benchmark, cost projection, rollout/rollback record, and any required evidence |
+| P0-01 Identity | learner authenticates/consents; ownership/export/delete are safe | experience + auth/access/privacy/retention + provider decision | destructive/privacy acceptance + provider/legal activation evidence |
+| P0-02 Diagnosis | learner gets a useful baseline without false precision | placement/target profile + coverage/termination + evidence/result validity + deterministic scoring rules | calibrated/provisional policy + placement acceptance evidence |
+| P0-03 Daily action | learner gets one reasoned useful action with fallback | TargetProfile + learner evidence snapshot + deterministic multi-objective action policy + events/failures | no-plan/stale/overload/retry acceptance + outcome measurement |
+| P0-04 Writing evaluation | task-scoped evidence-backed feedback + priority fix | Writing vertical slice + staged runtime + canonical API/schema + data/evaluation/event/failure + scorer route/benchmark + deterministic precheck/inference decision + quota/cost | benchmark route approval + evidence-validation/idempotency/privacy/escalation tests |
+| P0-05 Error-to-review | confirmed error receives smallest useful intervention and independent retest | error/remediation/retest data policy + FSRS suitability boundary + exposure/novelty policy + shared runtime | scheduling + no-card-for-complex-skill + novel-retest + verified-improvement acceptance |
+| P0-06 Quality & economics | quality/privacy/outcome floor survives cost pressure | benchmark + cost budget + model routing + release gate + observability + content rights + metadata economics | real benchmark + cost projection + rollback + cost-per-verified-improvement evidence |
+
+## P0 Writing-specific non-negotiables
+
+The Writing pack must prove this execution shape:
+
+```text
+deterministic eligibility
+  -> primary approved scorer
+  -> evidence/schema validation
+  -> hard-case escalation only when governed
+  -> result_validity admission
+  -> one actionable finding
+  -> smallest useful fix
+  -> optional retrievable review
+  -> independent/novel retest
+```
+
+The pack is not ready if any implementation contract still:
+
+- treats `low_confidence` as a submission/workflow state;
+- exposes raw model confidence as learner correctness probability;
+- references a migration-only OpenAPI as build authority;
+- performs unconditional second-pass scoring;
+- lets model output directly set mastery/readiness;
+- uses AI-generated-text detection as sole anti-gaming proof;
+- creates FSRS cards for complex Writing criteria solely because a score was low.
 
 ## Shared artifact rule
 
-Writing evaluation and error-to-review are one outcome loop, so the P0 pack may share a Vertical Slice Spec and engineering contracts. If Review later expands independently to Listening/Reading/Grammar, create a separate scope spec; do not silently expand the Writing contract.
+Writing evaluation and error-to-review form one outcome loop and should share contracts when that reduces duplication. Expansion to another skill creates only the delta needed for its new semantics; do not copy the entire Writing contract pack.
+
+## Documentation-cost rule
+
+Before spawning a new Artifact, ask:
+
+1. Does a canonical owner already cover the semantic field?
+2. Is the new file needed for an executable implementation/review boundary?
+3. Will it reduce ambiguity more than it increases context/maintenance cost?
+
+If not, update the existing canonical owner instead.
 
 ## References
 
-- Capability scope: `blueprint/03-features.md` § P0 Capability Profile Matrix.
-- Typed capability seed: `artifacts/operations/capability-manifest.yaml`.
-- Release scope: `blueprint/08-roadmap.md` § MVP rebaseline — Closed Pilot.
-- Artifact lifecycle / approval: `artifacts/CONVENTION.md`.
-- Current status: `artifacts/operations/build-readiness-matrix.md`.
+- Capability scope: `blueprint/03-features.md`.
+- Roadmap: `blueprint/08-roadmap.md`.
+- Runtime: `artifacts/engineering/runtime-contract.yaml`.
+- Canonical web API: `artifacts/engineering/api/`.
+- Writing runtime/evaluation: `artifacts/engineering/contracts/writing-task-2/` scoped contracts.
+- Current readiness: `artifacts/operations/build-readiness-matrix.md`.
+- Artifact lifecycle: `artifacts/CONVENTION.md`.
