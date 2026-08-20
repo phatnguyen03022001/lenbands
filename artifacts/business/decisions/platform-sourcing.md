@@ -1,6 +1,6 @@
 # Platform Sourcing Decision — Buy-first Web Baseline
 
-Status: **review / founder-directed candidate**. This supersedes the provider-sprawl baseline for new design work. It is not a production provisioning record and does not claim procurement, DPA, benchmark or runtime evidence.
+Status: **review / founder-directed candidate**. This is the current sourcing baseline for new design and P0 implementation planning. It is not a production provisioning record and does not claim procurement, DPA, benchmark or runtime evidence.
 
 ## Decision
 
@@ -30,6 +30,22 @@ LenBands owns:
 | Billing/tax | Paddle candidate when monetization activates | checkout, subscription lifecycle, tax/compliance as merchant-of-record | product entitlements, local ledger, webhook reconciliation |
 | Product analytics/flags | PostHog candidate | event ingestion/exploration/feature flags | event schema, privacy filtering, experiment quality guardrails |
 
+## P0 implementation tooling
+
+The application implementation workspace is one TypeScript/Next.js workspace at `apps/web` unless a future evidence-backed architecture decision changes it.
+
+Minimum build-tool baseline:
+
+- Node.js runtime version is pinned by the implementation workspace when bootstrap begins; a moving Node release number is not a Blueprint invariant.
+- `pnpm` is the P0 package manager because the repo needs one deterministic, lockfile-based Node dependency path rather than npm/yarn/bun ambiguity.
+- the concrete pnpm version is pinned in `package.json#packageManager`;
+- `pnpm-lock.yaml` is committed before dependency-bearing source is considered verifiable;
+- package scripts own lint/typecheck/test/build command names; agents may not use arbitrary `pnpm exec` as a shell escape;
+- Corepack/package-manager bootstrap is a tooling concern, not a runtime service or product dependency;
+- application dependencies must be justified by product/runtime needs; do not add a framework wrapper around Next.js, Supabase, Workflow, auth, analytics or model routing.
+
+This tooling decision exists to make agent implementation deterministic. It does not authorize source mutation by itself; `agent-trust-policy.yaml` still requires external family-scoped authorization.
+
 ### Explicitly not built in P0
 
 - custom password/MFA/session infrastructure;
@@ -47,11 +63,11 @@ LenBands owns:
 
 Python may be used offline for benchmark/statistics when it materially improves evaluation research. It is not a mandatory production service.
 
-## Why this replaces the previous baseline
+## Why this baseline
 
-The earlier baseline was technically managed but composed many independent providers: Cloudflare, Cloud Run, Secret Manager, Neon, Upstash, email, analytics/error tracking, and model APIs. That still leaves a solo founder responsible for many credentials, networks, IAM models, queues, failure modes, upgrades and cross-provider incidents.
+The earlier baseline was technically managed but composed many independent providers. That still leaves a solo founder responsible for many credentials, networks, IAM models, queues, failure modes, upgrades and cross-provider incidents.
 
-The new baseline consolidates the commodity platform into two primary operational planes:
+The current baseline consolidates commodity platform responsibilities into two primary operational planes:
 
 1. **Vercel** — web/runtime/workflow/model gateway.
 2. **Supabase** — Postgres/auth/storage/data authorization.
