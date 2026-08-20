@@ -1,10 +1,11 @@
-schema_version: 1.1.1
+schema_version: 1.2.0
 status: draft
 scope: closed_pilot_p0
 source_of_truth: false
 description: >
   Typed operational projection for compiling P0 implementation context and blockers.
-  Blueprint capability identities/product semantics, canonical API contracts and runtime contracts remain authoritative.
+  Blueprint capability identities/product semantics, canonical API/runtime contracts and the
+  problem/risk registry remain authoritative for their owned concerns.
 
 manifest_rules:
   - model_or_provider_is_never_a_capability_owner_or_authorization_principal
@@ -13,6 +14,8 @@ manifest_rules:
   - capability_manifest_api_operations_must_exist_in_canonical_artifacts_engineering_api
   - legacy_scoped_openapi_files_are_not_build_authority
   - cost_metrics_include_verified_outcome_where_the_family_claims_learning_improvement
+  - applicable_problem_risk_categories_must_be_assessed_before_implementation_eligibility
+  - blocking_problem_risks_may_not_be_hidden_by_manifest_readiness_prose
 
 capability_families:
   - family_id: P0-01
@@ -47,7 +50,7 @@ capability_families:
         status: review
     evidence_required: [provider_dpa, export_delete_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [provider_dpa_missing, export_delete_acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [provider_dpa_missing, export_delete_acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
 
   - family_id: P0-02
     implementation_family_id: PLACEMENT.Diagnosis
@@ -74,7 +77,7 @@ capability_families:
     artifacts_required: [experience_contract, vertical_slice_spec, placement_diagnosis_contract, target_profile_schema, calibration_evidence, acceptance_run]
     artifacts_current:
       - path: artifacts/experience/specs/vertical-slices/placement-and-plan.md
-        status: draft
+        status: review
       - path: artifacts/engineering/contracts/placement-diagnosis-contract.md
         status: review
       - path: artifacts/engineering/api/schema-contract.yaml
@@ -83,7 +86,7 @@ capability_families:
         status: review
     evidence_required: [placement_calibration_run, placement_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [placement_contract_target_profile_reconciliation_pending, calibration_evidence_missing, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [calibration_evidence_missing, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
 
   - family_id: P0-03
     implementation_family_id: STUDY.DailyAction
@@ -104,7 +107,9 @@ capability_families:
     knowledge_refs: []
     deterministic_policy:
       required: true
+      candidate_intents: [CONTINUE, REVIEW_DUE, RETEST, REMEDIATE, COLLECT_EVIDENCE, GOAL_COVERAGE, FALLBACK]
       objective_factors: [expected_learning_value, evidence_uncertainty, coverage, due_review, goal_relevance, transfer_need, exposure_novelty, available_time_energy, recent_load]
+      missing_evidence_is_weakness: false
       llm_direct_action_selection: prohibited
     metrics: [daily_action_start_rate, first_meaningful_session_rate, retest_or_transfer_lift, overload_rate]
     cost_boundary: rules_first
@@ -114,12 +119,12 @@ capability_families:
     artifacts_required: [experience_contract, vertical_slice_spec, daily_action_contract, session_event_contract, deterministic_selection_policy, acceptance_run]
     artifacts_current:
       - path: artifacts/experience/specs/vertical-slices/daily-action.md
-        status: draft
+        status: review
       - path: artifacts/engineering/contracts/daily-action-contract.md
         status: review
     evidence_required: [daily_action_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [daily_action_contract_rebaseline_pending, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
 
   - family_id: P0-04
     implementation_family_id: WRITING.Evaluation
@@ -164,18 +169,18 @@ capability_families:
       - path: artifacts/engineering/contracts/writing-task-2/evaluation-contract.md
         status: review
       - path: artifacts/engineering/contracts/writing-task-2/event-contract.md
-        status: review_reconciliation_required
+        status: review
       - path: artifacts/engineering/contracts/writing-task-2/failure-contract.md
-        status: review_reconciliation_required
+        status: review
       - path: artifacts/engineering/contracts/writing-task-2/writing_evaluation_v1.md
-        status: review_reconciliation_required
+        status: review
       - path: artifacts/engineering/api/openapi.yaml
         status: review
       - path: artifacts/engineering/api/schema-contract.yaml
         status: review
     evidence_required: [rights_approved_task_batch, gold_corpus, benchmark_run, redaction_acceptance_run, idempotency_acceptance_run, evidence_validation_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [gold_corpus_missing, benchmark_not_run, canonical_consumer_revalidation_pending, event_failure_prompt_reconciliation_pending, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [gold_corpus_missing, benchmark_not_run, canonical_consumer_revalidation_pending, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
 
   - family_id: P0-05
     implementation_family_id: REVIEW.ErrorToReview
@@ -226,7 +231,7 @@ capability_families:
         status: review
     evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run]
     readiness_state: not_ready
-    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, founder_approval_pending]
+    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
 
   - family_id: P0-06
     implementation_family_id: OPS.QualityEconomics
@@ -266,4 +271,4 @@ capability_families:
         status: review
     evidence_required: [gold_corpus, benchmark_run, numeric_cost_threshold_approval, rollout_rollback_record, outcome_cost_measurement]
     readiness_state: not_ready
-    readiness_blockers: [gold_corpus_missing, benchmark_not_run, numeric_thresholds_unapproved, outcome_cost_not_measured, founder_approval_pending]
+    readiness_blockers: [gold_corpus_missing, benchmark_not_run, numeric_thresholds_unapproved, outcome_cost_not_measured, blocking_problem_risks_open, founder_approval_pending]
