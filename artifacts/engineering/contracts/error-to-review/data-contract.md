@@ -2,106 +2,178 @@
 
 Canonical metadata is in `data-contract.meta.yaml`.
 
-Runtime entities for P0-05 (Error-to-Review loop). This is runtime data, not a Knowledge Asset. P0 scope: errors created by Writing evaluation, review through FSRS, and retest with the same error pattern.
+This contract owns P0-05 learner remediation entities. It does not copy scorer truth, framework truth or raw essay content into review state.
 
-## Entity: LearningError
-
-```yaml
-error_id: string              # uuid
-user_id: string
-source_finding_id: string     # learner-confirmed FeedbackFinding
-source_evaluation_id: string  # original EVAL.Writing/Speaking ID
-error_pattern: string         # ID from error-taxonomy.md (e.g. W_gra_relative_clause)
-criterion: task_response | coherence_cohesion | lexical_resource | grammar
-severity: high | medium | low
-evidence_ref: string          # specific sentence/paragraph in the original submission
-status: open | in_review | improved | dismissed
-confidence: number            # 0-1, inherited from evaluation confidence
-microskill_ref: [string]      # from microskill-enum.md
-resolve_when:                 # copied from the error-taxonomy.md node (inline)
-  no_recurrence_in_recent_n_submissions: 3
-  retest_accuracy_pct: 90
-  review_card_state: review
-created_at: timestamp
-updated_at: timestamp
-```
-
-Owner: Review service (created after learner confirmation) / Review engine (read+update status).
-Privacy class: learning (error evidence is learner-owned content and does not enter analytics events).
-
-## Entity: ReviewCard (FSRS card)
+## 1. LearningError
 
 ```yaml
-card_id: string               # uuid
-user_id: string
-content_ref: string           # = error_id (P0) or vocab/grammar ID (later)
-content_type: error | vocabulary | grammar | collocation
-fsrs_card_kind: string        # from review-mapping.md (recall_meaning, apply_distractor...)
-due: timestamp
-stability: number
-difficulty: number
-reps: integer
-lapses: integer
-state: new | learning | review | relearning
-last_rating: again | hard | good | easy | null
-last_review: timestamp | null
-algorithm_version: string     # fsrs version (vd "5.x")
-source_error_id: string       # required when content_type=error (anti-orphan)
-micro_skill_ref: [string]
-created_at: timestamp
+LearningError:
+  error_id: string
+  user_id: string
+  source_finding_id: string
+  source_evaluation_id: string
+  error_pattern: string                    # framework ID; unknown is explicit
+  criterion: task_response | coherence_cohesion | lexical_resource | grammar
+  evidence_refs: [string]
+  status: open | in_review | improved | dismissed
+  remediation_unit_ref: string | null
+  retest_family_ref: string | null
+  reviewability_state: reviewable | not_reviewable | unknown
+  reviewability_policy_version: string
+  resolve_policy_version: string
+  created_at: timestamp
+  updated_at: timestamp
 ```
 
-Owner: FSRS engine (entire lifecycle).
-Protection: `source_error_id` is required when content_type=error — a card without a source violates the contract (anti-orphan rule).
+Rules:
 
-## Error Graph projection
+- creation requires learner confirmation of an actionable source finding;
+- evidence refs resolve to protected learner-owned evidence but are not copied into events/analytics;
+- no required raw confidence field exists on the learner error;
+- unknown taxonomy mapping cannot be replaced with an invented ID;
+- `improved` is derived by resolution policy, never manually authored.
 
-`Error Graph` is a read model/projection of the entities in this contract and evaluation output; it is not a second entity and must not become a new SSOT.
+## 2. ReviewCard
 
-| Graph node | Canonical source | Minimum edge |
+A ReviewCard exists only for a stable, bounded, meaningfully retrievable review unit.
+
+```yaml
+ReviewCard:
+  card_id: string
+  user_id: string
+  source_error_id: string
+  content_ref: string
+  content_type: grammar | vocabulary | collocation | pattern | error_concept | pronunciation_target
+  review_unit_kind: string
+  due_at: timestamp
+  stability: number
+  difficulty: number
+  reps: integer
+  lapses: integer
+  state: new | learning | review | relearning
+  last_rating: again | hard | good | easy | null
+  last_review_at: timestamp | null
+  algorithm_version: string
+  version: integer
+  created_at: timestamp
+```
+
+Do not use `content_type=error` as a catch-all for complex Writing constructs without a bounded retrievable unit.
+
+FSRS state is scheduling/memory state, not Writing mastery/readiness.
+
+## 3. RetestAttempt
+
+```yaml
+RetestAttempt:
+  retest_id: string
+  user_id: string
+  source_error_id: string
+  retest_family_ref: string
+  task_ref: string
+  task_version: string
+  exposure_policy_version: string
+  novelty_state: eligible | familiar | invalid | unknown
+  operation_id: string | null
+  evaluation_id: string | null
+  result_validity: accepted | limited_evidence | insufficient_evidence | invalid | integrity_review | null
+  evidence_state: pending | passed | failed | insufficient_evidence | invalid
+  created_at: timestamp
+  completed_at: timestamp | null
+```
+
+Raw retest text remains in protected Writing draft/submission storage. This entity stores references/provenance only.
+
+## 4. Error Graph projection
+
+`Error Graph` is a read projection, never a second SSOT.
+
+| Projection node | Canonical source | Important edge |
 |---|---|---|
-| Learning error | `LearningError.error_id` + `error_pattern` | source evaluation, criterion, microskill |
-| Review card | `ReviewCard.card_id` + `source_error_id` | fixes learning error; has FSRS state |
-| Retest attempt | `RetestAttempt.retest_id` + `source_error_id` | verifies recurrence/improvement |
-| Taxonomy node | `error_pattern` in `error-taxonomy.md` | classifies learning error; unknown → `unknown_error` |
+| learner error | `LearningError` | source finding/evaluation + pattern/criterion |
+| optional review | `ReviewCard` | bounded remediation unit for error |
+| retest | `RetestAttempt` | verifies target error on eligible content |
+| taxonomy | framework error node | classifies/remediates when resolvable |
 
-The read model must materialize `error → review card → retest → resolved` and trace back to `source_evaluation_id`. Do not copy learner evidence text into the graph/analytics; store only private `evidence_ref` under ownership and retention policy.
+No projection contains copied private evidence text.
 
-## Entity: RetestAttempt
+## 5. Reviewability policy
 
 ```yaml
-retest_id: string
-user_id: string
-source_error_id: string       # error being verified
-prompt_ref: string            # new content with the same error_pattern (do not reuse the source)
-submitted_text: string        # writing retest (P0)
-evaluation_ref: string        # EVAL.Writing re-run
-result_band: number
-result_error_recurring: boolean   # whether the old error recurs
-improved: boolean             # true if resolve_when is satisfied
-created_at: timestamp
+ReviewabilityDecision:
+  error_id: string
+  state: reviewable | not_reviewable | unknown
+  review_unit_ref: string | null
+  rationale_code: string
+  policy_version: string
 ```
 
-Owner: Review engine (creates retest prompt) + EVAL.Writing (scores retest).
-Rule: `prompt_ref` must share the source `error_pattern` but use **new content** — do not reuse the original submission.
+Typical `reviewable` units:
 
-## Invariants
+- vocabulary/collocation;
+- grammar form/rule;
+- punctuation/error concept;
+- bounded sentence pattern.
 
-1. Every ReviewCard has `source_error_id` or is a vocab/grammar card with a clear content_ref. Orphan cards are rejected.
-2. Error `status: improved` applies only when `resolve_when` is satisfied (no_recurrence + retest_accuracy + card_state). Do not mark it manually.
-3. RetestAttempt never uses the same `prompt_ref` as the source submission — it must use a new prompt with the same pattern.
-4. FSRS `algorithm_version` must be logged — changing the version requires benchmark regression.
-5. Error evidence (original incorrect-sentence text) is private; do not emit it in analytics events (emit error_id + pattern only).
+Typical `not_reviewable_as_fsrs_mastery` findings:
 
-## Versioning / migration
+- Task Response;
+- Coherence & Cohesion;
+- overall Writing quality;
+- broad idea development without a stable retrieval unit.
 
-- Add field: minor bump + migration note.
-- Change `resolve_when` semantics: major bump + backfill rule (do old errors use the new rule? → configure per migration).
-- Do not delete a field — mark deprecated.
+These may still receive drills/rewrite/retest without a ReviewCard.
 
-## Cross-refs
+## 6. Resolution policy
 
-- Error taxonomy + review mapping: `blueprint/framework/error-taxonomy.md`, `review-mapping.md`.
-- FSRS algorithm: `blueprint/06-engines.md` § FSRS Engine.
-- Writing slice (source error): `experience/specs/vertical-slices/writing-task-2.md` §7.
-- Event contract: `engineering/contracts/error-to-review/event-contract.md`.
+Resolution is versioned per error/remediation family.
+
+```yaml
+ResolutionDecision:
+  error_id: string
+  policy_version: string
+  admitted_retest_refs: [string]
+  independent_evidence_count: integer
+  recurrence_state: reduced | recurring | unknown
+  decision: improved | remain_active | insufficient_evidence
+```
+
+Rules:
+
+- only novelty/exposure-eligible evidence counts as configured independent evidence;
+- result validity must be admitted by the owning evidence policy;
+- review-card state may support memory evidence but is not universally required;
+- no global fixed `90% accuracy`, `three submissions` or `card_state=review` rule becomes canonical without calibrated family-specific evidence;
+- missing evidence is not negative evidence.
+
+## 7. Invariants
+
+1. `LearningError` requires source finding/evaluation and learner ownership.
+2. ReviewCard creation requires `reviewability_state=reviewable` and a non-null bounded `content_ref`.
+3. One active card per `(source_error_id, content_ref, algorithm/policy identity)` unless an explicit migration says otherwise.
+4. `novelty_state!=eligible` cannot prove independent transfer/improvement.
+5. Retest/evaluation failure preserves the error/remediation state.
+6. Duplicate mutations converge through canonical idempotency semantics.
+7. Raw learner content never appears in general telemetry/event payloads.
+8. Algorithm/policy versions are audit references.
+
+## 8. Versioning / migration
+
+Legacy fields require explicit migration rather than silent reinterpretation:
+
+- `confidence` on LearningError → remove from learner error; keep restricted scorer/audit uncertainty where needed;
+- inline copied `resolve_when` numeric thresholds → replace with `resolve_policy_version`;
+- generic `content_type=error` ReviewCard → migrate to a bounded review unit or no-card state;
+- `RetestAttempt.submitted_text` → protected Writing content reference;
+- `result_band/improved` scalar shortcut → evaluation ref + result validity + resolution decision.
+
+## 9. Canonical API gap
+
+Canonical web API currently needs reviewed operations for learner-confirmed error, fix evidence and retest lifecycle before P0-05 is implementation-ready. This data contract does not authorize scoped legacy endpoints as substitutes.
+
+## Cross-references
+
+- `blueprint/05-content.md` — exposure/content boundary.
+- `blueprint/06-engines.md` — FSRS/evaluation/evidence boundary.
+- `blueprint/framework/error-taxonomy.md` and `review-mapping.md`.
+- Writing data/evaluation contracts for source evaluation and retest scoring.
