@@ -1,13 +1,13 @@
 type: agent-trust-policy
 status: review
-version: 0.7.1
+version: 0.8.0
 owner: founder + engineering + operations
 representation: yaml
 derived_from: [OPS.ReleaseGate, OPS.Observability, GOVERNANCE.AuditTrail]
 purpose: prevent-silent-agent-bypass-of-authority-validators-gates-evidence-and-claude-project-controls
 consumed_by: [all-agents, engineering, operations, ci]
 created_at: 2026-08-07
-updated_at: 2026-08-17
+updated_at: 2026-08-20
 change_log:
   - version: 0.6.1
     date: 2026-08-10
@@ -17,14 +17,20 @@ change_log:
   - version: 0.7.0
     date: 2026-08-17
     changes:
-      - Removed Go/Python/three-stack topology from future worker/workspace policy while preserving the current global source lock.
+      - Removed Go/Python/three-stack topology from future worker/workspace policy while preserving the source lock.
       - Declared historical implementation-agent names compatibility-only and non-authorizing.
-      - Bound the future authorization model to implementation family plus exact candidate SHA.
-      - Added canonical API, runtime, evidence, retention and eligibility authorities to protected paths and verify targets.
+      - Bound the intended authorization model to implementation family plus exact baseline SHA.
   - version: 0.7.1
     date: 2026-08-17
     changes:
-      - Removed legacy self-attestation and false GitHub-enforcement claims from the agent trust policy.
-      - Delegated candidate declaration and external authorization semantics to change-governance.yaml.
-      - Delegated observed host-control truth to hosting-control-state.yaml; desired controls are not evidence of enforcement.
-      - Marked the historical all-application source lock explicitly as non-authoritative fail-closed compatibility while family/exact-SHA authorization remains canonical.
+      - Removed legacy self-attestation and false GitHub-enforcement claims.
+      - Delegated candidate declaration/external authorization semantics to change-governance.yaml.
+      - Delegated observed host-control truth to hosting-control-state.yaml.
+  - version: 0.8.0
+    date: 2026-08-20
+    changes:
+      - Replaced the all-180-capability global implementation prerequisite with family-scoped authorization requirements.
+      - Kept repository source mutation fail-closed by default; active authorization exists only in privileged external runtime context.
+      - Bound authorization to P0 family, exact reviewed baseline SHA, canonical apps/web source scope, founder authorization reference and external attestation reference.
+      - Kept protected governance/evidence/tooling paths locked under implementation authorization.
+      - Separated implementation eligibility from release/public-scale evidence gates.
