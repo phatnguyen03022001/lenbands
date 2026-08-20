@@ -1,9 +1,9 @@
-schema_version: 1.2.0
+schema_version: 1.3.0
 status: draft
 scope: closed_pilot_p0
 source_of_truth: false
 description: >
-  Typed operational projection for compiling P0 implementation context and blockers.
+  Typed operational projection for compiling P0 implementation context and release blockers.
   Blueprint capability identities/product semantics, canonical API/runtime contracts and the
   problem/risk registry remain authoritative for their owned concerns.
 
@@ -15,7 +15,8 @@ manifest_rules:
   - legacy_scoped_openapi_files_are_not_build_authority
   - cost_metrics_include_verified_outcome_where_the_family_claims_learning_improvement
   - applicable_problem_risk_categories_must_be_assessed_before_implementation_eligibility
-  - blocking_problem_risks_may_not_be_hidden_by_manifest_readiness_prose
+  - runtime_or_legal_release_evidence_must_not_be_fabricated_as_a_pre_code_requirement
+  - manifest_readiness_is_not_implementation_authorization
 
 capability_families:
   - family_id: P0-01
@@ -40,17 +41,15 @@ capability_families:
     privacy_class: account
     quality_gate: identity_privacy_acceptance
     fallback: deny_by_default_with_recovery_path
-    artifacts_required: [experience_contract, vertical_slice_spec, auth_identity_contract, access_control, privacy_acceptance_run, provider_dpa_evidence]
+    artifacts_required: [experience_contract, vertical_slice_spec, auth_identity_contract, access_control, retention_mapping, privacy_acceptance_run, provider_dpa_evidence]
     artifacts_current:
-      - path: artifacts/experience/specs/vertical-slices/identity-consent.md
-        status: draft
-      - path: artifacts/engineering/contracts/runtime/auth-identity-contract.md
-        status: review
-      - path: artifacts/engineering/api/access-control.md
-        status: review
-    evidence_required: [provider_dpa, export_delete_acceptance_run]
+      - {path: artifacts/experience/specs/vertical-slices/identity-consent.md, status: draft}
+      - {path: artifacts/engineering/contracts/runtime/auth-identity-contract.md, status: review}
+      - {path: artifacts/engineering/api/access-control.md, status: review}
+      - {path: artifacts/operations/data-retention-registry.yaml, status: review}
+    evidence_required: [provider_dpa, export_delete_acceptance_run, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [provider_dpa_missing, export_delete_acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [provider_dpa_missing, export_delete_acceptance_not_run, legal_pilot_eligibility_pending, acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-02
     implementation_family_id: PLACEMENT.Diagnosis
@@ -74,19 +73,16 @@ capability_families:
     privacy_class: learning
     quality_gate: placement_quality_gate
     fallback: explain_insufficient_data_and_retry
-    artifacts_required: [experience_contract, vertical_slice_spec, placement_diagnosis_contract, target_profile_schema, calibration_evidence, acceptance_run]
+    artifacts_required: [experience_contract, vertical_slice_spec, placement_diagnosis_contract, target_profile_schema, time_semantics, calibration_evidence, acceptance_run]
     artifacts_current:
-      - path: artifacts/experience/specs/vertical-slices/placement-and-plan.md
-        status: review
-      - path: artifacts/engineering/contracts/placement-diagnosis-contract.md
-        status: review
-      - path: artifacts/engineering/api/schema-contract.yaml
-        status: review
-      - path: artifacts/operations/placement-quality-gate.md
-        status: review
-    evidence_required: [placement_calibration_run, placement_acceptance_run]
+      - {path: artifacts/experience/specs/vertical-slices/placement-and-plan.md, status: review}
+      - {path: artifacts/engineering/contracts/placement-diagnosis-contract.md, status: review}
+      - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
+      - {path: artifacts/operations/placement-quality-gate.md, status: review}
+      - {path: artifacts/engineering/runtime-contract.yaml, status: review}
+    evidence_required: [placement_calibration_run, placement_acceptance_run, content_rights_review, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [calibration_evidence_missing, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [calibration_evidence_missing, rights_evidence_missing, legal_pilot_eligibility_pending, acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-03
     implementation_family_id: STUDY.DailyAction
@@ -116,15 +112,15 @@ capability_families:
     privacy_class: learning
     quality_gate: daily_action_acceptance
     fallback: show_up_to_three_reasoned_alternatives
-    artifacts_required: [experience_contract, vertical_slice_spec, daily_action_contract, session_event_contract, deterministic_selection_policy, acceptance_run]
+    artifacts_required: [experience_contract, vertical_slice_spec, daily_action_contract, time_semantics, critical_path_usability, session_event_contract, deterministic_selection_policy, acceptance_run]
     artifacts_current:
-      - path: artifacts/experience/specs/vertical-slices/daily-action.md
-        status: review
-      - path: artifacts/engineering/contracts/daily-action-contract.md
-        status: review
-    evidence_required: [daily_action_acceptance_run]
+      - {path: artifacts/experience/specs/vertical-slices/daily-action.md, status: review}
+      - {path: artifacts/engineering/contracts/daily-action-contract.md, status: review}
+      - {path: artifacts/engineering/runtime-contract.yaml, status: review}
+      - {path: artifacts/experience/critical-path-usability-contract.yaml, status: review}
+    evidence_required: [daily_action_acceptance_run, timezone_boundary_acceptance, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [acceptance_not_run, timezone_acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-04
     implementation_family_id: WRITING.Evaluation
@@ -158,29 +154,22 @@ capability_families:
     privacy_class: assessment
     quality_gate: writing_benchmark_and_release_gate
     fallback: preserve_submission_and_return_truthful_delayed_unavailable_or_limited_evidence_state
-    artifacts_required: [experience_contract, vertical_slice_spec, runtime_spec, canonical_openapi, canonical_schema_contract, data_contract, event_contract, failure_contract, evaluation_contract, prompt_contract, runtime_contract, benchmark_run, redaction_check, acceptance_run]
+    artifacts_required: [experience_contract, vertical_slice_spec, runtime_spec, canonical_openapi, canonical_schema_contract, data_contract, event_contract, failure_contract, evaluation_contract, prompt_contract, benchmark_design, critical_path_usability, runtime_contract, acceptance_run]
     artifacts_current:
-      - path: artifacts/experience/specs/vertical-slices/writing-task-2.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/runtime-spec.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/data-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/evaluation-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/event-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/failure-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/writing-task-2/writing_evaluation_v1.md
-        status: review
-      - path: artifacts/engineering/api/openapi.yaml
-        status: review
-      - path: artifacts/engineering/api/schema-contract.yaml
-        status: review
-    evidence_required: [rights_approved_task_batch, gold_corpus, benchmark_run, redaction_acceptance_run, idempotency_acceptance_run, evidence_validation_acceptance_run]
+      - {path: artifacts/experience/specs/vertical-slices/writing-task-2.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/runtime-spec.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/data-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/evaluation-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/event-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/failure-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/writing-task-2/writing_evaluation_v1.md, status: review}
+      - {path: artifacts/engineering/api/openapi.yaml, status: review}
+      - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
+      - {path: artifacts/operations/evaluation-benchmark-spec.md, status: review}
+      - {path: artifacts/experience/critical-path-usability-contract.yaml, status: review}
+    evidence_required: [rights_approved_task_batch, gold_corpus, benchmark_run_with_required_slices, redaction_acceptance_run, idempotency_acceptance_run, evidence_validation_acceptance_run, dispute_acceptance_run, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [gold_corpus_missing, benchmark_not_run, canonical_consumer_revalidation_pending, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [rights_evidence_missing, gold_corpus_missing, benchmark_not_run, canonical_consumer_revalidation_pending, legal_pilot_eligibility_pending, acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-05
     implementation_family_id: REVIEW.ErrorToReview
@@ -213,25 +202,19 @@ capability_families:
     privacy_class: learning
     quality_gate: error_to_review_acceptance
     fallback: empty_or_ineligible_queue_offers_alternative_action_without_fake_progress
-    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_operations, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, retest_acceptance_run]
+    artifacts_required: [experience_contract, vertical_slice_spec, canonical_api_operations, data_contract, event_contract, failure_contract, fsrs_suitability_rule, exposure_novelty_policy, time_semantics, critical_path_usability, retest_acceptance_run]
     artifacts_current:
-      - path: artifacts/experience/specs/vertical-slices/error-to-review.md
-        status: review
-      - path: artifacts/engineering/contracts/error-to-review/data-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/error-to-review/event-contract.md
-        status: review
-      - path: artifacts/engineering/contracts/error-to-review/failure-contract.md
-        status: review
-      - path: artifacts/engineering/api/openapi.yaml
-        status: review
-      - path: artifacts/engineering/api/schema-contract.yaml
-        status: review
-      - path: artifacts/engineering/api/operation-ownership.yaml
-        status: review
-    evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run]
+      - {path: artifacts/experience/specs/vertical-slices/error-to-review.md, status: review}
+      - {path: artifacts/engineering/contracts/error-to-review/data-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/error-to-review/event-contract.md, status: review}
+      - {path: artifacts/engineering/contracts/error-to-review/failure-contract.md, status: review}
+      - {path: artifacts/engineering/api/openapi.yaml, status: review}
+      - {path: artifacts/engineering/api/schema-contract.yaml, status: review}
+      - {path: artifacts/engineering/api/operation-ownership.yaml, status: review}
+      - {path: artifacts/engineering/runtime-contract.yaml, status: review}
+    evidence_required: [review_scheduling_acceptance_run, novel_retest_outcome_acceptance_run, bola_bfla_error_retest_acceptance_run, timezone_boundary_acceptance, accessibility_network_acceptance]
     readiness_state: not_ready
-    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [generated_api_revalidation_pending, acceptance_not_run, accessibility_network_acceptance_not_run, founder_approval_pending]
 
   - family_id: P0-06
     implementation_family_id: OPS.QualityEconomics
@@ -255,20 +238,16 @@ capability_families:
     privacy_class: derived
     quality_gate: release_gate
     fallback: block_release_or_degrade_non_critical_feedback_depth_without_lowering_score_quality_floor
-    artifacts_required: [benchmark_spec, cost_budget, release_gate, observability_contract, event_schema_pack, quota_contract, dashboard_spec, metadata_economics, immutable_evidence_records]
+    artifacts_required: [benchmark_spec, cost_budget, release_gate, observability_contract, event_schema_pack, quota_contract, dashboard_spec, metadata_economics, migration_contract, retention_registry, incident_model, immutable_evidence_records]
     artifacts_current:
-      - path: artifacts/operations/evaluation-benchmark-spec.md
-        status: review
-      - path: artifacts/operations/cost-budget.md
-        status: draft_rebaseline_required
-      - path: artifacts/operations/release-gate.md
-        status: review_rebaseline_required
-      - path: artifacts/engineering/runtime-contract.yaml
-        status: review
-      - path: artifacts/operations/bops/contract.yaml
-        status: review
-      - path: artifacts/experience/specs/vertical-slices/governance-ops-dashboard.md
-        status: review
-    evidence_required: [gold_corpus, benchmark_run, numeric_cost_threshold_approval, rollout_rollback_record, outcome_cost_measurement]
+      - {path: artifacts/operations/evaluation-benchmark-spec.md, status: review}
+      - {path: artifacts/operations/cost-budget.md, status: draft_rebaseline_required}
+      - {path: artifacts/operations/release-gate.md, status: review_rebaseline_required}
+      - {path: artifacts/engineering/runtime-contract.yaml, status: review}
+      - {path: artifacts/engineering/data-migration-contract.yaml, status: review}
+      - {path: artifacts/operations/data-retention-registry.yaml, status: review}
+      - {path: artifacts/operations/bops/contract.yaml, status: review}
+      - {path: artifacts/experience/specs/vertical-slices/governance-ops-dashboard.md, status: review}
+    evidence_required: [gold_corpus, benchmark_run_with_required_slices, numeric_cost_threshold_approval, rollout_rollback_record, outcome_cost_measurement, restore_drill, incident_tabletop, retention_export_delete_acceptance, legal_pilot_eligibility]
     readiness_state: not_ready
-    readiness_blockers: [gold_corpus_missing, benchmark_not_run, numeric_thresholds_unapproved, outcome_cost_not_measured, blocking_problem_risks_open, founder_approval_pending]
+    readiness_blockers: [gold_corpus_missing, benchmark_not_run, numeric_thresholds_unapproved, outcome_cost_not_measured, restore_drill_not_run, incident_tabletop_not_run, legal_pilot_eligibility_pending, founder_approval_pending]
