@@ -1,14 +1,17 @@
 type: event-schema
 status: review
-version: 0.1.5
+version: 0.2.0
 owner: engineering
 representation: markdown
 derived_from: [OPS.Observability, OPS.OutcomeMeasurement]
-purpose: canonical-event-schemas-registry
+purpose: canonical governed event schema registry without duplicated score target or confidence truth
 created_at: 2026-08-07
-updated_at: 2026-08-11
+updated_at: 2026-08-21
 change_log:
-  - version: 0.1.5
-    date: 2026-08-11
+  - version: 0.2.0
+    date: 2026-08-21
     changes:
-      - Translated two remaining lifecycle/projection phrases to English without changing event schemas, ownership, or readiness semantics.
+      - Removed scalar target-band, raw confidence and quality-status event payload semantics.
+      - Bound placement, plan and evaluation events to governed refs, result validity, feasibility/cause classes and controlled reasons.
+      - Kept event existence separate from mastery/readiness/verified-improvement truth.
+      - Rebased benchmark event payload on governed run/slice/route references rather than one aggregate-only metric.
