@@ -111,9 +111,46 @@ Managed Postgres RLS is defense in depth, not a replacement for application auth
 - content/report queries return the minimum fields required for the role;
 - internal jobs resolve opaque IDs to the smallest required rows/columns; a job type does not receive unrestricted database visibility merely because it runs server-side.
 
+## Browser session and credential transport
+
+Authentication transport is a security boundary, not a frontend implementation preference.
+
+- Application-controlled `localStorage`, `sessionStorage`, IndexedDB, URL/query strings and rendered HTML must not contain raw access tokens, refresh tokens, service credentials or equivalent long-lived bearer material.
+- Prefer a managed same-origin session whose persistent credential material is inaccessible to ordinary application JavaScript when the selected provider/runtime supports it. Any provider flow that requires browser-readable persistent bearer material needs an explicit security review before activation.
+- Cookies carrying authentication state must be `Secure`, use the narrowest practical `SameSite` policy, have explicit path/domain scope, and be protected from script access when the provider/runtime permits. Cookie-authenticated state-changing requests require an origin/CSRF defense appropriate to the selected session mechanism; CORS is not a CSRF defense.
+- Authorization-header bearer tokens, when used, are accepted only from the reviewed authentication boundary. The application must not copy them into telemetry, error details, analytics, cache keys or learner-visible state.
+- Session fixation is prohibited: successful sign-in, privilege/role elevation and credential recovery rotate or replace the effective session identifier as supported by the provider.
+- Logout/revocation invalidates or expires the effective session according to provider capability; cached UI state never proves continued authorization.
+- Expired/revoked authentication returns an authentication-required state without converting a valid draft, accepted submission or server-side evidence into loss/completion.
+- Re-authentication must re-run object/role/entitlement checks against current state; resuming an old route never inherits stale authorization.
+
+The exact managed-auth cookie/token mechanics remain a sourcing/adapter choice, but an implementation must satisfy these invariants and document the chosen mechanism in implementation acceptance evidence.
+
+## Recent-auth / step-up policy
+
+High-impact operations require a fresh authentication assertion in addition to ordinary role/object authorization. `recent_auth` is a provider-backed challenge or equivalent proof whose maximum age is policy-configured and bounded; it is not a client timestamp.
+
+P0 operations requiring step-up/recent-auth:
+
+- request account deletion;
+- request/download a sensitive personal-data export when the delivery mechanism exposes C1-C3 data;
+- content publish or retire;
+- account suspension/reactivation;
+- system-configuration mutation;
+- release-gate mutation/decision;
+- future break-glass access to raw learner assessment content.
+
+Rules:
+
+- step-up failure leaves the underlying domain object unchanged;
+- role/permission checks occur again after step-up;
+- MFA/phishing-resistant challenge is used when required by the account/role policy and supported by the managed identity provider;
+- a recent-auth proof is bound to the authenticated subject/session and cannot be supplied as an arbitrary client-authored boolean/header;
+- batch/admin tooling cannot silently bypass step-up merely because it runs server-side; an internal automation needs its own function-scoped authorization contract.
+
 ## High-risk operations
 
-The following require explicit audit events and stronger abuse/rate controls:
+The following require explicit audit events and stronger abuse/rate controls; the subset listed above additionally requires recent-auth/step-up:
 
 - account suspension/reactivation;
 - content publish/retire;
@@ -127,7 +164,7 @@ The following require explicit audit events and stronger abuse/rate controls:
 
 ## Verification
 
-A generated access test matrix must prove for every OpenAPI operation:
+A generated access/security test matrix must prove for every applicable OpenAPI operation:
 
 1. every declared persona that should pass;
 2. every non-declared persona receives denial;
@@ -141,4 +178,9 @@ A generated access test matrix must prove for every OpenAPI operation:
 10. model/provider callbacks cannot become an authorization bypass;
 11. learner A cannot save/fix/retest learner B's finding/error by guessing IDs;
 12. client-provided taxonomy/score/confidence fields cannot override server-derived remediation/evidence semantics;
-13. a preferred retest task that violates exposure policy is rejected even when learner-owned.
+13. a preferred retest task that violates exposure policy is rejected even when learner-owned;
+14. browser-managed session credentials are absent from application-controlled persistent storage, URLs, logs and telemetry;
+15. cookie-authenticated mutations fail the chosen CSRF/origin negative cases while legitimate same-origin mutations continue to work;
+16. expired/revoked sessions cannot mutate state and can re-authenticate without losing acknowledged learner work;
+17. each step-up operation rejects stale/missing recent-auth and succeeds after a legitimate fresh challenge without changing role semantics;
+18. session rotation/re-auth cannot preserve a stale privilege/entitlement/object authorization decision.
