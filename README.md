@@ -10,6 +10,8 @@ LenBands is organized by **semantic authority**, not by whichever file looks new
 
 Do not scan the whole repository as a prerequisite to normal work.
 
+For historical rationale, supersession, and founder choices, use [`docs/decisions/`](docs/decisions/README.md). That library is supporting history only and cannot override canonical owners.
+
 ## Repository planes
 
 | Plane | Owns |
@@ -33,4 +35,4 @@ Legacy paths are retained only when `DOCS.yaml` explicitly marks them as migrati
 
 ## Working rule
 
-Create a new document only when it owns a new semantic concern. Otherwise extend the existing owner. Generated projections, indexes, research notes and provider catalogs never become competing sources of truth.
+Create a new document only when it owns a new semantic concern. Otherwise extend the existing owner. Generated projections, indexes, research notes, decision-history views, and provider catalogs never become competing sources of truth.
